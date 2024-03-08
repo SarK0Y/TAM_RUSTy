@@ -267,6 +267,9 @@ fn main (){
 // stacker::maybe_grow( 8*1024*1024, 32*1024*1024, || {
     // guaranteed to have at least 32K of stack
     initSession();
+    let cmd = format!("nano /tmp/tst");
+    run_term_app(cmd);
+    return;
 let out: core18::ret0 = get_arg_in_cmd("-");
 let out1: core18::ret0 = get_arg_in_cmd("-тст");
 println!("argument from cmd (-tst) {}", String::from_iter(out.s));

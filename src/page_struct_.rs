@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file};
+use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file, read_front_list_but_ls};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -185,9 +185,19 @@ pub(crate) fn set_num_page(val: i64, func_id: i64) -> i64{
 pub(crate) fn get_num_pages(func_id: i64) -> i64{return unsafe{page_struct_int(0, COUNT_PAGES_, func_id)}}
 pub(crate) fn get_num_files(func_id: i64) ->i64{return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
 pub(crate) fn fix_num_files(func_id: i64) ->i64{
-   let mut len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10).unwrap() - 1; 
+   let mut len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10){
+    Ok(i) => i,
+    _ => 0
+  } - 1; 
    if len_of_front == -1{len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10).unwrap() - 1; }
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
+   pub(crate) fn fix_num_files0(func_id: i64) ->i64{
+   let len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){
+    Ok(i) => i,
+    _ => 1
+   } - 1;
+   return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
+
 pub(crate) fn set_num_files(func_id: i64) ->i64{
    let len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10).unwrap();
    let mut list_len_adr = read_front_list();
@@ -382,7 +392,10 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
 }
 pub(crate) fn where_is_last_pg() -> i64{
   let func_id = func_id18::where_is_last_pg_;
-  let len = i64::from_str_radix(&len_of_front_list(), 10).unwrap();
+  let len = match i64::from_str_radix(&len_of_front_list(), 10){
+    Ok(i) => i,
+    _ => 0
+  };
   let num_rows = get_num_rows(func_id);
   let num_cols = get_num_cols(func_id);
   let mut last_pg: i64 = len / (num_cols * num_rows);

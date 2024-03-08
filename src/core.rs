@@ -408,10 +408,18 @@ pub(crate) fn get_path_from_prnt() -> String{
     }
     ret
 }
+pub(crate) fn save_file0(content: String, fname: String) -> bool{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("echo '{}' > {}", content, fname);
+    run_cmd_str(cmd.as_str());
+    true
+}
 pub(crate) fn save_file(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().create(true).read(true).truncate(true).write(true).open(&fname){
+    let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
     };
@@ -454,6 +462,7 @@ pub(crate) fn i64_2_usize(v: i64) -> usize{
     let mut v = v;
     let i64_len: usize = size_of::<i64>() * 8;
     for i in 0..i64_len{
+        if v == 0{break;}
         if v & unit == 1{ret += (shl << i);}       
         v = v >> 1;
     }
@@ -466,6 +475,7 @@ pub(crate) fn usize_2_i64(v: usize) -> i64{
     let mut v = v;
     let usize_len: usize = size_of::<usize>() * 8;
     for i in 0..usize_len{
+        if v == 0{break;}
         if v & unit == 1{ret += (shl << i);}
         v = v >> 1;
     }

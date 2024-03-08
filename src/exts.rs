@@ -32,7 +32,10 @@ mod swtch;
 mod func_id18;
 use func_id18::*;
 #[path = "globs.rs"]
-mod globs18;   
+mod globs18;
+#[path = "term_app.rs"]
+mod term_app;
+use term_app::*;
 #[path = "page_struct_.rs"]
 mod ps18;
 use ps18::*;
