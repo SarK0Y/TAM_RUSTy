@@ -164,6 +164,10 @@ pub(crate) fn read_front_list() -> String{
     if active_lst == "" {active_lst = read_file("front_list");}
     active_lst
 }
+pub(crate) fn read_front_list_but_ls() -> String{
+    let active_lst = read_file("front_list");
+    active_lst
+}
 pub(crate) fn read_proper_num_pg() -> i64{
     let front_list = format!("{}/{}", crate::get_tmp_dir(-371011), "front_list");
     let num_pg = format!("{}.pg", read_front_list());
@@ -188,6 +192,8 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("}", r"\}");
     let strr = strr.replace("{", r"\{");
     let strr = strr.replace(")", r"\)");
+    let strr = strr.replace("]", r"\]");
+    let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     return strr.to_string();
 }
@@ -402,10 +408,18 @@ pub(crate) fn get_path_from_prnt() -> String{
     }
     ret
 }
+pub(crate) fn save_file0(content: String, fname: String) -> bool{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("echo '{}' > {}", content, fname);
+    run_cmd_str(cmd.as_str());
+    true
+}
 pub(crate) fn save_file(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().create(true).read(true).truncate(true).write(true).open(&fname){
+    let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
     };
@@ -448,6 +462,7 @@ pub(crate) fn i64_2_usize(v: i64) -> usize{
     let mut v = v;
     let i64_len: usize = size_of::<i64>() * 8;
     for i in 0..i64_len{
+        if v == 0{break;}
         if v & unit == 1{ret += (shl << i);}       
         v = v >> 1;
     }
@@ -460,6 +475,7 @@ pub(crate) fn usize_2_i64(v: usize) -> i64{
     let mut v = v;
     let usize_len: usize = size_of::<usize>() * 8;
     for i in 0..usize_len{
+        if v == 0{break;}
         if v & unit == 1{ret += (shl << i);}
         v = v >> 1;
     }
@@ -588,9 +604,31 @@ pub(crate) fn link_list_2_front(name: &str){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn from_ls_2_front(ls_mode: String){
-    let front = read_front_list();
+    let front = read_front_list_but_ls();
     //let ls_mode = take_list_adr("ls.mode");
     rm_file(&ls_mode);
     link_list_2_front(front.as_str());
     C!(crate::swtch::swtch_fn(0, "".to_string()));
+}
+pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool{
+    let len = strn.chars().count();
+    let mut ret = String::new();
+    let empty = String::new();
+    let delim = delim.to_string().chars().nth(0).unwrap();
+    for i in 0..len{
+        let ch = match strn.chars().nth(i){
+            Some(ch) => ch,
+            _ => empty.chars().nth(0).unwrap()
+        };
+        if ch == delim && i < len - 1{ret = "".to_string(); continue;}
+        ret.push(ch);
+    }
+    if ret.len() == 0{return false}
+    //*strn = strn.replace(&ret, "").trim_end_matches(delim).to_string();
+    let ret_delim = format!("{ret}{delim}sss");
+    strn.push_str("sss");
+    ret.push_str("sss");
+    *strn = strn.replace(&ret_delim, "");
+    *strn = strn.replace(&ret, ""); 
+    true
 }

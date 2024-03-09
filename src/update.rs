@@ -1,5 +1,5 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg};
-use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file};
+use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -83,30 +83,35 @@ pub(crate) fn lets_write_path(key: String){
     C!(swtch_fn(mode, key));
 
 }
-pub(crate) fn background_fixing(){
-    popup_msg("tst0000000");
-        
+pub(crate) fn background_fixing(){        
  //loop {
 let builder = thread::Builder::new().stack_size(2 * 1024 * 1024).name("background_fixing".to_string());
  builder.spawn(|| {
-background_fixing_()
+_background_fixing()
 });
  //}
 }
-fn background_fixing_(){
-    let mut check_main0_len = String::new();
+fn _background_fixing(){
+    let func_id = crate::func_id18::background_fixing_;
+    //return;
+    let mut check_main0_len = len_of_main0_list();
 let mut drop_ls = true;
 let ls_mode = take_list_adr("ls.mode");
 loop {
      thread::sleep(Duration::from_millis(5000));
      let main0_len = len_of_main0_list();
-     if check_main0_len != main0_len{
+     if check_main0_len != main0_len && check_main0_len != "0"{
         check_main0_len = main0_len;
         save_file(crate::cpy_str(&check_main0_len), "main0.len".to_string());
         //else{drop_ls = !drop_ls}
      }
+     let front_list_len = format!("{}.len", crate::read_front_list());
+     let front_list_len = match i64::from_str_radix(&crate::read_file(&front_list_len), 10){
+        Ok(i) => i,
+        _ => 0
+  };
+     unsafe{crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id)};}
      let check_ls_mode = get_path_from_prnt();
      if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
-}
 }

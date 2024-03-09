@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.63"
+version = "1.9.69"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"

@@ -152,12 +152,23 @@ fn viewer_n_adr(app: String, file: String) -> bool{
 }
 pub(crate) fn run_viewer(cmd: String) -> bool{
     let func_id = crate::func_id18::viewer_;
-    let  (app_indx, file_indx) = crate::split_once(&cmd, " ");
-    if file_indx.as_str().substring(0, 1) == "/"{return viewer_n_adr(app_indx, file_indx);}
+    if cmd.as_str().substring(0, 1) == "/"{
+        let app_indx = "0".to_string();
+        let file_indx = cmd;
+        return viewer_n_adr(app_indx, file_indx);}
+    let  (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
     if app_indx == "none" || file_indx == "none"{
-        crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id);
-        return false
+        set_ask_user("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id);
     }
+    if file_indx == "none"{
+        file_indx = app_indx;
+        app_indx = 0.to_string();
+    }
+    if file_indx.as_str().substring(0, 1) == "/"{return viewer_n_adr(app_indx, file_indx);}
+    if app_indx.as_str().substring(0, 1) == "/"{
+        file_indx = app_indx;
+        app_indx = 0.to_string();
+        return viewer_n_adr(app_indx, file_indx);}
     let msg = || -> bool{crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id); return false};
     let app_indx = match usize::from_str_radix(app_indx.as_str(), 10){
         Ok(v) => v,
@@ -304,7 +315,7 @@ pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool{
     file_2_write_path.set_len(0);
     file_2_write_path.write_all(strn.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
-    let written_path = read_user_written_path();
+    let written_path = escape_symbs(&read_user_written_path());
    // save_file(written_path.to_string(), "written_path.dbg".to_string());
     update_dir_list(&written_path, "-maxdepth 1", false);
     true
@@ -326,7 +337,7 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
     if written_path == "" {drop_ls_mode(); F3_key();}
     else{set_ls_as_front();}
     save_file(written_path.to_string(), "written_path_prnt.dbg".to_string());
-    update_dir_list(&written_path, "-maxdepth 1", false);
+    update_dir_list(&escape_symbs(&written_path), "-maxdepth 1", false);
     written_path
 }
 

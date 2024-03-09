@@ -293,7 +293,7 @@ checksum = "1ad4cc8da4ef723ed60bced201181d83791ad433213d8c24efffda1eec85d741"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "1.9.63"
+version = "1.9.69"
 dependencies = [
  "ansi_term",
  "chrono",

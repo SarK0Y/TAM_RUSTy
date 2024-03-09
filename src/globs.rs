@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -36,11 +36,14 @@ pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
 }
 pub(crate) fn sieve_list(data: String){
     let data = data.replace("sieve ", "");
-    let (opts, data) = split_once(&data, " ");
+    let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
-        return 
     }
+    if opts == "none"{return}
+    if data == "none"{
+        data = opts;
+        opts = "-Ei".to_string()}
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
@@ -53,7 +56,7 @@ pub(crate) fn sieve_list(data: String){
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
     mark_front_lst("filter");
-    let dbg = fix_num_files(5977871);
+    let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 }
 pub(crate) fn show_ls(){
@@ -81,13 +84,19 @@ pub(crate) fn F1_key() -> String{
 format!("go2 {}", read_file("main0.pg"))
 }
 pub(crate) fn F3_key() -> String{
-    crate::C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
     let mut prnt: String = read_prnt();
     let orig_path = get_path_from_strn(crate::cpy_str(&prnt));
-    let mut ret_2_F1_key = || -> String{prnt = prnt.replace("/", ""); set_prnt(&prnt, -2317712); crate::C!(swtch_fn(0, "".to_string())); return F1_key()};
+    if orig_path.len() == 0 {if tailOFF(&mut prnt, " "){
+        crate::set_prnt(&prnt, -1);
+    return prnt    
+    }}
+    crate::C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
+       let ls_mode = take_list_adr("ls.mode");
+    let mut ret_2_Front = || ->String{prnt = prnt.replace("/", ""); set_prnt(&prnt, -2317712); crate::C!(swtch_fn(0, "".to_string()));from_ls_2_front(ls_mode); 
+    "".to_string()};
     let mut path = format!("{}/", match Path::new(&orig_path).parent(){
         Some(path) => path,
-        _ => return ret_2_F1_key()
+        _ => return ret_2_Front()
     }.to_str().unwrap());
     path = path.replace("//", "/");
     prnt = prnt.replace(&orig_path, &path);
@@ -135,14 +144,18 @@ pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     Ok(())
 }
 pub fn bksp() -> String{
-       let mut len = get_prnt(-3).chars().count(); if len == 0 {return get_prnt(-3).to_string();}
+       let mut len = get_prnt(-3).chars().count(); if len == 0 {return len.to_string();}
      let mut ret = String::new();
      let prnt = get_prnt(-3);
      if len > 0 {len -= 1;}
     let mut indx = unsafe {shift_cursor_of_prnt(2, -2).shift};
     if indx <= len {indx = len - indx;}
-    ret = rm_char_from_string(indx, &get_prnt(-3));
+    ret = rm_char_from_string(indx, &prnt);
+    if len == 0{save_file("".to_string(), "prnt".to_string());}
         ////println!("ret {}", ret);
+    let ls_mode = take_list_adr("ls.mode");
+    let is_path = get_path_from_prnt();
+    if is_path == ""{from_ls_2_front(ls_mode)}
     ret
 }
 pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) -> String{
@@ -257,8 +270,9 @@ pub fn add_2_main0_list(val: &str) -> String{
     return unsafe{lists(val, MAIN0_, 0, ADD)}
 }
 pub fn len_of_main0_list() -> String{
-    let fst_var = usize::from_str_radix(&unsafe{lists("", MAIN0_, 0, LEN)}, 10);
-    let nd_var = 
+    let fst_var = unsafe{lists("", MAIN0_, 0, LEN)};
+    if fst_var != "0"|| fst_var != ""{return fst_var}
+    return len_of_list_wc("main0");
 }
 pub fn raw_len_of_front_list() -> String{
       let mut list_id: (i64, bool) = (1i64, false);
@@ -280,12 +294,13 @@ pub fn len_of_front_list() -> String{
     if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     let mut front_list = read_front_list();
     front_list.push_str(".len");
+    //if front_list != "main0.len"{return len_of_list_wc(&front_list);}
     let num = read_file(&front_list);
     if num == ""{return "0".to_string()}
     return num;
 }
 pub fn len_of_list_wc(name: &str) -> String{
-    let list_adr = take_list_adr(&name);
+    let mut list_adr = take_list_adr(&name);
     let cmd = format!("wc -l {list_adr}");
     let len_list = crate::run_cmd_out_sync(cmd);
     list_adr.push_str(".len");
@@ -306,7 +321,7 @@ pub fn len_of_front_list_wc() -> String{
     let len_front_list = crate::run_cmd_out_sync(cmd);
     front_list.push_str(".len");
     let (len_front_list, _) = split_once(&len_front_list, " ");
-    save_file(cpy_str(&len_front_list), front_list);
+    crate::save_file(cpy_str(&len_front_list), front_list);
     return len_front_list;
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
@@ -326,12 +341,15 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let mut proper_indx: i64 = 0;
     let mut len: i64 = 0;
     if indx > 0{proper_indx = indx;}
-    len =i64::from_str_radix(len_of_front_list().as_str(), 10).unwrap();
-    if len == 0{return (usize::MAX, 0i64)}
+    len = match i64::from_str_radix(len_of_front_list().as_str(), 10){
+        Ok(i64_) => i64_,
+        _ => 0
+    };
+    if len == 0{return (0usize, 0i64)}
     if indx > len {proper_indx = (indx - len);}
     if proper_indx < len {return (proper_indx.to_usize().unwrap(), proper_indx)}
     if proper_indx > len {let ret = proper_indx - (proper_indx/len) * len; return (ret.to_usize().unwrap(), ret) }
-    return (usize::MAX, 0);
+    return (0usize, 0);
 }
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String{
     let proper_indx = get_proper_indx(indx, fixed_indx);

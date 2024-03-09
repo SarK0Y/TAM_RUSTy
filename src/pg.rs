@@ -137,8 +137,7 @@ fn hotKeys() -> String{
         let mut Key_cpy =String::from(&Key); let mut Key_ = String::from(&Key); lets_write_path(Key_cpy); crate::INS(&Key_);
     return "/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
-    unsafe {
-        local_indx(true);};
+    crate::C!(local_indx(true));
         let msg = format!("alt_0 num page {}", crate::get_num_page(-1));
        // popup_msg(&msg);
     return "dontPass".to_string();}
@@ -165,7 +164,9 @@ fn hotKeys() -> String{
        // enter();
        let user_written_path = read_user_written_path().replace("//", "/");
        if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id);}
-return Key.to_string();
+        let path = get_path_from_prnt();
+        if path.len() == 0{return "dontPass".to_string();}
+        return Key.to_string();
 //return get_prnt(func_id);
 }
 pub fn manage_pages(){
@@ -258,8 +259,11 @@ fn exec_cmd(cmd: String){
             Ok(val) => val,
             _ => {set_ask_user("wrong use of go2: go2 <indx of page>", func_id); return}
         };
+        let global_indx_or_not = crate::C!(local_indx(false));
+        if !global_indx_or_not {crate::C!(local_indx(true));}
         let pg_num = get_proper_indx(pg_num, true);
         crate::set_num_page(pg_num.1, func_id);
+        if !global_indx_or_not {crate::C!(local_indx(true));}
         return;
     }
     if cmd.as_str().substring(0, 5) == "sieve"{
