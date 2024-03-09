@@ -8,7 +8,7 @@ let fstdout: String;
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
-let fstdout = format!("{}fstdout_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let fstdout = format!("{}/fstdout_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
 crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = crate::File::create(stderr_path).unwrap();
 let fstdout0 = crate::File::create(fstdout).unwrap();
@@ -26,16 +26,19 @@ let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").
     crate::io::stderr().write_all(&run_command.stderr).unwrap();
     return false;
 }*/
-let builder = Builder::new().stack_size(2 * 1024 * 1024).name("rw std".to_string());
- builder.spawn(move|| {
+let builder = Builder::new().stack_size(2 * 1024 * 1024).name("rw_std".to_string());
+ std::thread::spawn(move|| {
     let mut stdout = run_command.stdout.unwrap();
     let mut buf: [u8; 128] = [0; 128];
 loop{
     stdout.read(&mut buf);
-    crate::io::stdout().write_all(&read_std(&buf)).unwrap();
+    if buf == [0;128]{break;}
+    std::io::stdout().write_all(&read_std(&buf)).unwrap();
+    std::io::stderr().write_all(&read_std(&buf)).unwrap();
+    buf = [0;128];
 }
 println!("exit rw_std");
-});
+}).join();
 //builder.join();
 true
 }
