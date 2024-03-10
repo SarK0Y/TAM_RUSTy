@@ -268,7 +268,8 @@ fn main (){
     // guaranteed to have at least 32K of stack
     initSession();
     let cmd = format!("echo 'hi theeeeeeere'");
-    let cmd = format!("nano /tmp/tst");
+    let cmd = format!("LC_ALL=ru_RU.UTF8 nano /tmp/tst00");
+   // let cmd = format!("LC_ALL=ru_RU.UTF8 mc /tmp/");
     run_term_app(cmd);
     return;
 let out: core18::ret0 = get_arg_in_cmd("-");

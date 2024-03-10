@@ -247,10 +247,10 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
 {
     let enter: [u8; 1] = [13; 1];
     let mut writeIn_stdin = unsafe {File::from_raw_fd(0/*stdin*/)};
-    writeIn_stdin.write(&enter);
-    println!("gotta enter");
+    //writeIn_stdin.write(&enter);
+    //println!("gotta enter");
 };
-loop {
+//loop {
     let res = match tcsetattr(stdin_fd, TCSANOW, &new_termios){
         Err(e) => {format!("{}", e)},
         Ok(len) => {format!("kkkkkkkkkkk {:#?}", len)}
@@ -264,7 +264,6 @@ loop {
         _ => ""
     };
     let msg = format!("getch {} {:?}", str0, stdin_buf);
-    achtung(&msg);
     if stdin_buf != [0; 6]{
         let mut i = 0;
         loop{
@@ -275,7 +274,7 @@ loop {
         if ch == '\0' {return Key;}
         Key.push(ch);
         i += 1;}}
-}
+//}
 Key
 }
 pub(crate) fn cpy_str(in_str: &String) -> String{
