@@ -247,10 +247,10 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
 {
     let enter: [u8; 1] = [13; 1];
     let mut writeIn_stdin = unsafe {File::from_raw_fd(0/*stdin*/)};
-    writeIn_stdin.write(&enter);
-    println!("gotta enter");
+    //writeIn_stdin.write(&enter);
+    //println!("gotta enter");
 };
-loop {
+//loop {
     let res = match tcsetattr(stdin_fd, TCSANOW, &new_termios){
         Err(e) => {format!("{}", e)},
         Ok(len) => {format!("kkkkkkkkkkk {:#?}", len)}
@@ -264,7 +264,6 @@ loop {
         _ => ""
     };
     let msg = format!("getch {} {:?}", str0, stdin_buf);
-    achtung(&msg);
     if stdin_buf != [0; 6]{
         let mut i = 0;
         loop{
@@ -275,7 +274,7 @@ loop {
         if ch == '\0' {return Key;}
         Key.push(ch);
         i += 1;}}
-}
+//}
 Key
 }
 pub(crate) fn cpy_str(in_str: &String) -> String{
@@ -420,6 +419,18 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
+        Ok(f) => f,
+        _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append(content: String, fname: String) -> bool{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
     };
