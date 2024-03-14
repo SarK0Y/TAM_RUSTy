@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -70,7 +70,7 @@ if !Path::new(&mainpath).exists(){
     println!("{mainpath} cannot be made");
     return false;
 }
-unsafe{crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id);}
+crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
 let mut path_2_shm = "";
 while true{
     if Path::new("/dev/shm").exists(){path_2_shm = "/dev/shm"; break;}
@@ -88,7 +88,8 @@ if checkArg("-dbg"){println!("shell out = {:?}", run_shell1)};
 let err_msg = format!("{} permission denied", path_2_found_files_list);
 let run_shell2 = Command::new("chmod").arg("700").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell2)};
-unsafe{crate::page_struct(&path_2_found_files_list, set(crate::TMP_DIR_), func_id);}
+crate::C!(crate::page_struct(&path_2_found_files_list, set(crate::TMP_DIR_), func_id));
+let tmp_dir = path_2_found_files_list;
 bkp_tmp_dir();
 let path_2_found_files_list_dot = format!("{}/TAM_{}/.", path_2_shm, proper_timestamp);
 let err_msg = format!("{} permission denied", path_2_found_files_list_dot);
@@ -105,6 +106,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     unsafe {crate::swtch::form_list_of_viewers(false);}
     crate::save_file("".to_string(), "main0.pg".to_string());
     mark_front_lst("main0");
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/cache");
+    crate::run_cmd0(mk_cache_dir);
     return true;
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
@@ -365,6 +368,7 @@ pub(crate) fn read_midway_data_4_ls() -> bool{
 }
 //#[io_cached]
 pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
+    if !checkArg("-no-cache") || get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();
@@ -419,6 +423,18 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
+        Ok(f) => f,
+        _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append(content: String, fname: String) -> bool{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
     };
@@ -629,5 +645,26 @@ pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool{
     ret.push_str("sss");
     *strn = strn.replace(&ret_delim, "");
     *strn = strn.replace(&ret, ""); 
+    true
+}
+pub(crate) fn read_tail(strn: &String, delim: &str) -> String{
+    let len = strn.chars().count();
+    let mut ret = String::new();
+    let empty = String::new();
+    let delim = delim.to_string().chars().nth(0).unwrap();
+    for i in 0..len{
+        let ch = match strn.chars().nth(i){
+            Some(ch) => ch,
+            _ => empty.chars().nth(0).unwrap()
+        };
+        if ch == delim && i < len - 1{ret = "".to_string(); continue;}
+        ret.push(ch);
+    }
+    ret  
+}
+pub(crate) fn is_dir(path: &String) -> bool{
+    let is_dir = path.chars().count() - 1;
+    let is_dir = path.chars().nth(is_dir);
+    if is_dir.expect("is_dir failed").to_string() != "/"{return false;}
     true
 }

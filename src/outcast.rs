@@ -279,3 +279,120 @@ fn print_rows(rows: &mut Vec<TableStruct>){
         print_stdout(rows[i].table().bold(true).foreground_color(Some(cli_table::Color::Blue)));
     }
 }
+/************ FAR BOX ********************/
+use std::process::Command;
+use std::io::{Write, Read};
+use std::thread::Builder;
+use std::os::fd::AsRawFd;
+use std::io::BufRead;
+use std::io::prelude::*;
+use termion::terminal_size;
+//use close_file::Closable;
+use std::mem::drop;
+use crate::globs18::unblock_fd;
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append};
+#[path = "keycodes.rs"]
+mod kcode;
+pub(crate) fn run_term_app(cmd: String) -> bool{
+let func_id = crate::func_id18::run_cmd_viewer_;
+crate::set_ask_user(cmd.as_str(), func_id);
+let (cols, rows) = termion::terminal_size().unwrap();
+let cols = 680; let rows = 700;
+let fstdout: String; 
+let mut stderr_path = "stderr".to_string();
+stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
+let fstdin = format!("{}/fstdin_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let fstdin_link = format!("{}/fstdin_term_app_link", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let fstdin_link0 = fstdin_link.clone();
+let fstdin_null = format!("{}/fstdin_term_app_null", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let fstdout = format!("{}/fstdout_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let fstdout0 = fstdout.clone();
+let mk_fstdout = format!("touch -f {fstdout}");
+run_cmd_out(mk_fstdout);
+let mk_null_file = format!("touch -f {fstdin_null}");
+run_cmd_out(mk_null_file);
+let mk_link_2_file = format!("unlink {fstdin_link};ln -sf {} {}", fstdin, fstdin_link);
+let mk_link_2_file0 = mk_link_2_file.clone();
+let mk_link_2_null = format!("unlink {fstdin_link};ln -sf {} {}", fstdin_null, fstdin_link);
+let set_fstdin_2_zero_len = format!("truncate -s 0 {fstdin}");
+run_cmd_out(mk_link_2_file);
+let fstd_in = crate::cpy_str(&fstdin);
+crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+let fstderr = crate::File::create(stderr_path).unwrap();
+let mut fstdin0 = crate::File::options().create(true).write(true).read(true).truncate(true).open(fstdin_link0).unwrap();
+//unblock_fd(fstdin0.as_raw_fd());
+//let mut fstdout0 = io::BufReader::new(fstdout0);
+//errMsg_dbg(&in_name, func_id, -1.0);
+//let cmd = format!("stty cols {cols};stty rows {rows};{cmd}");
+//let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
+let path_2_cmd = crate::mk_cmd_file(cmd);
+let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
+let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
+let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+//let run_command = Command::new(cmd)
+    .env("LC_ALL", "ru_RU.UTF-8")
+    .env("LANG", "ru_RU.UTF-8")
+    .stderr(fstderr)
+    .stdout(out_in)//(std::process::Stdio::piped())
+    .stdin(in_out)//(std::process::Stdio::piped())
+    .spawn()
+    .expect("can't run command in run_term_app");
+/*if run_command.status.success(){
+    crate::io::stdout().write_all(&run_command.stdout).unwrap();
+    crate::io::stderr().write_all(&run_command.stderr).unwrap();
+    return false;
+}*/
+//let builder = Builder::new().stack_size(2 * 1024 * 1024).name("rw_std".to_string());
+ std::thread::spawn(move|| {
+    //let mut stdout = run_command.stdout.unwrap();
+    let mut buf: [u8; 128] = [0; 128];
+    //let mut read_out0 = crate::BufReader::new(out_out);
+   // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
+   let mut read_out = crate::File::open(fstdout0.clone()).unwrap();
+ //   unblock_fd(read_out.as_raw_fd());
+std::io::stdout().flush();
+loop{
+    let mut i0 = String::new();
+     out_out.read(&mut buf);
+    //read_out.read(&mut buf);
+//    save_file_append(String::from_utf8_lossy(&buf).to_string(), "read_out".to_string());
+   // if buf == [0;128]{println!("stop read_out"); break;}
+    //std::io::stdout().write_all(&buf).unwrap();
+ //   println!("{}", String::from_utf8_lossy(&buf));
+    std::io::stderr().write_all(&buf).unwrap();
+  //  read_out.set_len(0);
+    buf = [0;128];
+    
+    //std::thread::sleep(std::time::Duration::from_millis(100));
+}
+/*let key: String = getkey();
+    fstd_in0.write_all(key.as_bytes());
+}*/
+run_command.wait();
+println!("exit rw_std");
+});
+std::thread::spawn(move||{
+let mut writer = crate::io::BufWriter::new(&mut fstdin0);
+loop{
+   // let mut fstd_in0 = run_command.stdin.as_mut().unwrap();
+    //fstd_in0.flush();
+    let mut key = String::new();
+    //fstdin0.set_len(0);
+    let len_fstdout = std::fs::metadata(&fstdout).unwrap().len();
+    key.push_str(crate::getkey().as_str());
+    run_cmd_out(mk_link_2_null.clone());
+   // if key.as_bytes()[0] == kcode::ENTER && key.len() == 1{println!("enter");fstdin0.write_all('\n'.to_string().as_str().as_bytes()).unwrap();}
+  // key.push('\n');
+  // if let Some(mut fstd_in) = run_command.stdin.take(){
+    in_in.write_all(key.as_bytes()).unwrap();
+ //   std::thread::sleep(std::time::Duration::from_millis(100000));
+   //}
+  //  let _ = drop(&mut fstd_in0.as_ref());
+    run_cmd_out(mk_link_2_file0.clone());
+    //drop(fstd_in0);
+}
+
+}).join();
+//builder.join();
+true
+}
