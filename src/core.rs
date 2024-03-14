@@ -70,7 +70,7 @@ if !Path::new(&mainpath).exists(){
     println!("{mainpath} cannot be made");
     return false;
 }
-unsafe{crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id);}
+crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
 let mut path_2_shm = "";
 while true{
     if Path::new("/dev/shm").exists(){path_2_shm = "/dev/shm"; break;}
@@ -88,7 +88,8 @@ if checkArg("-dbg"){println!("shell out = {:?}", run_shell1)};
 let err_msg = format!("{} permission denied", path_2_found_files_list);
 let run_shell2 = Command::new("chmod").arg("700").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell2)};
-unsafe{crate::page_struct(&path_2_found_files_list, set(crate::TMP_DIR_), func_id);}
+crate::C!(crate::page_struct(&path_2_found_files_list, set(crate::TMP_DIR_), func_id));
+let tmp_dir = path_2_found_files_list;
 bkp_tmp_dir();
 let path_2_found_files_list_dot = format!("{}/TAM_{}/.", path_2_shm, proper_timestamp);
 let err_msg = format!("{} permission denied", path_2_found_files_list_dot);
@@ -105,6 +106,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     unsafe {crate::swtch::form_list_of_viewers(false);}
     crate::save_file("".to_string(), "main0.pg".to_string());
     mark_front_lst("main0");
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/cache");
+    crate::run_cmd0(mk_cache_dir);
     return true;
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
@@ -642,6 +645,21 @@ pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool{
     *strn = strn.replace(&ret_delim, "");
     *strn = strn.replace(&ret, ""); 
     true
+}
+pub(crate) fn read_tail(strn: &String, delim: &str) -> String{
+    let len = strn.chars().count();
+    let mut ret = String::new();
+    let empty = String::new();
+    let delim = delim.to_string().chars().nth(0).unwrap();
+    for i in 0..len{
+        let ch = match strn.chars().nth(i){
+            Some(ch) => ch,
+            _ => empty.chars().nth(0).unwrap()
+        };
+        if ch == delim && i < len - 1{ret = "".to_string(); continue;}
+        ret.push(ch);
+    }
+    ret  
 }
 pub(crate) fn is_dir(path: &String) -> bool{
     let is_dir = path.chars().count() - 1;
