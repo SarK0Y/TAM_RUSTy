@@ -1,5 +1,5 @@
 use std::io::BufRead;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let num_pg = get_num_page(27786521);
@@ -22,7 +22,8 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
             if indx >= get_indx && recs_on_pg > 0{
                 if indx == get_indx{
                 ret = (crate::cpy_str(&line0), indx);}
-            save_file_append(line0.clone(), cached_list.clone());
+                let proper_line = format!("{}\n", line0.clone());
+            save_file_append(proper_line, cached_list.clone());
             recs_on_pg -= 1;
         }   
          len = indx;
@@ -31,7 +32,11 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     }
         let base_indx: usize = i64_2_usize(num_pg * cols * rows);
         let get_indx = get_indx - base_indx;
-        let file = crate::File::open(cached_list).unwrap();
+        let dbg = |e: std::io::Error| -> String{save_file(format!("{}\n{:?}", is_cached, e), "dbg_cached".to_string()); return String::new()};
+        let file = match crate::File::open(cached_list){
+            Ok(f) => f,
+            Err(e) => return (dbg(e), 0)
+        };
         let reader = crate::BufReader::new(file);
         let mut len = 0usize;
     for (indx, line) in reader.lines().enumerate() {
