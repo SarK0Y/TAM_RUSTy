@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -368,6 +368,8 @@ pub(crate) fn read_midway_data_4_ls() -> bool{
 }
 //#[io_cached]
 pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
+    if !checkArg("-no-cache") {
+        if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();

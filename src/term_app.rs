@@ -49,10 +49,10 @@ save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
-    if check_known_cmd(&cmd, "nano"){return true;}
-    if check_known_cmd(&cmd, "vim"){return true;}
-    if check_known_cmd(&cmd, "vi"){return true;}
-    if check_known_cmd(&cmd, "mc"){
+    if check_known_cmd(&cmd, "nano /"){return true;}
+    if check_known_cmd(&cmd, "vim /"){return true;}
+    if check_known_cmd(&cmd, "vi /"){return true;}
+    if check_known_cmd(&cmd, "mc "){
         if !is_dir(fname){
             //*fname = crate::Path::new(&fname).parent().unwrap().to_str().unwrap().to_string();
             tailOFF(fname, "/");
