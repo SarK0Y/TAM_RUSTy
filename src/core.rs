@@ -643,3 +643,9 @@ pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool{
     *strn = strn.replace(&ret, ""); 
     true
 }
+pub(crate) fn is_dir(path: &String) -> bool{
+    let is_dir = path.chars().count() - 1;
+    let is_dir = path.chars().nth(is_dir);
+    if is_dir.expect("is_dir failed").to_string() != "/"{return false;}
+    true
+}

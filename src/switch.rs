@@ -145,11 +145,11 @@ fn viewer_n_adr(app: String, file: String) -> bool{
         Ok(v) => v,
         _ => return msg()
     };
-    let file = escape_symbs(&file);
+    let mut file = escape_symbs(&file);
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
-    if tui_or_not(cpy_str(&cmd)){cmd = format!("{} {}", viewer, file);return run_term_app(cmd)}
+    if tui_or_not(cpy_str(&cmd), &mut file){cmd = format!("{} {}", viewer, file);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
 pub(crate) fn run_viewer(cmd: String) -> bool{
@@ -181,10 +181,10 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
         _ => return msg()
     };
     //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
-    let filename = crate::escape_symbs(&get_item_from_front_list(file_indx, true));
+    let mut filename = crate::escape_symbs(&get_item_from_front_list(file_indx, true));
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
-    if tui_or_not(cpy_str(&cmd)){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
+    if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
 pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String{
