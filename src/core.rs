@@ -368,8 +368,11 @@ pub(crate) fn read_midway_data_4_ls() -> bool{
 }
 //#[io_cached]
 pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
+    let ls_mode = read_front_list();
+    if ls_mode != "ls"{
     if !checkArg("-no-cache") {
         if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
+    }
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();
@@ -426,6 +429,31 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
+        Ok(f) => f,
+        _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
+    true
+}
+pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true

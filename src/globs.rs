@@ -60,6 +60,45 @@ pub(crate) fn sieve_list(data: String){
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 }
+pub(crate) fn merge(data: String){
+    clean_cache();
+    let data = data.replace("mrg ", "");
+    set_ask_user("example: 'mrg' to add entire front list to merge or 'mrg /path/to/file' or 'mrg <file's index>'", 5977871);
+    let found_files_path = format!("{}/found_files", get_tmp_dir(1911441));
+    let filter_file_path_tmp = format!("{}/merge.tmp", get_tmp_dir(1911441));
+    let filter_file_path = format!("{}/merge", get_tmp_dir(1911441));
+    let indx = match i64::from_str_radix(&data, 10){
+        Ok(i) => i,
+        _ => i64::MIN
+    };
+    if indx > i64::MIN{
+        let fname = get_item_from_front_list(indx, true);
+        let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
+        run_cmd_str(cmd.as_str());    
+        return;
+    }
+    let path = get_path_from_strn(data);
+    if path.len() > 0 {
+        let cmd = format!("echo '{}' >> {}", path, filter_file_path);
+        run_cmd_str(cmd.as_str());    
+        return;
+    }
+    let cmd = format!("cat {} >> {}", found_files_path, filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("#merge as front\nln -sf {} {}", filter_file_path, found_files_path);
+    run_cmd_str(cmd.as_str());
+    mark_front_lst("merge");
+    let dbg = crate::fix_num_files0(64977871);
+    let dbg1 = dbg;
+}
+pub(crate) fn clear_merge(){
+    let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
+    rm_file(&filter_file_path);
+    clean_cache();
+    F1_key();
+}
 pub(crate) fn show_ls(){
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
     crate::ps18::fix_num_files(-13972);
@@ -307,7 +346,7 @@ pub fn len_of_list_wc(name: &str) -> String{
     let len_list = crate::run_cmd_out_sync(cmd);
     list_adr.push_str(".len");
     let (len_list, _) = split_once(&len_list, " ");
-    save_file(cpy_str(&len_list), name.to_string());
+    crate::rewrite_file_abs_adr(cpy_str(&len_list), list_adr.to_string());
     return len_list;
 }
 pub fn len_of_front_list_wc() -> String{

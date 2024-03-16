@@ -1,4 +1,5 @@
 use std::io::BufRead;
+use std::sync::mpsc::channel;
 use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
@@ -93,4 +94,24 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
 pub(crate) fn clean_cache(){
     let cmd = format!("rm -f {}", take_list_adr("cache/*"));
     std::thread::spawn(||{run_cmd_out(cmd);});
+}
+pub(crate) fn wait_4_empty_cache() -> bool{
+    let cache_dir = take_list_adr("cache/");
+    let files = format!("{}*", cache_dir);
+    let cmd = format!("rm -f {files}");
+    let mut dir_arr = [true;2];
+    let (send, recv) = channel::<bool>();
+    let mut i = 0usize;
+    let mut ret = || -> std::result::Result<std::fs::DirEntry, std::io::Error>{return std::fs::read_dir("/").unwrap().next().unwrap();};
+    let mut status = ||{dir_arr[i] = false; i += 1; i = i ^ 2; send.send(dir_arr[0]);};
+    loop {
+       let dir: std::fs::DirEntry = match std::path::PathBuf::from(cache_dir.clone()).read_dir().expect("wait_4_empty_cache can't read dir").next(){
+            Some(i0) => i0,
+            _ => {status();let ret0 = recv.recv().unwrap(); println!("{}", ret0); if !ret0 {return dir_arr[0];}; ret()}
+        }.unwrap();
+        run_cmd_out(cmd.clone());
+        println!("{:?}", dir);
+       // let dir_arr0 = dir_arr;
+        //if !dir_arr0[0]{return true;}
+    }
 }

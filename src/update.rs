@@ -105,12 +105,12 @@ loop {
         save_file(crate::cpy_str(&check_main0_len), "main0.len".to_string());
         //else{drop_ls = !drop_ls}
      }
-     let front_list_len = format!("{}.len", crate::read_front_list());
-     let front_list_len = match i64::from_str_radix(&crate::read_file(&front_list_len), 10){
+     let front_list_len = crate::read_front_list();
+     let front_list_len = match i64::from_str_radix(&crate::globs18::len_of_list_wc(&front_list_len), 10){
         Ok(i) => i,
         _ => 0
   };
-     unsafe{crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id)};}
+     crate::C!(crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id));}
      let check_ls_mode = get_path_from_prnt();
      if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
