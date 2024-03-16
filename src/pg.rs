@@ -22,7 +22,7 @@ fn build_page(ps: &mut crate::_page_struct){
         if get_num_files(func_id) == 0i64{continue;}
         try_entry += 1; 
     }
-    if size_of_found_files() == 0u64 {println!("No files found"); unsafe {libc::exit(-1);}}
+    if size_of_found_files() == 0u64 {println!("No files found"); if !checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::get_num_page(func_id); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
     let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}

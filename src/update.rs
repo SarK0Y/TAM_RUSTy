@@ -23,12 +23,12 @@ pub(crate) fn main_update(){
         thr_find_files.spawn(move||{
             println!("spawn find files");
             crate::find_files(path.as_str(), in_name, "");
-            println!("exit find files");
+            if crate::dirty!(){println!("exit find files")};
         });
         thr_midway.spawn(||{
             println!("spawn midway data");
             crate::read_midway_data();
-            println!("exit midway data");
+            if crate::dirty!(){println!("exit midway data");}
         });
     }
 

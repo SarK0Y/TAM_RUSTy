@@ -92,5 +92,5 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
 }
 pub(crate) fn clean_cache(){
     let cmd = format!("rm -f {}", take_list_adr("cache/*"));
-    run_cmd_out(cmd);
+    std::thread::spawn(||{run_cmd_out(cmd);});
 }

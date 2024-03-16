@@ -35,6 +35,7 @@ pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn sieve_list(data: String){
+    clean_cache();
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
