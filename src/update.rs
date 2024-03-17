@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -114,4 +114,21 @@ loop {
      let check_ls_mode = get_path_from_prnt();
      if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
+}
+pub(crate) fn fix_screen(){
+    std::thread::spawn(||{
+        for i in 0..47{
+            clear_screen();
+            let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
+            let mut data = "".to_string();
+            let num_pg = crate::get_num_page(-5555555121);
+            let num_pgs = crate::where_is_last_pg();
+            crate::swtch::print_viewers();
+            crate::swtch::print_pg_info();
+            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
+            println!("{}", crate::get_prnt(-1));
+            crate::pg18::form_cmd_newline_default();
+           std::thread::sleep(std::time::Duration::from_millis(175));        
+        }
+    });
 }

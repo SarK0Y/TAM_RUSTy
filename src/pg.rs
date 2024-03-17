@@ -204,6 +204,36 @@ pub(crate) fn form_cmd_line(prompt: String, prnt: String){
     let print_whole_line = format!("\r{}: {}", prompt, prnt);
     print!("{}", print_whole_line);
 }
+pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
+    let whole_line_len = prompt.len() + prnt.len() + 2;
+    let print_whole_line = format!("\r{}: {}", prompt, prnt);
+    println!("{}", print_whole_line);
+}
+pub(crate) fn form_cmd_newline_default(){
+    let func_id = crate::func_id18::form_cmd_line_default;
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let shift = ret.str__;
+    let mut prnt = get_prnt(func_id);
+    let full_path = read_user_written_path();
+    let partial_path = get_path_from_strn(crate::cpy_str(&prnt));
+    if partial_path != ""{
+        if partial_path.chars().count() < full_path.chars().count(){
+        prnt = prnt.replace(&partial_path, &full_path);
+        }
+    }
+    //else {prnt = format!("{} {}", prnt, full_path);}
+    if full_path.len() > 0{set_prnt(&prnt, func_id);}
+    let len = prnt.chars().count();
+    if ret.shift == len {prnt = format!("👉{}", prnt)}
+    else if ret.shift < len {ret.shift = len - ret.shift;
+    prnt.push('👈');
+    prnt = ins_last_char_to_string1_from_string1(ret.shift, prnt);}
+    let whole_line_len = prompt.len() + prnt.len() + 2;
+    prnt.push_str(shift.as_str());
+    wipe_cmd_line(whole_line_len);
+    form_cmd_newline(prompt, prnt)
+}
+
 pub(crate) fn form_cmd_line_default(){
     let func_id = crate::func_id18::form_cmd_line_default;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
