@@ -19,9 +19,11 @@ fn build_page(ps: &mut crate::_page_struct){
     let mut num_files = get_num_files(func_id);
     while try_entry < 1_000 {
         if size_of_found_files() > 4u64 {break;}
-        if get_num_files(func_id) == 0i64{continue;}
+        num_files = get_num_files(func_id);
+        if num_files == 0i64{continue;}
         try_entry += 1; 
     }
+    let mut count_down = num_files;
     if size_of_found_files() == 0u64 {println!("No files found"); if !checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::get_num_page(func_id); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
     let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
@@ -70,8 +72,8 @@ fn build_page(ps: &mut crate::_page_struct){
             else{filename_str = format!("{}: {}", indx, fixed_filename);}
             if filename_str == stopCode{return;}
             row_cpy.push(filename_str);
-       //     count_down_files -= 1;
-         //   if count_down_files <= 0 {time_to_stop = true; break;}
+            count_down -= 1;
+            if count_down <= 0 {time_to_stop = true; break;}
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
         let mut new_row: Vec<Vec<CellStruct>> = Vec::new();
@@ -293,7 +295,6 @@ fn exec_cmd(cmd: String){
         clear_merge();
     }
     if cmd == "show mrg"{
-        wait_4_empty_cache();
         set_front_list("merge");
     }
     crate::C!(swtch_fn(-1, cmd));

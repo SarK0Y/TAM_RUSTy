@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -33,8 +33,9 @@ pub(crate) fn set_front_list(list: &str){
     let found_files = format!("{tmp_dir}/found_files");
     let active_list = format!("{tmp_dir}/{}", list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
-    run_cmd_str(&cmd);
-    mark_front_lst(list)
+    run_cmd_out_sync(cmd);
+    mark_front_lst(list);
+    crate::wait_4_empty_cache();
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
