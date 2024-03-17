@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::update_dir_list, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -33,8 +33,10 @@ pub(crate) fn set_front_list(list: &str){
     let found_files = format!("{tmp_dir}/found_files");
     let active_list = format!("{tmp_dir}/{}", list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
-    run_cmd_str(&cmd);
-    mark_front_lst(list)
+    run_cmd_out_sync(cmd);
+    mark_front_lst(list);
+    crate::wait_4_empty_cache();
+    if list == "merge"{fix_screen();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -368,8 +370,11 @@ pub(crate) fn read_midway_data_4_ls() -> bool{
 }
 //#[io_cached]
 pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
+    let ls_mode = read_front_list();
+    if ls_mode != "ls"{
     if !checkArg("-no-cache") {
         if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
+    }
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();
@@ -426,6 +431,31 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
+        Ok(f) => f,
+        _ => anew_file()
+    };
+    file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
+    true
+}
+pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
+    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true

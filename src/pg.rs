@@ -1,6 +1,6 @@
 use cli_table::TableStruct;
 
-use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app};
+use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache};
 self::pg_uses!();
 
 fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -19,10 +19,12 @@ fn build_page(ps: &mut crate::_page_struct){
     let mut num_files = get_num_files(func_id);
     while try_entry < 1_000 {
         if size_of_found_files() > 4u64 {break;}
-        if get_num_files(func_id) == 0i64{continue;}
+        num_files = get_num_files(func_id);
+        if num_files == 0i64{continue;}
         try_entry += 1; 
     }
-    if size_of_found_files() == 0u64 {println!("No files found"); unsafe {libc::exit(-1);}}
+    let mut count_down = num_files;
+    if size_of_found_files() == 0u64 {println!("No files found"); if !checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::get_num_page(func_id); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
     let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
@@ -70,8 +72,8 @@ fn build_page(ps: &mut crate::_page_struct){
             else{filename_str = format!("{}: {}", indx, fixed_filename);}
             if filename_str == stopCode{return;}
             row_cpy.push(filename_str);
-       //     count_down_files -= 1;
-         //   if count_down_files <= 0 {time_to_stop = true; break;}
+            count_down -= 1;
+            if count_down <= 0 {time_to_stop = true; break;}
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
         let mut new_row: Vec<Vec<CellStruct>> = Vec::new();
@@ -202,6 +204,36 @@ pub(crate) fn form_cmd_line(prompt: String, prnt: String){
     let print_whole_line = format!("\r{}: {}", prompt, prnt);
     print!("{}", print_whole_line);
 }
+pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
+    let whole_line_len = prompt.len() + prnt.len() + 2;
+    let print_whole_line = format!("\r{}: {}", prompt, prnt);
+    println!("{}", print_whole_line);
+}
+pub(crate) fn form_cmd_newline_default(){
+    let func_id = crate::func_id18::form_cmd_line_default;
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let shift = ret.str__;
+    let mut prnt = get_prnt(func_id);
+    let full_path = read_user_written_path();
+    let partial_path = get_path_from_strn(crate::cpy_str(&prnt));
+    if partial_path != ""{
+        if partial_path.chars().count() < full_path.chars().count(){
+        prnt = prnt.replace(&partial_path, &full_path);
+        }
+    }
+    //else {prnt = format!("{} {}", prnt, full_path);}
+    if full_path.len() > 0{set_prnt(&prnt, func_id);}
+    let len = prnt.chars().count();
+    if ret.shift == len {prnt = format!("👉{}", prnt)}
+    else if ret.shift < len {ret.shift = len - ret.shift;
+    prnt.push('👈');
+    prnt = ins_last_char_to_string1_from_string1(ret.shift, prnt);}
+    let whole_line_len = prompt.len() + prnt.len() + 2;
+    prnt.push_str(shift.as_str());
+    wipe_cmd_line(whole_line_len);
+    form_cmd_newline(prompt, prnt)
+}
+
 pub(crate) fn form_cmd_line_default(){
     let func_id = crate::func_id18::form_cmd_line_default;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
@@ -285,5 +317,15 @@ fn exec_cmd(cmd: String){
         set_full_path(&file_full_name, func_id);
         return;
     }
-    unsafe {swtch_fn(-1, cmd)}
+    if cmd.as_str().substring(0, 3) == "mrg"{
+        merge(cmd);
+        return;
+    }
+    if cmd == "cl mrg" || cmd == "clear merge"{
+        clear_merge();
+    }
+    if cmd == "show mrg"{
+        set_front_list("merge");
+    }
+    crate::C!(swtch_fn(-1, cmd));
 }

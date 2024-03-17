@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -23,12 +23,12 @@ pub(crate) fn main_update(){
         thr_find_files.spawn(move||{
             println!("spawn find files");
             crate::find_files(path.as_str(), in_name, "");
-            println!("exit find files");
+            if crate::dirty!(){println!("exit find files")};
         });
         thr_midway.spawn(||{
             println!("spawn midway data");
             crate::read_midway_data();
-            println!("exit midway data");
+            if crate::dirty!(){println!("exit midway data");}
         });
     }
 
@@ -105,13 +105,30 @@ loop {
         save_file(crate::cpy_str(&check_main0_len), "main0.len".to_string());
         //else{drop_ls = !drop_ls}
      }
-     let front_list_len = format!("{}.len", crate::read_front_list());
-     let front_list_len = match i64::from_str_radix(&crate::read_file(&front_list_len), 10){
+     let front_list_len = crate::read_front_list();
+     let front_list_len = match i64::from_str_radix(&crate::globs18::len_of_list_wc(&front_list_len), 10){
         Ok(i) => i,
         _ => 0
   };
-     unsafe{crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id)};}
+     crate::C!(crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id));}
      let check_ls_mode = get_path_from_prnt();
      if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
+}
+pub(crate) fn fix_screen(){
+    std::thread::spawn(||{
+        for i in 0..47{
+            clear_screen();
+            let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
+            let mut data = "".to_string();
+            let num_pg = crate::get_num_page(-5555555121);
+            let num_pgs = crate::where_is_last_pg();
+            crate::swtch::print_viewers();
+            crate::swtch::print_pg_info();
+            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
+            println!("{}", crate::get_prnt(-1));
+            crate::pg18::form_cmd_newline_default();
+           std::thread::sleep(std::time::Duration::from_millis(175));        
+        }
+    });
 }

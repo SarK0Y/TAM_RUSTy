@@ -1,4 +1,5 @@
 use std::io::BufRead;
+use std::sync::mpsc::channel;
 use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
@@ -16,16 +17,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     let nxt_pg =format!(".{}", num_pg +1);
     let cur_pg =format!(".{}", num_pg);
     let nxt_cache = is_cached.replace(&cur_pg, &nxt_pg);
-    if !crate::Path::new(&nxt_cache).exists() && num_pg + 1 < last_pg{
-        let num_pg = num_pg +1;
-        let cols = cols;
-        let rows = rows;
-        let found_files = found_files.clone();
-        std::thread::spawn(move||{
-            let get_index = num_pg * cols * rows;
-            cache_pg(get_indx, nxt_cache, found_files, cols, rows);
-        });
-    }
+    let cur_cache = crate::cpy_str(&is_cached);
     let prev_cache = is_cached.replace(&cur_pg, &prev_pg);
     if !crate::Path::new(&prev_cache).exists(){
         let num_pg = num_pg0;
@@ -39,7 +31,8 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     }
     
         if !crate::Path::new(&is_cached).exists(){
-        let mut recs_on_pg = cols * rows;
+        let recs_on_pg1 = cols * rows;
+        let mut recs_on_pg2 = recs_on_pg1*2;
         let file = crate::File::open(&found_files).unwrap();
         let reader = crate::BufReader::new(file);
         let mut len = 0usize;
@@ -47,12 +40,14 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         let mut ret0 = (String::new(), 0usize);
         for (indx, line) in reader.lines().enumerate() {
             let line0 = line.unwrap().as_mut().to_string();
-            if indx >= get_indx && recs_on_pg > 0{
+            if indx >= get_indx && recs_on_pg2 > 0{
                 if indx == get_indx{
                 ret = (crate::cpy_str(&line0), indx);}
                 let proper_line = format!("{}\n", line0.clone());
-            save_file_append(proper_line, cached_list.clone());
-            recs_on_pg -= 1;
+                if recs_on_pg2 > recs_on_pg1{
+                    save_file_append_abs_adr(proper_line, cur_cache.clone());
+                }else {save_file_append_abs_adr(proper_line, nxt_cache.clone());}
+            recs_on_pg2 -= 1;
         }   
          len = indx;
         }
@@ -98,5 +93,25 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
 }
 pub(crate) fn clean_cache(){
     let cmd = format!("rm -f {}", take_list_adr("cache/*"));
-    run_cmd_out(cmd);
+    std::thread::spawn(||{run_cmd_out(cmd);});
+}
+pub(crate) fn wait_4_empty_cache() -> bool{
+    let cache_dir = take_list_adr("cache/");
+    let files = format!("{}*", cache_dir);
+    let cmd = format!("rm -f {files}");
+    let mut dir_arr = [true;2];
+    let (send, recv) = channel::<bool>();
+    let mut i = 0usize;
+    let mut ret = || -> std::result::Result<std::fs::DirEntry, std::io::Error>{return std::fs::read_dir("/").unwrap().next().unwrap();};
+    let mut status = ||{dir_arr[i] = false; i += 1; i = i ^ 2; send.send(dir_arr[0]);};
+    loop {
+       let dir: std::fs::DirEntry = match std::path::PathBuf::from(cache_dir.clone()).read_dir().expect("wait_4_empty_cache can't read dir").next(){
+            Some(i0) => i0,
+            _ => {status();let ret0 = recv.recv().unwrap(); println!("{}", ret0); if !ret0 {return dir_arr[0];}; ret()}
+        }.unwrap();
+        run_cmd_out(cmd.clone());
+        println!("{:?}", dir);
+       // let dir_arr0 = dir_arr;
+        //if !dir_arr0[0]{return true;}
+    }
 }
