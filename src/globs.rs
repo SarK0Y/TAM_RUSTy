@@ -83,10 +83,10 @@ pub(crate) fn merge(data: String){
         run_cmd_str(cmd.as_str());    
         return;
     }
-    let cmd = format!("cat {} >> {}", found_files_path, filter_file_path_tmp);
+    let cmd = format!("cat {} >> {}", found_files_path, filter_file_path);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
-    run_cmd_str(cmd.as_str());
+    //let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    //run_cmd_str(cmd.as_str());
     let cmd = format!("#merge as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
     mark_front_lst("merge");
@@ -173,8 +173,7 @@ pub(crate) fn Enter(){
     let mut mode = 0i64;
     unsafe{check_mode(&mut mode)}
     if mode == SWTCH_USER_WRITING_PATH{mode = SWTCH_RUN_VIEWER}
-    unsafe {crate::swtch::swtch_fn(mode, "".to_string());}
-    crate::drop_ls_mode();
+    crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
 }
 pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     let flags = unsafe { fcntl(fd, F_GETFL, 0) };

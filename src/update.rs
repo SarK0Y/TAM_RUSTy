@@ -117,7 +117,7 @@ loop {
 }
 pub(crate) fn fix_screen(){
     std::thread::spawn(||{
-        for i in 0..47{
+        for i in 0..30{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -128,7 +128,7 @@ pub(crate) fn fix_screen(){
             if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
-           std::thread::sleep(std::time::Duration::from_millis(175));        
+           std::thread::sleep(std::time::Duration::from_millis(215));        
         }
     });
 }
