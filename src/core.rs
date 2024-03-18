@@ -36,7 +36,7 @@ pub(crate) fn set_front_list(list: &str){
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
-    if list == "merge"{fix_screen();}
+    /*if list == "merge"*/{fix_screen();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}

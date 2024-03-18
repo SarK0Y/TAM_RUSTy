@@ -50,13 +50,13 @@ fn build_page(ps: &mut crate::_page_struct){
             //no_dup_indx = indx;
             if !unsafe {local_indx(false)}{indx -= num_page;}
             let err_ret = std::ffi::OsString::from("");
-            let mut end_all_loops = || -> &std::ffi::OsString{time_to_stop = true; achtung("end all_loops"); return &err_ret};
+            let mut err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
             let filename = Path::new(&full_path);
             macro_rules! filename_str0{
                 () => {String::from(match filename.file_name(){
                     Some(f) => f,
-                    _ => end_all_loops()
+                    None => err_path(),
                 }.to_str().unwrap()).as_str()};
             }
             if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
