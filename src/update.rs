@@ -128,7 +128,7 @@ pub(crate) fn fix_screen(){
             if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
-           std::thread::sleep(std::time::Duration::from_millis(215));        
+           std::thread::sleep(std::time::Duration::from_millis(267));        
         }
     });
 }
