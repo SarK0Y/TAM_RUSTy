@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -27,7 +27,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         std::thread::spawn(move||{
             let get_index = num_pg * cols * rows;
             cache_pg(get_indx, prev_cache, found_files, cols, rows);
-        });
+        }).join();
     }
     
         if !crate::Path::new(&is_cached).exists(){

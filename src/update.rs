@@ -115,6 +115,7 @@ loop {
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
 }
 pub(crate) fn fix_screen(){
+    return;
     std::thread::spawn(||{
         for i in 0..30{
             clear_screen();

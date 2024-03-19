@@ -40,15 +40,15 @@ fn build_page(ps: &mut crate::_page_struct){
             let mut indx = i + num_cols * j + num_page;
             //indx = num_files - count_down_files;
             let mut res: String ="".to_string();
-            let full_path_fn = move || -> String {for i in 0..10_0 {
+            let full_path_fn = move || -> String {//for i in 0..10_0 {
               res = crate::globs18::get_item_from_front_list(indx, false);
               num_files = get_num_files(func_id);
               if num_files == indx || "front list is empty" != res{time_to_stop = true; return res;}
             // println!("build_page - probe 0");
-            } return "".to_string()};
+             return "".to_string()};
             let full_path = full_path_fn();
             //no_dup_indx = indx;
-            if !unsafe {local_indx(false)}{indx -= num_page;}
+            if !crate::C!(local_indx(false)){indx -= num_page;}
             let err_ret = std::ffi::OsString::from("");
             let mut err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
@@ -70,10 +70,10 @@ fn build_page(ps: &mut crate::_page_struct){
             ins_newlines(get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
             if filename.is_dir(){filename_str =format!("{}: {}/", indx, fixed_filename);}
             else{filename_str = format!("{}: {}", indx, fixed_filename);}
-            if filename_str == stopCode{return;}
+            if filename_str == stopCode || filename_str == "no str gotten"{return;}
             row_cpy.push(filename_str);
-            count_down -= 1;
             if count_down <= 0 {time_to_stop = true; break;}
+            count_down -= 1;
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
         let mut new_row: Vec<Vec<CellStruct>> = Vec::new();
@@ -310,7 +310,7 @@ fn exec_cmd(cmd: String){
         return;
     }
     if cmd.as_str().substring(0, 2) == "cd"{
-        if sub_cmd != "insert"{change_dir(cmd); return;}
+        if sub_cmd != "insert"{change_dir(cmd, true); return;}
         crate::C!(swtch_fn(-1, cmd));
         return;
     }

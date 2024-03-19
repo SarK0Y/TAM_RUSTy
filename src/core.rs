@@ -36,7 +36,8 @@ pub(crate) fn set_front_list(list: &str){
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
-    if list == "merge"{fix_screen();}
+    //if list == "merge"
+    {fix_screen();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -255,10 +256,10 @@ return true;
 pub(crate) fn find_files_cd(path: &String) -> bool{
 let func_id: i64 = 2;
 let mut list_of_found_files: Vec<String> = vec![]; 
-let output = format!("{}/cd", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
-let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
-let mut cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {}", path, output);
-crate::run_cmd0(cmd);
+let output = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let stopCode = getStop_code__!();
+let cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+crate::run_cmd_out_sync(cmd);
 return true;
 }
 pub(crate) fn getkey() -> String{
@@ -408,6 +409,28 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
         if indx == get_indx{return (line.unwrap(), indx);}
         len = indx;
     }
+    return ("no str gotten".to_string(), len);
+}
+pub(crate) fn ln_of_list(get_indx: usize, list: &str) -> (String, usize){
+    let front = read_front_list();
+   /* if ls_mode != "ls"{
+    if !checkArg("-no-cache") {
+        if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
+    }*/
+    set_front_list(list);
+     let stopCode = getStop_code__!();
+        let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let file = match File::open(filename){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), usize::MAX) 
+        };
+        let reader = BufReader::new(file);
+        let mut len = 0usize;
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{set_front_list(front.as_str()); return (line.unwrap(), indx);}
+        len = indx;
+    }
+    set_front_list(front.as_str());
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn size_of_found_files() -> u64{

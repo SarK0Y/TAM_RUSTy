@@ -10,6 +10,8 @@
 mod exts;
 use exts::*;
 use globs18::get_item_from_front_list;
+
+use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 use_all!();
 
 pub(crate) fn split_once(in_string: &str, delim: &str) -> (String, String) {
@@ -266,6 +268,15 @@ return ret;
 fn main (){
 // stacker::maybe_grow( 8*1024*1024, 32*1024*1024, || {
     // guaranteed to have at least 32K of stack
+  /*/  let mut inp = String::new();
+    io::stdin().read_line(&mut inp).expect("Ins_key failed to read console");
+    let inp = inp.trim_end();
+    let inp0 = match i64::from_str_radix(&inp, 10){
+        Ok(i) => i,
+        _ => 0
+    };
+    get_proper_indx_tst(inp0, true);
+    return;*/
     initSession();
 let out: core18::ret0 = get_arg_in_cmd("-");
 let out1: core18::ret0 = get_arg_in_cmd("-тст");
