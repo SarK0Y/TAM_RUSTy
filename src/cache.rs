@@ -72,9 +72,9 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String, cols: i64, rows: i64) {
-     save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
+     //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
         if crate::Path::new(&cached_list).exists(){return}
-        save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
+        //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
         let mut recs_on_pg = cols * rows;
         let file = crate::File::open(&found_files).unwrap();
         let reader = crate::BufReader::new(file);

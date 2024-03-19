@@ -110,6 +110,10 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     mark_front_lst("main0");
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/cache");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
+    crate::run_cmd0(mk_cache_dir);
     return true;
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
@@ -234,6 +238,26 @@ let mut list_of_found_files: Vec<String> = vec![];
 let output = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
 let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
 let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
+crate::run_cmd0(cmd);
+return true;
+}
+#[inline(always)]
+pub(crate) fn find_files_ls(custom_cmd: String) -> bool{
+let func_id: i64 = 2;
+let mut list_of_found_files: Vec<String> = vec![]; 
+let output = format!("{}/ls", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
+let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
+crate::run_cmd0(cmd);
+return true;
+}
+#[inline(always)]
+pub(crate) fn find_files_cd(path: &String) -> bool{
+let func_id: i64 = 2;
+let mut list_of_found_files: Vec<String> = vec![]; 
+let output = format!("{}/cd", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
+let mut cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {}", path, output);
 crate::run_cmd0(cmd);
 return true;
 }

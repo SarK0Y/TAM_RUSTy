@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -62,6 +62,7 @@ pub(crate) fn sieve_list(data: String){
 }
 pub(crate) fn merge(data: String){
     clean_cache();
+    drop_ls_mode();
     let data = data.replace("mrg ", "");
     set_ask_user("example: 'mrg' to add entire front list to merge or 'mrg /path/to/file' or 'mrg <file's index>'", 5977871);
     let found_files_path = format!("{}/found_files", get_tmp_dir(1911441));
