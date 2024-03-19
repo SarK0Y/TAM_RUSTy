@@ -73,8 +73,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
 }
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
-    crate::custom_cmd_4_find_files(cmd);
-    crate::read_midway_data_4_ls();
+    crate::find_files_ls(cmd);
 }
 pub(crate) fn lets_write_path(key: String){
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
@@ -116,9 +115,8 @@ loop {
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
 }
 pub(crate) fn fix_screen(){
-    return;
     std::thread::spawn(||{
-        for i in 0..47{
+        for i in 0..30{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -129,7 +127,7 @@ pub(crate) fn fix_screen(){
             if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
-           std::thread::sleep(std::time::Duration::from_millis(175));        
+           std::thread::sleep(std::time::Duration::from_millis(267));        
         }
     });
 }

@@ -36,7 +36,7 @@ pub(crate) fn set_front_list(list: &str){
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
-    /*if list == "merge"*/{fix_screen();}
+    if list == "merge"{fix_screen();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -232,6 +232,16 @@ pub(crate) fn custom_cmd_4_find_files(custom_cmd: String) -> bool{
 let func_id: i64 = 2;
 let mut list_of_found_files: Vec<String> = vec![]; 
 let output = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
+let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
+crate::run_cmd0(cmd);
+return true;
+}
+#[inline(always)]
+pub(crate) fn find_files_ls(custom_cmd: String) -> bool{
+let func_id: i64 = 2;
+let mut list_of_found_files: Vec<String> = vec![]; 
+let output = format!("{}/ls", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
 let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
 let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
 crate::run_cmd0(cmd);

@@ -126,7 +126,8 @@ fn hotKeys() -> String{
     achtung("left arrow");
     return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::INSERT, Key.as_str()) == 0 {
-        return crate::globs18::Ins_key();
+        let cmd = format!("{}>::insert",crate::globs18::Ins_key());
+        return cmd;
     }
     if crate::globs18::eq_ansi_str(&kcode::F3, Key.as_str()) == 0 {
         crate::globs18::F3_key();
@@ -271,6 +272,8 @@ fn exec_cmd(cmd: String){
     let func_id = crate::func_id18::exec_cmd;
     //println!("cmd {} func {}, prnt {}", cmd, crate::func_id18::get_func_name(func_id), crate::get_prnt(func_id));
     if cmd == "dontPass" {return;}
+    let mut cmd = cmd;
+    let sub_cmd = extract_sub_cmd(&mut cmd);
     if cmd == "np"{
         unsafe{exec_cmd_cnt(true)};
         let num_page = crate::get_num_page(func_id) + 1;
@@ -318,7 +321,8 @@ fn exec_cmd(cmd: String){
         return;
     }
     if cmd.as_str().substring(0, 3) == "mrg"{
-        merge(cmd);
+        if sub_cmd != "insert"{merge(cmd); return;}
+        crate::C!(swtch_fn(-1, cmd));
         return;
     }
     if cmd == "cl mrg" || cmd == "clear merge"{
@@ -328,4 +332,18 @@ fn exec_cmd(cmd: String){
         set_front_list("merge");
     }
     crate::C!(swtch_fn(-1, cmd));
+}
+fn extract_sub_cmd(cmd: &mut String) -> String{
+    let len_cmd = cmd.chars().count();
+    let mark = ">::".to_string();
+    let len_mark = mark.chars().count();
+    let mut mark_iter = 0usize;
+    let mut sub_cmd = String::new();
+    for i in 0..len_cmd{
+        let ch = cmd.chars().nth(i).unwrap();
+        if mark_iter == len_mark {sub_cmd.push(ch);} else {if Some(ch) == mark.chars().nth(mark_iter){mark_iter += 1}}
+    }
+    let erase = format!("{}{}", mark, sub_cmd);
+    *cmd = cmd.replace(&erase, "");
+    sub_cmd
 }
