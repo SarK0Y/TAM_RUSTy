@@ -88,11 +88,8 @@ pub(crate) fn merge(data: String){
     run_cmd_str(cmd.as_str());
     //let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
     //run_cmd_str(cmd.as_str());
-    let cmd = format!("#merge as front\nln -sf {} {}", filter_file_path, found_files_path);
-    run_cmd_str(cmd.as_str());
-    mark_front_lst("merge");
-    let dbg = crate::fix_num_files0(64977871);
-    let dbg1 = dbg;
+  //  let dbg = crate::fix_num_files0(64977871);
+    //let dbg1 = dbg;
 }
 pub(crate) fn clear_merge(){
     let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
