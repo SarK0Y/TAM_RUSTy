@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -86,7 +86,10 @@ pub(crate) fn background_fixing(){
  //loop {
 let builder = thread::Builder::new().stack_size(2 * 1024 * 1024).name("background_fixing".to_string());
  builder.spawn(|| {
-_background_fixing()
+    let release_fn = _background_fixing;
+    let dbg_fn = dbg_background_fixing;
+    if checkArg("-dbg"){dbg_fn()}
+    else {release_fn()}
 });
  //}
 }
@@ -112,11 +115,35 @@ loop {
      crate::C!(crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id));}
      let check_ls_mode = get_path_from_prnt();
      if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
+}
+fn dbg_background_fixing(){
+    let func_id = crate::func_id18::background_fixing_;
+    //return;
+    let mut check_main0_len = len_of_main0_list();
+let mut drop_ls = true;
+let ls_mode = take_list_adr("ls.mode");
+loop {
+     thread::sleep(Duration::from_millis(5000));
+     let main0_len = len_of_main0_list();
+     if check_main0_len != main0_len && check_main0_len != "0"{
+        check_main0_len = main0_len;
+        save_file(crate::cpy_str(&check_main0_len), "main0.len".to_string());
+        //else{drop_ls = !drop_ls}
+     }
+     let front_list_len = crate::read_front_list();
+     let front_list_len = match i64::from_str_radix(&crate::globs18::len_of_list_wc(&front_list_len), 10){
+        Ok(i) => i,
+        _ => 0
+  };
+     crate::C!(crate::page_struct_int(front_list_len, crate::set(crate::NUM_FILES_), func_id));}
+     let check_ls_mode = get_path_from_prnt();
+     if check_ls_mode == ""{from_ls_2_front(ls_mode.clone());}
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
 }
+
 pub(crate) fn fix_screen(){
     std::thread::spawn(||{
-        for i in 0..3{
+        for i in 0..4{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
