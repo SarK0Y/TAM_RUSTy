@@ -201,14 +201,13 @@ pub(crate) fn wipe_cmd_line(len_2_wipe: usize){
     println!("\r{}", many_spaces);
 }
 pub(crate) fn form_cmd_line(prompt: String, prnt: String){
-    let whole_line_len = prompt.len() + prnt.len() + 2;
+    //let whole_line_len = prompt.len() + prnt.len() + 2;
     let print_whole_line = format!("\r{}: {}", prompt, prnt);
     print!("{}", print_whole_line);
 }
 pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
-    let whole_line_len = prompt.len() + prnt.len() + 2;
-    let print_whole_line = format!("\r{}: {}", prompt, prnt);
-    println!("{}", print_whole_line);
+    let print_whole_line = format!("{}: {}\n", prompt, prnt);
+    io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default(){
     let func_id = crate::func_id18::form_cmd_line_default;
@@ -324,6 +323,12 @@ fn exec_cmd(cmd: String){
         let file_full_name =  crate::globs18::get_item_from_front_list(file_indx, true);
         set_full_path(&file_full_name, func_id);
         return;
+    }
+    if cmd.as_str().substring(0, 2) == ".."{
+        crate::dir_up(); return
+    }
+    if cmd.as_str().substring(0, 1) == "."{
+        crate::dir_down(cmd); return
     }
     if cmd.as_str().substring(0, 3) == "mrg"{
         if sub_cmd != "insert"{merge(cmd); return;}

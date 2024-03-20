@@ -196,7 +196,6 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
     let strr = strr.replace("$", r"\$");
-    let strr = strr.replace("'", r"\'");
     let strr = strr.replace("`", r"\`");
     let strr = strr.replace("(", r"\(");
     let strr = strr.replace("}", r"\}");
@@ -205,7 +204,11 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("]", r"\]");
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
+    let strr = strr.replace("'", r"\'");
     return strr.to_string();
+}
+pub(crate) fn escape_apostrophe(str0: &String) -> String{
+    return str0.as_str().replace("'", r"\'");
 }
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
@@ -404,6 +407,21 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
+        let mut len = 0usize;
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{return (line.unwrap(), indx);}
+        len = indx;
+    }
+    return ("no str gotten".to_string(), len);
+}
+pub(crate) fn ln_of_found_files_cacheless(get_indx: usize) -> (String, usize){
+     let stopCode = getStop_code__!();
+        let found_files = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), 0)
+        };
+           let reader = BufReader::new(file);
         let mut len = 0usize;
     for (indx, line) in reader.lines().enumerate() {
         if indx == get_indx{return (line.unwrap(), indx);}
