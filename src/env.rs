@@ -1,4 +1,4 @@
-use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list, set_full_path};
+use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list, set_full_path, is_dir, checkArg};
 
 pub(crate) fn change_dir(cmd: String, set: bool){
     if cmd == "cd"{
@@ -26,12 +26,26 @@ pub(crate) fn dir_up(){
     change_dir(pwd, true);
 }
 pub(crate) fn dir_down(cmd: String){
+    if checkArg("-dbg") || checkArg("-dbg1"){dbg_dir_down(cmd); return;}
     let cmd = cmd.replace(".", "").trim_end().to_string();
     let indx = match i64::from_str_radix(&cmd, 10){
         Ok(i) => i,
         _ => {set_ask_user("to enter dir, please, write 'dot index of directory' (for example, .7)", 145211752); return}
     };
-    let fname = get_item_from_front_list(indx, true);
+    let mut fname = get_item_from_front_list(indx, true);
     if fname == "no str gotten"{set_ask_user("dir_down failed", 145211752); return;}
+    if !crate::is_dir2(&fname){tailOFF(&mut fname, "/");}
+    change_dir(fname, true);
+}
+pub(crate) fn dbg_dir_down(cmd: String){
+    let cmd = cmd.replace(".", "").trim_end().to_string();
+    let indx = match i64::from_str_radix(&cmd, 10){
+        Ok(i) => i,
+        _ => {set_ask_user("to enter dir, please, write 'dot index of directory' (for example, .7)", 145211752); return}
+    };
+    let mut fname = get_item_from_front_list(indx, true);
+    if fname == "no str gotten"{set_ask_user("dir_down failed", 145211752); return;}
+    if !crate::is_dir2(&fname) {tailOFF(&mut fname, "/");}
+    popup_msg(&fname);
     change_dir(fname, true);
 }

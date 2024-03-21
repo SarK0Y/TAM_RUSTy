@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -37,7 +37,7 @@ pub(crate) fn set_front_list(list: &str){
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
-    {fix_screen();}
+    {background_fixing();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -789,8 +789,54 @@ pub(crate) fn read_tail(strn: &String, delim: &str) -> String{
     ret  
 }
 pub(crate) fn is_dir(path: &String) -> bool{
-    let is_dir = path.chars().count() - 1;
-    let is_dir = path.chars().nth(is_dir);
-    if is_dir.expect("is_dir failed").to_string() != "/"{return false;}
+    if checkArg("-dbg1"){return dbg_is_dir(path);}
+    if checkArg("-dbg") || checkArg("-dbg3"){return dbg_is_dir3(path);}
+    let last_symb_indx = path.chars().count() - 1;
+    let slash = path.chars().nth(last_symb_indx).unwrap();
+    let is_slash = String::from(slash);
+    if is_slash != "/"{
+        if checkArg("-dbg2"){return dbg_is_dir2(path);} return is_dir2(path);}
+    true
+}
+pub(crate) fn dbg_is_dir(path: &String) -> bool{
+    let last_symb_indx = path.chars().count() - 1;
+    let slash = path.chars().nth(last_symb_indx).unwrap();
+    let is_slash = String::from(slash);
+    popup_msg(&format!("is_slash = {is_slash}"));
+    if is_slash != "/"{
+        if checkArg("-dbg2"){return dbg_is_dir2(path);} return is_dir2(path);}
+    true
+}
+
+pub(crate) fn dbg_is_dir3(path: &String) -> bool{
+   let c_path: std::ffi::CString = match CString::new(path.to_string()){
+    Ok(s) => s,
+    _ => CString::new("/").unwrap()
+   };
+   unsafe{
+       let mut stat: libc::stat = std::mem::zeroed();
+        if libc::stat(c_path.as_ptr(), &mut stat) >= 0 {
+            popup_msg(&format!("{}", stat.st_mode));
+        }
+    
+    };
+    true
+}
+pub(crate) fn dbg_is_dir2(path: &String) -> bool{
+    popup_msg("mjj");
+    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -io {maybe_dir}|uniq");
+    let ret = run_cmd_out(cmd);
+    println!("dbg_is_dir2 ==>> {}", ret);
+    popup_msg(&ret);
+    save_file(ret.clone(), "dbg_is_dir2".to_string());
+    if ret == ""{return false}
+    true
+}
+pub(crate) fn is_dir2(path: &String) -> bool{
+    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -io {maybe_dir}|uniq");
+    let ret = run_cmd_out(cmd);
+    if ret == ""{return false}
     true
 }
