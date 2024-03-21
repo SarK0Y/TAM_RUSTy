@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -73,8 +73,9 @@ pub(crate) fn merge(data: String){
         _ => i64::MIN
     };
     if indx > i64::MIN{
-        let fname = get_item_from_front_list(indx, true);
+        let fname = crate::escape_apostrophe(&get_item_from_front_list(indx, true));
         let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
+        set_full_path(&fname, -333444114);
         run_cmd_str(cmd.as_str());    
         return;
     }
@@ -88,11 +89,8 @@ pub(crate) fn merge(data: String){
     run_cmd_str(cmd.as_str());
     //let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
     //run_cmd_str(cmd.as_str());
-    let cmd = format!("#merge as front\nln -sf {} {}", filter_file_path, found_files_path);
-    run_cmd_str(cmd.as_str());
-    mark_front_lst("merge");
-    let dbg = crate::fix_num_files0(64977871);
-    let dbg1 = dbg;
+  //  let dbg = crate::fix_num_files0(64977871);
+    //let dbg1 = dbg;
 }
 pub(crate) fn clear_merge(){
     let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
@@ -387,28 +385,46 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         _ => 0
     };
     if len == 0{return (0usize, 0i64)}
-    if indx > len {proper_indx = (indx - len);}
-    if proper_indx < len {return (proper_indx.to_usize().unwrap(), proper_indx)}
-    if proper_indx > len {let ret = proper_indx - (proper_indx/len) * len; return (ret.to_usize().unwrap(), ret) }
-    return (0usize, 0);
+    return (i64_2_usize(proper_indx), proper_indx);
+}
+pub(crate) fn get_proper_indx_tst(indx: i64, fixed_indx: bool) -> (usize, i64){
+    //let last_pg = where_is_last_pg();
+    /*if indx < 0{
+        let mut indx = indx * -1;
+        if last_pg < indx{
+            indx = last_pg - (indx/last_pg) * last_pg;
+            return (i64_2_usize(indx), indx); 
+        }
+        let indx = last_pg - indx + 1;
+        return (i64_2_usize(indx), indx);
+    }*/
+    let mut fix_inputed_indx = indx;
+    //if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
+    let indx = fix_inputed_indx;
+    let mut proper_indx: i64 = 0;
+    let mut len: i64 = 0;
+    if indx > 0{proper_indx = indx;}
+    println!("{}", proper_indx.to_string());
+    println!("{}", indx.to_string());
+ 
+    return (i64_2_usize(proper_indx), proper_indx);
 }
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String{
     let proper_indx = get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
       let mut list_id: (i64, bool) = (1i64, false);
     for i in 0..1000{
-        list_id = unsafe {front_list_indx(i64::MAX)};
+        list_id = crate::C!(front_list_indx(i64::MAX));
         if list_id.1{break;}
     }
     if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
-    let main_path = get_tmp_dir(-13314);
-    return unsafe{lists("", list_id.0, proper_indx.0, GET)}
+    return crate::C!(lists("", list_id.0, proper_indx.0, GET))
 }
 pub fn set_main0_as_front(){crate::drop_ls_mode(); mark_front_lst("main0"); unsafe{lists("", MAIN0_, 0, SET_FRONT_LIST);}}
 pub fn set_ls_as_front() -> String{
       let mut list_id: (i64, bool) = (1i64, false);
   //  for i in 0..1000{
-        list_id = unsafe {front_list_indx(LS_)};
+        list_id = crate::C!(front_list_indx(LS_));
     //    if list_id.1{break;}
     //}
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
@@ -420,7 +436,10 @@ pub fn set_ls_as_front() -> String{
     let cmd = format!("#sets ls as front\nln -sf {} {}", ls_path, found_files_path);
     run_cmd_str(&cmd);
     mark_front_lst("ls");
-    unsafe{lists("", LS_, 0, SET_FRONT_LIST); return "ok".to_string();}}
+    let ret = || -> String{crate::C!(lists("", LS_, 0, SET_FRONT_LIST)); return "ok".to_string()};
+    //background_fixing();
+    ret()
+}
 pub unsafe fn lists(val: &str, list: i64, indx: usize, op_code: i64) -> String{
 static mut MAIN0: Vec<String> = Vec::new();
 let mut FRONT: &[String] = MAIN0.as_mut_slice();
@@ -437,6 +456,7 @@ if front_list == "main0"{list = MAIN0_;}
 if front_list == "ls"{list = LS_;}
 if list == MAIN0_ {
     if op_code == GET{
+        if MAIN0.len() <= indx{return "".to_string();}
         let ret = crate::cpy_str(&MAIN0[indx]);
         return ret.to_string()
     }

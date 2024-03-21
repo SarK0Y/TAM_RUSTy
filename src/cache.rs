@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -27,13 +27,16 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         std::thread::spawn(move||{
             let get_index = num_pg * cols * rows;
             cache_pg(get_indx, prev_cache, found_files, cols, rows);
-        });
+        }).join();
     }
     
         if !crate::Path::new(&is_cached).exists(){
         let recs_on_pg1 = cols * rows;
         let mut recs_on_pg2 = recs_on_pg1*2;
-        let file = crate::File::open(&found_files).unwrap();
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return ln_of_found_files_cacheless(get_indx)
+        };
         let reader = crate::BufReader::new(file);
         let mut len = 0usize;
         let mut ret = (String::new(), 0usize);
@@ -72,11 +75,14 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String, cols: i64, rows: i64) {
-     save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
+     //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
         if crate::Path::new(&cached_list).exists(){return}
-        save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
+        //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
         let mut recs_on_pg = cols * rows;
-        let file = crate::File::open(&found_files).unwrap();
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return
+        };
         let reader = crate::BufReader::new(file);
         let mut len = 0usize;
         let mut ret = (String::new(), 0usize);

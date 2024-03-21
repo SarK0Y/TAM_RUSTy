@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -36,7 +36,8 @@ pub(crate) fn set_front_list(list: &str){
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
-    if list == "merge"{fix_screen();}
+    //if list == "merge"
+    {background_fixing();}
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -109,6 +110,10 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::save_file("".to_string(), "main0.pg".to_string());
     mark_front_lst("main0");
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/cache");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
     crate::run_cmd0(mk_cache_dir);
     return true;
 }
@@ -191,7 +196,6 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
     let strr = strr.replace("$", r"\$");
-    let strr = strr.replace("'", r"\'");
     let strr = strr.replace("`", r"\`");
     let strr = strr.replace("(", r"\(");
     let strr = strr.replace("}", r"\}");
@@ -200,7 +204,11 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("]", r"\]");
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
+    let strr = strr.replace("'", r"\'");
     return strr.to_string();
+}
+pub(crate) fn escape_apostrophe(str0: &String) -> String{
+    return str0.as_str().replace("'", r"\'");
 }
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
@@ -245,6 +253,16 @@ let output = format!("{}/ls", unsafe{crate::ps18::page_struct("", crate::ps18::T
 let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
 let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
 crate::run_cmd0(cmd);
+return true;
+}
+#[inline(always)]
+pub(crate) fn find_files_cd(path: &String) -> bool{
+let func_id: i64 = 2;
+let mut list_of_found_files: Vec<String> = vec![]; 
+let output = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let stopCode = getStop_code__!();
+let cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+crate::run_cmd_out_sync(cmd);
 return true;
 }
 pub(crate) fn getkey() -> String{
@@ -394,6 +412,43 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
         if indx == get_indx{return (line.unwrap(), indx);}
         len = indx;
     }
+    return ("no str gotten".to_string(), len);
+}
+pub(crate) fn ln_of_found_files_cacheless(get_indx: usize) -> (String, usize){
+     let stopCode = getStop_code__!();
+        let found_files = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), 0)
+        };
+           let reader = BufReader::new(file);
+        let mut len = 0usize;
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{return (line.unwrap(), indx);}
+        len = indx;
+    }
+    return ("no str gotten".to_string(), len);
+}
+pub(crate) fn ln_of_list(get_indx: usize, list: &str) -> (String, usize){
+    let front = read_front_list();
+   /* if ls_mode != "ls"{
+    if !checkArg("-no-cache") {
+        if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
+    }*/
+    set_front_list(list);
+     let stopCode = getStop_code__!();
+        let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let file = match File::open(filename){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), usize::MAX) 
+        };
+        let reader = BufReader::new(file);
+        let mut len = 0usize;
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{set_front_list(front.as_str()); return (line.unwrap(), indx);}
+        len = indx;
+    }
+    set_front_list(front.as_str());
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn size_of_found_files() -> u64{
