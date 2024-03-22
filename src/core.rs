@@ -509,6 +509,7 @@ pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true
 }
+#[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let existing_file = || -> File{
@@ -689,6 +690,11 @@ fn check_substring(orig: String, probe: String, start_from: usize) -> bool{
      return true;
 }
 pub(crate) fn put_in_name() -> String{
+   // return dbg_put_in_name();
+   //#[cfg(in_dbg="in-dbg")]
+   #![inline(always)]
+    if checkArg("-dbg1") || checkArg("-dbg"){
+        return crate::core18::put_in_name__dbg();}
     let mut ret: String = String::new();
     let len_of_cmd_line = env::args().len() -1;
     let args: Vec<String> = env::args().collect();
@@ -700,6 +706,32 @@ pub(crate) fn put_in_name() -> String{
         }
     }
     return ret;
+}
+//#[cfg(in_dbg="in-dbg")]
+#[inline(always)]
+pub(crate) fn put_in_name__dbg() -> String{
+    popup_msg("run dbg_put_in_name");
+    let mut ret: String = String::new();
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    let dbg = format!("put_in_name::len_cmd_line {}", len_of_cmd_line);
+    achtung(&dbg);
+    save_file_abs_adr(dbg, "/tmp/dbg_put_in_name0".to_string());
+    for i in 0..len_of_cmd_line{
+        if args[i] == "-in_name".to_string() || args[i] == "-in-name".to_string(){
+            let cmd = format!("|{}", crate::form_grep_cmd(&args[i+1]));
+            ret.push_str(&cmd);
+            println!("put_in_name::{i} {}", ret);        
+        }
+    }
+    println!("put_in_name:: {}", ret);
+    let dbg = format!("put_in_name:: {}", ret);
+    let dbg1 = dbg.clone();
+    save_file_abs_adr(dbg, "/tmp/dbg_put_in_name".to_string());
+    popup_msg(&ret);
+    //return panic!("{}", crate::cpy_str(&dbg1));
+   return ret;
 }
 pub(crate) fn ins_newlines(len_of_line: usize, origString: &mut String) {
     let num_of_loops = origString.len() / len_of_line;

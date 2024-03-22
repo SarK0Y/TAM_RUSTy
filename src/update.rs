@@ -9,8 +9,6 @@ pub(crate) fn main_update(){
     if  crate::checkArg("-find_files") ||  crate::checkArg("-find-files"){
         if  crate::checkArg("-path"){path = get_arg_in_cmd("-path").s.iter().collect(); no_path = false;}
         if  crate::checkArg("-path0"){path = get_arg_in_cmd("-path0").s.iter().collect(); no_path = false;}
-        if  crate::checkArg("-in_name"){in_name = get_arg_in_cmd("-in_name").s.iter().collect();}
-        if  crate::checkArg("-in-name"){in_name = get_arg_in_cmd("-in-name").s.iter().collect();}
         if no_path {panic!("No path was provided: set flag '-path' or '-path0");}
         if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-rows").s).as_str(), 10).expect(
             "set number of rows as an integer: '-rows 9'"
@@ -22,7 +20,7 @@ pub(crate) fn main_update(){
         let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
         thr_find_files.spawn(move||{
             println!("spawn find files");
-            crate::find_files(path.as_str(), in_name, "");
+            crate::find_files(path.as_str(), "");
             if crate::dirty!(){println!("exit find files")};
         });
         thr_midway.spawn(||{
