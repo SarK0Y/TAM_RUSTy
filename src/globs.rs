@@ -100,7 +100,6 @@ pub(crate) fn sieve_list0(data: String){
     let dbg1 = dbg;
 }
 pub(crate) fn merge(data: String){
-    clean_cache();
     drop_ls_mode();
     let data = data.replace("mrg ", "");
     set_ask_user("example: 'mrg' to add entire front list to merge or 'mrg /path/to/file' or 'mrg <file's index>'", 5977871);
@@ -117,7 +116,6 @@ pub(crate) fn merge(data: String){
         crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
         set_full_path(&fname, -333444114);
         //run_cmd_str(cmd.as_str());    
-        background_fixing();
         return;
     }
     let path = get_path_from_strn(data);
