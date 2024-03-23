@@ -341,6 +341,10 @@ fn exec_cmd(cmd: String){
     if cmd == "show mrg"{
         set_front_list("merge");
     }
+    if cmd.as_str().substring(0, 4) == "term"{
+        crate::term(cmd);
+        return
+    }
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{
