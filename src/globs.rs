@@ -34,7 +34,16 @@ pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     let cmd = format!("mv {} {}", list_tmp, list);
     run_cmd_str(cmd.as_str());
 }
+pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
+    let symb = symb.to_string();
+    let len = strn.chars().count();
+    for ch in strn.chars(){
+        if Some(ch) == symb.chars().nth(0){return true}
+    }
+    false
+}
 pub(crate) fn sieve_list(data: String){
+    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     clean_cache();
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
@@ -51,6 +60,36 @@ pub(crate) fn sieve_list(data: String){
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    if match std::fs::metadata(&filter_file_path_tmp){
+        Ok(g) => g,
+        _=> return sieve_list0(data)
+    }.len() == 0{sieve_list0(data); return}
+    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
+    run_cmd_str(cmd.as_str());
+    mark_front_lst("filter");
+    let dbg = crate::fix_num_files0(5977871);
+    let dbg1 = dbg;
+}
+pub(crate) fn sieve_list0(data: String){
+    clean_cache();
+    let data = data.replace("sieve ", "");
+    let (mut opts, mut data) = split_once(&data, " ");
+    if opts == "none".to_string() || data == "none".to_string(){
+        set_ask_user("example: sieve -Ei some\\shere", 5977871);
+    }
+    if opts == "none"{return}
+    if data == "none"{
+        data = opts;
+        opts = "-Ei".to_string()}
+    let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
+    let cmd = format!("echo '' > {}", filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path, filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
     run_cmd_str(cmd.as_str());
