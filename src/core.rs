@@ -205,10 +205,14 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
+    //let strr = strr.replace("\\", r"\\");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
     return str0.as_str().replace("'", r"\'");
+}
+pub(crate) fn escape_backslash(str0: &String) -> String{
+    return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
@@ -547,6 +551,30 @@ pub(crate) fn save_file_append(content: String, fname: String) -> bool{
 }
 pub(crate) fn save_file_append_abs_adr(content: String, fname: String) -> bool{
     let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => File::options().create_new(true).write(true).open(&fname).unwrap()
+    }}};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append_newline_abs_adr(content: String, fname: String) -> bool{
+    let cmd = format!("touch -f {fname}");
+    let content = format!("{}\n", content);
     //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
         Ok(f) => f,
