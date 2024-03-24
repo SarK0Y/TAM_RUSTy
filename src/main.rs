@@ -278,26 +278,11 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 fn main (){
-// stacker::maybe_grow( 8*1024*1024, 32*1024*1024, || {
-    // guaranteed to have at least 32K of stack
-  /*/  let mut inp = String::new();
-    io::stdin().read_line(&mut inp).expect("Ins_key failed to read console");
-    let inp = inp.trim_end();
-    let inp0 = match i64::from_str_radix(&inp, 10){
-        Ok(i) => i,
-        _ => 0
-    };
-    get_proper_indx_tst(inp0, true);
-    return;*/
-    initSession();
-   /*/ let prnt = format!("term mnh /tmp/yst:>:no_upd_scrn");
-    let (prnt, tail) = split_once(&prnt, ":>:");
-    println!("{}\n{}", prnt, tail);
-    return;*/
+ /*/   initSession();
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
 if core18::checkArg("-path"){path = String::from_iter(get_arg_in_cmd("-path").s);}
-if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}
+if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}*/
 update18::prime();
 let mut Key: String = "tst".blink().to_string();
 println!("Key is {}", Key);

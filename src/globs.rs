@@ -212,7 +212,7 @@ pub(crate) fn Enter(){
     let (term, _) = split_once(&prnt, " ");
     if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
-        set_prnt(&prnt, -881454);
+        //set_prnt(&prnt, -881454);
     }
     let mut mode = 0i64;
     crate::C!(check_mode(&mut mode));

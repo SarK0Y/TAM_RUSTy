@@ -10,9 +10,9 @@ pub(crate) fn change_dir(cmd: String, set: bool){
     let path = cmd.replace("cd", "").trim_start().to_string();
     let path_escaped = crate::escape_symbs(&path);
     if path == ""{return}
-    let (base_path, indx) = ln_of_list(0, "cd");
-    let check_base_str = base_path.replace(&path, "");
-    {crate::find_files_cd(&path_escaped);}
+    //let (base_path, indx) = ln_of_list(0, "cd");
+    //let check_base_str = base_path.replace(&path, "");
+    crate::find_files_cd_cpy_ls(&path_escaped);
     drop_ls_mode();
     set_front_list("cd");
     set_full_path(&path, 4051778415);

@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -37,7 +37,7 @@ pub(crate) fn set_front_list(list: &str){
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
-    {background_fixing();}
+    background_fixing()
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -259,13 +259,23 @@ let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", c
 crate::run_cmd0(cmd);
 return true;
 }
-#[inline(always)]
+//#[inline(always)]
 pub(crate) fn find_files_cd(path: &String) -> bool{
 let func_id: i64 = 2;
 let mut list_of_found_files: Vec<String> = vec![]; 
 let output = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
 let stopCode = getStop_code__!();
-let cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+let cmd: String =  format!("#!/bin/bash\n#cd\nfind -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+crate::run_cmd_out_sync(cmd);
+return true;
+}
+pub(crate) fn find_files_cd_cpy_ls(path: &String) -> bool{
+let func_id: i64 = 2;
+let cmd = format!("find -L {path} -maxdepth 1");
+find_files_ls(cmd);
+let cd = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let ls = format!("{}/ls", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let cmd: String =  format!("#!/bin/bash\n#ls cpy to cd\ncp -f {ls} {cd}");
 crate::run_cmd_out_sync(cmd);
 return true;
 }
@@ -409,7 +419,10 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
     }
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
-        let file = File::open(filename).unwrap();
+        let file = match File::open(filename){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), 0)
+        };
         let reader = BufReader::new(file);
         let mut len = 0usize;
     for (indx, line) in reader.lines().enumerate() {
