@@ -34,6 +34,9 @@ use func_id18::*;
 #[path = "cache.rs"]
 mod cache;
 use cache::*;
+#[path = "env.rs"]
+mod tam_env;
+use tam_env::*;
 #[path = "globs.rs"]
 mod globs18;
 #[path = "term_app.rs"]

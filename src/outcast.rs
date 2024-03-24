@@ -396,3 +396,30 @@ loop{
 //builder.join();
 true
 }
+pub(crate) fn get_proper_indx__glitchy_ver(indx: i64, fixed_indx: bool) -> (usize, i64){
+    let last_pg = where_is_last_pg();
+    if indx < 0{
+        let mut indx = indx * -1;
+        if last_pg < indx{
+            indx = last_pg - (indx/last_pg) * last_pg;
+            return (i64_2_usize(indx), indx); 
+        }
+        let indx = last_pg - indx + 1;
+        return (i64_2_usize(indx), indx);
+    }
+    let mut fix_inputed_indx = indx;
+    if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
+    let indx = fix_inputed_indx;
+    let mut proper_indx: i64 = 0;
+    let mut len: i64 = 0;
+    if indx > 0{proper_indx = indx;}
+    len = match i64::from_str_radix(len_of_front_list().as_str(), 10){
+        Ok(i64_) => i64_,
+        _ => 0
+    };
+    if len == 0{return (0usize, 0i64)}
+    if indx > len {proper_indx = (indx - len);}
+    if proper_indx < len {return (proper_indx.to_usize().unwrap(), proper_indx)}
+    if proper_indx > len {let ret = proper_indx - (proper_indx/len) * len; return (ret.to_usize().unwrap(), ret) }
+    return (0usize, 0);
+}

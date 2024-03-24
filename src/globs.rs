@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -34,7 +34,47 @@ pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     let cmd = format!("mv {} {}", list_tmp, list);
     run_cmd_str(cmd.as_str());
 }
+pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
+    let symb = symb.to_string();
+    let len = strn.chars().count();
+    for ch in strn.chars(){
+        if Some(ch) == symb.chars().nth(0){return true}
+    }
+    false
+}
 pub(crate) fn sieve_list(data: String){
+    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
+    clean_cache();
+    let data = data.replace("sieve ", "");
+    let (mut opts, mut data) = split_once(&data, " ");
+    if opts == "none".to_string() || data == "none".to_string(){
+        set_ask_user("example: sieve -Ei some\\shere", 5977871);
+    }
+    if opts == "none"{return}
+    if data == "none"{
+        data = opts;
+        opts = "-Ei".to_string()}
+    let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
+    let cmd = format!("echo '' > {}", filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    if match std::fs::metadata(&filter_file_path_tmp){
+        Ok(g) => g,
+        _=> return sieve_list0(data)
+    }.len() == 0{sieve_list0(data); return}
+    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
+    run_cmd_str(cmd.as_str());
+    mark_front_lst("filter");
+    let dbg = crate::fix_num_files0(5977871);
+    let dbg1 = dbg;
+}
+pub(crate) fn sieve_list0(data: String){
+    clean_cache();
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -59,6 +99,44 @@ pub(crate) fn sieve_list(data: String){
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 }
+pub(crate) fn merge(data: String){
+    drop_ls_mode();
+    let data = data.replace("mrg ", "");
+    set_ask_user("example: 'mrg' to add entire front list to merge or 'mrg /path/to/file' or 'mrg <file's index>'", 5977871);
+    let found_files_path = format!("{}/found_files", get_tmp_dir(1911441));
+    let filter_file_path_tmp = format!("{}/merge.tmp", get_tmp_dir(1911441));
+    let filter_file_path = format!("{}/merge", get_tmp_dir(1911441));
+    let indx = match i64::from_str_radix(&data, 10){
+        Ok(i) => i,
+        _ => i64::MIN
+    };
+    if indx > i64::MIN{
+        let fname = /*crate::escape_apostrophe(&*/get_item_from_front_list(indx, true);//);
+        //let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
+        crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
+        set_full_path(&fname, -333444114);
+        //run_cmd_str(cmd.as_str());   
+        return;
+    }
+    let path = get_path_from_strn(data);
+    if path.len() > 0 {
+        let cmd = format!("echo '{}' >> {}", path, filter_file_path);
+        run_cmd_str(cmd.as_str());    
+        return;
+    }
+    let cmd = format!("cat {} >> {}", found_files_path, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    //let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    //run_cmd_str(cmd.as_str());
+  //  let dbg = crate::fix_num_files0(64977871);
+    //let dbg1 = dbg;
+}
+pub(crate) fn clear_merge(){
+    let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
+    rm_file(&filter_file_path);
+    clean_cache();
+    F1_key();
+}
 pub(crate) fn show_ls(){
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
     crate::ps18::fix_num_files(-13972);
@@ -81,6 +159,7 @@ pub(crate) fn F1_key() -> String{
     let mut prnt: String = read_prnt();
    set_main0_as_front();
    crate::ps18::fix_num_files(-13971);
+   clean_cache();
 format!("go2 {}", read_file("main0.pg"))
 }
 pub(crate) fn F3_key() -> String{
@@ -129,11 +208,16 @@ pub(crate) fn Ins_key() -> String{
     prnt
 }
 pub(crate) fn Enter(){
+    let mut prnt = get_prnt(-881454);
+    let (term, _) = split_once(&prnt, " ");
+    if term == "term"{
+        prnt = format!("{prnt}:>:no_upd_scrn");
+        set_prnt(&prnt, -881454);
+    }
     let mut mode = 0i64;
-    unsafe{check_mode(&mut mode)}
+    crate::C!(check_mode(&mut mode));
     if mode == SWTCH_USER_WRITING_PATH{mode = SWTCH_RUN_VIEWER}
-    unsafe {crate::swtch::swtch_fn(mode, "".to_string());}
-    crate::drop_ls_mode();
+    crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
 }
 pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     let flags = unsafe { fcntl(fd, F_GETFL, 0) };
@@ -305,7 +389,7 @@ pub fn len_of_list_wc(name: &str) -> String{
     let len_list = crate::run_cmd_out_sync(cmd);
     list_adr.push_str(".len");
     let (len_list, _) = split_once(&len_list, " ");
-    save_file(cpy_str(&len_list), name.to_string());
+    crate::rewrite_file_abs_adr(cpy_str(&len_list), list_adr.to_string());
     return len_list;
 }
 pub fn len_of_front_list_wc() -> String{
@@ -346,28 +430,46 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         _ => 0
     };
     if len == 0{return (0usize, 0i64)}
-    if indx > len {proper_indx = (indx - len);}
-    if proper_indx < len {return (proper_indx.to_usize().unwrap(), proper_indx)}
-    if proper_indx > len {let ret = proper_indx - (proper_indx/len) * len; return (ret.to_usize().unwrap(), ret) }
-    return (0usize, 0);
+    return (i64_2_usize(proper_indx), proper_indx);
+}
+pub(crate) fn get_proper_indx_tst(indx: i64, fixed_indx: bool) -> (usize, i64){
+    //let last_pg = where_is_last_pg();
+    /*if indx < 0{
+        let mut indx = indx * -1;
+        if last_pg < indx{
+            indx = last_pg - (indx/last_pg) * last_pg;
+            return (i64_2_usize(indx), indx); 
+        }
+        let indx = last_pg - indx + 1;
+        return (i64_2_usize(indx), indx);
+    }*/
+    let mut fix_inputed_indx = indx;
+    //if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
+    let indx = fix_inputed_indx;
+    let mut proper_indx: i64 = 0;
+    let mut len: i64 = 0;
+    if indx > 0{proper_indx = indx;}
+    println!("{}", proper_indx.to_string());
+    println!("{}", indx.to_string());
+ 
+    return (i64_2_usize(proper_indx), proper_indx);
 }
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String{
     let proper_indx = get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
       let mut list_id: (i64, bool) = (1i64, false);
     for i in 0..1000{
-        list_id = unsafe {front_list_indx(i64::MAX)};
+        list_id = crate::C!(front_list_indx(i64::MAX));
         if list_id.1{break;}
     }
     if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
-    let main_path = get_tmp_dir(-13314);
-    return unsafe{lists("", list_id.0, proper_indx.0, GET)}
+    return crate::C!(lists("", list_id.0, proper_indx.0, GET))
 }
 pub fn set_main0_as_front(){crate::drop_ls_mode(); mark_front_lst("main0"); unsafe{lists("", MAIN0_, 0, SET_FRONT_LIST);}}
 pub fn set_ls_as_front() -> String{
       let mut list_id: (i64, bool) = (1i64, false);
   //  for i in 0..1000{
-        list_id = unsafe {front_list_indx(LS_)};
+        list_id = crate::C!(front_list_indx(LS_));
     //    if list_id.1{break;}
     //}
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
@@ -379,7 +481,10 @@ pub fn set_ls_as_front() -> String{
     let cmd = format!("#sets ls as front\nln -sf {} {}", ls_path, found_files_path);
     run_cmd_str(&cmd);
     mark_front_lst("ls");
-    unsafe{lists("", LS_, 0, SET_FRONT_LIST); return "ok".to_string();}}
+    let ret = || -> String{crate::C!(lists("", LS_, 0, SET_FRONT_LIST)); return "ok".to_string()};
+    //background_fixing();
+    ret()
+}
 pub unsafe fn lists(val: &str, list: i64, indx: usize, op_code: i64) -> String{
 static mut MAIN0: Vec<String> = Vec::new();
 let mut FRONT: &[String] = MAIN0.as_mut_slice();
@@ -396,6 +501,7 @@ if front_list == "main0"{list = MAIN0_;}
 if front_list == "ls"{list = LS_;}
 if list == MAIN0_ {
     if op_code == GET{
+        if MAIN0.len() <= indx{return "".to_string();}
         let ret = crate::cpy_str(&MAIN0[indx]);
         return ret.to_string()
     }
@@ -463,4 +569,29 @@ pub(crate) fn renew_lists(new_item: String){
     let cmd = format!("echo {stop} >> {main0}");
     run_cmd_str(cmd.as_str());
     add_2_main0_list(&new_item);
+}
+pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
+    let mut maybe = String::new();
+    let mut found = false;
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    let mut ret = (String::new(), String::new());
+    for i in strn.chars(){
+        print!("{}", i);
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if found {ret.1.push(i); continue;}
+            if maybe == *delim {found = true; continue;}
+            count_delim_chars = 0;
+            ret.0.push_str(maybe.as_str());
+            ret.0.push(i);
+            maybe = String::new();
+        }
+        println!("{}", i);
+    }
+    ret
 }
