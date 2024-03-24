@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -72,8 +72,6 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls(cmd);
-    let (term, _) = split_once(&crate::read_prnt(), " ");
-    if term == "term"{return;}
     background_fixing();
 }
 pub(crate) fn lets_write_path(key: String){
@@ -84,12 +82,16 @@ pub(crate) fn lets_write_path(key: String){
 
 }
 pub(crate) fn background_fixing(){        
+    let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
+    if subcmd == "no_upd_scrn"{
+        set_prnt(&prnt, -164547841);
+        return;
+    }
  let builder = thread::Builder::new().stack_size(2 * 1024 * 1024).name("background_fixing".to_string());
  builder.spawn(|| {
-    let release_fn = _background_fixing;
-    let dbg_fn = dbg_background_fixing;
-    if checkArg("-dbg"){dbg_fn()}
-    else {release_fn()}
+    let mut bkgrnd: fn() = _background_fixing;
+     if checkArg("-dbg"){bkgrnd = dbg_background_fixing;}
+     bkgrnd();
     fix_screen();
 });
 }
@@ -139,7 +141,12 @@ let ls_mode = take_list_adr("ls.mode");
 
 pub(crate) fn fix_screen(){
     std::thread::spawn(||{
-        for i in 0..5{
+        for i in 0..4{
+            let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
+            if subcmd == "no_upd_scrn"{
+                set_prnt(&prnt, -164547841);
+                return;
+            }
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -151,6 +158,11 @@ pub(crate) fn fix_screen(){
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
+           let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
+            if subcmd == "no_upd_scrn"{
+                set_prnt(&prnt, -164547841);
+                return;
+            }
         }
     });
 }

@@ -97,8 +97,9 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     if cmd0.len() < cmd.len(){return true} 
     false
 }
-pub(crate) fn term(cmd: String){
+pub(crate) fn term(cmd: &String){
+     let (cmd, subcmd) = split_once(&cmd, ":>:");
     let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
-    run_term_app1(cmd);
+    run_term_app(cmd);
 }

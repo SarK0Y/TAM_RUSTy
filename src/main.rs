@@ -9,12 +9,13 @@
 #[allow(arithmetic_overflow)]
 mod exts;
 use exts::*;
-use globs18::get_item_from_front_list;
+use globs18::{get_item_from_front_list, split_once_alt};
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 use_all!();
 
 pub(crate) fn split_once(in_string: &str, delim: &str) -> (String, String) {
+    if delim.chars().count() > 1{return split_once_alt(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
 let first = match splitter.next(){
     Some(val) => val,
@@ -289,6 +290,10 @@ fn main (){
     get_proper_indx_tst(inp0, true);
     return;*/
     initSession();
+   /*/ let prnt = format!("term mnh /tmp/yst:>:no_upd_scrn");
+    let (prnt, tail) = split_once(&prnt, ":>:");
+    println!("{}\n{}", prnt, tail);
+    return;*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
 if core18::checkArg("-path"){path = String::from_iter(get_arg_in_cmd("-path").s);}

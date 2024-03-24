@@ -115,7 +115,7 @@ pub(crate) fn merge(data: String){
         //let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
         crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
         set_full_path(&fname, -333444114);
-        //run_cmd_str(cmd.as_str());    
+        //run_cmd_str(cmd.as_str());   
         return;
     }
     let path = get_path_from_strn(data);
@@ -208,8 +208,14 @@ pub(crate) fn Ins_key() -> String{
     prnt
 }
 pub(crate) fn Enter(){
+    let mut prnt = get_prnt(-881454);
+    let (term, _) = split_once(&prnt, " ");
+    if term == "term"{
+        prnt = format!("{prnt}:>:no_upd_scrn");
+        set_prnt(&prnt, -881454);
+    }
     let mut mode = 0i64;
-    unsafe{check_mode(&mut mode)}
+    crate::C!(check_mode(&mut mode));
     if mode == SWTCH_USER_WRITING_PATH{mode = SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
 }
@@ -563,4 +569,27 @@ pub(crate) fn renew_lists(new_item: String){
     let cmd = format!("echo {stop} >> {main0}");
     run_cmd_str(cmd.as_str());
     add_2_main0_list(&new_item);
+}
+pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
+    let mut maybe = String::new();
+    let mut found = false;
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    let mut ret = (String::new(), String::new());
+    for i in strn.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if found {ret.1.push(i); continue;}
+            if maybe == *delim {ret.1.push(i); found = true; continue;}
+            count_delim_chars = 0;
+            ret.0.push_str(maybe.as_str());
+            ret.0.push(i);
+            maybe = String::new();
+        }
+    }
+    ret
 }
