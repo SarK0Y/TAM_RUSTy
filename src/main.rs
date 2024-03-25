@@ -9,12 +9,13 @@
 #[allow(arithmetic_overflow)]
 mod exts;
 use exts::*;
-use globs18::get_item_from_front_list;
+use globs18::{get_item_from_front_list, split_once_alt};
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 use_all!();
 
 pub(crate) fn split_once(in_string: &str, delim: &str) -> (String, String) {
+    if delim.chars().count() > 1{return split_once_alt(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
 let first = match splitter.next(){
     Some(val) => val,
@@ -40,6 +41,16 @@ fn form_grep_cmd(in_name: &String) -> String{
     return ret;
 }
 fn mk_cmd_file(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
 let func_id = 4;
 let timestamp = Local::now();
 let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
@@ -229,9 +240,10 @@ fn read_midway_data() -> bool{
     }  if dirty!(){println!("midway ended")}}
     false
 }
-#[inline(always)]
-fn find_files(path: &str, mut in_name: String, path_2_tmp_file: &str) -> bool{
+//#[inline(always)]
+fn find_files(path: &str, path_2_tmp_file: &str) -> bool{
 let func_id: i64 = 2;
+let mut in_name = String::new();
 let mut list_of_found_files: Vec<String> = vec![]; 
 let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
 if in_name.len() == 0{in_name = core18::put_in_name();}
@@ -265,33 +277,26 @@ for i in 1..args.len(){
 ret.res = false;
 return ret;
 }
+fn self_dive(nm: String){// just sidekick to crrash tst :)
+    std::thread::spawn(||{
+        let nm = nm;
+    self_dive(nm);
+    });
+    for i in 0..1_000_000 {
+        self_dive("dive, baby".to_string());
+    }
+    return
+}
 fn main (){
-// stacker::maybe_grow( 8*1024*1024, 32*1024*1024, || {
-    // guaranteed to have at least 32K of stack
-  /*/  let mut inp = String::new();
-    io::stdin().read_line(&mut inp).expect("Ins_key failed to read console");
-    let inp = inp.trim_end();
-    let inp0 = match i64::from_str_radix(&inp, 10){
-        Ok(i) => i,
-        _ => 0
-    };
-    get_proper_indx_tst(inp0, true);
-    return;*/
-    initSession();
-let out: core18::ret0 = get_arg_in_cmd("-");
-let out1: core18::ret0 = get_arg_in_cmd("-тст");
-println!("argument from cmd (-tst) {}", String::from_iter(out.s));
-println!("argument from cmd (-тст) {}", String::from_iter(out1.s));
-unsafe {println!("get stotstp code {}", ps18::page_struct("", 1, 0).str_);}
-//unsafe {println!("set stop code {}", page_struct("777", set(1), 0).str_);}
-unsafe {println!("get stop code {}", ps18::page_struct("", 1, 0).str_);}
+   initSession();
+   /*/
+    if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
 if core18::checkArg("-path"){path = String::from_iter(get_arg_in_cmd("-path").s);}
-if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}
+if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}*/
 update18::prime();
 let mut Key: String = "tst".blink().to_string();
 println!("Key is {}", Key);
-ps18::set_prnt("thr main", -1);
 //});
 return;
 }

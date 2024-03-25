@@ -341,6 +341,11 @@ fn exec_cmd(cmd: String){
     if cmd == "show mrg"{
         set_front_list("merge");
     }
+    if cmd.as_str().substring(0, 4) == "term"{
+        let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
+        if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
+        crate::term(&cmd);
+    }
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{
@@ -355,5 +360,16 @@ fn extract_sub_cmd(cmd: &mut String) -> String{
     }
     let erase = format!("{}{}", mark, sub_cmd);
     *cmd = cmd.replace(&erase, "");
+    sub_cmd
+}
+fn extract_sub_cmd_by_mark(cmd: &String, mark: String) -> String{
+    let len_cmd = cmd.chars().count();
+    let len_mark = mark.chars().count();
+    let mut mark_iter = 0usize;
+    let mut sub_cmd = String::new();
+    for i in 0..len_cmd{
+        let ch = cmd.chars().nth(i).unwrap();
+        if mark_iter == len_mark {sub_cmd.push(ch);} else {if Some(ch) == mark.chars().nth(mark_iter){mark_iter += 1}}
+    }
     sub_cmd
 }

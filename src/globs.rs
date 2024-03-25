@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -34,7 +34,46 @@ pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     let cmd = format!("mv {} {}", list_tmp, list);
     run_cmd_str(cmd.as_str());
 }
+pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
+    let symb = symb.to_string();
+    let len = strn.chars().count();
+    for ch in strn.chars(){
+        if Some(ch) == symb.chars().nth(0){return true}
+    }
+    false
+}
 pub(crate) fn sieve_list(data: String){
+    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
+    clean_cache();
+    let data = data.replace("sieve ", "");
+    let (mut opts, mut data) = split_once(&data, " ");
+    if opts == "none".to_string() || data == "none".to_string(){
+        set_ask_user("example: sieve -Ei some\\shere", 5977871);
+    }
+    if opts == "none"{return}
+    if data == "none"{
+        data = opts;
+        opts = "-Ei".to_string()}
+    let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
+    let cmd = format!("echo '' > {}", filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    if match std::fs::metadata(&filter_file_path_tmp){
+        Ok(g) => g,
+        _=> return sieve_list0(data)
+    }.len() == 0{sieve_list0(data); return}
+    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
+    run_cmd_str(cmd.as_str());
+    mark_front_lst("filter");
+    let dbg = crate::fix_num_files0(5977871);
+    let dbg1 = dbg;
+}
+pub(crate) fn sieve_list0(data: String){
     clean_cache();
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
@@ -61,7 +100,6 @@ pub(crate) fn sieve_list(data: String){
     let dbg1 = dbg;
 }
 pub(crate) fn merge(data: String){
-    clean_cache();
     drop_ls_mode();
     let data = data.replace("mrg ", "");
     set_ask_user("example: 'mrg' to add entire front list to merge or 'mrg /path/to/file' or 'mrg <file's index>'", 5977871);
@@ -73,10 +111,11 @@ pub(crate) fn merge(data: String){
         _ => i64::MIN
     };
     if indx > i64::MIN{
-        let fname = crate::escape_apostrophe(&get_item_from_front_list(indx, true));
-        let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
+        let fname = /*crate::escape_apostrophe(&*/get_item_from_front_list(indx, true);//);
+        //let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
+        crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
         set_full_path(&fname, -333444114);
-        run_cmd_str(cmd.as_str());    
+        //run_cmd_str(cmd.as_str());   
         return;
     }
     let path = get_path_from_strn(data);
@@ -169,8 +208,14 @@ pub(crate) fn Ins_key() -> String{
     prnt
 }
 pub(crate) fn Enter(){
+    let mut prnt = get_prnt(-881454);
+    let (term, _) = split_once(&prnt, " ");
+    if term == "term"{
+        prnt = format!("{prnt}:>:no_upd_scrn");
+        //set_prnt(&prnt, -881454);
+    }
     let mut mode = 0i64;
-    unsafe{check_mode(&mut mode)}
+    crate::C!(check_mode(&mut mode));
     if mode == SWTCH_USER_WRITING_PATH{mode = SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
 }
@@ -524,4 +569,27 @@ pub(crate) fn renew_lists(new_item: String){
     let cmd = format!("echo {stop} >> {main0}");
     run_cmd_str(cmd.as_str());
     add_2_main0_list(&new_item);
+}
+pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
+    let mut maybe = String::new();
+    let mut found = false;
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    let mut ret = (String::new(), String::new());
+    for i in strn.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if found {ret.1.push(i); continue;}
+            if maybe == *delim {ret.1.push(i); found = true; continue;}
+            count_delim_chars = 0;
+            ret.0.push_str(maybe.as_str());
+            ret.0.push(i);
+            maybe = String::new();
+        }
+    }
+    ret
 }

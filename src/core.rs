@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -37,7 +37,19 @@ pub(crate) fn set_front_list(list: &str){
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
-    {background_fixing();}
+    background_fixing()
+}
+pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
+    let tmp_dir = get_tmp_dir(-155741);
+    if tmp_dir == ""{return;}
+    let found_files = format!("{tmp_dir}/found_files");
+    let active_list = format!("{tmp_dir}/{}", list);
+    let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
+    run_cmd_out_sync(cmd);
+    mark_front_lst(list);
+    crate::wait_4_empty_cache();
+    //if list == "merge"
+    background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -114,6 +126,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
     crate::run_cmd0(mk_cache_dir);
     return true;
 }
@@ -205,10 +219,14 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
+    //let strr = strr.replace("\\", r"\\");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
     return str0.as_str().replace("'", r"\'");
+}
+pub(crate) fn escape_backslash(str0: &String) -> String{
+    return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
@@ -255,13 +273,23 @@ let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", c
 crate::run_cmd0(cmd);
 return true;
 }
-#[inline(always)]
+//#[inline(always)]
 pub(crate) fn find_files_cd(path: &String) -> bool{
 let func_id: i64 = 2;
 let mut list_of_found_files: Vec<String> = vec![]; 
 let output = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
 let stopCode = getStop_code__!();
-let cmd: String =  format!("#!/bin/bash\ncd {path};find -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+let cmd: String =  format!("#!/bin/bash\n#cd\nfind -L {} -maxdepth 1 > {};echo '{stopCode}' >> {output}", path, output);
+crate::run_cmd_out_sync(cmd);
+return true;
+}
+pub(crate) fn find_files_cd_cpy_ls(path: &String) -> bool{
+let func_id: i64 = 2;
+let cmd = format!("find -L {path} -maxdepth 1");
+find_files_ls(cmd);
+let cd = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let ls = format!("{}/ls", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+let cmd: String =  format!("#!/bin/bash\n#ls cpy to cd\ncp -f {ls} {cd}");
 crate::run_cmd_out_sync(cmd);
 return true;
 }
@@ -405,7 +433,10 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
     }
      let stopCode = getStop_code__!();
         let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
-        let file = File::open(filename).unwrap();
+        let file = match File::open(filename){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), 0)
+        };
         let reader = BufReader::new(file);
         let mut len = 0usize;
     for (indx, line) in reader.lines().enumerate() {
@@ -482,6 +513,15 @@ pub(crate) fn get_path_from_prnt() -> String{
     }
     ret
 }
+pub(crate) fn logs(data: &String, logname: &str){
+    if !checkArg("-logs"){return;}
+    let typelog = String::from_iter(get_arg_in_cmd("-logs").s).trim_start().trim_end().to_string();
+    if typelog != ""{
+        if eq_str(typelog.as_str(), logname) != 0 /*typelog != logname*/{return}
+    }
+    let logname = format!("logs/{logname}");
+    save_file_append_newline(data.to_string(), logname);
+}
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let cmd = format!("echo '{}' > {}", content, fname);
@@ -489,6 +529,7 @@ pub(crate) fn save_file0(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn save_file(content: String, fname: String) -> bool{
+    logs(&fname, "save_file");
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let cmd = format!("touch -f {fname}");
     //run_cmd_str(cmd.as_str());
@@ -501,6 +542,7 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
+    logs(&fname, "rewrite_file_abs_adr");
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
@@ -509,6 +551,7 @@ pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true
 }
+#[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let existing_file = || -> File{
@@ -523,6 +566,30 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
         }
     };
     file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append_newline(content: String, fname: String) -> bool{
+    let content = format!("{}/n", content);
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let mut dir = fname.clone(); tailOFF(&mut dir, "/");
+    let mk_dir = format!("mkdir -p {}", dir);
+    run_cmd_str(mk_dir.as_str());
+    let cmd = format!("touch -f {fname}");
+    run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{popup_msg(&fname); return File::create(&fname).expect(&fname)};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    let comtent = format!("{}\n", content);
+    file.write_all(content.as_bytes()).expect("save_file failed");
     true
 }
 pub(crate) fn save_file_append(content: String, fname: String) -> bool{
@@ -546,6 +613,30 @@ pub(crate) fn save_file_append(content: String, fname: String) -> bool{
 }
 pub(crate) fn save_file_append_abs_adr(content: String, fname: String) -> bool{
     let cmd = format!("touch -f {fname}");
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => File::options().create_new(true).write(true).open(&fname).unwrap()
+    }}};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append_newline_abs_adr(content: String, fname: String) -> bool{
+    let cmd = format!("touch -f {fname}");
+    let content = format!("{}\n", content);
     //run_cmd_str(cmd.as_str());
     let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
         Ok(f) => f,
@@ -689,6 +780,11 @@ fn check_substring(orig: String, probe: String, start_from: usize) -> bool{
      return true;
 }
 pub(crate) fn put_in_name() -> String{
+   // return dbg_put_in_name();
+   //#[cfg(in_dbg="in-dbg")]
+   #![inline(always)]
+    if checkArg("-dbg1") || checkArg("-dbg"){
+        return crate::core18::put_in_name__dbg();}
     let mut ret: String = String::new();
     let len_of_cmd_line = env::args().len() -1;
     let args: Vec<String> = env::args().collect();
@@ -700,6 +796,32 @@ pub(crate) fn put_in_name() -> String{
         }
     }
     return ret;
+}
+//#[cfg(in_dbg="in-dbg")]
+#[inline(always)]
+pub(crate) fn put_in_name__dbg() -> String{
+    popup_msg("run dbg_put_in_name");
+    let mut ret: String = String::new();
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    let dbg = format!("put_in_name::len_cmd_line {}", len_of_cmd_line);
+    achtung(&dbg);
+    save_file_abs_adr(dbg, "/tmp/dbg_put_in_name0".to_string());
+    for i in 0..len_of_cmd_line{
+        if args[i] == "-in_name".to_string() || args[i] == "-in-name".to_string(){
+            let cmd = format!("|{}", crate::form_grep_cmd(&args[i+1]));
+            ret.push_str(&cmd);
+            println!("put_in_name::{i} {}", ret);        
+        }
+    }
+    println!("put_in_name:: {}", ret);
+    let dbg = format!("put_in_name:: {}", ret);
+    let dbg1 = dbg.clone();
+    save_file_abs_adr(dbg, "/tmp/dbg_put_in_name".to_string());
+    popup_msg(&ret);
+    //return panic!("{}", crate::cpy_str(&dbg1));
+   return ret;
 }
 pub(crate) fn ins_newlines(len_of_line: usize, origString: &mut String) {
     let num_of_loops = origString.len() / len_of_line;
@@ -789,8 +911,56 @@ pub(crate) fn read_tail(strn: &String, delim: &str) -> String{
     ret  
 }
 pub(crate) fn is_dir(path: &String) -> bool{
-    let is_dir = path.chars().count() - 1;
-    let is_dir = path.chars().nth(is_dir);
-    if is_dir.expect("is_dir failed").to_string() != "/"{return false;}
+    if checkArg("-dbg1"){return dbg_is_dir(path);}
+    if checkArg("-dbg") || checkArg("-dbg3"){return dbg_is_dir3(path);}
+    let last_symb_indx = path.chars().count() - 1;
+    let slash = path.chars().nth(last_symb_indx).unwrap();
+    let is_slash = String::from(slash);
+    if is_slash != "/"{
+        if checkArg("-dbg2"){return dbg_is_dir2(path);} return is_dir2(path);}
     true
+}
+pub(crate) fn dbg_is_dir(path: &String) -> bool{
+    let last_symb_indx = path.chars().count() - 1;
+    let slash = path.chars().nth(last_symb_indx).unwrap();
+    let is_slash = String::from(slash);
+    popup_msg(&format!("is_slash = {is_slash}"));
+    if is_slash != "/"{
+        if checkArg("-dbg2"){return dbg_is_dir2(path);} return is_dir2(path);}
+    true
+}
+
+pub(crate) fn dbg_is_dir3(path: &String) -> bool{
+   let c_path: std::ffi::CString = match CString::new(path.to_string()){
+    Ok(s) => s,
+    _ => CString::new("/").unwrap()
+   };
+   unsafe{
+       let mut stat: libc::stat = std::mem::zeroed();
+        if libc::stat(c_path.as_ptr(), &mut stat) >= 0 {
+            popup_msg(&format!("{}", stat.st_mode));
+        }
+    
+    };
+    true
+}
+pub(crate) fn dbg_is_dir2(path: &String) -> bool{
+    popup_msg("mjj");
+    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -io {maybe_dir}|uniq");
+    let ret = run_cmd_out(cmd);
+    println!("dbg_is_dir2 ==>> {}", ret);
+    popup_msg(&ret);
+    save_file(ret.clone(), "dbg_is_dir2".to_string());
+    if ret == ""{return false}
+    true
+}
+pub(crate) fn is_dir2(path: &String) -> bool{
+    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -Eio '/\\.'|uniq");
+    //let cmd = cmd.replace(r"\'/.", r"\'/\\.");
+    let ret = run_cmd_out_sync(cmd).trim_end().trim_start().to_string();
+    logs(&ret, "is_dir2");
+    if ret.len() == 2{return true}
+    false
 }
