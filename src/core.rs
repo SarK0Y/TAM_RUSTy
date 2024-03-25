@@ -115,6 +115,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
+    crate::run_cmd0(mk_cache_dir);
     return true;
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
@@ -499,6 +501,11 @@ pub(crate) fn get_path_from_prnt() -> String{
     }
     ret
 }
+pub(crate) fn logs(data: &String, logname: &str){
+    if !checkArg("-logs"){return;}
+    let logname = format!("logs/{logname}");
+    save_file_append_newline(data.to_string(), logname);
+}
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let cmd = format!("echo '{}' > {}", content, fname);
@@ -506,6 +513,7 @@ pub(crate) fn save_file0(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn save_file(content: String, fname: String) -> bool{
+    logs(&fname, "save_file");
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let cmd = format!("touch -f {fname}");
     //run_cmd_str(cmd.as_str());
@@ -518,6 +526,7 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
+    logs(&fname, "rewrite_file_abs_adr");
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
@@ -541,6 +550,30 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
         }
     };
     file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append_newline(content: String, fname: String) -> bool{
+    let content = format!("{}/n", content);
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let mut dir = fname.clone(); tailOFF(&mut dir, "/");
+    let mk_dir = format!("mkdir -p {}", dir);
+    run_cmd_str(mk_dir.as_str());
+    let cmd = format!("touch -f {fname}");
+    run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{popup_msg(&fname); return File::create(&fname).expect(&fname)};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    let comtent = format!("{}\n", content);
+    file.write_all(content.as_bytes()).expect("save_file failed");
     true
 }
 pub(crate) fn save_file_append(content: String, fname: String) -> bool{
@@ -908,7 +941,7 @@ pub(crate) fn dbg_is_dir2(path: &String) -> bool{
 }
 pub(crate) fn is_dir2(path: &String) -> bool{
     let maybe_dir = escape_symbs(&format!("{path}/."));
-    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -io {maybe_dir}|uniq");
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -Eio /\\.|uniq");
     let ret = run_cmd_out(cmd);
     if ret == ""{return false}
     true

@@ -41,6 +41,16 @@ fn form_grep_cmd(in_name: &String) -> String{
     return ret;
 }
 fn mk_cmd_file(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
 let func_id = 4;
 let timestamp = Local::now();
 let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
@@ -278,7 +288,8 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 fn main (){
- /*/   initSession();
+   initSession();
+   /*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
 if core18::checkArg("-path"){path = String::from_iter(get_arg_in_cmd("-path").s);}
