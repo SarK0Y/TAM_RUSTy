@@ -156,11 +156,6 @@ let ls_mode = take_list_adr("ls.mode");
 pub(crate) fn fix_screen(){
     std::thread::spawn(||{
         for i in 0..2{
-            let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -172,22 +167,12 @@ pub(crate) fn fix_screen(){
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
-           let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
         }
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
     std::thread::spawn(move||{
         for i in 0..num{
-            let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -198,12 +183,7 @@ pub(crate) fn fix_screen_count(num: usize){
             if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
-           std::thread::sleep(std::time::Duration::from_millis(1115));        
-           let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
+           std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
 }

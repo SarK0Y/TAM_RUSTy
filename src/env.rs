@@ -14,8 +14,9 @@ pub(crate) fn change_dir(cmd: String, set: bool){
     //let check_base_str = base_path.replace(&path, "");
     crate::find_files_cd_cpy_ls(&path_escaped);
     drop_ls_mode();
-    set_front_list("cd");
-    set_full_path(&path, 4051778415);
+    crate::set_front_list2("cd", 2);
+    let mut path_display = format!("Working directory: {path}");
+    set_full_path(&path_display, 4051778415);
     if !set {return;}
     save_file(path, "env/cd".to_string());
 }

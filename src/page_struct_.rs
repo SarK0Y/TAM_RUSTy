@@ -168,7 +168,7 @@ pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
   return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
 pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
 pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
-pub(crate) fn get_full_path(func_id: i64) -> String{return unsafe{page_struct("", FULL_PATH_, func_id).str_}}
+pub(crate) fn get_full_path(func_id: i64) -> String{return format!("{}",unsafe{page_struct("", FULL_PATH_, func_id).str_}) }
 pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id).str_}}
 pub(crate) fn get_prompt(func_id: i64) -> String{return unsafe{page_struct("", PROMPT_, func_id).str_}}
 pub(crate) fn set_prompt(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(PROMPT_), func_id).str_}}

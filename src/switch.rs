@@ -20,7 +20,7 @@ use std::{
 };
 pub const SWTCH_RUN_VIEWER: i64 = 0;
 pub const SWTCH_USER_WRITING_PATH: i64 = 1;
-use crate::{core18::{errMsg, get_path_from_prnt, update_user_written_path}, ps18::{set_ask_user, get_full_path, get_num_page, get_num_files, page_struct_ret, init_page_struct, child2run}, globs18::{get_item_from_front_list, set_ls_as_front, FRONT_, F3_key}, func_id18::{viewer_, mk_cmd_file_, where_is_last_pg_}, update18::update_dir_list, complete_path, pg18::form_cmd_line_default, get_prnt, position_of_slash_in_prnt, usize_2_i64, escape_symbs, read_rgx_from_prnt, split_once, cpy_str, raw_ren_file, read_file, mark_front_lst, save_file, path_exists, drop_ls_mode, tui_or_not, run_term_app};
+use crate::{core18::{errMsg, get_path_from_prnt, update_user_written_path}, ps18::{set_ask_user, get_full_path, get_num_page, get_num_files, page_struct_ret, init_page_struct, child2run}, globs18::{get_item_from_front_list, set_ls_as_front, FRONT_, F3_key, take_list_adr}, func_id18::{viewer_, mk_cmd_file_, where_is_last_pg_}, update18::update_dir_list, complete_path, pg18::form_cmd_line_default, get_prnt, position_of_slash_in_prnt, usize_2_i64, escape_symbs, read_rgx_from_prnt, split_once, cpy_str, raw_ren_file, read_file, mark_front_lst, save_file, path_exists, drop_ls_mode, tui_or_not, run_term_app, read_front_list_but_ls, set_front_list, set_full_path};
 pub(crate) unsafe fn check_mode(mode: &mut i64){
     static mut state: i64 = 0;
     if *mode == -1 {*mode = state;}
@@ -65,9 +65,11 @@ pub(crate) unsafe fn swtch_ps(indx: i64, ps: Option<crate::_page_struct>) -> cra
     return crate::cpy_page_struct(&mut ps_.get_mut().unwrap()[ps_indx])
 }
 pub(crate) fn renFile() -> bool{
-    crate::save_file("".to_string(), "prev_list".to_string());
-    let check_front_list = read_file("front_list");
-    if check_front_list == "ls"{
+   // crate::save_file("".to_string(), "prev_list".to_string());
+    let front_list = read_front_list_but_ls();
+    set_front_list(&front_list);
+    let actual_link_to = check_symlink();
+    if actual_link_to == "ls"{
         set_ask_user(&"Wrong list was activated".bold().red().to_string(), 12154487);
         return false;
     }
@@ -93,10 +95,12 @@ pub(crate) fn renFile() -> bool{
     }
     let mut new_name = escape_symbs(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
     let is_last_ch_slash = new_name.chars().count() - 1;
-    let is_last_ch_slash = new_name.chars().nth(is_last_ch_slash);
-    if is_last_ch_slash.unwrap().to_string() == "/"{
+    let is_last_ch_slash = new_name.chars().nth(is_last_ch_slash).unwrap().to_string();
+    let mut slash = "".to_string();
+    if is_last_ch_slash == "/"{slash.push('/');}
+    if is_last_ch_slash == "/" || Path::new(&new_name).is_dir(){
         let fname = Path::new(&old_name).file_name().unwrap().to_str().unwrap();
-        new_name = format!("{new_name}{fname}");
+        new_name = format!("{new_name}{slash}{fname}");
     }
     save_file(cpy_str(&old_name), "old_name".to_string());
     save_file(cpy_str(&new_name), "new_name".to_string());
@@ -129,7 +133,10 @@ let path_2_new0 = path_2_new.to_str().unwrap().to_string();
             return false
         }
     }
-    set_ask_user("moving file..", -74554152);
+    let msg = format!("new name: {new_name}");
+    set_ask_user(&msg, -74554152);
+    let msg = format!("old name: {old_name}");
+    set_full_path(&msg, -74554152);
     crate::globs18::renew_lists(cpy_str(&new_name));
     raw_ren_file(old_name, new_name);
     true
@@ -370,4 +377,8 @@ pub(crate) fn read_user_written_path() -> String{
     let mut ret = String::new();
     reader.read_to_string(&mut ret).expect("read_user_written_path failed write in");
     ret
+}
+pub(crate) fn check_symlink() -> String{
+    let found_files = take_list_adr("found_files");
+    std::fs::read_link(&found_files).unwrap().as_os_str().to_str().unwrap().to_string()
 }

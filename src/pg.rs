@@ -34,7 +34,7 @@ fn build_page(ps: &mut crate::_page_struct){
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
     //let mut row: OnceCell<Vec<CellStruct>> = OnceCell::new(); row.set(row_nested);
    // pg.table().forecolor(Color::red());
-    println!("Full path: {}", crate::get_full_path(func_id));
+    println!("{}", crate::get_full_path(func_id));
     for j in 0..num_rows{
         for i in 0..num_cols{
             let mut indx = i + num_cols * j + num_page;
@@ -321,6 +321,7 @@ fn exec_cmd(cmd: String){
             _ => {set_full_path("wrong use of fp: fp <indx of file>", func_id); return}
         };
         let file_full_name =  crate::globs18::get_item_from_front_list(file_indx, true);
+        let file_full_name = format!("Full path: {}", file_full_name);
         set_full_path(&file_full_name, func_id);
         return;
     }

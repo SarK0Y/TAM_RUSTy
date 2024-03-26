@@ -4,7 +4,7 @@ mod exts;
 use exts::*;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -38,6 +38,18 @@ pub(crate) fn set_front_list(list: &str){
     crate::wait_4_empty_cache();
     //if list == "merge"
     background_fixing()
+}
+pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
+    let tmp_dir = get_tmp_dir(-155741);
+    if tmp_dir == ""{return;}
+    let found_files = format!("{tmp_dir}/found_files");
+    let active_list = format!("{tmp_dir}/{}", list);
+    let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
+    run_cmd_out_sync(cmd);
+    mark_front_lst(list);
+    crate::wait_4_empty_cache();
+    //if list == "merge"
+    background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
@@ -503,6 +515,10 @@ pub(crate) fn get_path_from_prnt() -> String{
 }
 pub(crate) fn logs(data: &String, logname: &str){
     if !checkArg("-logs"){return;}
+    let typelog = String::from_iter(get_arg_in_cmd("-logs").s).trim_start().trim_end().to_string();
+    if typelog != ""{
+        if eq_str(typelog.as_str(), logname) != 0 /*typelog != logname*/{return}
+    }
     let logname = format!("logs/{logname}");
     save_file_append_newline(data.to_string(), logname);
 }
@@ -941,8 +957,10 @@ pub(crate) fn dbg_is_dir2(path: &String) -> bool{
 }
 pub(crate) fn is_dir2(path: &String) -> bool{
     let maybe_dir = escape_symbs(&format!("{path}/."));
-    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -Eio /\\.|uniq");
-    let ret = run_cmd_out(cmd);
-    if ret == ""{return false}
-    true
+    let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -Eio '/\\.'|uniq");
+    //let cmd = cmd.replace(r"\'/.", r"\'/\\.");
+    let ret = run_cmd_out_sync(cmd).trim_end().trim_start().to_string();
+    logs(&ret, "is_dir2");
+    if ret.len() == 2{return true}
+    false
 }
