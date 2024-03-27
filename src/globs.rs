@@ -72,6 +72,7 @@ pub(crate) fn sieve_list(data: String){
     mark_front_lst("filter");
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
+    set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
     clean_cache();
@@ -110,18 +111,22 @@ pub(crate) fn merge(data: String){
         Ok(i) => i,
         _ => i64::MIN
     };
+   let mut path = get_path_from_strn(data);
     if indx > i64::MIN{
         let fname = /*crate::escape_apostrophe(&*/get_item_from_front_list(indx, true);//);
         //let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
         crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
-        set_full_path(&fname, -333444114);
+        if path == ""{path = fname}
+        let info = format!("Merge: {path}");
+        set_full_path(&info, 97400148467);    
         //run_cmd_str(cmd.as_str());   
         return;
     }
-    let path = get_path_from_strn(data);
     if path.len() > 0 {
         let cmd = format!("echo '{}' >> {}", path, filter_file_path);
-        run_cmd_str(cmd.as_str());    
+        run_cmd_str(cmd.as_str());
+        let info = format!("Merge: {path}");
+        set_full_path(&info, 97400148467);    
         return;
     }
     let cmd = format!("cat {} >> {}", found_files_path, filter_file_path);

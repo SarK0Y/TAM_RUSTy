@@ -7,8 +7,8 @@ use std::io::prelude::*;
 use termion::terminal_size;
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::unblock_fd;
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once};
+use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app(cmd: String) -> bool{
@@ -102,4 +102,44 @@ pub(crate) fn term(cmd: &String){
     let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
     run_term_app(cmd);
+}
+pub(crate) fn process_tag(key: String){
+    let valid: String = match key.as_str(){
+        "#" => key.as_str(),
+        "0" => key.as_str(),
+        "1" => key.as_str(),
+        "2" => key.as_str(),
+        "3" => key.as_str(),
+        "4" => key.as_str(),
+        "5" => key.as_str(),
+        "6" => key.as_str(),
+        "7" => key.as_str(),
+        "8" => key.as_str(),
+        "9" => key.as_str(),
+        _ => return validate_tag(key)
+    }.to_string();
+    save_file(valid, "tag".to_string());
+}
+pub(crate) fn validate_tag(key: String){
+    let mut prnt = read_prnt();
+    let mut tag = read_file("tag");
+    let tag0 = tag.clone();
+    tag = tag.replace("##", "");
+    let tag = match i64::from_str_radix(&tag, 10){
+        Ok(i) => i,
+        _ => i64::MIN
+    };
+    if tag == i64::MIN{
+        prnt = prnt.replace("sl:", "");
+        set_prnt(&prnt, -48721112507);
+        let tag = take_list_adr("tag");
+        rm_file(&tag);
+        return;
+    }
+    let tag = get_item_from_front_list(tag, true);
+}
+pub(crate) fn shol_on(){
+    let prnt = read_prnt();
+    let prnt = format!("sl:{prnt}");
+    set_prnt(&prnt, 59841774);
 }
