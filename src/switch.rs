@@ -29,9 +29,9 @@ pub(crate) unsafe fn check_mode(mode: &mut i64){
 pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String, base: &mut crate::basic){
     static mut fst_run: bool = true;
     static mut fn_indx: usize = 0;
-    static mut fn_: OnceCell<Vec<fn(String) -> bool>> = OnceCell::new();
+    static mut fn_: OnceCell<Vec<fn(String, &mut crate::basic) -> bool>> = OnceCell::new();
     if fst_run{
-        let fn_vec: Vec<fn(String) -> bool> = Vec::new();
+        let fn_vec: Vec<fn(String, &mut crate::basic) -> bool> = Vec::new();
         fn_.set(fn_vec); fst_run = false;
         fn_.get_mut().unwrap().push(run_viewer); // 0
         fn_.get_mut().unwrap().push(user_writing_path); // 1
@@ -40,7 +40,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String, base: &mut crate::basic){
         let indx = crate::i64_2_usize(crate::set(indx)) - 2;
         let len = fn_.get().expect("Can't unwrap fn_ in swtch_fn").len();
         if indx > len {set_ask_user("indx gets out of fn_ ", -178, &mut base); return;}
-        fn_.get().unwrap()[indx](cmd);
+        fn_.get().unwrap()[indx](cmd, &mut base);
         let mut indx = usize_2_i64(indx);
         check_mode(&mut indx);
         return;
@@ -49,7 +49,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String, base: &mut crate::basic){
   //  if indx > -1 && !cmd.is_empty(){fn_indx = indx.to_usize().unwrap();}
     let mut mode = indx;
     check_mode(&mut mode);
-    fn_.get().unwrap()[fn_indx](cmd);
+    fn_.get().unwrap()[fn_indx](cmd, &mut base);
 }
 pub(crate) unsafe fn swtch_ps(indx: i64, ps: Option<crate::_page_struct>, base: &mut crate::basic) -> crate::_page_struct{
     static mut fst_run: bool = true;
@@ -64,20 +64,20 @@ pub(crate) unsafe fn swtch_ps(indx: i64, ps: Option<crate::_page_struct>, base: 
     if indx > -1{ps_indx = indx.to_usize().unwrap(); return dummy;}
     return crate::cpy_page_struct(&mut ps_.get_mut().unwrap()[ps_indx], &mut base)
 }
-pub(crate) fn renFile() -> bool{
+pub(crate) fn renFile(base: &mut basic) -> bool{
    // crate::save_file("".to_string(), "prev_list".to_string());
     let front_list = read_front_list_but_ls();
     set_front_list(&front_list);
     let actual_link_to = check_symlink();
     if actual_link_to == "ls"{
-        set_ask_user(&"Wrong list was activated".bold().red().to_string(), 12154487);
+        set_ask_user(&"Wrong list was activated".bold().red().to_string(), 12154487, &mut base);
         return false;
     }
     let rgx = "-Eio ren\\s+[0-9]+".to_string();
     let prnt = crate::read_prnt();
     let head = read_rgx_from_prnt(cpy_str(&rgx), "head_of_prnt").replace("\n", "");
     if head == ""{
-        set_ask_user("example: ren <indx of file> <new name <short one or full path to>>", 1003671);
+        set_ask_user("example: ren <indx of file> <new name <short one or full path to>>", 1003671, &mut base);
         return false
     }
     let (_, file_indx) = split_once(&head, " ");
@@ -90,7 +90,7 @@ pub(crate) fn renFile() -> bool{
     };
     let old_name = escape_symbs(&get_item_from_front_list(file_indx, true));
     if old_name.len() == 0 || Path::new(&old_name).is_dir(){
-        set_ask_user(&"file has wrong type".bold().red().to_string(), 12154487);
+        set_ask_user(&"file has wrong type".bold().red().to_string(), 12154487, &mut base);
         return false;
     }
     let mut new_name = escape_symbs(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
@@ -110,7 +110,7 @@ pub(crate) fn renFile() -> bool{
         println!("{err_msg}");
         let mut ans = String::new();
         crate::io::stdin().read_line(&mut ans).expect("renFile failed to read console");
-        if ans == "Yes, I do"{set_ask_user("moving file..", -74554152);
+        if ans == "Yes, I do"{set_ask_user("moving file..", -74554152, &mut base);
         crate::globs18::renew_lists(cpy_str(&new_name)); raw_ren_file(old_name, new_name); return true}
         else {return false}
     }
@@ -134,14 +134,14 @@ let path_2_new0 = path_2_new.to_str().unwrap().to_string();
         }
     }
     let msg = format!("new name: {new_name}");
-    set_ask_user(&msg, -74554152);
+    set_ask_user(&msg, -74554152, &mut base);
     let msg = format!("old name: {old_name}");
-    set_full_path(&msg, -74554152);
+    set_full_path(&msg, -74554152, &mut base);
     crate::globs18::renew_lists(cpy_str(&new_name));
     raw_ren_file(old_name, new_name);
     true
 }
-fn viewer_n_adr(app: String, file: String) -> bool{
+fn viewer_n_adr(app: String, file: String, base: &mut crate::basic) -> bool{
     let func_id = crate::func_id18::viewer_;
     if app == "none" {
         crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> /path/to/file'", func_id);
@@ -153,31 +153,31 @@ fn viewer_n_adr(app: String, file: String) -> bool{
         _ => return msg()
     };
     let mut file = escape_symbs(&file);
-    let viewer = get_viewer(app_indx, -1, true);
+    let viewer = get_viewer(app_indx, -1, true, &mut base);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
     if tui_or_not(cpy_str(&cmd), &mut file){cmd = format!("{} {}", viewer, file);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
-pub(crate) fn run_viewer(cmd: String) -> bool{
+pub(crate) fn run_viewer(cmd: String, base: &mut crate::basic) -> bool{
     let func_id = crate::func_id18::viewer_;
     if cmd.as_str().substring(0, 1) == "/"{
         let app_indx = "0".to_string();
         let file_indx = cmd;
-        return viewer_n_adr(app_indx, file_indx);}
+        return viewer_n_adr(app_indx, file_indx, &mut base);}
     let  (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
     if app_indx == "none" || file_indx == "none"{
-        set_ask_user("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id);
+        set_ask_user("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id, &mut base);
     }
     if file_indx == "none"{
         file_indx = app_indx;
         app_indx = 0.to_string();
     }
-    if file_indx.as_str().substring(0, 1) == "/"{return viewer_n_adr(app_indx, file_indx);}
+    if file_indx.as_str().substring(0, 1) == "/"{return viewer_n_adr(app_indx, file_indx, &mut base);}
     if app_indx.as_str().substring(0, 1) == "/"{
         file_indx = app_indx;
         app_indx = 0.to_string();
-        return viewer_n_adr(app_indx, file_indx);}
+        return viewer_n_adr(app_indx, file_indx, &mut base);}
     let msg = || -> bool{crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> <index of file>'", func_id); return false};
     let app_indx = match usize::from_str_radix(app_indx.as_str(), 10){
         Ok(v) => v,
@@ -190,12 +190,12 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
     //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
     let mut filename = crate::escape_backslash(&get_item_from_front_list(file_indx, true));
     filename = escape_symbs(&filename);
-    let viewer = get_viewer(app_indx, -1, true);
+    let viewer = get_viewer(app_indx, -1, true, &mut base);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
     if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
-pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String{
+pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool, base: &mut crate::basic) -> String{
     let mut func_id_loc = func_id;
     if thread_safe {
         let rnd = get_rnd_u64();
@@ -212,11 +212,12 @@ pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String
     }
 
     let ret = unsafe {share_usize(indx, func_id_loc)};
-    if ret.1{return unsafe{crate::page_struct("", crate::VIEWER_, func_id_loc).str_};}
+    if ret.1{return unsafe{crate::page_struct("", crate::VIEWER_, func_id_loc, &mut base).str_};}
 "locked".to_string()
 }
-pub(crate) fn get_num_of_viewers(func_id: i64) -> i64{return unsafe{crate::page_struct("", crate::NUM_OF_VIEWERS, func_id).int}}
-pub(crate) fn add_viewer(val: &str, func_id: i64) -> String{return unsafe{crate::page_struct(val, crate::set(crate::VIEWER_), func_id).str_}}
+pub(crate) fn get_num_of_viewers(func_id: i64, base: &mut crate::basic) -> i64{return unsafe{crate::page_struct("", crate::NUM_OF_VIEWERS, func_id, &mut base).int}}
+pub(crate) fn add_viewer(val: &str, func_id: i64, base: &mut crate::basic) -> String{
+    return unsafe{crate::page_struct(val, crate::set(crate::VIEWER_), func_id, &mut base).str_}}
 pub(crate) unsafe fn share_usize(val: usize, func_id: i64) -> (usize, bool){
     static mut owner_id: i64 = i64::MIN;
     static mut actual_val: usize = 0;
@@ -272,7 +273,7 @@ pub(crate) fn get_rnd_u64() -> (u64, bool){
     }
     return (rnd_u64, true)
 }
-pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool){
+pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool, base: &mut crate::basic){
 static mut fst_run: bool = true;
 if drop_1st_run {fst_run = true;}
 if !fst_run {return;}
@@ -282,14 +283,14 @@ let arg = args.as_slice();
 for i in 1..args.len(){
     if arg[i] == "-view_w" || arg[i] == "-view-w" {
         let viewer: String = (args[i + 1]).chars().collect();
-        add_viewer(&viewer, -1);
+        add_viewer(&viewer, -1, &mut base);
     }
 }
 }
 pub(crate) fn print_viewers(){
-let num_of_viewers = get_num_of_viewers(-1).to_usize().unwrap();
+let num_of_viewers = get_num_of_viewers(-1, &mut base).to_usize().unwrap();
     for i in 0..num_of_viewers{
-        print!("|||{}: {}", i, get_viewer(i, -1, true));
+        print!("|||{}: {}", i, get_viewer(i, -1, true, &mut base));
     }
     println!("")
 }
@@ -303,7 +304,7 @@ pub fn print_pg_info(){
 pub(crate) fn user_wrote_path(base: &mut basic) -> String{
     return Path::new(&unsafe {format!("{}/user_wrote_path", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1, &mut base).str_})}).to_str().unwrap().to_string()
 }
-pub(crate) fn user_wrote_path_prnt() -> String{
+pub(crate) fn user_wrote_path_prnt(base: &mut crate::basic) -> String{
     return Path::new(&unsafe {format!("{}/user_wrote_path_prnt", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1, &mut base).str_})}).to_str().unwrap().to_string()
 }
 pub(crate) fn set_user_written_path_from_strn(strn: String, base: &mut basic) -> bool{
@@ -326,7 +327,7 @@ pub(crate) fn set_user_written_path_from_strn(strn: String, base: &mut basic) ->
     file_2_write_path.set_len(0);
     file_2_write_path.write_all(strn.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
-    let written_path = escape_symbs(&read_user_written_path());
+    let written_path = escape_symbs(&read_user_written_path(&mut base));
    // save_file(written_path.to_string(), "written_path.dbg".to_string());
     update_dir_list(&written_path, "-maxdepth 1", false, &mut base);
     true
@@ -344,7 +345,7 @@ pub(crate) fn set_user_written_path_from_prnt(base: &mut basic) -> String{
     let key = format!("{}", path_from_prnt);
     file_2_write_path.write_all(path_from_prnt.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
-    let written_path = read_user_written_path();
+    let written_path = read_user_written_path(&mut base);
     if written_path == "" {drop_ls_mode(); F3_key();}
     else{set_ls_as_front();}
     save_file(written_path.to_string(), "written_path_prnt.dbg".to_string());
@@ -352,23 +353,23 @@ pub(crate) fn set_user_written_path_from_prnt(base: &mut basic) -> String{
     written_path
 }
 
-pub(crate) fn user_writing_path(key: String) -> bool{
+pub(crate) fn user_writing_path(key: String, base: &mut crate::basic) -> bool{
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
     let mut cur_cur_pos = crate::read_prnt().chars().count();
     let shift = unsafe {crate::shift_cursor_of_prnt(0, -19).shift};
     if cur_cur_pos > shift {cur_cur_pos -= shift;}
-    if position_of_slash_in_prnt() >= cur_cur_pos {unsafe {swtch_fn(-2, crate::cpy_str(&key))} return false;}
+    if position_of_slash_in_prnt() >= cur_cur_pos {unsafe {swtch_fn(-2, crate::cpy_str(&key), &mut base)} return false;}
    // set_ask_user(&save_path, -1); //dbg here
     let key = key.replace("//", "/");
-    let mut written_path = read_user_written_path();
+    let mut written_path = read_user_written_path(&mut base);
     let written_path_from_prnt = get_path_from_prnt();
     if written_path_from_prnt.chars().count() > written_path.chars().count(){written_path = written_path_from_prnt;}
     complete_path(&written_path, "-maxdepth 1", false);
     form_cmd_line_default();
     true
 }
-pub(crate) fn read_user_written_path() -> String{
-    let save_path = user_wrote_path();
+pub(crate) fn read_user_written_path(base: &mut crate::basic) -> String{
+    let save_path = user_wrote_path(&mut base);
     let mut file_2_read_path = match File::open(save_path){
         Ok(f) => f,
         Err(e) => return "".to_string()

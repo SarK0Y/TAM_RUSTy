@@ -1,14 +1,14 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
 use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless};
-pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
+pub(crate) fn cached_ln_of_found_files(get_indx: usize, base: crate::basic) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
      let num_pg = get_num_page(27786521);
      let cols = get_num_cols(27786521);
      let rows = crate::get_num_rows(27786521);
      let front_list = read_front_list();
-     let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
+     let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1, &mut base).str_);
         let found_files = format!("{tmp_dir}/found_files");
         let cached_list = format!("cache/{front_list}.{num_pg}");
         let is_cached = take_list_adr(&cached_list);

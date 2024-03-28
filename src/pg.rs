@@ -34,7 +34,7 @@ fn build_page(ps: &mut crate::_page_struct, base: &mut crate::basic){
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
     //let mut row: OnceCell<Vec<CellStruct>> = OnceCell::new(); row.set(row_nested);
    // pg.table().forecolor(Color::red());
-    println!("{}", crate::get_full_path(func_id));
+    println!("{}", crate::get_full_path(func_id, &mut base));
     for j in 0..num_rows{
         for i in 0..num_cols{
             let mut indx = i + num_cols * j + num_page;
@@ -82,7 +82,7 @@ fn build_page(ps: &mut crate::_page_struct, base: &mut crate::basic){
         if time_to_stop {break;}
     }
     //println!("{}", pg.table().display().unwrap());
-    println!("{}", crate::get_ask_user(func_id));
+    println!("{}", crate::get_ask_user(func_id, &mut base));
 }
 
 pub(crate) fn clear_screen(){
@@ -137,7 +137,7 @@ fn hotKeys(base: &mut crate::basic) -> String{
         let prev_list = crate::read_front_list();
         let prev = read_file("prev_list");
         if prev == ""{crate::save_file(prev_list, "prev_list".to_string());}
-        let mut Key_cpy =String::from(&Key); let mut Key_ = String::from(&Key); lets_write_path(Key_cpy); crate::INS(&Key_);
+        let mut Key_cpy =String::from(&Key); let mut Key_ = String::from(&Key); lets_write_path(Key_cpy); crate::INS(&Key_, &mut base);
     return "/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
     crate::C!(local_indx(true));
@@ -148,25 +148,25 @@ fn hotKeys(base: &mut crate::basic) -> String{
         key_f12(func_id); return "dontPass".to_string();} 
     if crate::globs18::eq_ansi_str(&kcode::DELETE, Key.as_str()) == 0{
         let shift = unsafe {shift_cursor_of_prnt(1, func_id).shift};
-        let mut indx = get_prnt(func_id).chars().count();
+        let mut indx = get_prnt(func_id, &mut base).chars().count();
         if shift <= indx {indx -= shift;}
-        let prnt = rm_char_from_string(indx, &get_prnt(func_id));
-        set_prnt(prnt.as_str(), func_id);
+        let prnt = rm_char_from_string(indx, &get_prnt(func_id, &mut base));
+        set_prnt(prnt.as_str(), func_id, &mut base);
         return "dontPass".to_string();} 
     let ansiKey: u8 = match Key.as_str().bytes().next(){
         Some(val) => val,
         _ => 0
     };
-    if ansiKey == 0{return crate::get_prnt(func_id);}
+    if ansiKey == 0{return crate::get_prnt(func_id, &mut base);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
-    if kcode::ENTER == ansiKey{crate::globs18::Enter(); return crate::get_prnt(func_id);} 
-    if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
+    if kcode::ENTER == ansiKey{crate::globs18::Enter(); return crate::get_prnt(func_id, &mut base);} 
+    if kcode::BACKSPACE == ansiKey{crate::press_BKSP(&mut base); return "dontPass".to_string();} 
     if kcode::ESCAPE == ansiKey{println!("esc pressed");}
     if kcode::TAB == ansiKey{println!("tab pressed");}  
-   crate::INS(&Key);
+   crate::INS(&Key, &mut base);
        // enter();
-       let user_written_path = read_user_written_path().replace("//", "/");
-       if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id);}
+       let user_written_path = read_user_written_path(&mut base).replace("//", "/");
+       if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id, &mut base);}
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
         return Key.to_string();
@@ -178,14 +178,14 @@ let mut count: u64 = 0;
 let mut bal =String::new();
     loop{
         //set_prnt(&bal, -1);
-        let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
+        let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None, &mut base)};
         let mut data = "".to_string();
         let num_pg = get_num_page(-5555555121);
         let num_pgs = where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
         if num_pg < num_pgs || num_pgs ==0 {build_page(&mut ps, &mut base);}
-        println!("{}", get_prnt(-1));
+        println!("{}", get_prnt(-1, &mut base));
         exec_cmd(custom_input(&mut base), &mut base);
         clear_screen();
     }

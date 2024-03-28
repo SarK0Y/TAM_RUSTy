@@ -4,7 +4,7 @@ self::mcrs_uses!();
 //#[macro_export]
 macro_rules! getStop_code__ {
     () => {
-        unsafe{crate::page_struct("", crate::STOP_CODE_, -1).str_}
+        unsafe{crate::page_struct("", crate::STOP_CODE_, -1, &mut base).str_}
     };
 }
 #[macro_use]
