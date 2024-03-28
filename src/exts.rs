@@ -54,6 +54,9 @@ mod update18;
 #[path = "mcrs.rs"]
 mod mcrs18;
 use mcrs18::*;
+#[path = "subs.rs"]
+mod subs;
+use subs::*;
 use dirty;
 use getStop_code__;
 use close_termios__;

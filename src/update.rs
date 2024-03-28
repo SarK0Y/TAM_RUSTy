@@ -32,7 +32,7 @@ pub(crate) fn main_update(){
 
 }
 pub(crate) fn prime(){
-    crate::initSession();
+    //crate::initSession();
     C!(front_list_indx(MAIN0_));
     C!(set_main0_as_front());
     main_update();

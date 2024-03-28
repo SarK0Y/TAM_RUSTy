@@ -118,7 +118,7 @@ pub(crate) fn process_tag(key: String){
         "9" => key.as_str(),
         _ => return validate_tag(key)
     }.to_string();
-    save_file(valid, "tag".to_string());
+    save_file_append(valid, "tag".to_string());
 }
 pub(crate) fn validate_tag(key: String){
     let mut prnt = read_prnt();
@@ -137,8 +137,15 @@ pub(crate) fn validate_tag(key: String){
         return;
     }
     let tag = get_item_from_front_list(tag, true);
+    prnt = prnt.replace(&tag0, &tag);
+    prnt = prnt.replace("sl:", "");
+    set_prnt(&prnt, -48721112507);
+    let tag = take_list_adr("tag");
+    rm_file(&tag);
 }
 pub(crate) fn shol_on(){
+    let tag = take_list_adr("tag");
+    rm_file(&tag);
     let prnt = read_prnt();
     let prnt = format!("sl:{prnt}");
     set_prnt(&prnt, 59841774);
