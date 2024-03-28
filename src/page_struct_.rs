@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file, read_front_list_but_ls};
+use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file, read_front_list_but_ls, basic};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -64,19 +64,19 @@ pub struct _page_struct{
    pub ask_User: String,
    pub c2r: child2run
 }
-pub(crate) fn cpy_page_struct(ps: &mut _page_struct) -> _page_struct{
+pub(crate) fn cpy_page_struct(ps: &mut _page_struct, base: &mut basic) -> _page_struct{
    let func_id = crate::func_id18::init_page_struct_;
-   let stop_code = unsafe {page_struct("", STOP_CODE_, func_id.to_i64().unwrap()).str_};;
-   let konsole_title = unsafe {page_struct("", KONSOLE_TITLE_, func_id.to_i64().unwrap()).str_};
+   let stop_code = unsafe {page_struct("", STOP_CODE_, func_id.to_i64().unwrap(), &mut base).str_};;
+   let konsole_title = unsafe {page_struct("", KONSOLE_TITLE_, func_id.to_i64().unwrap(), &mut base).str_};
    let left_shift_4_cur =0i64; let cur_cur_pos = 0i64; let num_page = ps.num_page; let num_cols = ps.num_cols;
    let col_width = get_col_width(func_id); let num_rows = ps.num_rows;
     let num_spaces = 0i64; let num_files = 0i64;
    let count_pages = 0i64;
-   let news_bar = unsafe {page_struct("", NEWS_BAR_, func_id.to_i64().unwrap()).str_};
-   let ask_user = unsafe {page_struct("", ASK_USER_, func_id.to_i64().unwrap()).str_};
-   let prnt = unsafe {page_struct("", PRNT_, func_id.to_i64().unwrap()).str_};
-   let prompt = unsafe {page_struct("", PROMPT_, func_id.to_i64().unwrap()).str_};
-   let full_path = unsafe {page_struct("", FULL_PATH_, func_id.to_i64().unwrap()).str_};
+   let news_bar = unsafe {page_struct("", NEWS_BAR_, func_id.to_i64().unwrap(), &mut base).str_};
+   let ask_user = unsafe {page_struct("", ASK_USER_, func_id.to_i64().unwrap(), &mut base).str_};
+   let prnt = unsafe {page_struct("", PRNT_, func_id.to_i64().unwrap(), &mut base).str_};
+   let prompt = unsafe {page_struct("", PROMPT_, func_id.to_i64().unwrap(), &mut base).str_};
+   let full_path = unsafe {page_struct("", FULL_PATH_, func_id.to_i64().unwrap(), &mut base).str_};
    let running = 0i64; let viewer = 0i64; let mode2run = 1i64;
    let c2r = child2run{running: running, viewer: viewer, mode2run: mode2run, full_path: full_path};
    let ps_new = _page_struct{stop_code: stop_code, prnt: prnt, prompt: prompt, konsole_title: konsole_title, left_shift_4_cur: left_shift_4_cur,
@@ -85,18 +85,18 @@ pub(crate) fn cpy_page_struct(ps: &mut _page_struct) -> _page_struct{
    ps_new
 }
 
-pub(crate) fn init_page_struct() -> _page_struct{
+pub(crate) fn init_page_struct(base: &mut basic) -> _page_struct{
    let func_id = crate::func_id18::init_page_struct_;
-   let stop_code = unsafe {page_struct("", STOP_CODE_, func_id.to_i64().unwrap()).str_};
-   let konsole_title = unsafe {page_struct("", KONSOLE_TITLE_, func_id.to_i64().unwrap()).str_};
+   let stop_code = unsafe {page_struct("", STOP_CODE_, func_id.to_i64().unwrap(), &mut base).str_};
+   let konsole_title = unsafe {page_struct("", KONSOLE_TITLE_, func_id.to_i64().unwrap(), &mut base).str_};
    let left_shift_4_cur =0i64; let cur_cur_pos = 0i64; let num_page = 0i64; let num_cols = 3i64;
    let col_width = 43i64; let num_rows = 9i64; let num_spaces = 0i64; let num_files = 0i64;
    let count_pages = 0i64;
-   let news_bar = unsafe {page_struct("", NEWS_BAR_, func_id.to_i64().unwrap()).str_};
-   let ask_user = unsafe {page_struct("", ASK_USER_, func_id.to_i64().unwrap()).str_};
-   let prnt = unsafe {page_struct("", PRNT_, func_id.to_i64().unwrap()).str_};
-   let prompt = unsafe {page_struct("", PROMPT_, func_id.to_i64().unwrap()).str_};
-   let full_path = unsafe {page_struct("", FULL_PATH_, func_id.to_i64().unwrap()).str_};
+   let news_bar = unsafe {page_struct("", NEWS_BAR_, func_id.to_i64().unwrap(), &mut base).str_};
+   let ask_user = unsafe {page_struct("", ASK_USER_, func_id.to_i64().unwrap(), &mut base).str_};
+   let prnt = unsafe {page_struct("", PRNT_, func_id.to_i64().unwrap(), &mut base).str_};
+   let prompt = unsafe {page_struct("", PROMPT_, func_id.to_i64().unwrap(), &mut base).str_};
+   let full_path = unsafe {page_struct("", FULL_PATH_, func_id.to_i64().unwrap(), &mut base).str_};
    let running = 0i64; let viewer = 0i64; let mode2run = 1i64;
    let c2r = child2run{running: running, viewer: viewer, mode2run: mode2run, full_path: full_path};
    let ps_new = _page_struct{stop_code: stop_code, prnt: prnt, prompt: prompt, konsole_title: konsole_title, left_shift_4_cur: left_shift_4_cur,
@@ -104,23 +104,23 @@ pub(crate) fn init_page_struct() -> _page_struct{
    num_files: num_files, count_pages: count_pages, news_bar: news_bar, ask_User: ask_user, c2r: c2r};
    ps_new
 }
-pub(crate) fn INS(val: &str) -> bool{
+pub(crate) fn INS(val: &str, base: &mut crate::basic) -> bool{
   if val == ""{return false}
   let func_id = crate::func_id18::INS_;
-  let mut cur_cur_pos = get_prnt(func_id).chars().count();
+  let mut cur_cur_pos = get_prnt(func_id, &mut base).chars().count();
   let shift = unsafe {shift_cursor_of_prnt(2, func_id).shift};
   if cur_cur_pos >= shift {cur_cur_pos -= shift;}
       let mut string1 = "".to_string();
       let mut prnt0: String;
       let prnt = 'ret: {loop{
-        prnt0 = get_prnt(func_id);
+        prnt0 = get_prnt(func_id, &mut base);
         if prnt0 != "none"{break 'ret prnt0.as_str()}
       } };
       string1.push_str(prnt);
       string1.push_str(val);
       let new_string = crate::globs18::ins_last_char_to_string1_from_string1(cur_cur_pos, string1);
       //loop {
-          set_prnt(&new_string, func_id);
+          set_prnt(&new_string, func_id, &mut base);
           //set_ask_user(&new_string, func_id);
         //  if get_prnt(func_id) == new_string{break;}
       //}
@@ -135,14 +135,16 @@ pub(crate) fn INS(val: &str) -> bool{
       //print!("{}]", get_cur_cur_pos(func_id));
       true
 }
-pub(crate) fn press_DEL(val: &str) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __DEL)}}
-pub(crate) fn press_BKSP() -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __BKSP)}}
+pub(crate) fn press_DEL(val: &str, base: &mut crate::basic) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); 
+  return unsafe{page_struct("prnt", 0, __DEL, &mut base)}}
+pub(crate) fn press_BKSP(base: &mut basic) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); 
+  return unsafe{page_struct("prnt", 0, __BKSP, &mut base)}}
 /*------------------------------------------------------------------------------------------------------------------------ */
-pub(crate) fn get_mainpath(func_id: i64) -> String{return unsafe{page_struct("", MAINPATH_, func_id).str_}}
-pub(crate) fn get_tmp_dir(func_id: i64) -> String{
+pub(crate) fn get_mainpath(func_id: i64, base: &mut basic) -> String{return unsafe{page_struct("", MAINPATH_, func_id, &mut base).str_}}
+pub(crate) fn get_tmp_dir(func_id: i64, base: &mut basic) -> String{
   static mut bkp: OnceCell<String> = OnceCell::new();
   if crate::C!(bkp.get()) == None{
-    let fst: String = unsafe{page_struct("", TMP_DIR_, func_id).str_};
+    let fst: String = unsafe{page_struct("", TMP_DIR_, func_id, &mut base).str_};
     let ret = fst.clone();
     crate::C!(bkp.set(fst));
     return ret;
@@ -155,23 +157,25 @@ pub(crate) fn get_tmp_dir(func_id: i64) -> String{
     if bkp1 != ""{return bkp1;}
   } 
   if bkp0 == ""{
-    let fst: String = unsafe{page_struct("", TMP_DIR_, func_id).str_};
+    let fst: String = unsafe{page_struct("", TMP_DIR_, func_id, &mut base).str_};
     if fst == ""{panic!("Can't get TMP_DIR #1")}
     return fst;
   }
 
 bkp0.to_string()
   }
-pub(crate) fn get_prnt(func_id: i64) -> String{return unsafe{page_struct("", PRNT_, func_id).str_}}
-pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
+pub(crate) fn get_prnt(func_id: i64, base: &mut basic) -> String{return unsafe{page_struct("", PRNT_, func_id, &mut base).str_}}
+pub(crate) fn set_prnt(val: &str, func_id: i64, base: &mut crate::basic) -> String{
   file_prnt(val.to_string());
-  return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
-pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
-pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
-pub(crate) fn get_full_path(func_id: i64) -> String{return unsafe{page_struct("", FULL_PATH_, func_id).str_}}
-pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id).str_}}
-pub(crate) fn get_prompt(func_id: i64) -> String{return unsafe{page_struct("", PROMPT_, func_id).str_}}
-pub(crate) fn set_prompt(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(PROMPT_), func_id).str_}}
+  return unsafe{page_struct(val, crate::set(PRNT_), func_id, &mut base).str_}}
+pub(crate) fn get_ask_user(func_id: i64, base: &mut crate::basic) -> String{return unsafe{page_struct("", ASK_USER_, func_id, &mut base).str_}}
+pub(crate) fn set_ask_user(val: &str, func_id: i64, base: &mut crate::basic) -> String{
+  return unsafe{page_struct(val, crate::set(ASK_USER_), func_id, &mut base).str_}}
+pub(crate) fn get_full_path(func_id: i64, base: &mut crate::basic) -> String{return format!("{}",unsafe{page_struct("", FULL_PATH_, func_id, &mut base).str_}) }
+pub(crate) fn set_full_path(val: &str, func_id: i64, base: &mut crate::basic) -> String{
+  return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id, &mut base).str_}}
+pub(crate) fn get_prompt(func_id: i64, base: &mut crate::basic) -> String{return unsafe{page_struct("", PROMPT_, func_id, &mut base).str_}}
+pub(crate) fn set_prompt(val: &str, func_id: i64, base: &mut crate::basic) -> String{return unsafe{page_struct(val, crate::set(PROMPT_), func_id, &mut base).str_}}
 /*------------------------------------------------------------------------------------------------------------------------ */
 pub(crate) fn get_num_cols(func_id: i64) -> i64{return unsafe{page_struct_int(0, NUM_COLS_, func_id)}}
 pub(crate) fn set_num_cols(val: i64, func_id: i64) -> i64{return unsafe{page_struct_int(val, crate::set(NUM_COLS_), func_id)}}
@@ -269,7 +273,7 @@ pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, func_id: i64) -> shift_cur
   }
   ret
 }
-pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -> page_struct_ret
+pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64, base: &mut basic) -> page_struct_ret
 {
    let func_id = crate::func_id18::page_struct_;
     let mut int_:i64 = 0; let mut str__ = String::new();
@@ -318,7 +322,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     //let fn_ptr_get_string: fn(&str) -> String = get_string;
     let no_val: i32 = 'no_val: {
    if id_of_caller == __INS{
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), &mut base);
     }
     if val != "prnt" {break 'no_val 101;}
     if id_of_caller == __BKSP{
@@ -331,7 +335,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
         rewrite_user_written_path(&new_path);
         crate::set_prnt_!(&new_prnt);
       set_cur_cur_pos(len as i64, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), &mut base);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     if id_of_caller == __DEL{
@@ -343,7 +347,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
           set_prnt(&new_string, func_id);
       let left_shift_4_cur = get_left_shift_4_cur(func_id) - 1;
       set_left_shift_4_cur(left_shift_4_cur, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), &mut base);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     11    

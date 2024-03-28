@@ -41,6 +41,16 @@ fn form_grep_cmd(in_name: &String) -> String{
     return ret;
 }
 fn mk_cmd_file(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
 let func_id = 4;
 let timestamp = Local::now();
 let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
@@ -278,26 +288,13 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 fn main (){
-// stacker::maybe_grow( 8*1024*1024, 32*1024*1024, || {
-    // guaranteed to have at least 32K of stack
-  /*/  let mut inp = String::new();
-    io::stdin().read_line(&mut inp).expect("Ins_key failed to read console");
-    let inp = inp.trim_end();
-    let inp0 = match i64::from_str_radix(&inp, 10){
-        Ok(i) => i,
-        _ => 0
-    };
-    get_proper_indx_tst(inp0, true);
-    return;*/
-    initSession();
-    let prnt = format!("term mnh /tmp/yst:>:no_upd_scrn");
-    let (prnt, tail) = split_once(&prnt, ":>:");
-    println!("{}\n{}", prnt, tail);
-    return;
+   initSession(&mut None);
+   if checkArg("-rilocan"){rilocan(); return;}
+   /*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
 if core18::checkArg("-path"){path = String::from_iter(get_arg_in_cmd("-path").s);}
-if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}
+if core18::checkArg("-path0"){path = String::from_iter(get_arg_in_cmd("-path0").s);}*/
 update18::prime();
 let mut Key: String = "tst".blink().to_string();
 println!("Key is {}", Key);

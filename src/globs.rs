@@ -72,6 +72,7 @@ pub(crate) fn sieve_list(data: String){
     mark_front_lst("filter");
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
+    set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
     clean_cache();
@@ -110,18 +111,22 @@ pub(crate) fn merge(data: String){
         Ok(i) => i,
         _ => i64::MIN
     };
+   let mut path = get_path_from_strn(data);
     if indx > i64::MIN{
         let fname = /*crate::escape_apostrophe(&*/get_item_from_front_list(indx, true);//);
         //let cmd = format!("echo '{}' >> {}", fname, filter_file_path);
         crate::save_file_append_newline_abs_adr(fname.clone(), filter_file_path);
-        set_full_path(&fname, -333444114);
+        if path == ""{path = fname}
+        let info = format!("Merge: {path}");
+        set_full_path(&info, 97400148467);    
         //run_cmd_str(cmd.as_str());   
         return;
     }
-    let path = get_path_from_strn(data);
     if path.len() > 0 {
         let cmd = format!("echo '{}' >> {}", path, filter_file_path);
-        run_cmd_str(cmd.as_str());    
+        run_cmd_str(cmd.as_str());
+        let info = format!("Merge: {path}");
+        set_full_path(&info, 97400148467);    
         return;
     }
     let cmd = format!("cat {} >> {}", found_files_path, filter_file_path);
@@ -212,7 +217,7 @@ pub(crate) fn Enter(){
     let (term, _) = split_once(&prnt, " ");
     if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
-        set_prnt(&prnt, -881454);
+        //set_prnt(&prnt, -881454);
     }
     let mut mode = 0i64;
     crate::C!(check_mode(&mut mode));
@@ -457,13 +462,8 @@ pub(crate) fn get_proper_indx_tst(indx: i64, fixed_indx: bool) -> (usize, i64){
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String{
     let proper_indx = get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
-      let mut list_id: (i64, bool) = (1i64, false);
-    for i in 0..1000{
-        list_id = crate::C!(front_list_indx(i64::MAX));
-        if list_id.1{break;}
-    }
-    if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
-    return crate::C!(lists("", list_id.0, proper_indx.0, GET))
+    //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
+    return crate::C!(lists("", FRONT_, proper_indx.0, GET))
 }
 pub fn set_main0_as_front(){crate::drop_ls_mode(); mark_front_lst("main0"); unsafe{lists("", MAIN0_, 0, SET_FRONT_LIST);}}
 pub fn set_ls_as_front() -> String{
@@ -578,20 +578,18 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
     let mut count_delim_chars = 0usize;
     let mut ret = (String::new(), String::new());
     for i in strn.chars(){
-        print!("{}", i);
         if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
             maybe.push(i);
             count_delim_chars += 1;
             //println!("{}", maybe);
         } else {
             if found {ret.1.push(i); continue;}
-            if maybe == *delim {found = true; continue;}
+            if maybe == *delim {ret.1.push(i); found = true; continue;}
             count_delim_chars = 0;
             ret.0.push_str(maybe.as_str());
             ret.0.push(i);
             maybe = String::new();
         }
-        println!("{}", i);
     }
     ret
 }

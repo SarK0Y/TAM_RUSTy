@@ -37,6 +37,9 @@ use cache::*;
 #[path = "env.rs"]
 mod tam_env;
 use tam_env::*;
+#[path = "extctrl.rs"]
+mod extctrl;
+use extctrl::*;
 #[path = "globs.rs"]
 mod globs18;
 #[path = "term_app.rs"]
@@ -54,6 +57,9 @@ mod update18;
 #[path = "mcrs.rs"]
 mod mcrs18;
 use mcrs18::*;
+#[path = "subs.rs"]
+mod subs;
+use subs::*;
 use dirty;
 use getStop_code__;
 use close_termios__;

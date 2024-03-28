@@ -32,7 +32,8 @@ pub(crate) fn main_update(){
 
 }
 pub(crate) fn prime(){
-    crate::initSession();
+    let mut base = crate::basic::new();
+    crate::initSession(&mut Some(base));
     C!(front_list_indx(MAIN0_));
     C!(set_main0_as_front());
     main_update();
@@ -42,14 +43,14 @@ let handler = builder.spawn(|| {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
-crate::manage_pages();
+crate::manage_pages(&mut base);
 println!("stop manage_page");
 }).unwrap();
-background_fixing();
+background_fixing_count(4, &mut base);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
-pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
+pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool, base: &mut crate::basic){
     let mut head = String::new();
     let mut tail = String::new();
     let os_str = OsStr::new("");
@@ -72,7 +73,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls(cmd);
-    background_fixing();
+    background_fixing(&mut base);
 }
 pub(crate) fn lets_write_path(key: String){
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
@@ -81,20 +82,32 @@ pub(crate) fn lets_write_path(key: String){
     C!(swtch_fn(mode, key));
 
 }
-pub(crate) fn background_fixing(){        
+pub(crate) fn background_fixing(base: &mut crate::basic){        
     let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-    popup_msg(&subcmd);
     if subcmd == "no_upd_scrn"{
         set_prnt(&prnt, -164547841);
         return;
     }
  let builder = thread::Builder::new().stack_size(2 * 1024 * 1024).name("background_fixing".to_string());
  builder.spawn(|| {
-    let release_fn = _background_fixing;
-    let dbg_fn = dbg_background_fixing;
-    if checkArg("-dbg"){dbg_fn()}
-    else {release_fn()}
-    fix_screen();
+    let mut bkgrnd: fn() = _background_fixing;
+     if checkArg("-dbg"){bkgrnd = dbg_background_fixing;}
+     bkgrnd();
+    fix_screen(&mut base);
+});
+}
+pub(crate) fn background_fixing_count(num: usize, base: &mut crate::basic){        
+    let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
+    if subcmd == "no_upd_scrn"{
+        set_prnt(&prnt, -164547841);
+        return;
+    }
+ let builder = thread::Builder::new().stack_size(2 * 1024 * 1024).name("background_fixing".to_string());
+ builder.spawn(move|| {
+    let mut bkgrnd: fn() = _background_fixing;
+     if checkArg("-dbg"){bkgrnd = dbg_background_fixing;}
+     bkgrnd();
+    fix_screen_count(num, &mut base);
 });
 }
 fn _background_fixing(){
@@ -141,9 +154,9 @@ let ls_mode = take_list_adr("ls.mode");
      save_file(check_ls_mode, "dbg_ls.mode".to_string());
 }
 
-pub(crate) fn fix_screen(){
+pub(crate) fn fix_screen(base: &mut crate::basic){
     std::thread::spawn(||{
-        for i in 0..5{
+        for i in 0..2{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -151,10 +164,27 @@ pub(crate) fn fix_screen(){
             let num_pgs = crate::where_is_last_pg();
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
-            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
+            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps, &mut base);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
+        }
+    });
+}
+pub(crate) fn fix_screen_count(num: usize, base: &mut crate::basic){
+    std::thread::spawn(move||{
+        for i in 0..num{
+            clear_screen();
+            let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
+            let mut data = "".to_string();
+            let num_pg = crate::get_num_page(-5555555121);
+            let num_pgs = crate::where_is_last_pg();
+            crate::swtch::print_viewers();
+            crate::swtch::print_pg_info();
+            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps, &mut base);}
+            println!("{}", crate::get_prnt(-1));
+            crate::pg18::form_cmd_newline_default();
+           std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
 }
