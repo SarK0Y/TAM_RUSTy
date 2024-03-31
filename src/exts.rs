@@ -42,6 +42,9 @@ mod globs18;
 #[path = "term_app.rs"]
 mod term_app;
 use term_app::*;
+#[path = "extctrl.rs"]
+mod extctrl;
+use extctrl::*;
 #[path = "page_struct_.rs"]
 mod ps18;
 use ps18::*;

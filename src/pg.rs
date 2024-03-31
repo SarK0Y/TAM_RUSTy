@@ -14,7 +14,7 @@ fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
 
 pub(crate) 
 fn build_page(ps: &mut crate::_page_struct){
-    let func_id = crate::func_id18::build_page;
+    let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = get_num_files(func_id);
     while try_entry < 1_000 {
@@ -96,12 +96,12 @@ if run_command.status.success(){
 }
 }
 pub(crate) 
-fn hotKeys() -> String{
-    let func_id = crate::func_id18::hotKeys;
+fn hotKeys(Key: &mut String, ext: bool) -> String{
+    let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
-    let mut Key =String::new();
+    //let mut Key =String::new();
     let mut cmd = String::new();
-    Key.push_str(crate::getkey().as_str());
+    if !ext{Key.push_str(crate::getkey().as_str());}
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::globs18::F1_key();
     } 
@@ -137,7 +137,7 @@ fn hotKeys() -> String{
         let prev_list = crate::read_front_list();
         let prev = read_file("prev_list");
         if prev == ""{crate::save_file(prev_list, "prev_list".to_string());}
-        let mut Key_cpy =String::from(&Key); let mut Key_ = String::from(&Key); lets_write_path(Key_cpy); crate::INS(&Key_);
+        let mut Key_cpy =String::from(Key.to_string()); let mut Key_ = String::from(Key.to_string()); lets_write_path(Key_cpy); crate::INS(&Key_);
     return "/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
     crate::C!(local_indx(true));
@@ -186,7 +186,8 @@ let mut bal =String::new();
         crate::swtch::print_pg_info();
         if num_pg < num_pgs || num_pgs ==0 {build_page(&mut ps);}
         println!("{}", get_prnt(-1));
-        exec_cmd(custom_input());
+        Key  = "".to_string(); 
+        exec_cmd(custom_input(&mut Key, false));
         clear_screen();
     }
 }
@@ -210,7 +211,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
     io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default(){
-    let func_id = crate::func_id18::form_cmd_line_default;
+    let func_id = crate::func_id18::form_cmd_line_default_;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
@@ -235,7 +236,7 @@ pub(crate) fn form_cmd_newline_default(){
 }
 
 pub(crate) fn form_cmd_line_default(){
-    let func_id = crate::func_id18::form_cmd_line_default;
+    let func_id = crate::func_id18::form_cmd_line_default_;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
@@ -258,17 +259,18 @@ pub(crate) fn form_cmd_line_default(){
     wipe_cmd_line(whole_line_len);
     form_cmd_line(prompt, prnt)
 }
-pub(crate) fn custom_input() -> String{
+pub(crate) fn custom_input(Key: &mut String, ext: bool) -> String{
+    let mut Key = Key;
     form_cmd_line_default();
-    return hotKeys();
+    return hotKeys(&mut Key, ext);
 }
 pub(crate) unsafe fn exec_cmd_cnt(count_: bool) -> u64{
     static mut count: u64 = 0;
     if count_ {count += 1;}
     count
 }
-fn exec_cmd(cmd: String){
-    let func_id = crate::func_id18::exec_cmd;
+pub(crate) fn exec_cmd(cmd: String){
+    let func_id = crate::func_id18::exec_cmd_;
     //println!("cmd {} func {}, prnt {}", cmd, crate::func_id18::get_func_name(func_id), crate::get_prnt(func_id));
     if cmd == "dontPass" {return;}
     let mut cmd = cmd;
