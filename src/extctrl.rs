@@ -1,12 +1,16 @@
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr};
+
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
-    shol_state: bool
+    shol_state: bool,
+    tmp_dir: String
 }
 impl basic{
   pub fn new() -> Self{
     Self{
-        shol_state: false
+        shol_state: false,
+        tmp_dir: bkp_tmp_dir()
     }
 }
 pub fn default() -> Self{
@@ -66,6 +70,23 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
+  if self.shol_state && Key == " "{
+    let shol = format!("{}/shol", self.tmp_dir);
+    let read_shol = crate::read_file_abs_adr(&shol);
+    self.shol_state = false;
+    return crate::hotKeys(Key, true);
+  }
+  if self.shol_state{
+    let shol = format!("{}/shol", self.tmp_dir);
+    crate::save_file_append_abs_adr(Key.to_string(), shol);
+    return crate::hotKeys(Key, true);
+  }
+  if Key == "#"{
+    let shol = format!("{}/shol", self.tmp_dir);
+    save_file_abs_adr(Key.to_string(), shol);
+    self.shol_state = true;
+    return crate::hotKeys(Key, true);
+  }
   crate::hotKeys(Key, true)
  }
 }

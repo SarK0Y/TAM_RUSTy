@@ -669,6 +669,17 @@ pub(crate) fn read_file(fname: &str) -> String{
     file.read_to_string(&mut ret);
     ret
 }
+pub(crate) fn read_file_abs_adr(fname: &String) -> String{
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
+    ret
+}
+
 pub(crate) fn read_prnt() -> String{read_file("prnt")}
 pub(crate) fn file_prnt(content: String){
     save_file(cpy_str(&content), "prnt".to_string());
