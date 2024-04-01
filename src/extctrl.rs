@@ -4,13 +4,15 @@ use crate::{bkp_tmp_dir, save_file, save_file_abs_adr};
 #[derive(Clone)]
 pub(crate) struct basic{
     shol_state: bool,
-    tmp_dir: String
+    tmp_dir: String,
+    shols: Vec<(String, String)>
 }
 impl basic{
   pub fn new() -> Self{
     Self{
         shol_state: false,
-        tmp_dir: bkp_tmp_dir()
+        tmp_dir: bkp_tmp_dir(),
+        shols: Vec::new()
     }
 }
 pub fn default() -> Self{
@@ -35,6 +37,8 @@ impl Copy for basic{
   fn Copy(&mut self) -> basic{
     let mut base = basic::default();
     base.shol_state = self.shol_state;
+    base.shols = self.shols.clone();
+    base.tmp_dir = self.tmp_dir.clone();
     base
   }
 }
@@ -79,6 +83,8 @@ impl ManageLists for basic{
   if self.shol_state{
     let shol = format!("{}/shol", self.tmp_dir);
     crate::save_file_append_abs_adr(Key.to_string(), shol);
+    let mut rec = (String::new(), String::new());
+    rec.0.push_str(Key.as_str());
     return crate::hotKeys(Key, true);
   }
   if Key == "#"{
