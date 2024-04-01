@@ -1,18 +1,19 @@
 use crate::{bkp_tmp_dir, save_file, save_file_abs_adr};
-
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
     shol_state: bool,
     tmp_dir: String,
-    shols: Vec<(String, String)>
+    shols: Vec<(String, String)>,
+    rec_shol: (String, String)
 }
 impl basic{
   pub fn new() -> Self{
     Self{
         shol_state: false,
         tmp_dir: bkp_tmp_dir(),
-        shols: Vec::new()
+        shols: Vec::new(),
+        rec_shol: (String::new(), String::new())
     }
 }
 pub fn default() -> Self{
@@ -23,6 +24,15 @@ pub fn default() -> Self{
   }
   pub fn get_shol_state(&mut self, new_state: bool){
     self.shol_state = new_state;
+  }
+  pub fn set_rec_shol(&mut self, rec: &mut (String, String)){
+    self.rec_shol = (self.rec_shol.0.clone(), self.rec_shol.1.clone());
+  }
+  pub fn get_rec_shol(&self) -> (String, String){
+    (self.rec_shol.0.clone(), self.rec_shol.1.clone())
+  }
+  pub fn clear_rec_shol(&mut self){
+    self.rec_shol = (String::new(), String::new());
   }
   pub fn clone(&self) -> basic{
     let mut base = basic::default();
@@ -39,6 +49,7 @@ impl Copy for basic{
     base.shol_state = self.shol_state;
     base.shols = self.shols.clone();
     base.tmp_dir = self.tmp_dir.clone();
+    base.rec_shol = (self.rec_shol.0.clone(), self.rec_shol.1.clone());
     base
   }
 }
@@ -75,19 +86,28 @@ impl ManageLists for basic{
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
   if self.shol_state && Key == " "{
-    let shol = format!("{}/shol", self.tmp_dir);
-    let read_shol = crate::read_file_abs_adr(&shol);
     self.shol_state = false;
+    use crate::parse_replacing::parse_replace;
+    let mut ret_tag = self.validate_tag();
+    if ret_tag == None {self.clear_rec_shol()}
+    else {
+      let mut rec_shol = self.get_rec_shol();
+      rec_shol.1.clear(); rec_shol.1.push_str(ret_tag.unwrap().as_str());
+      let re_tag = format!("{}{}", self.shols.len(), rec_shol.0);
+      rec_shol.0.clear(); rec_shol.0.push_str(re_tag.as_str());
+      self.shols.push(rec_shol);
+    }
     return crate::hotKeys(Key, true);
   }
   if self.shol_state{
     let shol = format!("{}/shol", self.tmp_dir);
     crate::save_file_append_abs_adr(Key.to_string(), shol);
-    let mut rec = (String::new(), String::new());
-    rec.0.push_str(Key.as_str());
+    self.rec_shol.0.push_str(Key.as_str());
     return crate::hotKeys(Key, true);
   }
   if Key == "#"{
+    self.clear_rec_shol();
+    self.rec_shol.0.push_str(Key.as_str());
     let shol = format!("{}/shol", self.tmp_dir);
     save_file_abs_adr(Key.to_string(), shol);
     self.shol_state = true;

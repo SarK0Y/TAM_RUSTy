@@ -34,6 +34,9 @@ use func_id18::*;
 #[path = "cache.rs"]
 mod cache;
 use cache::*;
+#[path = "parse_replace.rs"]
+mod parse_replacing;
+use parse_replacing::*;
 #[path = "env.rs"]
 mod tam_env;
 use tam_env::*;
