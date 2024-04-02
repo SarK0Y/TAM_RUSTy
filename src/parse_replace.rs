@@ -36,17 +36,13 @@ impl parse_replace for crate::basic{
         let char0 = prnt.chars().nth(i).unwrap();
         if char0 == '/'{yes_path = true;}
         if yes_path{path.push(char0);}
-        if char0 == '@'{break;}
+        if char0 == '@' && yes_path{break;}
     }
-    popup_msg(&path);
    let mut sholName = read_tail(&path, "/");  
    sholName = format!("@@{}", sholName.replace("@", ""));
    let rec_shol = (sholName.clone(), path.clone());
    self.set_rec_shol(&rec_shol);
    prnt = prnt.replace(&path, &sholName);
    crate::set_prnt(&prnt, -4954038917661);
-   popup_msg(&sholName);
-   popup_msg(&path);
-
     }
 }
