@@ -1,8 +1,9 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace};
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
     shol_state: bool,
+    mk_shol_state: bool,
     tmp_dir: String,
     shols: Vec<(String, String)>,
     rec_shol: (String, String)
@@ -11,6 +12,7 @@ impl basic{
   pub fn new() -> Self{
     Self{
         shol_state: false,
+        mk_shol_state: false,
         tmp_dir: bkp_tmp_dir(),
         shols: Vec::new(),
         rec_shol: (String::new(), String::new())
@@ -22,10 +24,16 @@ pub fn default() -> Self{
   pub fn set_shol_state(&mut self, new_state: bool){
     self.shol_state = new_state;
   }
-  pub fn get_shol_state(&mut self, new_state: bool){
-    self.shol_state = new_state;
+  pub fn get_shol_state(&self) -> bool{
+    self.shol_state
   }
-  pub fn set_rec_shol(&mut self, rec: &mut (String, String)){
+  pub fn set_mk_shol_state(&mut self, new_state: bool){
+    self.mk_shol_state = new_state;
+  }
+  pub fn get_mk_shol_state(&self) -> bool{
+    self.mk_shol_state
+  }
+  pub fn set_rec_shol(&mut self, rec: &(String, String)){
     self.rec_shol = (self.rec_shol.0.clone(), self.rec_shol.1.clone());
   }
   pub fn get_rec_shol(&self) -> (String, String){
@@ -85,6 +93,9 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
+  if Key == " " && self.mk_shol_state{self.mk_shol_state = false;}
+  if Key == "@" && self.mk_shol_state{self.mk_shol_state = false; self.mk_shol(); return crate::globs18::drop_key(Key);}
+  if Key == "@"{self.mk_shol_state = true}
   if self.shol_state && Key == " "{
     self.shol_state = false;
     use crate::parse_replacing::parse_replace;
@@ -97,7 +108,7 @@ impl ManageLists for basic{
       rec_shol.0.clear(); rec_shol.0.push_str(re_tag.as_str());
       self.shols.push(rec_shol);
     }
-    return crate::hotKeys(Key, true);
+    return crate::globs18::drop_key(Key);
   }
   if self.shol_state{
     let shol = format!("{}/shol", self.tmp_dir);

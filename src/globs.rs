@@ -593,3 +593,7 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
     }
     ret
 }
+pub(crate) fn drop_key(Key: &mut String) -> String{
+    Key.clear();
+    return crate::hotKeys(Key, true);
+}
