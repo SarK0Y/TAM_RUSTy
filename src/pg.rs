@@ -96,12 +96,13 @@ if run_command.status.success(){
 }
 }
 pub(crate) 
-fn hotKeys(Key: &mut String, ext: bool) -> String{
+fn hotKeys(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
     //let mut Key =String::new();
     let mut cmd = String::new();
-    if !ext{Key.push_str(crate::getkey().as_str());}
+    let ext_is_alive = if Some(ext) == None{false}else{true};
+    if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::globs18::F1_key();
     } 
@@ -169,10 +170,11 @@ fn hotKeys(Key: &mut String, ext: bool) -> String{
        if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id);}
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
+        if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}
         return Key.to_string();
 //return get_prnt(func_id);
 }
-pub fn manage_pages(){
+pub fn manage_pages(ext: &Option<&mut crate::__ext_msgs::_ext_msgs>){
 let mut Key: String = "".to_string(); 
 let mut count: u64 = 0;
 let mut bal =String::new();
@@ -187,7 +189,7 @@ let mut bal =String::new();
         if num_pg < num_pgs || num_pgs ==0 {build_page(&mut ps);}
         println!("{}", get_prnt(-1));
         Key  = "".to_string(); 
-        exec_cmd(custom_input(&mut Key, false));
+        exec_cmd(custom_input(&mut Key, ext));
         clear_screen();
     }
 }
@@ -259,7 +261,7 @@ pub(crate) fn form_cmd_line_default(){
     wipe_cmd_line(whole_line_len);
     form_cmd_line(prompt, prnt)
 }
-pub(crate) fn custom_input(Key: &mut String, ext: bool) -> String{
+pub(crate) fn custom_input(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let mut Key = Key;
     form_cmd_line_default();
     return hotKeys(&mut Key, ext);

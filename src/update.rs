@@ -43,7 +43,7 @@ let handler = builder.spawn(move || {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
-if checkArg("-no-ext"){crate::manage_pages();}
+if checkArg("-no-ext"){crate::manage_pages(&None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();

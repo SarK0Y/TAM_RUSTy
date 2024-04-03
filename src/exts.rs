@@ -37,6 +37,9 @@ use cache::*;
 #[path = "parse_replace.rs"]
 mod parse_replacing;
 use parse_replacing::*;
+#[path = "ext_msgs.rs"]
+mod __ext_msgs;
+use __ext_msgs::*;
 #[path = "env.rs"]
 mod tam_env;
 use tam_env::*;
