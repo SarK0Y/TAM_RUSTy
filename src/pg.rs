@@ -1,6 +1,6 @@
 use cli_table::TableStruct;
 
-use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag};
+use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey};
 self::pg_uses!();
 
 fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -96,13 +96,16 @@ if run_command.status.success(){
 }
 }
 pub(crate) 
-fn hotKeys(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
+fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
     //let mut Key =String::new();
     let mut cmd = String::new();
-    let ext_is_alive = if Some(ext) == None{false}else{true};
+    let ext_is_alive = if Some(&ext) == None{false}else{true};
     if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
+    else{
+        ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits();
+    }
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::globs18::F1_key();
     } 
@@ -158,7 +161,7 @@ fn hotKeys(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) ->
         Some(val) => val,
         _ => 0
     };
-    if ansiKey == 0{return crate::get_prnt(func_id);}
+    if ansiKey == 0{if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}} return crate::get_prnt(func_id);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
     if kcode::ENTER == ansiKey{crate::globs18::Enter(); return crate::get_prnt(func_id);} 
     if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
@@ -174,7 +177,7 @@ fn hotKeys(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) ->
         return Key.to_string();
 //return get_prnt(func_id);
 }
-pub fn manage_pages(ext: &Option<&mut crate::__ext_msgs::_ext_msgs>){
+pub fn manage_pages(ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>){
 let mut Key: String = "".to_string(); 
 let mut count: u64 = 0;
 let mut bal =String::new();
@@ -261,7 +264,7 @@ pub(crate) fn form_cmd_line_default(){
     wipe_cmd_line(whole_line_len);
     form_cmd_line(prompt, prnt)
 }
-pub(crate) fn custom_input(Key: &mut String, ext: &Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
+pub(crate) fn custom_input(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let mut Key = Key;
     form_cmd_line_default();
     return hotKeys(&mut Key, ext);

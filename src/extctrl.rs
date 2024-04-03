@@ -1,4 +1,4 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key};
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
@@ -95,8 +95,12 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
+  if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
+    if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}
+  }
   if Key != "@" && self.mk_shol_state > 0{self.mk_shol_state = 0; self.ext_old_modes.dontPass = false}
-  if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state = 0; self.mk_shol(&Key); self.ext_old_modes.dontPass = false}
+  if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state = 0; self.mk_shol(self.shols.len()); self.ext_old_modes.dontPass = false; return drop_key(Key, &mut Some(&mut self.ext_old_modes))}
+  //if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state += 1; }
   if Key == "@" && self.mk_shol_state == 1{self.mk_shol_state += 1; }
   if Key == "@" && self.mk_shol_state == 0{self.mk_shol_state = 1; self.ext_old_modes.dontPass = true; }
   if self.shol_state && Key == " "{
@@ -111,13 +115,14 @@ impl ManageLists for basic{
       rec_shol.0.clear(); rec_shol.0.push_str(re_tag.as_str());
       self.shols.push(rec_shol);
     }
-    return crate::globs18::drop_key(Key, &Some(&mut self.ext_old_modes));
+    return crate::globs18::drop_key(Key, &mut Some(&mut self.ext_old_modes));
   }
   if self.shol_state{
     let shol = format!("{}/shol", self.tmp_dir);
     crate::save_file_append_abs_adr(Key.to_string(), shol);
     self.rec_shol.0.push_str(Key.as_str());
-    return crate::hotKeys(Key, &Some(&mut self.ext_old_modes));
+    self.ext_old_modes.drop_dontPass_after_n_hotKeys = 2; self.ext_old_modes.dontPass = true;
+    return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes));
   }
   if Key == "#"{
     self.clear_rec_shol();
@@ -125,9 +130,10 @@ impl ManageLists for basic{
     let shol = format!("{}/shol", self.tmp_dir);
     save_file_abs_adr(Key.to_string(), shol);
     self.shol_state = true;
-    return crate::hotKeys(Key,&Some(&mut self.ext_old_modes));
+    return crate::hotKeys(Key,&mut Some(&mut self.ext_old_modes));
   }
-  crate::hotKeys(Key, &Some(&mut self.ext_old_modes))
+  //self.ext_old_modes.dontPass = false;
+  crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))
  }
 }
 pub(crate) fn tst_basic() -> basic{

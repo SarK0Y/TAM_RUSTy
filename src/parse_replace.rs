@@ -1,8 +1,8 @@
-use crate::{tailOFF, popup_msg, read_tail};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char};
 
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
-    fn mk_shol(&mut self, Key: &String);
+    fn mk_shol(&mut self, inc_id: usize);
     fn to_shol(&mut self);
     fn from_shol(&mut self);
 }
@@ -28,17 +28,17 @@ impl parse_replace for crate::basic{
     crate::set_prnt(&prnt, -48721112507);
     Some(tag)
 }
-    fn mk_shol(&mut self, Key: &String) {
+    fn mk_shol(&mut self, inc_id: usize) {
     let mut prnt = crate::read_prnt();
     let mut i: usize = 0;
     let mut path = String::new();
     let mut yes_path = false;
     let mut count_ending = 0usize;
-    loop {
-        let char0 = match prnt.chars().nth(i){
+    for char0 in prnt.chars(){
+        /*let char0 = match prnt.chars().nth(i){
             Some(ch) => ch,
-            _ => "".chars().nth(0).unwrap()
-        };
+            _ => '@'
+        };*/
         if char0 == '/'{yes_path = true;}
         if yes_path{path.push(char0);}
         if char0 == '@' && yes_path && count_ending == 3{break;}
@@ -46,12 +46,15 @@ impl parse_replace for crate::basic{
         i += 1;
     }
    let mut sholName = read_tail(&path, "/");  
-   sholName = format!("@@{}", sholName.replace("@@@", ""));
+   sholName = format!("@{inc_id}@{}", sholName.replace("@ ", ""));
    let rec_shol = (sholName.clone(), path.clone());
    self.set_rec_shol(&rec_shol);
-   prnt = prnt.replace(&path, &sholName);
+   let mop_count_ending = repeat_char(count_ending + 1, "@");
+   prnt = prnt.replace(&path, &sholName); prnt = prnt.replace(&mop_count_ending, "");
+   popup_msg(&prnt);
    popup_msg(&path);
    crate::set_prnt(&prnt, -4954038917661);
+   popup_msg(&sholName);
     }
     fn to_shol(&mut self){}
     fn from_shol(&mut self){}
