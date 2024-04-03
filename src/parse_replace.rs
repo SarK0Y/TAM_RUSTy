@@ -1,4 +1,4 @@
-use crate::{tailOFF, popup_msg, read_tail, repeat_char};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt};
 
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
@@ -51,12 +51,21 @@ impl parse_replace for crate::basic{
    self.set_rec_shol(&rec_shol);
    let mop_count_ending = repeat_char(count_ending + 1, "@");
    prnt = prnt.replace(&path, &sholName); prnt = prnt.replace(&mop_count_ending, "");
-   popup_msg(&prnt);
-   popup_msg(&path);
    crate::set_prnt(&prnt, -4954038917661);
-   popup_msg(&sholName);
     }
     fn to_shol(&mut self){}
-    fn from_shol(&mut self){}
+    fn from_shol(&mut self){
+        let mut prnt = read_prnt();
+        let prnt_len = prnt.chars().count();
+        let shols_len = self.shols_len();
+        for i in 0..shols_len{
+            let rec = self.rec_from_shols(i);
+            let mut prnt0 = prnt.clone();
+            prnt0 = prnt0.replace(&rec.0, &rec.1);
+            if prnt0.len() != prnt.len(){prnt = prnt0}
+            else {self.rm_rec_from_shols(i)}
+        }
+        crate::set_prnt(&prnt, 75094137091728);
+    }
 
 }

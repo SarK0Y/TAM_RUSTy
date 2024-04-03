@@ -49,6 +49,16 @@ pub fn default() -> Self{
     base.shol_state = self.shol_state;
     base
   }
+  pub fn rec_from_shols(&self, indx: usize) -> (String, String){
+    let len = self.shols.len(); if len < indx{return ("too high indx".to_string(), "".to_string())}
+    (self.shols[indx].0.clone(), self.shols[indx].1.clone())
+  }
+  pub fn rm_rec_from_shols(&mut self, indx: usize){
+    self.shols.remove(indx);
+  }
+  pub fn shols_len(&self) -> usize{
+    self.shols.len()
+  }
 }
 pub trait Copy{
   fn Copy(&mut self) -> basic;
