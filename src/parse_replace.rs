@@ -3,17 +3,22 @@ use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escap
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
     fn mk_shol(&mut self, inc_id: usize);
-    fn mk_shol_from_strn(&mut self, path: &String) -> String;
+    fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String;
     fn to_shol(&mut self);
     fn from_shol(&mut self);
-    fn from_shol_no_dead_ecnds(&mut self);
+    fn from_shol_no_dead_ends(&mut self);
 }
 impl parse_replace for crate::basic{
     fn validate_tag(&mut self) -> Option<String>{
     let mut prnt = crate::read_prnt();
     let mut tag = self.get_rec_shol().0;
     let tag0 = tag.clone();
+    let mut tag_hash =tag.clone();
+    let mut tag_at = false;
+    tag_hash = tag.replace("##", "");
+    if tag_hash.len() != tag.len(){tag_at = true}
     tag = tag.replace("##", "");
+    tag = tag.replace("@@", "");
     let tag = match i64::from_str_radix(&tag, 10){
         Ok(i) => i,
         _ => i64::MIN
@@ -26,22 +31,24 @@ impl parse_replace for crate::basic{
         return None;
     }
     let tag = crate::get_item_from_front_list(tag, true);
-    let tag = self.mk_shol_from_strn(&tag);
+    let tag = self.mk_shol_from_strn(&tag, tag_at);
     prnt = prnt.replace(&tag0, &tag);
     crate::set_prnt(&prnt, -48721112507);
     Some(tag)
 }
-fn mk_shol_from_strn(&mut self, path: &String) -> String{
+fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
     let mut prnt = crate::read_prnt();
    let mut sholName = read_tail(&path, "/");  
    let inc_id = self.shols_len();
-   sholName = format!("@{inc_id}@{}", sholName.replace("< ", ""));
+   if !tag_at {sholName = format!("{inc_id}@@{}", sholName.replace("< ", ""))}
+   else {sholName = format!("{inc_id}##{}", sholName.replace("< ", ""))}
    crate::set_prnt(&prnt, -4654038917961);
     let mut path = escape_backslash(&path);
     path = escape_apostrophe(&path);
     path = escape_symbs(&path);
    let rec_shol = (sholName.clone(), path.clone());
    self.add_rec_to_shols(rec_shol);
+   if !tag_at{return sholName}
    path
     }
     fn mk_shol(&mut self, inc_id: usize) {
@@ -50,10 +57,6 @@ fn mk_shol_from_strn(&mut self, path: &String) -> String{
     let mut yes_path = false;
     let mut count_ending = 0usize;
     for char0 in prnt.chars(){
-        /*let char0 = match prnt.chars().nth(i){
-            Some(ch) => ch,
-            _ => '@'
-        };*/
         if char0 == '/'{yes_path = true;}
         if yes_path{path.push(char0);}
         if char0 == '<' && yes_path && count_ending == 3{break;}
@@ -86,7 +89,7 @@ fn mk_shol_from_strn(&mut self, path: &String) -> String{
         }
         crate::set_prnt(&prnt, 75094137091728);
     }
-    fn from_shol_no_dead_ecnds(&mut self){
+    fn from_shol_no_dead_ends(&mut self){
         let mut prnt = read_prnt();
         let prnt_len = prnt.chars().count();
         let mut rm_recs: Vec<usize> = Vec::new();

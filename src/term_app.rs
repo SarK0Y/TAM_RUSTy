@@ -26,7 +26,7 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("clear;reset;{cmd}");
+let cmd = format!("clear;reset;{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -65,7 +65,7 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("{cmd}");
+let cmd = format!("{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -82,7 +82,7 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
 
  std::thread::spawn(move|| {
 run_command.wait();
-save_file_append("\nexit rw_std".to_string(), "logs".to_string());
+//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 }).join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();

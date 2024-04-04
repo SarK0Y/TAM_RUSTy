@@ -125,16 +125,25 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
+  if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
+    if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}
+  }
   if crate::globs18::eq_ansi_str(&crate::kcode01::Alt_min, Key.as_str()) == 0 {
     if !self.swtch_shols{self.from_shol()}
     else {self.to_shol()}
     //self.prnt_shols();
-    drop_key(Key, &mut Some(&mut self.ext_old_modes));
+    self.ext_old_modes.dontPass = true;
     self.swtch_shols = !self.swtch_shols;
+    return drop_key(Key, &mut Some(&mut self.ext_old_modes));
   }
-  if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
-    if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}
-  }
+  let ansiKey: u8 = match Key.as_str().bytes().next(){
+        Some(val) => val,
+        _ => 0
+    };
+  if Key == "/"{self.to_shol(); return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
+  if crate::kcode01::ENTER == ansiKey{
+    self.from_shol_no_dead_ends();
+    return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
   if Key != "<" && self.mk_shol_state > 0{self.mk_shol_state = 0; self.ext_old_modes.dontPass = false}
   if Key == "<" && self.mk_shol_state == 2{self.mk_shol_state = 0; self.mk_shol(self.shols.len()); self.ext_old_modes.dontPass = false; return drop_key(Key, &mut Some(&mut self.ext_old_modes))}
   //if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state += 1; }
@@ -145,13 +154,6 @@ impl ManageLists for basic{
     use crate::parse_replacing::parse_replace;
     let mut ret_tag = self.validate_tag();
     if ret_tag == None {self.clear_rec_shol()}
-    else {
-      let mut rec_shol = self.get_rec_shol();
-      rec_shol.1.clear(); rec_shol.1.push_str(ret_tag.unwrap().as_str());
-      let re_tag = format!("{}{}", self.shols.len(), rec_shol.0);
-      rec_shol.0.clear(); rec_shol.0.push_str(re_tag.as_str());
-      self.shols.push(rec_shol);
-    }
     return crate::globs18::drop_key(Key, &mut Some(&mut self.ext_old_modes));
   }
   if self.shol_state{
@@ -161,7 +163,7 @@ impl ManageLists for basic{
     self.ext_old_modes.drop_dontPass_after_n_hotKeys = 2; self.ext_old_modes.dontPass = true;
     return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes));
   }
-  if Key == "#"{
+  if Key == "#" || Key == "@"{
     self.clear_rec_shol();
     self.rec_shol.0.push_str(Key.as_str());
     let shol = format!("{}/shol", self.tmp_dir);

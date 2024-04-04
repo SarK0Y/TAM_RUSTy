@@ -242,9 +242,9 @@ pub fn bksp() -> String{
     ret = rm_char_from_string(indx, &prnt);
     if len == 0{save_file("".to_string(), "prnt".to_string());}
         ////println!("ret {}", ret);
-    let ls_mode = take_list_adr("ls.mode");
+ //   let ls_mode = take_list_adr("ls.mode");
     let is_path = get_path_from_prnt();
-    if is_path == ""{from_ls_2_front(ls_mode)}
+   // if is_path == ""{from_ls_2_front(ls_mode)}
     ret
 }
 pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) -> String{
