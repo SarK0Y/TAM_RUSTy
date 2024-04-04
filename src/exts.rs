@@ -26,6 +26,8 @@ use std::path::Path;
 use num_traits::cast::ToPrimitive;
 use std::io::{BufRead, BufReader};
 use std::os::unix::io::{AsRawFd, RawFd};
+#[path = "keycodes.rs"]
+mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "func_id.rs"]

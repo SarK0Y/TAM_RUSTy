@@ -1,10 +1,11 @@
-use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey};
 
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
     fn mk_shol(&mut self, inc_id: usize);
     fn to_shol(&mut self);
     fn from_shol(&mut self);
+    fn from_shol_no_dead_ecnds(&mut self);
 }
 impl parse_replace for crate::basic{
     fn validate_tag(&mut self) -> Option<String>{
@@ -41,31 +42,60 @@ impl parse_replace for crate::basic{
         };*/
         if char0 == '/'{yes_path = true;}
         if yes_path{path.push(char0);}
-        if char0 == '@' && yes_path && count_ending == 3{break;}
-        if char0 == '@'{count_ending += 1}
+        if char0 == '<' && yes_path && count_ending == 3{break;}
+        if char0 == '<'{count_ending += 1}
         i += 1;
     }
    let mut sholName = read_tail(&path, "/");  
-   sholName = format!("@{inc_id}@{}", sholName.replace("@ ", ""));
+   sholName = format!("@{inc_id}@{}", sholName.replace("< ", ""));
+   sholName = sholName.trim_end_matches("<").to_string();
+   path = path.trim_end_matches("<").to_string();
+    path = path.trim_end().to_string();
    let rec_shol = (sholName.clone(), path.clone());
-   self.set_rec_shol(&rec_shol);
-   let mop_count_ending = repeat_char(count_ending + 1, "@");
+   self.add_rec_to_shols(rec_shol);
+   let mop_count_ending = repeat_char(count_ending + 1, "<");
    prnt = prnt.replace(&path, &sholName); prnt = prnt.replace(&mop_count_ending, "");
    crate::set_prnt(&prnt, -4954038917661);
     }
-    fn to_shol(&mut self){}
-    fn from_shol(&mut self){
+    fn to_shol(&mut self){
         let mut prnt = read_prnt();
         let prnt_len = prnt.chars().count();
-        let shols_len = self.shols_len();
+        let mut shols_len = self.shols_len();
+        if shols_len == 0 {return;}
+        for i in 0..shols_len{
+            let rec = self.rec_from_shols(i);
+            let mut prnt0 = prnt.clone();
+            prnt0 = prnt0.replace(&rec.1, &rec.0);
+            if prnt.len() != prnt0.len(){prnt = prnt0}
+        }
+        crate::set_prnt(&prnt, 75094137091728);
+    }
+    fn from_shol_no_dead_ecnds(&mut self){
+        let mut prnt = read_prnt();
+        let prnt_len = prnt.chars().count();
+        let mut rm_recs: Vec<usize> = Vec::new();
+        let mut shols_len = self.shols_len();
+        if shols_len == 0 {return;}
         for i in 0..shols_len{
             let rec = self.rec_from_shols(i);
             let mut prnt0 = prnt.clone();
             prnt0 = prnt0.replace(&rec.0, &rec.1);
-            if prnt0.len() != prnt.len(){prnt = prnt0}
-            else {self.rm_rec_from_shols(i)}
+            if prnt.len() != prnt0.len(){prnt = prnt0}
+        }
+        self.clear_shols();
+        crate::set_prnt(&prnt, 75094137091728);
+    }
+fn from_shol(&mut self){
+        let mut prnt = read_prnt();
+        let prnt_len = prnt.chars().count();
+        let mut shols_len = self.shols_len();
+        if shols_len == 0 {return;}
+        for i in 0..shols_len{
+            let rec = self.rec_from_shols(i);
+            let mut prnt0 = prnt.clone();
+            prnt0 = prnt0.replace(&rec.0, &rec.1);
+            if prnt.len() != prnt0.len(){prnt = prnt0}
         }
         crate::set_prnt(&prnt, 75094137091728);
     }
-
 }

@@ -18,4 +18,5 @@ pub(crate) const RIGHT_ARROW: &str  = "\x1b[C";
 pub(crate) const UP_ARROW:  &str  = "\x1b[A";
 pub(crate) const DOWN_ARROW:  &str  = "\x1b[B";
 pub(crate) const Alt_0:  &str  = "\x1b0";
+pub(crate) const Alt_min:  &str  = "\x1b-";
 pub(crate) const Alt_2:  &str  = "\x1b2";

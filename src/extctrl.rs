@@ -1,8 +1,9 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey};
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
     shol_state: bool,
+    swtch_shols: bool,
     mk_shol_state: u64,
     tmp_dir: String,
     shols: Vec<(String, String)>,
@@ -13,6 +14,7 @@ impl basic{
   pub fn new() -> Self{
     Self{
         shol_state: false,
+        swtch_shols: false,
         mk_shol_state: 0,
         tmp_dir: bkp_tmp_dir(),
         shols: Vec::new(),
@@ -44,6 +46,9 @@ pub fn default() -> Self{
   pub fn clear_rec_shol(&mut self){
     self.rec_shol = (String::new(), String::new());
   }
+  pub fn clear_shols(&mut self){
+    self.shols.clear()
+  }
   pub fn clone(&self) -> basic{
     let mut base = basic::default();
     base.shol_state = self.shol_state;
@@ -54,10 +59,25 @@ pub fn default() -> Self{
     (self.shols[indx].0.clone(), self.shols[indx].1.clone())
   }
   pub fn rm_rec_from_shols(&mut self, indx: usize){
+    if self.shols_len() <= indx{return;}
     self.shols.remove(indx);
+  }
+  pub fn add_rec_to_shols(&mut self, rec: (String, String)){
+    let rec0 = (rec.0.clone(), rec.1.clone());
+    self.shols.push(rec);
+    if self.shols[self.shols.len() - 1] != rec0{panic!("add_rec_to_shols failed")}
   }
   pub fn shols_len(&self) -> usize{
     self.shols.len()
+  }
+  pub fn prnt_shols(&self){
+    let len = self.shols_len();
+    for j in 0..len{
+      let rec = self.rec_from_shols(j);
+      let line = format!("{j}: {}; {}", rec.0, rec.1);
+      println!("{line}");
+    }
+    getkey();
   }
 }
 pub trait Copy{
@@ -105,14 +125,21 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   Key.push_str(&crate::getkey());
+  if crate::globs18::eq_ansi_str(&crate::kcode01::Alt_min, Key.as_str()) == 0 {
+    if !self.swtch_shols{self.from_shol()}
+    else {self.to_shol()}
+    //self.prnt_shols();
+    drop_key(Key, &mut Some(&mut self.ext_old_modes));
+    self.swtch_shols = !self.swtch_shols;
+  }
   if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
     if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}
   }
-  if Key != "@" && self.mk_shol_state > 0{self.mk_shol_state = 0; self.ext_old_modes.dontPass = false}
-  if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state = 0; self.mk_shol(self.shols.len()); self.ext_old_modes.dontPass = false; return drop_key(Key, &mut Some(&mut self.ext_old_modes))}
+  if Key != "<" && self.mk_shol_state > 0{self.mk_shol_state = 0; self.ext_old_modes.dontPass = false}
+  if Key == "<" && self.mk_shol_state == 2{self.mk_shol_state = 0; self.mk_shol(self.shols.len()); self.ext_old_modes.dontPass = false; return drop_key(Key, &mut Some(&mut self.ext_old_modes))}
   //if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state += 1; }
-  if Key == "@" && self.mk_shol_state == 1{self.mk_shol_state += 1; }
-  if Key == "@" && self.mk_shol_state == 0{self.mk_shol_state = 1; self.ext_old_modes.dontPass = true; }
+  if Key == "<" && self.mk_shol_state == 1{self.mk_shol_state += 1; }
+  if Key == "<" && self.mk_shol_state == 0{self.mk_shol_state = 1; self.ext_old_modes.dontPass = true; }
   if self.shol_state && Key == " "{
     self.shol_state = false;
     use crate::parse_replacing::parse_replace;
