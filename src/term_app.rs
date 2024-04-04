@@ -8,12 +8,14 @@ use termion::terminal_size;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 crate::set_ask_user(cmd.as_str(), func_id);
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 let (cols, rows) = termion::terminal_size().unwrap();
 let cols = 680; let rows = 700;
 let fstdout: String; 
@@ -31,8 +33,8 @@ let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .env("LC_ALL", "ru_RU.UTF-8")
-    .env("LANG", "ru_RU.UTF-8")
+    .env("LC_ALL", &lc)
+    .env("LANG", lc)
     .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
@@ -52,6 +54,8 @@ true
 }
 pub(crate) fn run_term_app1(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
 let fstdout: String; 
 let mut stderr_path = "stderr".to_string();
@@ -68,8 +72,8 @@ let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .env("LC_ALL", "ru_RU.UTF-8")
-    .env("LANG", "ru_RU.UTF-8")
+    .env("LC_ALL", &lc) //"ru_RU.UTF-8")
+    .env("LANG", lc)
     .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
