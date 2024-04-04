@@ -1,8 +1,9 @@
-use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0};
 
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
     fn mk_shol(&mut self, inc_id: usize);
+    fn mk_shol_from_strn(&mut self, path: &String) -> String;
     fn to_shol(&mut self);
     fn from_shol(&mut self);
     fn from_shol_no_dead_ecnds(&mut self);
@@ -25,13 +26,26 @@ impl parse_replace for crate::basic{
         return None;
     }
     let tag = crate::get_item_from_front_list(tag, true);
+    let tag = self.mk_shol_from_strn(&tag);
     prnt = prnt.replace(&tag0, &tag);
     crate::set_prnt(&prnt, -48721112507);
     Some(tag)
 }
+fn mk_shol_from_strn(&mut self, path: &String) -> String{
+    let mut prnt = crate::read_prnt();
+   let mut sholName = read_tail(&path, "/");  
+   let inc_id = self.shols_len();
+   sholName = format!("@{inc_id}@{}", sholName.replace("< ", ""));
+   crate::set_prnt(&prnt, -4654038917961);
+    let mut path = escape_backslash(&path);
+    path = escape_apostrophe(&path);
+    path = escape_symbs(&path);
+   let rec_shol = (sholName.clone(), path.clone());
+   self.add_rec_to_shols(rec_shol);
+   path
+    }
     fn mk_shol(&mut self, inc_id: usize) {
     let mut prnt = crate::read_prnt();
-    let mut i: usize = 0;
     let mut path = String::new();
     let mut yes_path = false;
     let mut count_ending = 0usize;
@@ -44,18 +58,20 @@ impl parse_replace for crate::basic{
         if yes_path{path.push(char0);}
         if char0 == '<' && yes_path && count_ending == 3{break;}
         if char0 == '<'{count_ending += 1}
-        i += 1;
     }
    let mut sholName = read_tail(&path, "/");  
    sholName = format!("@{inc_id}@{}", sholName.replace("< ", ""));
    sholName = sholName.trim_end_matches("<").to_string();
    path = path.trim_end_matches("<").to_string();
-    path = path.trim_end().to_string();
-   let rec_shol = (sholName.clone(), path.clone());
-   self.add_rec_to_shols(rec_shol);
    let mop_count_ending = repeat_char(count_ending + 1, "<");
    prnt = prnt.replace(&path, &sholName); prnt = prnt.replace(&mop_count_ending, "");
    crate::set_prnt(&prnt, -4954038917661);
+    path = path.trim_end().to_string();
+    path = escape_backslash(&path);
+    path = escape_apostrophe(&path);
+    path = escape_symbs(&path);
+   let rec_shol = (sholName.clone(), path.clone());
+   self.add_rec_to_shols(rec_shol);
     }
     fn to_shol(&mut self){
         let mut prnt = read_prnt();

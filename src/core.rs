@@ -134,9 +134,18 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {return}
     if delay == -1.0{
-        let msg = format!("{} said: {}", crate::func_id18::get_func_name(val_func_id), msg);
+        let msg = format!("{} said: {} ..please, hit any key to continue", crate::func_id18::get_func_name(val_func_id), msg);
+        println!("{msg}");
         set_ask_user(&msg.bold().red(), val_func_id);}
+        getkey();
+
 }
+pub(crate) fn errMsg_dbg0(msg: &str){
+    errMsg_dbg(msg, -1101, -1.0); 
+}
+pub(crate) fn errMsg0(msg: &str){
+    errMsg(msg, -1191); 
+} 
 pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
         let msg = format!("{} said: {}", crate::func_id18::get_func_name(val_func_id), msg);
         set_ask_user(&msg.bold().red(), val_func_id);

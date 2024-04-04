@@ -44,8 +44,10 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
 run_command.wait();
-save_file_append("\nexit rw_std".to_string(), "logs".to_string());
+//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 }).join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
 true
 }
 pub(crate) fn run_term_app1(cmd: String) -> bool{
@@ -78,6 +80,8 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
 run_command.wait();
 save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 }).join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
