@@ -1,4 +1,5 @@
 use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey};
+use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
 pub(crate) struct basic{
@@ -9,6 +10,7 @@ pub(crate) struct basic{
     shols: Vec<(String, String)>,
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
+    cache: HashMap<String, Vec<String>>,
 }
 impl basic{
   pub fn new() -> Self{
@@ -19,11 +21,15 @@ impl basic{
         tmp_dir: bkp_tmp_dir(),
         shols: Vec::new(),
         rec_shol: (String::new(), String::new()),
-        ext_old_modes: _ext_msgs::new()
+        ext_old_modes: _ext_msgs::new(),
+        cache: HashMap::new()
     }
 }
 pub fn default() -> Self{
     basic::new()
+}
+pub fn rec_to_cache(&mut self, key: String, val: String){
+  basic::pg_rec_to_cache(&mut self.cache, &key, &val);
 }
   pub fn set_shol_state(&mut self, new_state: bool){
     self.shol_state = new_state;

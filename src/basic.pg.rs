@@ -1,7 +1,11 @@
 use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
-impl crate::basic{
+use std::collections::{HashMap, hash_map::Entry};
+use crate::extctrl;
+
+use super::extctrl::*;
+impl super::basic{
    pub fn build_page(ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
@@ -72,5 +76,11 @@ impl crate::basic{
     }
     //println!("{}", pg.table().display().unwrap());
     println!("{}", crate::get_ask_user(func_id));
+}
+pub(super) fn pg_rec_to_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, val: &String){
+    match cache.entry(key.to_string()){
+        Entry::Occupied(mut entry) => {entry.get_mut().push(val.to_string());},
+        Entry::Vacant(entry) => {entry.insert(vec!(key.to_string()));}
+    }
 }
 }
