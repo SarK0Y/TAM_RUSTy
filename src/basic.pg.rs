@@ -2,9 +2,8 @@ use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
-use crate::extctrl;
-
-use super::extctrl::*;
+//use crate::extctrl;
+//use super::extctrl::*;
 impl super::basic{
    pub fn build_page(ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
@@ -25,8 +24,6 @@ impl super::basic{
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     num_page = crate::calc_num_files_up2_cur_pg(); let mut filename_str: String; let mut time_to_stop = false;
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
-    //let mut row: OnceCell<Vec<CellStruct>> = OnceCell::new(); row.set(row_nested);
-   // pg.table().forecolor(Color::red());
     println!("{}", crate::get_full_path(func_id));
     for j in 0..num_rows{
         for i in 0..num_cols{
@@ -77,10 +74,16 @@ impl super::basic{
     //println!("{}", pg.table().display().unwrap());
     println!("{}", crate::get_ask_user(func_id));
 }
-pub(super) fn pg_rec_to_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, val: &String){
+pub(crate) fn pg_rec_to_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, val: &String){
     match cache.entry(key.to_string()){
         Entry::Occupied(mut entry) => {entry.get_mut().push(val.to_string());},
         Entry::Vacant(entry) => {entry.insert(vec!(key.to_string()));}
+    }
+}
+pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, indx: usize) -> String{
+    match cache.entry(key.to_string()){
+        Entry::Occupied(entry) => {return entry.get()[indx].to_string();},
+        Entry::Vacant(entry) => {return "no such list was cached".to_string()}
     }
 }
 }
