@@ -144,7 +144,9 @@ pub(crate) fn errMsg_dbg0(msg: &str){
     errMsg_dbg(msg, -1101, -1.0); 
 }
 pub(crate) fn errMsg0(msg: &str){
-    errMsg(msg, -1191); 
+    errMsg(msg, -1191);
+    println!("{}", msg);
+    getkey(); 
 } 
 pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
         let msg = format!("{} said: {}", crate::func_id18::get_func_name(val_func_id), msg);
