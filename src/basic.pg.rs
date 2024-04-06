@@ -80,6 +80,12 @@ pub(crate) fn pg_rec_to_cache(cache: &mut HashMap<String, Vec<String>>, key: &St
         Entry::Vacant(entry) => {entry.insert(vec!(key.to_string()));}
     }
 }
+pub(crate) fn pg_0_cache(cache: &mut HashMap<String, Vec<String>>, key: &String){
+    match cache.entry(key.to_string()){
+        Entry::Occupied(mut entry) => {entry.remove();},
+        Entry::Vacant(entry) => {}
+    }
+}
 pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, indx: usize) -> String{
     match cache.entry(key.to_string()){
         Entry::Occupied(entry) => {return entry.get()[indx].to_string();},

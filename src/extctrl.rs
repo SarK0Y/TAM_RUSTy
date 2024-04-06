@@ -28,41 +28,20 @@ impl basic{
 pub fn default() -> Self{
     basic::new()
 }
-pub fn rec_to_cache(&mut self, key: String, val: String){
-  basic::pg_rec_to_cache(&mut self.cache, &key, &val);
-}
-  pub fn set_shol_state(&mut self, new_state: bool){
-    self.shol_state = new_state;
-  }
-  pub fn get_shol_state(&self) -> bool{
-    self.shol_state
-  }
-  pub fn inc_mk_shol_state(&mut self){
-    self.mk_shol_state += 1;
-  }
-  pub fn get_mk_shol_state(&self) -> u64{
-    self.mk_shol_state
-  }
-  pub fn set_rec_shol(&mut self, rec: &(String, String)){
-    self.rec_shol = (self.rec_shol.0.clone(), self.rec_shol.1.clone());
-  }
-  pub fn get_rec_shol(&self) -> (String, String){
-    (self.rec_shol.0.clone(), self.rec_shol.1.clone())
-  }
-  pub fn clear_rec_shol(&mut self){
-    self.rec_shol = (String::new(), String::new());
-  }
-  pub fn clear_shols(&mut self){
-    self.shols.clear()
-  }
-  pub fn clone(&self) -> basic{
-    let mut base = basic::default();
-    base.shol_state = self.shol_state;
-    base
-  }
-  pub fn rec_from_shols(&self, indx: usize) -> (String, String){
-    let len = self.shols.len(); if len < indx{return ("too high indx".to_string(), "".to_string())}
-    (self.shols[indx].0.clone(), self.shols[indx].1.clone())
+/*cache */
+pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> String{basic::pg_rec_from_cache(&mut self.cache, key, indx)}
+pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
+pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}
+ /* shols */ pub fn set_shol_state(&mut self, new_state: bool){self.shol_state = new_state;}
+  pub fn get_shol_state(&self) -> bool{self.shol_state}
+  pub fn inc_mk_shol_state(&mut self){self.mk_shol_state += 1;}
+  pub fn get_mk_shol_state(&self) -> u64{self.mk_shol_state}
+  pub fn set_rec_shol(&mut self, rec: &(String, String)){self.rec_shol = (self.rec_shol.0.clone(), self.rec_shol.1.clone());}
+  pub fn get_rec_shol(&self) -> (String, String){(self.rec_shol.0.clone(), self.rec_shol.1.clone())}
+  pub fn clear_rec_shol(&mut self){self.rec_shol = (String::new(), String::new());}
+  pub fn clear_shols(&mut self){self.shols.clear()}
+  pub fn rec_from_shols(&self, indx: usize) -> (String, String){let len = self.shols.len(); if len < indx{return ("too high indx".to_string(), "".to_string())}
+      (self.shols[indx].0.clone(), self.shols[indx].1.clone())
   }
   pub fn rm_rec_from_shols(&mut self, indx: usize){
     if self.shols_len() <= indx{return;}
