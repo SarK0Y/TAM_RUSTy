@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -120,7 +120,11 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         }
 }
 pub(crate) fn clean_cache(){
-    let cmd = format!("rm -f {}", take_list_adr("cache/*"));
+    let tmp_dir = bkp_tmp_dir();
+    let mk_msg_dir = format!("{tmp_dir}/msgs/basic/cache");
+    let clean_cache = format!("{tmp_dir}/cache/*");
+    let msg_of_clean_cache = format!("{mk_msg_dir}/clean");
+    let cmd = format!("mkdir -p {mk_msg_dir};rm -f {clean_cache};touch -f {msg_of_clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});
 }
 pub(crate) fn wait_4_empty_cache() -> bool{
