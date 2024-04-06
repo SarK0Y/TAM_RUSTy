@@ -20,13 +20,12 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     let cur_cache = crate::cpy_str(&is_cached);
     let prev_cache = is_cached.replace(&cur_pg, &prev_pg);
     if !crate::Path::new(&prev_cache).exists(){
-        let num_pg = num_pg0;
-        let cols = cols;
-        let rows = rows;
+        //let num_pg = num_pg0;
+        //let cols = cols;
+        //let rows = rows;
         let found_files = found_files.clone();
         std::thread::spawn(move||{
-            let get_index = num_pg * cols * rows;
-            cache_pg(get_indx, prev_cache, found_files, cols, rows);
+            cache_pg_prev(get_indx, prev_cache, found_files, cols, rows);
         }).join();
     }
     
@@ -92,7 +91,28 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
             if indx >= get_indx && recs_on_pg > 0{
                 let proper_line = format!("{}\n", line0.clone());
             save_file_append_abs_adr(proper_line, cached_list.clone());
-            save_file("content".to_string(), "cache_pg".to_string());
+            recs_on_pg -= 1;
+        }   
+        }
+}
+pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: String, cols: i64, rows: i64) {
+     //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
+        if crate::Path::new(&cached_list).exists(){return}
+        //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
+        let mut recs_on_pg = cols * rows;
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return
+        };
+        let reader = crate::BufReader::new(file);
+        let mut len = 0usize;
+        let mut ret = (String::new(), 0usize);
+        let mut ret0 = (String::new(), 0usize);
+        for (indx, line) in reader.lines().enumerate() {
+            let line0 = line.unwrap().as_mut().to_string();
+            if indx < get_indx && recs_on_pg > 0{
+                let proper_line = format!("{}\n", line0.clone());
+            save_file_append_abs_adr(proper_line, cached_list.clone());
             recs_on_pg -= 1;
         }   
         }
