@@ -134,9 +134,20 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {return}
     if delay == -1.0{
-        let msg = format!("{} said: {}", crate::func_id18::get_func_name(val_func_id), msg);
+        let msg = format!("{} said: {} ..please, hit any key to continue", crate::func_id18::get_func_name(val_func_id), msg);
+        println!("{msg}");
         set_ask_user(&msg.bold().red(), val_func_id);}
+        getkey();
+
 }
+pub(crate) fn errMsg_dbg0(msg: &str){
+    errMsg_dbg(msg, -1101, -1.0); 
+}
+pub(crate) fn errMsg0(msg: &str){
+    errMsg(msg, -1191);
+    println!("{}", msg);
+    getkey(); 
+} 
 pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
         let msg = format!("{} said: {}", crate::func_id18::get_func_name(val_func_id), msg);
         set_ask_user(&msg.bold().red(), val_func_id);
@@ -669,6 +680,17 @@ pub(crate) fn read_file(fname: &str) -> String{
     file.read_to_string(&mut ret);
     ret
 }
+pub(crate) fn read_file_abs_adr(fname: &String) -> String{
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
+    ret
+}
+
 pub(crate) fn read_prnt() -> String{read_file("prnt")}
 pub(crate) fn file_prnt(content: String){
     save_file(cpy_str(&content), "prnt".to_string());

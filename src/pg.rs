@@ -1,9 +1,9 @@
 use cli_table::TableStruct;
 
-use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir};
+use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey};
 self::pg_uses!();
 
-fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
+pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
     let mut row_: Vec<CellStruct> = Vec::new(); 
     for i in 0..row.len(){
         row_.push(row[i].as_str().cell());
@@ -14,7 +14,7 @@ fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
 
 pub(crate) 
 fn build_page(ps: &mut crate::_page_struct){
-    let func_id = crate::func_id18::build_page;
+    let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = get_num_files(func_id);
     while try_entry < 1_000 {
@@ -34,7 +34,7 @@ fn build_page(ps: &mut crate::_page_struct){
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
     //let mut row: OnceCell<Vec<CellStruct>> = OnceCell::new(); row.set(row_nested);
    // pg.table().forecolor(Color::red());
-    println!("Full path: {}", crate::get_full_path(func_id));
+    println!("{}", crate::get_full_path(func_id));
     for j in 0..num_rows{
         for i in 0..num_cols{
             let mut indx = i + num_cols * j + num_page;
@@ -96,12 +96,16 @@ if run_command.status.success(){
 }
 }
 pub(crate) 
-fn hotKeys() -> String{
-    let func_id = crate::func_id18::hotKeys;
+fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
+    let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
-    let mut Key =String::new();
+    //let mut Key =String::new();
     let mut cmd = String::new();
-    Key.push_str(crate::getkey().as_str());
+    let ext_is_alive = if Some(&ext) == None{false}else{true};
+    if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
+    else{
+        ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits();
+    }
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::globs18::F1_key();
     } 
@@ -137,7 +141,7 @@ fn hotKeys() -> String{
         let prev_list = crate::read_front_list();
         let prev = read_file("prev_list");
         if prev == ""{crate::save_file(prev_list, "prev_list".to_string());}
-        let mut Key_cpy =String::from(&Key); let mut Key_ = String::from(&Key); lets_write_path(Key_cpy); crate::INS(&Key_);
+        let mut Key_cpy =String::from(Key.to_string()); let mut Key_ = String::from(Key.to_string()); lets_write_path(Key_cpy); crate::INS(&Key_);
     return "/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
     crate::C!(local_indx(true));
@@ -157,7 +161,7 @@ fn hotKeys() -> String{
         Some(val) => val,
         _ => 0
     };
-    if ansiKey == 0{return crate::get_prnt(func_id);}
+    if ansiKey == 0{if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}} return crate::get_prnt(func_id);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
     if kcode::ENTER == ansiKey{crate::globs18::Enter(); return crate::get_prnt(func_id);} 
     if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
@@ -169,10 +173,11 @@ fn hotKeys() -> String{
        if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id);}
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
+        if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}
         return Key.to_string();
 //return get_prnt(func_id);
 }
-pub fn manage_pages(){
+pub fn manage_pages(ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>){
 let mut Key: String = "".to_string(); 
 let mut count: u64 = 0;
 let mut bal =String::new();
@@ -186,7 +191,8 @@ let mut bal =String::new();
         crate::swtch::print_pg_info();
         if num_pg < num_pgs || num_pgs ==0 {build_page(&mut ps);}
         println!("{}", get_prnt(-1));
-        exec_cmd(custom_input());
+        Key  = "".to_string(); 
+        exec_cmd(custom_input(&mut Key, ext));
         clear_screen();
     }
 }
@@ -210,7 +216,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
     io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default(){
-    let func_id = crate::func_id18::form_cmd_line_default;
+    let func_id = crate::func_id18::form_cmd_line_default_;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
@@ -235,7 +241,7 @@ pub(crate) fn form_cmd_newline_default(){
 }
 
 pub(crate) fn form_cmd_line_default(){
-    let func_id = crate::func_id18::form_cmd_line_default;
+    let func_id = crate::func_id18::form_cmd_line_default_;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
@@ -258,21 +264,26 @@ pub(crate) fn form_cmd_line_default(){
     wipe_cmd_line(whole_line_len);
     form_cmd_line(prompt, prnt)
 }
-pub(crate) fn custom_input() -> String{
+pub(crate) fn custom_input(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
+    let mut Key = Key;
     form_cmd_line_default();
-    return hotKeys();
+    return hotKeys(&mut Key, ext);
 }
 pub(crate) unsafe fn exec_cmd_cnt(count_: bool) -> u64{
     static mut count: u64 = 0;
     if count_ {count += 1;}
     count
 }
-fn exec_cmd(cmd: String){
-    let func_id = crate::func_id18::exec_cmd;
+pub(crate) fn exec_cmd(cmd: String){
+    let func_id = crate::func_id18::exec_cmd_;
     //println!("cmd {} func {}, prnt {}", cmd, crate::func_id18::get_func_name(func_id), crate::get_prnt(func_id));
     if cmd == "dontPass" {return;}
     let mut cmd = cmd;
     let sub_cmd = extract_sub_cmd(&mut cmd);
+    if cmd.as_str().substring(0, 3) == "sl:"{
+
+//        process_tag(key)
+    }
     if cmd == "np"{
         unsafe{exec_cmd_cnt(true)};
         let num_page = crate::get_num_page(func_id) + 1;
@@ -321,6 +332,7 @@ fn exec_cmd(cmd: String){
             _ => {set_full_path("wrong use of fp: fp <indx of file>", func_id); return}
         };
         let file_full_name =  crate::globs18::get_item_from_front_list(file_indx, true);
+        let file_full_name = format!("Full path: {}", file_full_name);
         set_full_path(&file_full_name, func_id);
         return;
     }

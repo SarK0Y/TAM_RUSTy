@@ -289,6 +289,7 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 }
 fn main (){
    initSession();
+   if checkArg("-rilocan"){rilocan(); return;}
    /*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");
