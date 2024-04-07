@@ -1,6 +1,7 @@
-use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list, set_full_path, is_dir, checkArg};
+use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list, set_full_path, is_dir, checkArg, clean_cache};
 
 pub(crate) fn change_dir(cmd: String, set: bool){
+    clean_cache("cd");
     if cmd == "cd"{
         let pwd = read_file("env/cd");
         if pwd == ""{return};

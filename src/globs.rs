@@ -44,7 +44,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    clean_cache();
+    clean_cache("sieve");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -75,7 +75,7 @@ pub(crate) fn sieve_list(data: String){
     set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
-    clean_cache();
+    clean_cache("sieve");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -139,7 +139,7 @@ pub(crate) fn merge(data: String){
 pub(crate) fn clear_merge(){
     let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
     rm_file(&filter_file_path);
-    clean_cache();
+    clean_cache("merge");
     F1_key();
 }
 pub(crate) fn show_ls(){
@@ -164,7 +164,7 @@ pub(crate) fn F1_key() -> String{
     let mut prnt: String = read_prnt();
    set_main0_as_front();
    crate::ps18::fix_num_files(-13971);
-   clean_cache();
+   clean_cache("main0");
 format!("go2 {}", read_file("main0.pg"))
 }
 pub(crate) fn F3_key() -> String{

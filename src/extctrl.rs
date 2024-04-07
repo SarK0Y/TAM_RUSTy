@@ -6,7 +6,7 @@ pub(crate) struct basic{
     shol_state: bool,
     swtch_shols: bool,
     mk_shol_state: u64,
-    tmp_dir: String,
+    pub tmp_dir: String,
     shols: Vec<(String, String)>,
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,

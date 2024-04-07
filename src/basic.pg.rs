@@ -2,6 +2,8 @@ use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
+
+use crate::read_file_abs_adr;
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -91,5 +93,12 @@ pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &
         Entry::Occupied(entry) => {return entry.get()[indx].to_string();},
         Entry::Vacant(entry) => {return "no such list was cached".to_string()}
     }
+}
+pub(crate) fn read_file(&self, name: &str) -> String{
+    let path = format!("{}/{name}", self.tmp_dir).replace("//", "/");
+    read_file_abs_adr(&path)
+}
+pub(crate) fn read_cache_msg(&self) -> String{
+    self.read_file("msg/basic/cache/clean")
 }
 }
