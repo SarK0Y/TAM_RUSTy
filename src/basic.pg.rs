@@ -2,7 +2,7 @@ use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
-use crate::{read_file_abs_adr, cached_data};
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -94,6 +94,20 @@ pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &
         Entry::Vacant(entry) => {return ("no such list was cached".to_string(), cached_data::no_list)}
     }
 }
+pub(crate) fn pg_rec_from_front_list(& mut self, cache: &mut HashMap<String, Vec<String>>, indx: i64, fixed_indx: bool) -> String{
+    let proper_indx = crate::get_proper_indx(indx, fixed_indx);
+    if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
+    let front_lst = self.read_file("front_list");
+    let rec: (String, cached_data) = self.rec_from_cache(&front_lst, crate::i64_2_usize(indx));
+    if rec.1 == cached_data::all_ok{return rec.0;}
+    //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
+    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
+}
+pub(crate) fn mk_fast_cache(& mut self, cache: &mut HashMap<String, Vec<String>>,name: String){
+    cache.remove(&name); let lst_len = ln_of_found_files_cacheless(usize::MAX).1;
+    if lst_len == 0{return}
+    
+}
 pub(crate) fn read_file(&self, name: &str) -> String{
     let path = format!("{}/{name}", self.tmp_dir).replace("//", "/");
     read_file_abs_adr(&path)
@@ -101,4 +115,5 @@ pub(crate) fn read_file(&self, name: &str) -> String{
 pub(crate) fn read_cache_msg(&self) -> String{
     self.read_file("msg/basic/cache/clean")
 }
+
 }
