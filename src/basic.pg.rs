@@ -2,8 +2,7 @@ use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
-
-use crate::read_file_abs_adr;
+use crate::{read_file_abs_adr, cached_data};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -88,10 +87,11 @@ pub(crate) fn pg_0_cache(cache: &mut HashMap<String, Vec<String>>, key: &String)
         Entry::Vacant(entry) => {}
     }
 }
-pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, indx: usize) -> String{
+pub(crate) fn pg_rec_from_cache(cache: &mut HashMap<String, Vec<String>>, key: &String, indx: usize) -> (String, cached_data){
     match cache.entry(key.to_string()){
-        Entry::Occupied(entry) => {return entry.get()[indx].to_string();},
-        Entry::Vacant(entry) => {return "no such list was cached".to_string()}
+        Entry::Occupied(entry) => {let  mut status = cached_data::no_rec; 
+            let ret = if entry.get().len() > indx{status = cached_data::all_ok; entry.get()[indx].to_string()}else{"no such rec".to_string()}; return (ret, status);},
+        Entry::Vacant(entry) => {return ("no such list was cached".to_string(), cached_data::no_list)}
     }
 }
 pub(crate) fn read_file(&self, name: &str) -> String{

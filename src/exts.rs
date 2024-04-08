@@ -33,6 +33,9 @@ mod swtch;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
+#[path = "enums.rs"]
+mod enums;
+use enums::*;
 #[path = "basic.pg.rs"]
 mod basic_pg;
 use basic_pg::*;

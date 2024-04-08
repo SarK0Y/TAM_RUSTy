@@ -1,4 +1,4 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -29,7 +29,7 @@ pub fn default() -> Self{
     basic::new()
 }
 /*cache */
-pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> String{basic::pg_rec_from_cache(&mut self.cache, key, indx)}
+pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){basic::pg_rec_from_cache(&mut self.cache, key, indx)}
 pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
 pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}
  /* shols */ pub fn set_shol_state(&mut self, new_state: bool){self.shol_state = new_state;}
