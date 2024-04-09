@@ -26,14 +26,28 @@ use std::path::Path;
 use num_traits::cast::ToPrimitive;
 use std::io::{BufRead, BufReader};
 use std::os::unix::io::{AsRawFd, RawFd};
+#[path = "keycodes.rs"]
+mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
+#[path = "enums.rs"]
+mod enums;
+use enums::*;
+#[path = "basic.pg.rs"]
+mod basic_pg;
+use basic_pg::*;
 #[path = "cache.rs"]
 mod cache;
 use cache::*;
+#[path = "parse_replace.rs"]
+mod parse_replacing;
+use parse_replacing::*;
+#[path = "ext_msgs.rs"]
+mod __ext_msgs;
+use __ext_msgs::*;
 #[path = "env.rs"]
 mod tam_env;
 use tam_env::*;
@@ -42,6 +56,9 @@ mod globs18;
 #[path = "term_app.rs"]
 mod term_app;
 use term_app::*;
+#[path = "extctrl.rs"]
+mod extctrl;
+use extctrl::*;
 #[path = "page_struct_.rs"]
 mod ps18;
 use ps18::*;
@@ -54,6 +71,9 @@ mod update18;
 #[path = "mcrs.rs"]
 mod mcrs18;
 use mcrs18::*;
+#[path = "subs.rs"]
+mod subs;
+use subs::*;
 use dirty;
 use getStop_code__;
 use close_termios__;

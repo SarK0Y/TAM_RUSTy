@@ -7,13 +7,15 @@ use std::io::prelude::*;
 use termion::terminal_size;
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::unblock_fd;
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once};
+use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 crate::set_ask_user(cmd.as_str(), func_id);
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 let (cols, rows) = termion::terminal_size().unwrap();
 let cols = 680; let rows = 700;
 let fstdout: String; 
@@ -24,15 +26,15 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("clear;reset;{cmd}");
+let cmd = format!("clear;reset;{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .env("LC_ALL", "ru_RU.UTF-8")
-    .env("LANG", "ru_RU.UTF-8")
+    .env("LC_ALL", &lc)
+    .env("LANG", lc)
     .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
@@ -44,12 +46,16 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
 run_command.wait();
-save_file_append("\nexit rw_std".to_string(), "logs".to_string());
+//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 }).join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
 true
 }
 pub(crate) fn run_term_app1(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
 let fstdout: String; 
 let mut stderr_path = "stderr".to_string();
@@ -59,15 +65,15 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("{cmd}");
+let cmd = format!("{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .env("LC_ALL", "ru_RU.UTF-8")
-    .env("LANG", "ru_RU.UTF-8")
+    .env("LC_ALL", &lc) //"ru_RU.UTF-8")
+    .env("LANG", lc)
     .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
@@ -76,8 +82,10 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
 
  std::thread::spawn(move|| {
 run_command.wait();
-save_file_append("\nexit rw_std".to_string(), "logs".to_string());
+//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
 }).join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
@@ -102,4 +110,51 @@ pub(crate) fn term(cmd: &String){
     let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
     run_term_app(cmd);
+}
+pub(crate) fn process_tag(key: String){
+    let valid: String = match key.as_str(){
+        "#" => key.as_str(),
+        "0" => key.as_str(),
+        "1" => key.as_str(),
+        "2" => key.as_str(),
+        "3" => key.as_str(),
+        "4" => key.as_str(),
+        "5" => key.as_str(),
+        "6" => key.as_str(),
+        "7" => key.as_str(),
+        "8" => key.as_str(),
+        "9" => key.as_str(),
+        _ => return validate_tag(key)
+    }.to_string();
+    save_file_append(valid, "tag".to_string());
+}
+pub(crate) fn validate_tag(key: String){
+    let mut prnt = read_prnt();
+    let mut tag = read_file("tag");
+    let tag0 = tag.clone();
+    tag = tag.replace("##", "");
+    let tag = match i64::from_str_radix(&tag, 10){
+        Ok(i) => i,
+        _ => i64::MIN
+    };
+    if tag == i64::MIN{
+        prnt = prnt.replace("sl:", "");
+        set_prnt(&prnt, -48721112507);
+        let tag = take_list_adr("tag");
+        rm_file(&tag);
+        return;
+    }
+    let tag = get_item_from_front_list(tag, true);
+    prnt = prnt.replace(&tag0, &tag);
+    prnt = prnt.replace("sl:", "");
+    set_prnt(&prnt, -48721112507);
+    let tag = take_list_adr("tag");
+    rm_file(&tag);
+}
+pub(crate) fn shol_on(){
+    let tag = take_list_adr("tag");
+    rm_file(&tag);
+    let prnt = read_prnt();
+    let prnt = format!("sl:{prnt}");
+    set_prnt(&prnt, 59841774);
 }

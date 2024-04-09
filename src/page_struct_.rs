@@ -168,7 +168,7 @@ pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
   return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
 pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
 pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
-pub(crate) fn get_full_path(func_id: i64) -> String{return unsafe{page_struct("", FULL_PATH_, func_id).str_}}
+pub(crate) fn get_full_path(func_id: i64) -> String{return format!("{}",unsafe{page_struct("", FULL_PATH_, func_id).str_}) }
 pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id).str_}}
 pub(crate) fn get_prompt(func_id: i64) -> String{return unsafe{page_struct("", PROMPT_, func_id).str_}}
 pub(crate) fn set_prompt(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(PROMPT_), func_id).str_}}
@@ -246,10 +246,12 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
  return -1;  
 }
 pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, func_id: i64) -> shift_cur_struct{ // shift == 0 to get cursor position, -1 to move left for one char, 1 to move right /
-  static mut num_of_shifts: usize = 0;                                          // i64::MIN to set num_of_shifts = 0, 2 to ret num_of_shifts w/ no string /
+  static mut num_of_shifts: usize = 0;                                          // i64::MIN/MAX to set num_of_shifts = 0/END, 2 to ret num_of_shifts w/ no string /
   let mut str__ = String::from("");                                             // 3 to ret str of shifts
+  let len = get_prnt(func_id).chars().count();
   let mut ret = shift_cur_struct{shift: num_of_shifts, str__: str__};
-  if shift == i64::MIN{num_of_shifts = 0;}
+  if shift == i64::MIN{num_of_shifts = len;}
+  if shift == i64::MAX{num_of_shifts = 0;}
   if shift == 2 {return ret;}
   if shift == 0 && shift == 3{
   macro_rules! shift {
@@ -263,7 +265,7 @@ pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, func_id: i64) -> shift_cur
     ret.str__.push_str(shift!());
     return ret
   }
-  if shift == -1 {let len = get_prnt(func_id).chars().count(); if num_of_shifts <= len {num_of_shifts += 1;}else{num_of_shifts = len;}}
+  if shift == -1 {if num_of_shifts <= len {num_of_shifts += 1;}else{num_of_shifts = len;}}
   if shift ==  1 {
     if num_of_shifts > 0 {num_of_shifts -= 1;}
   }

@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -35,14 +35,16 @@ pub(crate) fn prime(){
     crate::initSession();
     C!(front_list_indx(MAIN0_));
     C!(set_main0_as_front());
+    let mut base = crate::basic::new();
     main_update();
 println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
-let handler = builder.spawn(|| {
+let handler = builder.spawn(move || {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
-crate::manage_pages();
+if checkArg("-no-ext"){crate::manage_pages(&mut None);}
+else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
 background_fixing_count(4);
@@ -156,11 +158,6 @@ let ls_mode = take_list_adr("ls.mode");
 pub(crate) fn fix_screen(){
     std::thread::spawn(||{
         for i in 0..2{
-            let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -172,22 +169,12 @@ pub(crate) fn fix_screen(){
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
-           let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
         }
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
     std::thread::spawn(move||{
         for i in 0..num{
-            let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -198,12 +185,7 @@ pub(crate) fn fix_screen_count(num: usize){
             if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
-           std::thread::sleep(std::time::Duration::from_millis(1115));        
-           let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
-            if subcmd == "no_upd_scrn"{
-                set_prnt(&prnt, -164547841);
-                return;
-            }
+           std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
 }

@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -20,13 +20,12 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     let cur_cache = crate::cpy_str(&is_cached);
     let prev_cache = is_cached.replace(&cur_pg, &prev_pg);
     if !crate::Path::new(&prev_cache).exists(){
-        let num_pg = num_pg0;
-        let cols = cols;
-        let rows = rows;
+        //let num_pg = num_pg0;
+        //let cols = cols;
+        //let rows = rows;
         let found_files = found_files.clone();
         std::thread::spawn(move||{
-            let get_index = num_pg * cols * rows;
-            cache_pg(get_indx, prev_cache, found_files, cols, rows);
+            cache_pg_prev(get_indx, prev_cache, found_files, cols, rows);
         }).join();
     }
     
@@ -92,13 +91,40 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
             if indx >= get_indx && recs_on_pg > 0{
                 let proper_line = format!("{}\n", line0.clone());
             save_file_append_abs_adr(proper_line, cached_list.clone());
-            save_file("content".to_string(), "cache_pg".to_string());
             recs_on_pg -= 1;
         }   
         }
 }
-pub(crate) fn clean_cache(){
-    let cmd = format!("rm -f {}", take_list_adr("cache/*"));
+pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: String, cols: i64, rows: i64) {
+     //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
+        if crate::Path::new(&cached_list).exists(){return}
+        //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
+        let mut recs_on_pg = i64_2_usize(cols * rows);
+        let align_indx = (get_indx / recs_on_pg) * recs_on_pg;
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return
+        };
+        let msg = format!("align {align_indx}, get_indx {get_indx}");
+        let reader = crate::BufReader::new(file);
+        let mut len = 0usize;
+        let mut ret = (String::new(), 0usize);
+        let mut ret0 = (String::new(), 0usize);
+        for (indx, line) in reader.lines().enumerate() {
+            let line0 = line.unwrap().as_mut().to_string();
+            if indx < get_indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
+                let proper_line = format!("{}\n", line0.clone());
+            save_file_append_abs_adr(proper_line, cached_list.clone());
+            recs_on_pg -= 1;
+        }   
+        }
+}
+pub(crate) fn clean_cache(msg: &str){
+    let tmp_dir = bkp_tmp_dir();
+    let mk_msg_dir = format!("{tmp_dir}/msgs/basic/cache");
+    let clean_cache = format!("{tmp_dir}/cache/*");
+    let msg_of_clean_cache = format!("{mk_msg_dir}/clean");
+    let cmd = format!("mkdir -p {mk_msg_dir};rm -f {clean_cache};echo '{msg}' > {msg_of_clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});
 }
 pub(crate) fn wait_4_empty_cache() -> bool{
