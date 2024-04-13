@@ -124,6 +124,12 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
        show_ls();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(i64::MIN, func_id).shift};
+    return "dontPass".to_string();}
+    if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(i64::MAX, func_id).shift};
+    return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(-1, func_id).shift};
     //io::stdout().lock().flush().unwrap();

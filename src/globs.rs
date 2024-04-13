@@ -597,3 +597,15 @@ pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs
     Key.clear();
     return crate::hotKeys(Key, ext);
 }
+pub(crate) fn strn_2_u64(strn: String) -> Option<u64>{
+    match u64::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}
+pub(crate) fn strn_2_usize(strn: String) -> Option<usize>{
+    match usize::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}

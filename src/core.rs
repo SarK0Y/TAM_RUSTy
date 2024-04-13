@@ -526,12 +526,18 @@ pub(crate) fn get_path_from_prnt() -> String{
 }
 pub(crate) fn logs(data: &String, logname: &str){
     if !checkArg("-logs"){return;}
-    let typelog = String::from_iter(get_arg_in_cmd("-logs").s).trim_start().trim_end().to_string();
+    let args: Vec<_> = env::args().collect();
+    let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if args_2_str[i] == "-logs" {
+
+    let typelog = args_2_str[i+1].clone();
     if typelog != ""{
         if eq_str(typelog.as_str(), logname) != 0 /*typelog != logname*/{return}
     }
     let logname = format!("logs/{logname}");
     save_file_append_newline(data.to_string(), logname);
+}}
 }
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
@@ -562,13 +568,26 @@ pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true
 }
+pub(crate) fn save_file_abs_adr0(content: String, fname: String) -> bool{
+    let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
+    mkdir(path_to_file);
+    let cmd = format!("touch -f {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("echo '{content}' > {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    true
+}
 #[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
-    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
+    mkdir(path_to_file);
+    let cmd = format!("touch -f {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return File::create(&fname).expect(&fname)};
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+    let mut file: File = match File::options().read(true).append(true).write(true).open(&fname){
         Ok(f) => f,
         Err(e) => match e.kind(){
             std::io::ErrorKind::NotFound => anew_file(),
@@ -580,14 +599,14 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn save_file_append_newline(content: String, fname: String) -> bool{
-    let content = format!("{}/n", content);
+    let content = format!("{}\n", content);
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let mut dir = fname.clone(); tailOFF(&mut dir, "/");
     let mk_dir = format!("mkdir -p {}", dir);
     run_cmd_str(mk_dir.as_str());
     let cmd = format!("touch -f {fname}");
     run_cmd_str(cmd.as_str());
-    let anew_file = || -> File{popup_msg(&fname); return File::create(&fname).expect(&fname)};
+    let anew_file = || -> File{return File::create(&fname).expect(&fname)};
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
@@ -858,6 +877,8 @@ pub(crate) fn raw_ren_file(src: String, dst: String){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn mkdir(name: String){
+    let name = escape_backslash(&name);
+    let name = escape_apostrophe(&name);
     let name = escape_symbs(&name);
     let cmd = format!("mkdir -p {name}");
     run_cmd_str(cmd.as_str());
