@@ -9,5 +9,6 @@ pub(crate) enum cache_state{
     empty,
     ready, 
     no_data_to_add,
-    forming
+    forming,
+    taken,
 }
