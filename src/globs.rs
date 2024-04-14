@@ -147,7 +147,7 @@ pub(crate) fn show_ls(){
     crate::ps18::fix_num_files(-13972);
 }
 pub(crate) fn get_num_pg_4_main0() -> i64{
-    let num_pg = read_file("main0.pg");
+    let num_pg = crate::read_file("main0.pg");
     match i64::from_str_radix(&num_pg, 10){
         Ok(num) => return num,
         _ => return 0
@@ -608,4 +608,17 @@ pub(crate) fn strn_2_usize(strn: String) -> Option<usize>{
         Ok(num) => Some(num),
         _ => None
     }
+}
+pub(crate) fn seg_size() -> usize{
+    static mut fst_run: bool = false;
+    static mut seg_size: usize = 150;
+    if !unsafe {fst_run}{
+        unsafe {fst_run = true;}
+        if crate::checkArg("-cache-seg-size"){
+            let seg_size_new = String::from_iter(crate::get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
+            let ret = strn_2_usize(seg_size_new);
+            if ret != None{unsafe {seg_size = ret.unwrap();}}
+        }
+    }
+    unsafe{seg_size}
 }

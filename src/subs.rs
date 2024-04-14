@@ -37,7 +37,7 @@ pub(crate) fn rilocan(){
         if now {
             std::thread::spawn(move||{
                 loop {
-                    crate::run_term_app1(cmd.clone());
+                    crate::run_cmd_out(cmd.clone());
                     println!("Executed at {}", crate::Local::now());
                     std::thread::sleep(std::time::Duration::from_secs(sleep_val));
                 }
@@ -46,7 +46,7 @@ pub(crate) fn rilocan(){
                std::thread::spawn(move||{
                 loop {
                     std::thread::sleep(std::time::Duration::from_secs(sleep_val));
-                    crate::run_term_app1(cmd.clone());
+                    crate::run_cmd_out(cmd.clone());
                     println!("Executed at {}", crate::Local::now())
                 }
             });

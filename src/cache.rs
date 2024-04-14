@@ -112,7 +112,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         let mut ret0 = (String::new(), 0usize);
         for (indx, line) in reader.lines().enumerate() {
             let line0 = line.unwrap().as_mut().to_string();
-            if indx < get_indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
+            if align_indx > indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
                 let proper_line = format!("{}\n", line0.clone());
             save_file_append_abs_adr(proper_line, cached_list.clone());
             recs_on_pg -= 1;

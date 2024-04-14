@@ -2,9 +2,9 @@ use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize}, cache_t, entry_cache_t};
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size}, cache_t, entry_cache_t};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -33,7 +33,7 @@ impl super::basic{
             let mut indx = i + num_cols * j + num_page;
             //indx = num_files - count_down_files;
             let mut res: String ="".to_string();
-            res = self.rec_from_front_list(indx, false);
+            res = self.rec_from_front_list(indx, true);
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res{time_to_stop = true;}
             // println!("build_page - probe 0");
@@ -90,16 +90,15 @@ pub(crate) fn pg_0_cache(cache: &mut crate::cache_t, key: &String){
     }
 }
 pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) -> (String, cached_data){
+    let offset = indx % seg_size();
+    let seg_size = indx / seg_size();
+    let failed = ("no such list was cached".to_string(), cached_data::no_list);
     match cache.entry(key.to_string()){
-        Entry::Occupied(entry) => {let  mut status = cached_data::no_rec; 
-            let base_indx = entry.get()[0].to_string();
-            let base_indx = match usize::from_str_radix(&base_indx, 10){
-                Ok(i) => i,
-                _ => return ("no such rec".to_string(), status)
-            };
-            let ret = if entry.get().len() + base_indx > indx && indx > base_indx
-                          {status = cached_data::all_ok; entry.get()[indx - base_indx].to_string()}else{"no such rec".to_string()}; return (ret, status);},
-        Entry::Vacant(entry) => {return ("no such list was cached".to_string(), cached_data::no_list)}
+        Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_size); if key {
+            let len = entry.get()[&seg_size].len(); if len <= offset {return failed;}
+                return  (entry.get()[&seg_size][offset].clone(), cached_data::all_ok);
+        }else {return failed;}},
+        Entry::Vacant(entry) => {return failed;}
     }
 }
 pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{
@@ -110,43 +109,56 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, crate::i64_2_usize(indx));
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
+     let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
+     let clean = read_file_abs_adr(&adr_of_msg_clean);
+     let front_lst0 = front_lst.clone(); let front_lst1 = front_lst0.clone(); let front_lst2 = front_lst0.clone();
+     if clean == front_lst {self.cache.remove(&front_lst);}
+     let mut cache_entry: entry_cache_t = HashMap::new();
     if rec.1 == cached_data::no_rec{
         let rec = crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET));
-        let front_lst0 = front_lst.clone(); let front_lst1 = front_lst0.clone();
-        self.rec_to_cache(front_lst, rec.clone());
+        //self.rec_to_cache(front_lst, rec.clone());
         let msg = "".to_string(); let msg0 = msg.clone(); let tmp_dir0 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let indx = proper_indx.0.clone();
         std::thread::spawn(move||{
             //popup_msg("msg1");
-           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, cache_window, indx, &front_lst0, cache_state::ready));
+           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, indx, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, cache_window, indx, &front_lst1, cache_state::ready));
-        if ret.1 == cache_state::ready{self.cache.remove(&front_lst1); self.cache.insert(ret.0.key().to_string(), match ret.0{
-            Entry::Occupied(en) => {popup_msg("msg"); en.get().to_vec()},
-            Entry::Vacant(en) => return rec
-        });}
+    
+        
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst1, cache_state::ready));
+        let seg_num = indx / self.seg_size;
+        if ret.1 == cache_state::ready{
+            cache_entry.insert(indx / self.seg_size, ret.0.clone());
+            match self.cache.entry(front_lst2){
+            Entry::Occupied(mut en) => {en.get_mut().insert(indx / self.seg_size, ret.0);},
+            Entry::Vacant(en) => {en.insert(cache_entry);}
+         }
+        }
         return rec;
     }
     else {
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone(); let indx = proper_indx.0.clone();
         std::thread::spawn(move||{
             //popup_msg("msg1");
-           crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, cache_window, indx, &front_lst0, cache_state::ready));
+           crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, indx, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, self.cache_window, indx, &front_lst, cache_state::ready));
-        if ret.1 == cache_state::ready{self.cache.remove(&front_lst); self.cache.insert(ret.0.key().to_string(), match ret.0{
-            Entry::Occupied(en) => en.get().to_vec(),
-            Entry::Vacant(en) => return "no_list".to_string()
-        });}
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst, cache_state::ready));
+        if ret.1 == cache_state::ready{
+            cache_entry.insert(indx / self.seg_size, ret.0.clone());
+            match self.cache.entry(front_lst1){
+            Entry::Occupied(mut en) => {en.get_mut().insert(indx / self.seg_size, ret.0);},
+            Entry::Vacant(en) => {en.insert(cache_entry); return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET));}
+         }
     }
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
     return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
-}
-pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, base_indx: usize, indx: usize, name: &'a String, op: cache_state) -> (Vec<String>, cache_state){
-    static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});
+}}
+pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Vec<String>, cache_state){
+    //static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});
+    static mut cache: OnceCell<Vec<String>> = OnceCell::new();
     static mut count: u64 = 0;
     static mut state: cache_state = cache_state::empty;
     static mut seg_size: usize = 150;
@@ -158,33 +170,31 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, base_indx: usize, in
             let ret = strn_2_usize(seg_size_new);
             if ret != None{seg_size = ret.unwrap()}
         }
-    }
+        let mut vec0 = vec!("".to_string());
+        cache.set(vec0);
+    }else{cache.get_mut().unwrap().clear()}
     //return (empty_entry, cache_state::empty);    
-    let adr_of_msg_clean = format!("{tmp_dir}/msgs/basic/cache/clean").replace("//", "/");
+   let mut cache0 =cache.get_mut().expect("cache in mk_fast_cache");
     let path_2_msg_forming = format!("{}/msgs/basic/cache/forming", tmp_dir).replace("//", "/");
-    let clean = read_file_abs_adr(&adr_of_msg_clean);
     let forming = read_file_abs_adr(&path_2_msg_forming);
-    if clean == *name {cache.clear(); state = cache_state::empty;}
     if state == cache_state::forming {return (vec!("".to_string()), cache_state::forming);}
-    if op == cache_state::ready{if state != cache_state::empty{return (cache.to_vec(), cache_state::ready);}
+    if op == cache_state::ready{if state != cache_state::empty{return (cache0.to_vec(), cache_state::ready);}
      let mut lst_len = ln_of_found_files_cacheless(usize::MAX).1;
     if lst_len == 0{return (vec!("".to_string()), cache_state::no_data_to_add);}
     count += 1;
     //if count > 5{println!("{:?}", cache);}
-    let cache_window = base_indx;
-    let mut base_indx = 1 + base_indx / 2;
-    if base_indx > indx {base_indx = 0}
-    else{base_indx = indx - base_indx}
+    let seg_num = indx / seg_size;
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
     for i in 0..seg_size{
         let rec = ln_of_found_files_cacheless(i);
         if rec.1 == lst_len{break;}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
-        cache.push(name.clone());
+        cache0.push(rec.0);
      }
+     state = cache_state::ready;
      crate::rm_file(&path_2_msg_forming);
     // crate::popup_msg(&std::mem::size_of_val(&cache).to_string());
-     return (cache.to_vec(), cache_state::ready);
+     return (cache0.to_vec(), cache_state::ready);
     }
 return (vec!("".to_string()), cache_state::empty);}
 pub(crate) fn read_file(&self, name: &str) -> String{

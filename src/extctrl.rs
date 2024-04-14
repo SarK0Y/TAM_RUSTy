@@ -11,7 +11,8 @@ pub(crate) struct basic{
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
     pub cache: HashMap<String, HashMap<usize, Vec<String>>>,
-    pub cache_window: usize
+    pub cache_window: usize,
+    pub seg_size: usize,
 }
 impl basic{
   pub fn new() -> Self{
@@ -24,6 +25,13 @@ impl basic{
       };
       if val > 0{new_cache_window = val}
      }
+     let mut seg_size_new_strn = "".to_string(); 
+     let mut seg_size_new = 150usize;
+     if checkArg("-cache-seg-size"){
+            seg_size_new_strn = String::from_iter(get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
+            let ret = crate::globs18::strn_2_usize(seg_size_new_strn);
+            if ret != None{seg_size_new = ret.unwrap()}
+        }
     Self{
         shol_state: false,
         swtch_shols: false,
@@ -34,6 +42,7 @@ impl basic{
         ext_old_modes: _ext_msgs::new(),
         cache: HashMap::with_capacity(new_cache_window),
         cache_window: new_cache_window,
+        seg_size: seg_size_new,
     }
 }
 pub fn default() -> Self{
