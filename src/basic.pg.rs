@@ -190,7 +190,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
         cache.set(vec0);
     }
     if state == cache_state::forming {return (cache.get_mut().expect("cache in mk_fast_cache").clone(), cache_state::forming);}
-    if state == cache_state::taken || cache.get().unwrap().len() > 0{
+    if state == cache_state::taken || (cache.get() != None && cache.get().unwrap().len() > 0){
         cache.take(); // = OnceCell::new(); 
         let mut vec0 = Vec::with_capacity(10000);
         cache.set(vec0);
@@ -200,17 +200,20 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     let path_2_msg_forming = format!("{}/msgs/basic/cache/forming", tmp_dir).replace("//", "/");
     let forming = read_file_abs_adr(&path_2_msg_forming);
     if op == cache_state::ready{if state == cache_state::ready{state = cache_state::taken; return (cache0.to_vec(), cache_state::ready);}
+    let prev_state = state.clone();
+    state = cache_state::forming;
      let mut lst_len = crate::globs18::strn_2_usize(crate::globs18::len_of_front_list_wc()).unwrap(); //ln_of_found_files_cacheless(usize::MAX).1;
      
     if lst_len == 0{return (vec!("".to_string()), cache_state::no_data_to_add);}
     count += 1;
-    let prev_state = state.clone();
-    state = cache_state::forming;
     //if count > 5{println!("{:?}", cache);}
     let seg_num = indx / seg_size;
   //  let msg = format!("seg# {seg_num}"); popup_msg(&msg);
+    let mut indx = indx;
+    let offset = indx % seg_size; indx -= offset; 
     let upto = seg_size + indx;
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
+    if cache0.len() > 0{popup_msg("bad cache"); cache0.clear(); popup_msg(&cache0.len().to_string())}
     for i in indx..upto{
         let rec = ln_of_found_files_cacheless(i);
         if rec.1 == lst_len{break;}
