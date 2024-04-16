@@ -4,7 +4,7 @@ pub(crate) enum cached_data{
     no_list,
     all_ok
 }
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum cache_state{
     empty,
     ready, 

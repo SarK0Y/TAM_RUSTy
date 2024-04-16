@@ -171,10 +171,14 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     //static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});
     static mut cache: OnceCell<Vec<String>> = OnceCell::new();
     static mut count: u64 = 0;
-    static mut state: cache_state = cache_state::taken;
+    static mut state: cache_state = cache_state::empty;
     static mut seg_size: usize = 150;
     static mut fst_run: bool = false;
     let empty_lst = vec!("".to_string());
+    std::thread::sleep(std::time::Duration::from_millis(1));
+    if indx == seg_size {
+        println!("dbg stop");
+    }
     if !fst_run{
         fst_run = true;
         if checkArg("-cache-seg-size"){
@@ -184,22 +188,26 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
         }
         let mut vec0 = Vec::with_capacity(10000);
         cache.set(vec0);
-    }else{
-        if state == cache_state::forming {return (cache.get_mut().expect("cache in mk_fast_cache").clone(), cache_state::forming);}
-        if state == cache_state::taken{
-           // cache.take(); // = OnceCell::new(); 
-            cache.get_mut().unwrap().clear(); state = cache_state::empty}}
+    }
+    if state == cache_state::forming {return (cache.get_mut().expect("cache in mk_fast_cache").clone(), cache_state::forming);}
+    if state == cache_state::taken || cache.get().unwrap().len() > 0{
+        cache.take(); // = OnceCell::new(); 
+        let mut vec0 = Vec::with_capacity(10000);
+        cache.set(vec0);
+        state = cache_state::empty}
+        let mut cache0 =cache.get_mut().expect("cache in mk_fast_cache");
     //return (empty_entry, cache_state::empty);    
-   let mut cache0 =cache.get_mut().expect("cache in mk_fast_cache");
     let path_2_msg_forming = format!("{}/msgs/basic/cache/forming", tmp_dir).replace("//", "/");
     let forming = read_file_abs_adr(&path_2_msg_forming);
     if op == cache_state::ready{if state == cache_state::ready{state = cache_state::taken; return (cache0.to_vec(), cache_state::ready);}
      let mut lst_len = crate::globs18::strn_2_usize(crate::globs18::len_of_front_list_wc()).unwrap(); //ln_of_found_files_cacheless(usize::MAX).1;
+     
     if lst_len == 0{return (vec!("".to_string()), cache_state::no_data_to_add);}
     count += 1;
+    let prev_state = state.clone();
     state = cache_state::forming;
     //if count > 5{println!("{:?}", cache);}
-    let seg_num = (indx + 1) / seg_size;
+    let seg_num = indx / seg_size;
   //  let msg = format!("seg# {seg_num}"); popup_msg(&msg);
     let upto = seg_size + indx;
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
@@ -210,17 +218,18 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
         cache0.push(rec.0);
         //println!("{}", cache0[i]);
      }
+     if cache0.len() > 150{panic!("cannot drop cache seg prev {:?} cur {:?} len {}", prev_state, state, cache0.len())};
      state = cache_state::ready;
      crate::rm_file(&path_2_msg_forming);
-     /*if get_num_page(-577714581011) == 452{
+     /*if get_num_page(-577714581011) == 10{
         popup_msg("452");
         let cache_iter = cache0.clone();
         for v in cache_iter{
             println!("{v}")
         }
+        println!("cache size: {}", cache0.len());
         getkey();
-     }
-    */
+     }*/
     // crate::popup_msg(&std::mem::size_of_val(&cache).to_string());
      return (cache0.to_vec(), cache_state::ready);
     }
