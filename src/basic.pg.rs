@@ -4,7 +4,7 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page};
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -125,57 +125,69 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
      let front_lst0 = front_lst.clone(); let front_lst1 = front_lst0.clone(); let front_lst2 = front_lst0.clone();
      if clean == front_lst {self.cache.remove(&front_lst);}
      let mut cache_entry: entry_cache_t = HashMap::new();
+     popup_msg(&indx.to_string());
      let indx = i64_2_usize(indx);//proper_indx.0.clone();
+     popup_msg(&indx.to_string());
      let seg_num = indx / self.seg_size;
+     let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
     if rec.1 == cached_data::no_rec{
-        let rec = crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET));
         //self.rec_to_cache(front_lst, rec.clone());
         let msg = "".to_string(); let msg0 = msg.clone(); let tmp_dir0 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         std::thread::spawn(move||{
             //popup_msg("msg1");
-           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, indx, &front_lst0, cache_state::ready));
+           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, no_offset, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst1, cache_state::ready));
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, no_offset, &front_lst1, cache_state::ready));
         if ret.1 == cache_state::ready{
             popup_msg("msg");
-            cache_entry.insert(indx / self.seg_size, ret.0.clone());
+            let vecc = ret.0.unwrap().clone(); let vecc1 = vecc.clone();
+            cache_entry.insert(indx / self.seg_size, vecc);
             match self.cache.entry(front_lst2){
-            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, ret.0);},
+            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc1); },
             Entry::Vacant(en) => {en.insert(cache_entry);}
          }
         }
-        return rec;
+        if indx == 285{popup_msg(&get_item_from_front_list(proper_indx.1, fixed_indx))}
+        return get_item_from_front_list(proper_indx.1, fixed_indx);;
     }
     else {
+        //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone(); let indx = proper_indx.0.clone();
+        let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
         std::thread::spawn(move||{
             //popup_msg("msg1");
-           crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, indx, &front_lst0, cache_state::ready));
+           //crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, no_offset, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst, cache_state::ready));
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, no_offset, &front_lst, cache_state::ready));
         if ret.1 == cache_state::ready{
            // popup_msg("msg1"); // hits only here 
-            cache_entry.insert(indx / self.seg_size, ret.0.clone());
+           let vecc = ret.0.unwrap().clone(); let vecc1 = vecc.clone();
+            cache_entry.insert(indx / self.seg_size, vecc1);
             match self.cache.entry(front_lst1){
-            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, ret.0);},
-            Entry::Vacant(en) => {en.insert(cache_entry); return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET));}
+            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc); return get_item_from_front_list(proper_indx.1, fixed_indx);},
+            Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, fixed_indx);}
          }
     }
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
     return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
 }}
-pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Vec<String>, cache_state){
+pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Option<Vec<String>>, cache_state){
     //static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});
     static mut cache: OnceCell<Vec<String>> = OnceCell::new();
     static mut count: u64 = 0;
     static mut state: cache_state = cache_state::empty;
     static mut seg_size: usize = 150;
     static mut fst_run: bool = false;
-    let empty_lst = vec!("".to_string());
-    std::thread::sleep(std::time::Duration::from_millis(1));
+    let mut fixed_indx = false;
+    match op {
+        cache_state::ready  => {fixed_indx = true},
+        cache_state::ready0 => {fixed_indx = false}
+        _ => {}
+    }
+    //std::thread::sleep(std::time::Duration::from_millis(1));
     if indx == seg_size {
         println!("dbg stop");
     }
@@ -189,54 +201,61 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
         let mut vec0 = Vec::with_capacity(10000);
         cache.set(vec0);
     }
-    if state == cache_state::forming {return (cache.get_mut().expect("cache in mk_fast_cache").clone(), cache_state::forming);}
+    if state == cache_state::forming {return (None, cache_state::forming);}
     if state == cache_state::taken || (cache.get() != None && cache.get().unwrap().len() > 0){
         cache.take(); // = OnceCell::new(); 
         let mut vec0 = Vec::with_capacity(10000);
         cache.set(vec0);
-        state = cache_state::empty}
-        let mut cache0 =cache.get_mut().expect("cache in mk_fast_cache");
+        state = cache_state::empty
+    }
+        let cache0 =cache.get_mut();
+        if cache0 == None{return (None, cache_state::cache_seg_corrupted);}
+        let mut cache0 = cache0.expect("cache in mk_fast_cache");
     //return (empty_entry, cache_state::empty);    
     let path_2_msg_forming = format!("{}/msgs/basic/cache/forming", tmp_dir).replace("//", "/");
     let forming = read_file_abs_adr(&path_2_msg_forming);
-    if op == cache_state::ready{if state == cache_state::ready{state = cache_state::taken; return (cache0.to_vec(), cache_state::ready);}
-    let prev_state = state.clone();
-    state = cache_state::forming;
+    if op == cache_state::ready{if state == cache_state::ready{state = cache_state::taken; return (Some(cache0.to_vec()), cache_state::ready);}
      let mut lst_len = crate::globs18::strn_2_usize(crate::globs18::len_of_front_list_wc()).unwrap(); //ln_of_found_files_cacheless(usize::MAX).1;
      
-    if lst_len == 0{return (vec!("".to_string()), cache_state::no_data_to_add);}
+    if lst_len == 0{return (None, cache_state::no_data_to_add);}
     count += 1;
     //if count > 5{println!("{:?}", cache);}
     let seg_num = indx / seg_size;
   //  let msg = format!("seg# {seg_num}"); popup_msg(&msg);
     let mut indx = indx;
     let offset = indx % seg_size; indx -= offset; 
+    popup_msg(&offset.to_string());
     let upto = seg_size + indx;
+    if state == cache_state::forming {return (None, cache_state::forming);}
+    let prev_state = state.clone();
+    state = cache_state::forming;
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
     if cache0.len() > 0{popup_msg("bad cache"); cache0.clear(); popup_msg(&cache0.len().to_string())}
     for i in indx..upto{
-        let rec = ln_of_found_files_cacheless(i);
-        if rec.1 == lst_len{break;}
+        let rec =  get_item_from_front_list(crate::usize_2_i64(i), fixed_indx);//ln_of_found_files_cacheless(i);
+        if i == lst_len{break;}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
-        cache0.push(rec.0);
+        cache0.push(rec);
         //println!("{}", cache0[i]);
      }
      if cache0.len() > 150{panic!("cannot drop cache seg prev {:?} cur {:?} len {}", prev_state, state, cache0.len())};
      state = cache_state::ready;
      crate::rm_file(&path_2_msg_forming);
-     /*if get_num_page(-577714581011) == 10{
+     if get_num_page(-577714581011) == 5{
         popup_msg("452");
         let cache_iter = cache0.clone();
+        let mut ii = 0;
         for v in cache_iter{
-            println!("{v}")
+            println!("{ii}: {v}");
+            ii +=1
         }
         println!("cache size: {}", cache0.len());
         getkey();
-     }*/
+     }
     // crate::popup_msg(&std::mem::size_of_val(&cache).to_string());
-     return (cache0.to_vec(), cache_state::ready);
+     return (Some(cache0.to_vec()), cache_state::ready);
     }
-return (vec!("".to_string()), cache_state::empty);}
+return (None, cache_state::empty);}
 pub(crate) fn read_file(&self, name: &str) -> String{
     let path = format!("{}/{name}", self.tmp_dir).replace("//", "/");
     read_file_abs_adr(&path)
