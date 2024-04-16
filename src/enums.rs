@@ -7,8 +7,10 @@ pub(crate) enum cached_data{
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum cache_state{
     empty,
-    ready, 
+    ready,
+    ready0, 
     no_data_to_add,
     forming,
     taken,
+    cache_seg_corrupted,
 }
