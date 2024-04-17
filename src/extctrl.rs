@@ -1,4 +1,4 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data, checkArg, get_arg_in_cmd};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -10,10 +10,28 @@ pub(crate) struct basic{
     shols: Vec<(String, String)>,
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
-    cache: HashMap<String, Vec<String>>,
+    pub cache: HashMap<String, HashMap<usize, Vec<String>>>,
+    pub cache_window: usize,
+    pub seg_size: usize,
 }
 impl basic{
   pub fn new() -> Self{
+    let mut new_cache_window = 5000usize;
+    if checkArg("-cache-window"){
+      let val = String::from_iter(get_arg_in_cmd("-cache-window").s).trim_end_matches('\0').to_string();
+      let val: usize = match usize::from_str_radix(&val, 10){
+        Ok(i) => i,
+        _ => 0
+      };
+      if val > 0{new_cache_window = val}
+     }
+     let mut seg_size_new_strn = "".to_string(); 
+     let mut seg_size_new = 150usize;
+     if checkArg("-cache-seg-size"){
+            seg_size_new_strn = String::from_iter(get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
+            let ret = crate::globs18::strn_2_usize(seg_size_new_strn);
+            if ret != None{seg_size_new = ret.unwrap()}
+        }
     Self{
         shol_state: false,
         swtch_shols: false,
@@ -22,16 +40,20 @@ impl basic{
         shols: Vec::new(),
         rec_shol: (String::new(), String::new()),
         ext_old_modes: _ext_msgs::new(),
-        cache: HashMap::new()
+        cache: HashMap::with_capacity(new_cache_window),
+        cache_window: new_cache_window,
+        seg_size: seg_size_new,
     }
 }
 pub fn default() -> Self{
     basic::new()
 }
+pub fn build_page(&mut self, ps: &mut crate::_page_struct){basic::build_page_(self, ps)}
 /*cache */
 pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){basic::pg_rec_from_cache(&mut self.cache, key, indx)}
 pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
 pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}
+pub fn rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{basic::pg_rec_from_front_list(self, indx, fixed_indx)}
  /* shols */ pub fn set_shol_state(&mut self, new_state: bool){self.shol_state = new_state;}
   pub fn get_shol_state(&self) -> bool{self.shol_state}
   pub fn inc_mk_shol_state(&mut self){self.mk_shol_state += 1;}
@@ -96,7 +118,7 @@ impl ManageLists for basic{
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
-        if num_pg < num_pgs || num_pgs ==0 {crate::build_page(&mut ps);}
+        if num_pg < num_pgs || num_pgs ==0 {self.build_page( &mut ps);}
         println!("{}", crate::get_prnt(-1));
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));
@@ -109,6 +131,7 @@ impl ManageLists for basic{
     return self.ext_key_modes(&mut Key, ext);
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
+  if Key == ""{crate::set_ask_user("Hi there, Dear User. So good to C You again 💯❤️", -9147019413);}
   Key.push_str(&crate::getkey());
   if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
     if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}

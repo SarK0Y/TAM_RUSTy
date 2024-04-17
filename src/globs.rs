@@ -147,7 +147,7 @@ pub(crate) fn show_ls(){
     crate::ps18::fix_num_files(-13972);
 }
 pub(crate) fn get_num_pg_4_main0() -> i64{
-    let num_pg = read_file("main0.pg");
+    let num_pg = crate::read_file("main0.pg");
     match i64::from_str_radix(&num_pg, 10){
         Ok(num) => return num,
         _ => return 0
@@ -415,6 +415,7 @@ pub fn len_of_front_list_wc() -> String{
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let last_pg = where_is_last_pg();
+    let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
         if last_pg < indx{
@@ -425,8 +426,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         return (i64_2_usize(indx), indx);
     }
     let mut fix_inputed_indx = indx;
-    if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
-    let indx = fix_inputed_indx;
+    if !unsafe {local_indx(false)} && fixed_indx == true {fix_inputed_indx += calc_num_files_up2_cur_pg(); indx = fix_inputed_indx;}
     let mut proper_indx: i64 = 0;
     let mut len: i64 = 0;
     if indx > 0{proper_indx = indx;}
@@ -596,4 +596,29 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
 pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     Key.clear();
     return crate::hotKeys(Key, ext);
+}
+pub(crate) fn strn_2_u64(strn: String) -> Option<u64>{
+    match u64::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}
+pub(crate) fn strn_2_usize(strn: String) -> Option<usize>{
+    match usize::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}
+pub(crate) fn seg_size() -> usize{
+    static mut fst_run: bool = false;
+    static mut seg_size: usize = 150;
+    if !unsafe {fst_run}{
+        unsafe {fst_run = true;}
+        if crate::checkArg("-cache-seg-size"){
+            let seg_size_new = String::from_iter(crate::get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
+            let ret = strn_2_usize(seg_size_new);
+            if ret != None{unsafe {seg_size = ret.unwrap();}}
+        }
+    }
+    unsafe{seg_size}
 }

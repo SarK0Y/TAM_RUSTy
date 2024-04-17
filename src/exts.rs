@@ -33,6 +33,9 @@ mod swtch;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
+#[path = "types.rs"]
+mod types;
+use types::*;
 #[path = "enums.rs"]
 mod enums;
 use enums::*;

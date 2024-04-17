@@ -1,10 +1,10 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::take_list_adr, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir};
+use crate::{get_num_page, get_num_cols, read_front_list, globs18::{take_list_adr, seg_size}, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
-     let num_pg = get_num_page(27786521);
+     let num_pg = get_indx / seg_size();//get_num_page(27786521);
      let cols = get_num_cols(27786521);
      let rows = crate::get_num_rows(27786521);
      let front_list = read_front_list();
@@ -30,7 +30,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
     }
     
         if !crate::Path::new(&is_cached).exists(){
-        let recs_on_pg1 = cols * rows;
+        let mut recs_on_pg1 = seg_size();
         let mut recs_on_pg2 = recs_on_pg1*2;
         let file = match crate::File::open(&found_files){
             Ok(f) => f,
@@ -40,10 +40,11 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         let mut len = 0usize;
         let mut ret = (String::new(), 0usize);
         let mut ret0 = (String::new(), 0usize);
+        let get_indx_offset = get_indx % recs_on_pg1;
         for (indx, line) in reader.lines().enumerate() {
             let line0 = line.unwrap().as_mut().to_string();
             if indx >= get_indx && recs_on_pg2 > 0{
-                if indx == get_indx{
+                if indx == get_indx_offset{
                 ret = (crate::cpy_str(&line0), indx);}
                 let proper_line = format!("{}\n", line0.clone());
                 if recs_on_pg2 > recs_on_pg1{
@@ -55,7 +56,8 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         }
         if ret == ret0 {return ("no str gotten".to_string(), len);}
     }
-        let base_indx: usize = i64_2_usize(num_pg * cols * rows);
+        let get_indx_offset = get_indx % seg_size();
+        let base_indx: usize = get_indx - get_indx_offset;
         let mut get_indx = get_indx;
         let mut len = 0usize;
         if get_indx < base_indx {return ("no str gotten".to_string(), len);}
@@ -77,7 +79,7 @@ pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String
      //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
         if crate::Path::new(&cached_list).exists(){return}
         //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
-        let mut recs_on_pg = cols * rows;
+        let mut recs_on_pg = seg_size();
         let file = match crate::File::open(&found_files){
             Ok(f) => f,
             _ => return
@@ -99,7 +101,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
      //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
         if crate::Path::new(&cached_list).exists(){return}
         //save_file_append(format!("{}\n", get_indx.to_string()), "cache_pg.indx".to_string());
-        let mut recs_on_pg = i64_2_usize(cols * rows);
+        let mut recs_on_pg = seg_size();
         let align_indx = (get_indx / recs_on_pg) * recs_on_pg;
         let file = match crate::File::open(&found_files){
             Ok(f) => f,
@@ -112,7 +114,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         let mut ret0 = (String::new(), 0usize);
         for (indx, line) in reader.lines().enumerate() {
             let line0 = line.unwrap().as_mut().to_string();
-            if indx < get_indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
+            if align_indx > indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
                 let proper_line = format!("{}\n", line0.clone());
             save_file_append_abs_adr(proper_line, cached_list.clone());
             recs_on_pg -= 1;
