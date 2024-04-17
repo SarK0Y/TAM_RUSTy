@@ -415,6 +415,7 @@ pub fn len_of_front_list_wc() -> String{
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let last_pg = where_is_last_pg();
+    let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
         if last_pg < indx{
@@ -424,9 +425,8 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         let indx = last_pg - indx + 1;
         return (i64_2_usize(indx), indx);
     }
-    //let mut fix_inputed_indx = indx;
-    //if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
-    //let indx = fix_inputed_indx;
+    let mut fix_inputed_indx = indx;
+    if !unsafe {local_indx(false)} && fixed_indx == true {fix_inputed_indx += calc_num_files_up2_cur_pg(); indx = fix_inputed_indx;}
     let mut proper_indx: i64 = 0;
     let mut len: i64 = 0;
     if indx > 0{proper_indx = indx;}

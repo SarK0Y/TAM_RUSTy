@@ -135,10 +135,10 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         let msg = "".to_string(); let msg0 = msg.clone(); let tmp_dir0 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         std::thread::spawn(move||{
             //popup_msg("msg1");
-           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, no_offset, &front_lst0, cache_state::ready));
+           crate::C!(crate::basic::mk_fast_cache(&tmp_dir0, indx, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, no_offset, &front_lst1, cache_state::ready));
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst1, cache_state::ready));
         if ret.1 == cache_state::ready{
             popup_msg("msg");
             let vecc = ret.0.unwrap().clone(); let vecc1 = vecc.clone();
@@ -149,25 +149,25 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
          }
         }
         if indx == 285{popup_msg(&get_item_from_front_list(proper_indx.1, fixed_indx))}
-        return get_item_from_front_list(proper_indx.1, fixed_indx);;
+        return get_item_from_front_list(proper_indx.1, false);;
     }
     else {
         //fix_screen_count(1);
-        let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone(); let indx = proper_indx.0.clone();
+        let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
         std::thread::spawn(move||{
             //popup_msg("msg1");
            //crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, no_offset, &front_lst0, cache_state::ready));
            //popup_msg("msg2");
         });
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, no_offset, &front_lst, cache_state::ready));
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst, cache_state::ready));
         if ret.1 == cache_state::ready{
            // popup_msg("msg1"); // hits only here 
            let vecc = ret.0.unwrap().clone(); let vecc1 = vecc.clone();
             cache_entry.insert(indx / self.seg_size, vecc1);
             match self.cache.entry(front_lst1){
-            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc); return get_item_from_front_list(proper_indx.1, fixed_indx);},
-            Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, fixed_indx);}
+            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc); return get_item_from_front_list(crate::usize_2_i64(indx), fixed_indx);},
+            Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, false);}
          }
     }
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
@@ -232,7 +232,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
     if cache0.len() > 0{popup_msg("bad cache"); cache0.clear(); popup_msg(&cache0.len().to_string())}
     for i in indx..upto{
-        let rec =  get_item_from_front_list(crate::usize_2_i64(i), fixed_indx);//ln_of_found_files_cacheless(i);
+        let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
         if i == lst_len{break;}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
         cache0.push(rec);
