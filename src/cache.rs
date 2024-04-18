@@ -124,7 +124,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
 pub(crate) fn clean_cache(msg: &str){
     let tmp_dir = bkp_tmp_dir();
     let mk_msg_dir = format!("{tmp_dir}/msgs/basic/cache");
-    let clean_cache = format!("{tmp_dir}/cache/*");
+    let clean_cache = format!("{tmp_dir}/cache/{msg}*");
     let msg_of_clean_cache = format!("{mk_msg_dir}/clean");
     let cmd = format!("mkdir -p {mk_msg_dir};rm -f {clean_cache};echo '{msg}' > {msg_of_clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});

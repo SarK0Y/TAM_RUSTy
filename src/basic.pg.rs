@@ -4,7 +4,7 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count};
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count, read_file, rm_file};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -113,14 +113,21 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
-    let front_lst = self.read_file("front_list");
+    let front_lst = self.read_file("front_list").trim_end().to_string();
+     let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
+     if read_file("break").trim_end().to_string() == "001"{
+        println!("break 001");
+     }
+     let clean = read_file_abs_adr(&adr_of_msg_clean).trim_end().to_string();
+    if clean.len() > 0{
+        self.cache.remove(&clean);
+        rm_file(&adr_of_msg_clean);
+    // self.cache.remove_entry(&clean);
+    }
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, i64_2_usize(indx));
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
-     let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
-     let clean = read_file_abs_adr(&adr_of_msg_clean);
      let front_lst0 = front_lst.clone(); let front_lst1 = front_lst0.clone(); let front_lst2 = front_lst0.clone();
-     if clean == front_lst {self.cache.remove(&front_lst);}
      let mut cache_entry: entry_cache_t = HashMap::new();
      let indx = i64_2_usize(indx);//proper_indx.0.clone();
      let seg_num = indx / self.seg_size;
@@ -219,6 +226,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     for i in indx..upto{
         let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
         if i == lst_len{break;}
+        if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
         cache0.push(rec);
         //println!("{}", cache0[i]);

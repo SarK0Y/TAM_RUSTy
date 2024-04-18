@@ -44,7 +44,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -75,7 +75,7 @@ pub(crate) fn sieve_list(data: String){
     set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
