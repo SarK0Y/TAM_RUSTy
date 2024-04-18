@@ -100,7 +100,7 @@ pub(crate) fn pg_0_cache(cache: &mut crate::cache_t, key: &String){
 pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) -> (String, cached_data){
     let offset = indx % seg_size();
     let seg_num = indx / seg_size();
-    let failed = ("no such list was cached".to_string(), cached_data::no_list);
+    let failed = ("no such segment was cached".to_string(), cached_data::no_list);
     match cache.entry(key.to_string()){
         Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_num); if key {
             let len = entry.get()[&seg_num].len(); if len <= offset {return failed;}
@@ -114,9 +114,6 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
     let front_lst = self.read_file("front_list");
-    if indx == 12248{
-       println!("check point");
-    }
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, i64_2_usize(indx));
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
@@ -146,18 +143,12 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
             Entry::Vacant(en) => {en.insert(cache_entry);}
          }
         }
-        if indx == 285{popup_msg(&get_item_from_front_list(proper_indx.1, fixed_indx))}
         return get_item_from_front_list(proper_indx.1, false);;
     }
     else {
         //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
-        std::thread::spawn(move||{
-            //popup_msg("msg1");
-           //crate::C!(crate::basic::mk_fast_cache(&tmp_dir1, no_offset, &front_lst0, cache_state::ready));
-           //popup_msg("msg2");
-        });
         let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst, cache_state::ready));
         if ret.1 == cache_state::ready{
            // popup_msg("msg1"); // hits only here 
@@ -235,7 +226,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
      if cache0.len() > 150{panic!("cannot drop cache seg prev {:?} cur {:?} len {}", prev_state, state, cache0.len())};
      state = cache_state::ready;
      crate::rm_file(&path_2_msg_forming);
-     /*if get_num_page(-577714581011) == 5{
+     /*if get_num_page(-577714581011) == 0{
         let cache_iter = cache0.clone();
         let mut ii = 0;
         for v in cache_iter{

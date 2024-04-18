@@ -36,6 +36,9 @@ use func_id18::*;
 #[path = "types.rs"]
 mod types;
 use types::*;
+#[path = "lst.rs"]
+mod lst;
+use lst::*;
 #[path = "enums.rs"]
 mod enums;
 use enums::*;
