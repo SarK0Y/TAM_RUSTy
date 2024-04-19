@@ -113,12 +113,17 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
-    let front_lst = self.read_file("front_list").trim_end().to_string();
+    let front_lst = self.read_file("front_list");
      let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
+#[cfg(feature="in_dbg")]
      if read_file("break").trim_end().to_string() == "001"{
         println!("break 001");
      }
-     let clean = read_file_abs_adr(&adr_of_msg_clean).trim_end().to_string();
+#[cfg(feature="in_dbg")]
+     if read_file("panic") == "yes"{
+        panic!("wtffffff");
+     }
+     let clean = read_file_abs_adr(&adr_of_msg_clean);
     if clean.len() > 0{
         self.cache.remove(&clean);
         rm_file(&adr_of_msg_clean);

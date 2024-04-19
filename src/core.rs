@@ -707,7 +707,7 @@ pub(crate) fn read_file_abs_adr(fname: &String) -> String{
     };
     let mut ret = String::new();
     file.read_to_string(&mut ret);
-    ret
+    ret.trim_end().to_string()
 }
 
 pub(crate) fn read_prnt() -> String{read_file("prnt")}

@@ -1,14 +1,16 @@
-use crate::{globs18::take_list_adr, errMsg0};
+use crate::{globs18::take_list_adr, errMsg0, read_file};
 use std::io::BufRead;
-pub(crate) fn listing(toFile: String){
-    let found_files = take_list_adr("found_files");
-    let file = match crate::File::open(&found_files){
-            Ok(f) => f,
-            _ => return errMsg0("Can't open active list.")
-        };
-        let reader = crate::BufReader::new(file);
-    for (indx, line) in reader.lines().enumerate() {
-            let line0 = line.unwrap().as_mut().to_string();
-            //
+pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
+    read_file(name).replace(r"\n", r"\\\n ")
+}
+pub(crate) fn strn_2_vec(strn: &String, delim: &String) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let len = strn.chars().count();
+    let delim = delim.chars().nth(0);
+    let mut item = String::new();
+    for ch in strn.chars(){
+        if Some(ch) == delim{ret.push(item.clone()); item.clear()}
+        item.push(ch)
     }
+    ret
 }
