@@ -21,17 +21,19 @@ pub(crate) fn strn_2_vec(strn: &String, delim: &String) -> Vec<String>{
 pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String, bool){
     static mut patch: Lazy<patch_t> = Lazy::new(||{HashMap::new()});
     let mut ret = (String::new(), String::new(), false);
+    if old == Some("clear patch".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false)}
+    if old != None && new == Some("clear entry".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false)}
     if old != None && new != None{
         let old = old.unwrap(); let new = new.unwrap();
         crate::C!(patch.insert(old, new));
         return ("".to_string(), "".to_string(), false)
     } 
     if old != None && new == None{
-        let old = old.unwrap();
+        let old = old.unwrap(); let old0 = old.clone();
         match crate::C!(patch.entry(old)){
-            Entry::Occupied(en) => {},
+            Entry::Occupied(en) => { ret.0 = old0; ret.1 = en.get().to_string(); ret.2 = true; },
             _ => {}
         }
     }
-("".to_string(), "".to_string(), false)
+ret
 }
