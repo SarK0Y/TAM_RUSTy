@@ -697,6 +697,17 @@ pub(crate) fn read_file(fname: &str) -> String{
     };
     let mut ret = String::new();
     file.read_to_string(&mut ret);
+    ret.trim_end().to_string()
+}
+pub(crate) fn raw_read_file(fname: &str) -> String{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(&fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
     ret
 }
 pub(crate) fn read_file_abs_adr(fname: &String) -> String{
@@ -708,6 +719,16 @@ pub(crate) fn read_file_abs_adr(fname: &String) -> String{
     let mut ret = String::new();
     file.read_to_string(&mut ret);
     ret.trim_end().to_string()
+}
+pub(crate) fn raw_read_file_abs_adr(fname: &String) -> String{
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
+    ret
 }
 
 pub(crate) fn read_prnt() -> String{read_file("prnt")}

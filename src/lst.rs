@@ -1,11 +1,15 @@
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
-use crate::{globs18::take_list_adr, errMsg0, read_file, patch_t};
+use substring::Substring;
+use crate::{globs18::take_list_adr, errMsg0, read_file, patch_t, split_once};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
     read_file(name).replace(r"\n", r"\\\n ")
+}
+pub(crate) fn reorder_strn_4_cmd(strn: &String) -> String{
+    strn.replace(r"\n", r"\\\n ")
 }
 pub(crate) fn strn_2_vec(strn: &String, delim: &String) -> Vec<String>{
     let mut ret = Vec::<String>::new();
@@ -36,4 +40,16 @@ pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String
         }
     }
 ret
+}
+pub(crate) fn term_mv(cmd: &String){
+    let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
+    
+}
+pub(crate) fn parse_paths(cmd: &String){
+    let cmd = cmd.replace(r"\\ ", r":@@:");
+    let (from, to) = split_once(&cmd, " ");
+    let from = from.replace(r":@@:", ""); let to = to.replace(r":@@:", "");
+    let mut all_files = String::new();
+    if from == "@@a"{all_files = crate::raw_read_file("found_files")}
+    if from.substring(0, 1) == "/"{}
 }
