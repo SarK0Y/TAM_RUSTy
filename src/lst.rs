@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use substring::Substring;
-use crate::{globs18::take_list_adr, errMsg0, read_file, patch_t, split_once};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -46,10 +46,13 @@ pub(crate) fn term_mv(cmd: &String){
     
 }
 pub(crate) fn parse_paths(cmd: &String){
-    let cmd = cmd.replace(r"\\ ", r":@@:");
-    let (from, to) = split_once(&cmd, " ");
-    let from = from.replace(r":@@:", ""); let to = to.replace(r":@@:", "");
+    let delim = "🁶".to_string(); let mut to = String::new();
     let mut all_files = String::new();
-    if from == "@@a"{all_files = crate::raw_read_file("found_files")}
-    if from.substring(0, 1) == "/"{}
+    if cmd.substring(0, 3) == "@@a"{
+        all_files = crate::raw_read_file("found_files");
+        to = cmd.replace("@@a ", "").trim_start_matches(' ').to_string();
+    }
+    if cmd.substring(0, 1) == "/"{
+        let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
+    }
 }
