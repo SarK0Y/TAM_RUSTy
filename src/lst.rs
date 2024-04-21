@@ -45,14 +45,20 @@ pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     
 }
-pub(crate) fn parse_paths(cmd: &String){
+pub(crate) fn parse_paths(cmd: &String) -> (String, String){
     let delim = "🁶".to_string(); let mut to = String::new();
     let mut all_files = String::new();
+    let mut ret = (String::new(), String::new());
     if cmd.substring(0, 3) == "@@a"{
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("@@a ", "").trim_start_matches(' ').to_string();
+        ret.0 = reorder_strn_4_cmd(&all_files); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
+        let cmd = cmd.replace("\\ ", ":@@:");
         let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
+        to = to.replace(":@@:", ""); all_files = cmd.replace(&delim, "").replace(&to, "");
+        ret.0 = all_files; ret.1 = to; return ret
     }
+    ret
 }
