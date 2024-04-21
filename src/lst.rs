@@ -81,3 +81,13 @@ pub(crate) fn parse_paths(cmd: &String) -> (String, String){
     }
     ret
 }
+pub(crate) fn to_patch(from_to: &(Vec<String>, String)){
+    let dir = from_to.1.clone();
+    if !crate::Path::new(&dir).is_dir(){return}
+    let len = from_to.0.len();
+    for v in 0..len{
+        let old = from_to.0[v].clone();
+        let new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/");
+        patch(Some(old), Some(new));
+    }
+}
