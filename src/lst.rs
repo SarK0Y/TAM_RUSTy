@@ -2,6 +2,8 @@ use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 use substring::Substring;
+use regex::Regex;
+use std::borrow::Borrow;
 use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail};
 
 use std::io::BufRead;
@@ -46,19 +48,36 @@ pub(crate) fn term_mv(cmd: &String){
     
 }
 pub(crate) fn parse_paths(cmd: &String) -> (String, String){
+    let mut cmd = cmd.to_string();
+    let re = Regex::new(r"(?x)
+                            (?<long_name_opt>--\w+)|
+                            (?<short_name_opt>-\w+)
+    
+    ").unwrap();
+    let mut opts = Vec::<String>::new();
+    let mut add_opts = String::new();
     let delim = "🁶".to_string(); let mut to = String::new();
     let mut all_files = String::new();
     let mut ret = (String::new(), String::new());
+    if cmd.substring(0, 1) == "-"{
+        let caps = re.captures_iter(&cmd);
+        for ca in caps{
+            if ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
+            if ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name-opt"].to_string());}
+        }
+        cmd = re.replace_all(&cmd, "").to_string();
+        for opt in opts{add_opts.push_str(opt.as_str()); add_opts.push(' ');}
+    }
     if cmd.substring(0, 3) == "@@a"{
         all_files = crate::raw_read_file("found_files");
-        to = cmd.replace("@@a ", "").trim_start_matches(' ').to_string();
-        ret.0 = reorder_strn_4_cmd(&all_files); ret.1 = to; return ret
+        to = cmd.replace("@@a ", "\\ ").trim_start_matches(' ').to_string();
+        ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
         let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
-        to = to.replace(":@@:", ""); all_files = cmd.replace(&delim, "").replace(&to, "");
-        ret.0 = all_files; ret.1 = to; return ret
+        to = to.replace(":@@:", "\\ "); all_files = reorder_strn_4_cmd(&cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, ""));
+        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     ret
 }
