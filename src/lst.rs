@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
-use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -47,7 +47,7 @@ pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     
 }
-pub(crate) fn parse_paths(cmd: &String) -> (String, String){
+fn parse_paths(cmd: &String) -> (String, String){
     let mut cmd = cmd.to_string();
     let re = Regex::new(r"(?x)
                             (?<long_name_opt>--\w+)|
@@ -70,7 +70,14 @@ pub(crate) fn parse_paths(cmd: &String) -> (String, String){
     }
     if cmd.substring(0, 3) == "@@a"{
         all_files = crate::raw_read_file("found_files");
-        to = cmd.replace("@@a ", "\\ ").trim_start_matches(' ').to_string();
+        to = cmd.replace("@@a ", "").trim_start_matches(' ').to_string();
+        patch_msg( Some(parse_paths::all_files) );
+        ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
+    }
+    if cmd.substring(0, 5) == "@@enu"{
+        all_files = crate::raw_read_file("found_files");
+        to = cmd.replace("@@enu ", "").trim_start_matches(' ').to_string();
+        patch_msg( Some(parse_paths::each_name_unique) );
         ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
@@ -81,13 +88,19 @@ pub(crate) fn parse_paths(cmd: &String) -> (String, String){
     }
     ret
 }
-pub(crate) fn to_patch(from_to: &(Vec<String>, String)){
+fn all_to_patch(from_to: &(Vec<String>, String)){
     let dir = from_to.1.clone();
-    if !crate::Path::new(&dir).is_dir(){return}
+    let err_msg =format!("{dir} isn't directory");
+    if !crate::Path::new(&dir).is_dir(){errMsg0(&err_msg); return}
     let len = from_to.0.len();
     for v in 0..len{
         let old = from_to.0[v].clone();
         let new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/");
         patch(Some(old), Some(new));
     }
+}
+fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{
+    static mut mode: crate::parse_paths = parse_paths::default;
+    crate::C!(mode = msg.unwrap_or(crate::C!(mode.clone())));
+    crate::C!(mode.clone())
 }

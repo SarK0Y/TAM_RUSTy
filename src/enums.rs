@@ -14,3 +14,9 @@ pub(crate) enum cache_state{
     taken,
     cache_seg_corrupted,
 }
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum parse_paths{
+    all_files,
+    each_name_unique,
+    default,
+}
