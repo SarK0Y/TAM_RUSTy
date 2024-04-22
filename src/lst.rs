@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
-use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -13,7 +13,7 @@ pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
 pub(crate) fn reorder_strn_4_cmd(strn: &String) -> String{
     strn.replace(r"\n", r"\\\n ")
 }
-pub(crate) fn strn_2_vec(strn: &String, delim: &String) -> Vec<String>{
+pub(crate) fn strn_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut ret = Vec::<String>::new();
     let len = strn.chars().count();
     let delim = delim.chars().nth(0);
@@ -45,7 +45,13 @@ ret
 }
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
-    
+    let (all_files, to) = parse_paths(&cmd);
+    let finally_to =to.clone();
+    let vec_files = strn_2_vec(&all_files, "\n");
+    let all_files = reorder_strn_4_cmd(&all_files);
+    all_to_patch(&(vec_files, to));
+    let cmd = format!("mv {all_files} {finally_to}");    
+    crate::run_term_app(cmd);
 }
 fn parse_paths(cmd: &String) -> (String, String){
     let mut cmd = cmd.to_string();
