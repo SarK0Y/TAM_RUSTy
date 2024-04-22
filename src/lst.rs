@@ -78,12 +78,12 @@ fn parse_paths(cmd: &String) -> (String, String){
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("@@enu ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::each_name_unique) );
-        ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
+        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
         let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
-        to = to.replace(":@@:", "\\ "); all_files = reorder_strn_4_cmd(&cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, ""));
+        to = to.replace(":@@:", "\\ "); all_files = cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, "");
         ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     ret
@@ -91,11 +91,15 @@ fn parse_paths(cmd: &String) -> (String, String){
 fn all_to_patch(from_to: &(Vec<String>, String)){
     let dir = from_to.1.clone();
     let err_msg =format!("{dir} isn't directory");
+    let mode_2_parse_paths = patch_msg(None);
     if !crate::Path::new(&dir).is_dir(){errMsg0(&err_msg); return}
+    let mut new = String::new();
+    let mut count = 0u64;
     let len = from_to.0.len();
     for v in 0..len{
         let old = from_to.0[v].clone();
-        let new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/");
+        if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
+        else { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
         patch(Some(old), Some(new));
     }
 }
