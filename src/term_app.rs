@@ -108,11 +108,12 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
 }
 pub(crate) fn term(cmd: &String){
     if read_term_msg() == "stop"{return;}
+    else {taken_term_msg()}
      let (cmd, subcmd) = split_once(&cmd, ":>:");
-    let (_, cmd) = split_once(&cmd, " ");
+    //let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
-    if cmd.substring(0, 7) == "term cp"{popup_msg("11111");crate::term_cp(&cmd); return;}
+    if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
     run_term_app(cmd);
 }
 pub(crate) fn process_tag(key: String){
@@ -167,6 +168,9 @@ pub(crate) fn stop_term_msg(){
 }
 pub(crate) fn free_term_msg(){
     save_file0("free".to_string(), "msgs/term/state".to_string());
+}
+pub(crate) fn taken_term_msg(){
+    save_file0("taken".to_string(), "msgs/term/state".to_string());
 }
 pub(crate) fn read_term_msg() -> String{
     read_file("msgs/term/state")

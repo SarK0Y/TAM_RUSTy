@@ -13,10 +13,10 @@ impl parse_replace for crate::basic{
     fn prevalidate_tag(&mut self) -> Option<String>{
         use substring::Substring;
     let mut prnt = crate::read_prnt();
-    if prnt.substring(0, 10) == "term mv @a"{return Some("dontPass".to_string())}
-    if prnt.substring(0, 10) == "term cp @a"{return Some("dontPass".to_string())}
-    if prnt.substring(0, 12) == "term mv @enu"{return Some("dontPass".to_string())}
-    if prnt.substring(0, 12) == "term cp @enu"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 10) == "term mv %a"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 10) == "term cp %a"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 12) == "term mv %enu"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 12) == "term cp %enu"{return Some("dontPass".to_string())}
     None
     }
     fn validate_tag(&mut self) -> Option<String>{

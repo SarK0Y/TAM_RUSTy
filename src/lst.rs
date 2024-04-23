@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
-use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -109,7 +109,7 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
     let dir = from_to.1.clone();
     let err_msg =format!("{dir} isn't directory");
     let mode_2_parse_paths = patch_msg(None);
-    if !crate::Path::new(&dir).is_dir(){errMsg0(&err_msg); return}
+    if !is_dir2(&dir){errMsg0(&err_msg); return}
     let mut new = String::new();
     let mut count = 0u64;
     let len = from_to.0.len();
