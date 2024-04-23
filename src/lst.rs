@@ -53,6 +53,17 @@ pub(crate) fn term_mv(cmd: &String){
     let cmd = format!("mv {all_files} {finally_to}");    
     crate::run_term_app(cmd);
 }
+pub(crate) fn term_cp(cmd: &String){
+    let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
+    let (all_files, to) = parse_paths(&cmd);
+    let finally_to =to.clone();
+    let vec_files = strn_2_vec(&all_files, "\n");
+    let all_files = reorder_strn_4_cmd(&all_files);
+    all_to_patch(&(vec_files, to));
+    let cmd = format!("cp {all_files} {finally_to}");    
+    crate::run_term_app(cmd);
+}
+
 fn parse_paths(cmd: &String) -> (String, String){
     let mut cmd = cmd.to_string();
     let re = Regex::new(r"(?x)
@@ -74,15 +85,15 @@ fn parse_paths(cmd: &String) -> (String, String){
         cmd = re.replace_all(&cmd, "").to_string();
         for opt in opts{add_opts.push_str(opt.as_str()); add_opts.push(' ');}
     }
-    if cmd.substring(0, 3) == "@@a"{
+    if cmd.substring(0, 2) == "%a"{
         all_files = crate::raw_read_file("found_files");
-        to = cmd.replace("@@a ", "").trim_start_matches(' ').to_string();
+        to = cmd.replace("%a ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::all_files) );
         ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
     }
-    if cmd.substring(0, 5) == "@@enu"{
+    if cmd.substring(0, 4) == "%enu"{
         all_files = crate::raw_read_file("found_files");
-        to = cmd.replace("@@enu ", "").trim_start_matches(' ').to_string();
+        to = cmd.replace("%enu ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::each_name_unique) );
         ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }

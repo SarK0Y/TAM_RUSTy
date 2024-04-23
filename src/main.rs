@@ -59,7 +59,7 @@ let err_msg = format!("failed create {}", &path_2_cmd);
 let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
-if !checkArg("-dbg"){
+if !checkArg("-dbg") || !checkArg("-dont-clean-bash"){
     cmd = format!("{cmd};rm -f {}", path_2_cmd);
 }
 make_cmd_file.write_all(&cmd.as_bytes());

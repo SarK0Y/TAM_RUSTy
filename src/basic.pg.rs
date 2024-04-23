@@ -13,6 +13,7 @@ impl super::basic{
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
     let dbg_point = self.read_file("stop_point").trim_end().to_string();
+    #[cfg(feature="in_dbg")]
     if dbg_point == "001"{
         println!("stop 001");
        // panic!("kkkkkkkmmmmmmmmmm,,,,,,,,,,,,,,");

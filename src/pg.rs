@@ -100,6 +100,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
     //let mut Key =String::new();
+    if Key == "dontPass"{return "dontPass".to_string();}
     let mut cmd = String::new();
     let ext_is_alive = if Some(&ext) == None{false}else{true};
     if !ext_is_alive{Key.push_str(crate::getkey().as_str());}

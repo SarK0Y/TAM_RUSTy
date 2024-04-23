@@ -541,6 +541,8 @@ for i in 1..args.len(){
 }
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let mut dir = fname.clone();
+    tailOFF(&mut dir, "/"); std::fs::create_dir(&dir);
     let cmd = format!("echo '{}' > {}", content, fname);
     run_cmd_str(cmd.as_str());
     true
