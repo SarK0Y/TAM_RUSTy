@@ -152,8 +152,9 @@ impl ManageLists for basic{
         Some(val) => val,
         _ => 0
     };
-  if Key == "/"{self.to_shol(); return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
+  if Key == "/"{crate::key_slash(); self.to_shol(); return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
   if crate::kcode01::ENTER == ansiKey{
+    crate::pre_Enter();
     free_term_msg();
     self.from_shol_no_dead_ends();
     return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}

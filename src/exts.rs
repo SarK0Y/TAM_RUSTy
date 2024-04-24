@@ -36,6 +36,9 @@ use func_id18::*;
 #[path = "cmd_keys.rs"]
 mod cmd_keys;
 use cmd_keys::*;
+#[path = "key_handlers.rs"]
+mod key_handlers;
+use key_handlers::*;
 #[path = "types.rs"]
 mod types;
 use types::*;
