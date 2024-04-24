@@ -33,6 +33,9 @@ mod swtch;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
+#[path = "cmd_keys.rs"]
+mod cmd_keys;
+use cmd_keys::*;
 #[path = "types.rs"]
 mod types;
 use types::*;

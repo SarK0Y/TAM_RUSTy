@@ -7,6 +7,7 @@
 #![allow(non_upper_case_globals)]
 #![allow(while_true)]
 #[allow(arithmetic_overflow)]
+#[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt};
@@ -59,7 +60,7 @@ let err_msg = format!("failed create {}", &path_2_cmd);
 let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
-if !checkArg("-dbg") || !checkArg("-dont-clean-bash"){
+if !dbg(false) && !dont_clean_bash(false){
     cmd = format!("{cmd};rm -f {}", path_2_cmd);
 }
 make_cmd_file.write_all(&cmd.as_bytes());
@@ -290,6 +291,7 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
+    dont_clean_bash(false);
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
    initSession();
    if checkArg("-rilocan"){rilocan(); return;}
