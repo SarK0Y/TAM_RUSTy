@@ -9,4 +9,5 @@ pub(crate) fn pre_Enter(){
     if front_list != "ls"{return}
     let prev_list = read_file("prev_list");
     set_front_list(&prev_list);
+    crate::free_term_msg();
 }
