@@ -133,7 +133,7 @@ impl ManageLists for basic{
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   if Key == ""{crate::set_ask_user("Hi there, Dear User. So good to C You again 💯❤️", -9147019413);}
   #[cfg(feature="in_dbg")]
-  if self.read_file("ext_key_modes") == "y"{
+  if self.read_file("ext_key_modes") == "y" || crate::breaks("ext key modes", 1, true).1 && crate::breaks("ext key modes", 1, true).0 == 1{
     println!("break ext_key_modes");
   }
   Key.push_str(&crate::getkey());

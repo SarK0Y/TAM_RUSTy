@@ -93,7 +93,7 @@ pub(crate) fn background_fixing(){
  builder.spawn(|| {
     let mut bkgrnd: fn() = _background_fixing;
      if checkArg("-dbg"){bkgrnd = dbg_background_fixing;}
-     bkgrnd();
+    bkgrnd();
     fix_screen();
 });
 }
@@ -188,4 +188,4 @@ pub(crate) fn fix_screen_count(num: usize){
            std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
-}
+} //fn

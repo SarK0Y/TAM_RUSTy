@@ -366,6 +366,8 @@ pub(crate) fn exec_cmd(cmd: String){
         crate::term(&cmd);
     }
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
+    #[cfg(feature="in_dbg")]
+    if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{

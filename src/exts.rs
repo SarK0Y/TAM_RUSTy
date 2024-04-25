@@ -45,6 +45,10 @@ use types::*;
 #[path = "lst.rs"]
 mod lst;
 use lst::*;
+#[cfg(feature="in_dbg")] #[path = "in_dbg0.rs"]
+mod in_dbg0;
+#[cfg(feature="in_dbg")]
+use in_dbg0::*;
 #[path = "enums.rs"]
 mod enums;
 use enums::*;
