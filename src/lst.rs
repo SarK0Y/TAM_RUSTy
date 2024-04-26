@@ -4,7 +4,7 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
-use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -51,16 +51,18 @@ pub(crate) fn term_mv(cmd: &String){
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("mv {all_files} {finally_to}");    
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
-    let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
+    let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let vec_files = strn_2_vec(&all_files, "\n");
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("cp {all_files} {finally_to}");    
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
 
@@ -89,18 +91,36 @@ fn parse_paths(cmd: &String) -> (String, String){
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("%a ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::all_files) );
-        ret.0 = format!("{}{}", add_opts, reorder_strn_4_cmd(&all_files)); ret.1 = to; return ret
+        let all_files = escape_backslash(&all_files);
+        let all_files = escape_apostrophe(&all_files);
+        let all_files = escape_symbs(&all_files);
+        let to = escape_backslash(&to);
+        let to = escape_apostrophe(&to);
+        let to = escape_symbs(&to);
+        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     if cmd.substring(0, 4) == "%enu"{
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("%enu ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::each_name_unique) );
+        let all_files = escape_backslash(&all_files);
+        let all_files = escape_apostrophe(&all_files);
+        let all_files = escape_symbs(&all_files);
+        let to = escape_backslash(&to);
+        let to = escape_apostrophe(&to);
+        let to = escape_symbs(&to);
         ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
         let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
         to = to.replace(":@@:", "\\ "); all_files = cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, "");
+        let all_files = escape_backslash(&all_files);
+        let all_files = escape_apostrophe(&all_files);
+        let all_files = escape_symbs(&all_files);
+        let to = escape_backslash(&to);
+        let to = escape_apostrophe(&to);
+        let to = escape_symbs(&to);
         ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
     }
     ret

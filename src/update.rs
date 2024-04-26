@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists, dont_scrn_fix};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -156,6 +156,7 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
         for i in 0..2{
             clear_screen();
@@ -173,6 +174,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
         for i in 0..num{
             clear_screen();
