@@ -555,7 +555,7 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return save_file_abs_adr0(content, fname)
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true
@@ -1030,3 +1030,4 @@ pub(crate) fn is_dir2(path: &String) -> bool{
     if ret.len() == 2{return true}
     false
 }
+//fn

@@ -4,6 +4,7 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
+use std::panic;
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix};
 
 use std::io::BufRead;
@@ -77,13 +78,14 @@ pub(crate) fn term_cp(cmd: &String){
     let cmd = format!("cp {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
+    getkey();
 }
 
 fn parse_paths(cmd: &String) -> (String, String){
     let mut cmd = cmd.to_string();
     let re = Regex::new(r"(?x)
-                            (?<long_name_opt>--\w+)|
-                            (?<short_name_opt>-\w+)
+                            (?<long_name_opt>--\w+\s)|
+                            (?<short_name_opt>-\w+\s)
     
     ").unwrap();
     let mut opts = Vec::<String>::new();
@@ -94,8 +96,10 @@ fn parse_paths(cmd: &String) -> (String, String){
     if cmd.substring(0, 1) == "-"{
         let caps = re.captures_iter(&cmd);
         for ca in caps{
-            if ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
-            if ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name-opt"].to_string());}
+            let res = panic::catch_unwind(||{ca["long_name_opt"].to_string()});
+            if res.is_ok() && ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
+            let res = panic::catch_unwind(||{ca["short_name_opt"].to_string()});
+            if res.is_ok() && ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name_opt"].to_string());}
         }
         cmd = re.replace_all(&cmd, "").to_string();
         for opt in opts{add_opts.push_str(opt.as_str()); add_opts.push(' ');}
