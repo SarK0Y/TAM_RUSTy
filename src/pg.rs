@@ -1,6 +1,6 @@
 use cli_table::TableStruct;
 
-use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey};
+use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run}, core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, globs18::{ins_last_char_to_string1_from_string1, rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, Ins_key, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -100,6 +100,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     let func_id = crate::func_id18::hotKeys_;
     //if unsafe {crate::swtch::path_completed(true, true)}{unsafe {crate::swtch::path_completed(false, false);}; return "dontPass".to_string();}
     //let mut Key =String::new();
+    if Key == "dontPass"{return "dontPass".to_string();}
     let mut cmd = String::new();
     let ext_is_alive = if Some(&ext) == None{false}else{true};
     if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
@@ -124,6 +125,12 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
        show_ls();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(i64::MIN, func_id).shift};
+    return "dontPass".to_string();}
+    if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(i64::MAX, func_id).shift};
+    return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(-1, func_id).shift};
     //io::stdout().lock().flush().unwrap();
@@ -358,6 +365,9 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
+    #[cfg(feature="in_dbg")]
+    if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{
