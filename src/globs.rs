@@ -622,3 +622,10 @@ pub(crate) fn seg_size() -> usize{
     }
     unsafe{seg_size}
 }
+pub(crate) fn check_char_in_strn(strn: &String, is_there_ch: char) -> String{
+    for ch in strn.chars(){
+        if ch == is_there_ch{return String::from(is_there_ch);}
+    }
+    "no".to_string()
+}
+//fn
