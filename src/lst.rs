@@ -122,7 +122,7 @@ fn parse_paths(cmd: &String) -> (String, String){
         let to = escape_backslash(&to);
         let to = escape_apostrophe(&to);
         let to = escape_symbs(&to);
-        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
+        ret.0 = format!("--backup=t {}{}", add_opts, all_files); ret.1 = to; return ret
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
