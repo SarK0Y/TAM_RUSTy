@@ -4,14 +4,21 @@ use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
-use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs};
+use crate::{globs18::{take_list_adr, split_once_alt}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
     read_file(name).replace(r"\n", r"\\\n ")
 }
 pub(crate) fn reorder_strn_4_cmd(strn: &String) -> String{
-    strn.replace(r"\n", r"\\\n ")
+    let strn = strn.replace(r"\n", r"\\\n ");
+    let alt_nl = char::from_u32(0x0a).unwrap();
+    let alt_nl = String::from(alt_nl);
+    let replace_with = format!(r"\{alt_nl} ");
+    let strn = strn.replace(&alt_nl, &replace_with);
+    //println!("strn: {strn}");
+    //getkey();
+    strn
 }
 pub(crate) fn strn_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut ret = Vec::<String>::new();
