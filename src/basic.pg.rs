@@ -4,7 +4,7 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count, read_file, rm_file};
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count, read_file, rm_file, rec_from_patch, patch_len};
 //use crate::extctrl;
 //use super::extctrl::*;
 impl super::basic{
@@ -105,7 +105,12 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
     match cache.entry(key.to_string()){
         Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_num); if key {
             let len = entry.get()[&seg_num].len(); if len <= offset {return failed;}
-                return  (entry.get()[&seg_num][offset].clone(), cached_data::all_ok);
+            if patch_len() > 0{
+               let rec = match rec_from_patch(entry.get()[&seg_num][offset].clone()){
+                Some(val) => val,
+                None => entry.get()[&seg_num][offset].clone()
+               }; return  (rec, cached_data::all_ok);
+            } return (entry.get()[&seg_num][offset].clone(), cached_data::all_ok);
         }else {return failed;}},
         Entry::Vacant(entry) => {return failed;}
     }

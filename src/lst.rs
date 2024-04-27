@@ -32,15 +32,18 @@ pub(crate) fn strn_2_vec(strn: &String, delim: &str) -> Vec<String>{
     }
     ret
 }
-pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String, bool){
+pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String, bool, usize){
     static mut patch: Lazy<patch_t> = Lazy::new(||{HashMap::new()});
-    let mut ret = (String::new(), String::new(), false);
-    if old == Some("clear patch".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false)}
-    if old != None && new == Some("clear entry".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false)}
+    let mut ret = (String::new(), String::new(), false, 0usize);
+    let mut old = old; let mut new = new;
+    if old == Some("".to_string()){old = None} if new == Some("".to_string()){new = None}
+    if old == Some("::clear patch::".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false, 0)}
+    if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
+    if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
         let old = old.unwrap(); let new = new.unwrap();
         crate::C!(patch.insert(old, new));
-        return ("".to_string(), "".to_string(), false)
+        return ("".to_string(), "".to_string(), false, 0)
     } 
     if old != None && new == None{
         let old = old.unwrap(); let old0 = old.clone();
@@ -51,6 +54,12 @@ pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String
     }
 ret
 }
+pub(crate) fn rec_from_patch(key: String) -> Option<String>{
+    let ret = patch(Some(key), None);
+    if ret.2 {return Some(ret.1);}
+    None
+}
+pub(crate) fn patch_len() -> usize{ patch(Some("::patch len::".to_string()), None).3 }
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (all_files, to) = parse_paths(&cmd);
@@ -144,16 +153,16 @@ fn parse_paths(cmd: &String) -> (String, String){
 }
 fn all_to_patch(from_to: &(Vec<String>, String)){
     let dir = from_to.1.clone();
-    let err_msg =format!("{dir} isn't directory");
-    let mode_2_parse_paths = patch_msg(None);
-    if !is_dir2(&dir){errMsg0(&err_msg); return}
+    //let err_msg =format!("{dir} isn't directory");
+    //let mode_2_parse_paths = patch_msg(None);
+    //if !is_dir2(&dir){errMsg0(&err_msg); return}
     let mut new = String::new();
     let mut count = 0u64;
     let len = from_to.0.len();
     for v in 0..len{
         let old = from_to.0[v].clone();
-        if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
-        else { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
+        /*if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
+        else*/ { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
         patch(Some(old), Some(new));
     }
 }
