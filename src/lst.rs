@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -32,18 +32,23 @@ pub(crate) fn strn_2_vec(strn: &String, delim: &str) -> Vec<String>{
     }
     ret
 }
-pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String, bool, usize){
+pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, String, bool, usize){
+    #[cfg(feature="in_dbg")]
+    if crate::breaks("break patch", 1, true).0 == 1 && crate::breaks("break patch", 1, true).1{
+        println!("break patch 1")
+    }
     static mut patch: Lazy<patch_t> = Lazy::new(||{HashMap::new()});
     let mut ret = (String::new(), String::new(), false, 0usize);
-    let mut old = old; let mut new = new;
+    let mut old = old; let mut new = new; let empty = String::new();
+    let mut old0 = old.clone().unwrap_or(empty.clone()); let mut new0 = new.clone().unwrap_or(empty);
     if old == Some("".to_string()){old = None} if new == Some("".to_string()){new = None}
     if old == Some("::clear patch::".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false, 0)}
     if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
     if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
-        let old = old.unwrap(); let new = new.unwrap();
-        crate::C!(patch.insert(old, new));
-        return ("".to_string(), "".to_string(), false, 0)
+        #[cfg(feature="in_dbg")]
+        popup_msg("insert in patch");
+        crate::C!(patch.insert(old0, new0));
     } 
     if old != None && new == None{
         let old = old.unwrap(); let old0 = old.clone();
@@ -52,14 +57,16 @@ pub(crate) fn patch(old: Option<String>, new: Option<String>) -> (String, String
             _ => {}
         }
     }
+#[cfg(feature="in_dbg")]
+{println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
 ret
 }
 pub(crate) fn rec_from_patch(key: String) -> Option<String>{
-    let ret = patch(Some(key), None);
+    let ret = __patch(Some(key), None);
     if ret.2 {return Some(ret.1);}
     None
 }
-pub(crate) fn patch_len() -> usize{ patch(Some("::patch len::".to_string()), None).3 }
+pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (all_files, to) = parse_paths(&cmd);
@@ -139,11 +146,9 @@ fn parse_paths(cmd: &String) -> (String, String){
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
-        let cmd = cmd.replace(" /", &delim); to = format!("/{}", read_tail(&cmd, &delim));
+        let cmd = cmd.replace(" /", &delim); to = read_tail(&cmd, &delim);
         to = to.replace(":@@:", "\\ "); all_files = cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, "");
-        let all_files = escape_backslash(&all_files);
-        let all_files = escape_apostrophe(&all_files);
-        let all_files = escape_symbs(&all_files);
+        to = format!("/{to}");
         let to = escape_backslash(&to);
         let to = escape_apostrophe(&to);
         let to = escape_symbs(&to);
@@ -163,7 +168,7 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
         let old = from_to.0[v].clone();
         /*if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
         else*/ { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
-        patch(Some(old), Some(new));
+        __patch(Some(old), Some(new));
     }
 }
 fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{

@@ -31,10 +31,13 @@ pub(crate) fn Ins_key() -> String{
     stop_term_msg();
     let mut prnt: String = crate::read_prnt();
     let path = crate::get_path_from_strn(crate::cpy_str(&prnt));
-    let mut file_indx = String::new();
+    let mut file_indx = String::new(); let empty = String::new();
     let spaces = crate::repeat_char(63, " ");
     println!(" \rPlease, enter indx of dir/file name to autocomplete: {}", spaces);
     io::stdin().read_line(&mut file_indx).expect("Ins_key failed to read console");
+    if file_indx.as_str().substring(0, 5) == "key::"{crate::switch_cmd_keys(&file_indx); return empty;}
+    #[cfg(feature="in_dbg")]
+    if file_indx.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&file_indx); return empty;}
     let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);
     let mut err_msg = "".to_string();
     let mut handle_err =|e: std::num::ParseIntError| -> i64 {err_msg = format!("{:?}", e); -1i64};

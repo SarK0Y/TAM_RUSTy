@@ -12,7 +12,8 @@ pub(crate) fn breaks(name: &str, id: u64, justRet: bool) -> (u64, bool){
 pub(crate) fn manage_breaks(cmd: &String){
     let cmd = cmd.replace("br:", "").trim_start_matches(' ').to_string();
     let (name, id) = crate::split_once(cmd.as_str(), "::");
-    let name = name.trim_end_matches(' ').to_string(); let id = id.trim_end_matches(' ').to_string();
+    let name = name.trim_end_matches(' ').trim_start_matches(' ').to_string(); let id = id.trim_end().trim_start().to_string();
+    println!("id: {id}");
     let id = crate::globs18::strn_2_u64(id).unwrap();
     breaks(&name, id, false);
 }
