@@ -1,4 +1,4 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data, checkArg, get_arg_in_cmd};
+use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data, checkArg, get_arg_in_cmd, stop_term_msg, free_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -132,6 +132,10 @@ impl ManageLists for basic{
 }
  fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String{
   if Key == ""{crate::set_ask_user("Hi there, Dear User. So good to C You again 💯❤️", -9147019413);}
+  #[cfg(feature="in_dbg")]
+  if self.read_file("ext_key_modes") == "y" || crate::breaks("ext key modes", 1, true).1 && crate::breaks("ext key modes", 1, true).0 == 1{
+    println!("break ext_key_modes");
+  }
   Key.push_str(&crate::getkey());
   if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
     if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}
@@ -148,8 +152,9 @@ impl ManageLists for basic{
         Some(val) => val,
         _ => 0
     };
-  if Key == "/"{self.to_shol(); return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
+  if Key == "/"{crate::key_slash(); self.to_shol(); return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
   if crate::kcode01::ENTER == ansiKey{
+    crate::pre_Enter();
     self.from_shol_no_dead_ends();
     return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes))}
   if Key != "<" && self.mk_shol_state > 0{self.mk_shol_state = 0; self.ext_old_modes.dontPass = false}
@@ -157,6 +162,8 @@ impl ManageLists for basic{
   //if Key == "@" && self.mk_shol_state == 2{self.mk_shol_state += 1; }
   if Key == "<" && self.mk_shol_state == 1{self.mk_shol_state += 1; }
   if Key == "<" && self.mk_shol_state == 0{self.mk_shol_state = 1; self.ext_old_modes.dontPass = true; }
+  let mut ret_tag = self.prevalidate_tag();
+  if ret_tag == Some("dontPass".to_string()){stop_term_msg(); }//return crate::hotKeys(&mut "dontPass".to_string(), &mut Some(&mut self.ext_old_modes))}
   if self.shol_state && Key == " "{
     self.shol_state = false;
     use crate::parse_replacing::parse_replace;

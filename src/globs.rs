@@ -44,7 +44,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -75,7 +75,7 @@ pub(crate) fn sieve_list(data: String){
     set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -188,28 +188,6 @@ pub(crate) fn F3_key() -> String{
     /*let user_wrote_path = user_wrote_path();
     rm_file(&user_wrote_path);*/
     set_user_written_path_from_strn(path.to_string());
-    prnt
-}
-pub(crate) fn Ins_key() -> String{
-    let mut prnt: String = read_prnt();
-    let path = get_path_from_strn(crate::cpy_str(&prnt));
-    let mut file_indx = String::new();
-    let spaces = repeat_char(63, " ");
-    println!(" \rPlease, enter indx of dir/file name to autocomplete: {}", spaces);
-    io::stdin().read_line(&mut file_indx).expect("Ins_key failed to read console");
-    let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);
-    let mut err_msg = "".to_string();
-    let mut handle_err =|e: std::num::ParseIntError| -> i64 {err_msg = format!("{:?}", e); -1i64};
-    let file_indx = match i64::from_str_radix(&file_indx, 10){
-        Ok(int) => int,
-        Err(e) => handle_err(e)
-    };
-    if file_indx == -1i64{set_ask_user(&err_msg, -1); return "none done".to_string();}
-    let mut file = get_item_from_front_list(file_indx, true);
-    let is_dir = crate::Path::new(&file).is_dir();
-    if is_dir {file.push('/');}
-    prnt = prnt.replace(&path, &file);
-    crate::set_prnt(&prnt, -1);
     prnt
 }
 pub(crate) fn Enter(){
@@ -415,6 +393,7 @@ pub fn len_of_front_list_wc() -> String{
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let last_pg = where_is_last_pg();
+    let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
         if last_pg < indx{
@@ -425,8 +404,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         return (i64_2_usize(indx), indx);
     }
     let mut fix_inputed_indx = indx;
-    if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
-    let indx = fix_inputed_indx;
+    if !unsafe {local_indx(false)} && fixed_indx == true {fix_inputed_indx += calc_num_files_up2_cur_pg(); indx = fix_inputed_indx;}
     let mut proper_indx: i64 = 0;
     let mut len: i64 = 0;
     if indx > 0{proper_indx = indx;}
@@ -622,3 +600,10 @@ pub(crate) fn seg_size() -> usize{
     }
     unsafe{seg_size}
 }
+pub(crate) fn check_char_in_strn(strn: &String, is_there_ch: char) -> String{
+    for ch in strn.chars(){
+        if ch == is_there_ch{return String::from(is_there_ch);}
+    }
+    "no".to_string()
+}
+//fn

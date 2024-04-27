@@ -7,8 +7,18 @@ pub trait parse_replace{
     fn to_shol(&mut self);
     fn from_shol(&mut self);
     fn from_shol_no_dead_ends(&mut self);
+    fn prevalidate_tag(&mut self) -> Option<String>;
 }
 impl parse_replace for crate::basic{
+    fn prevalidate_tag(&mut self) -> Option<String>{
+        use substring::Substring;
+    let mut prnt = crate::read_prnt();
+    if prnt.substring(0, 10) == "term mv %a"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 10) == "term cp %a"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 12) == "term mv %enu"{return Some("dontPass".to_string())}
+    if prnt.substring(0, 12) == "term cp %enu"{return Some("dontPass".to_string())}
+    None
+    }
     fn validate_tag(&mut self) -> Option<String>{
     let mut prnt = crate::read_prnt();
     let mut tag = self.get_rec_shol().0;
@@ -27,7 +37,7 @@ impl parse_replace for crate::basic{
         let msg = format!("Short link {tag0} is wrong");
         prnt = prnt.replace(&tag0, "");
         crate::set_prnt(&prnt, -48721112507);
-        crate::update18::fix_screen_count(1);
+       // crate::update18::fix_screen_count(1);
         return None;
     }
     let tag = crate::get_item_from_front_list(tag, true);
@@ -77,7 +87,7 @@ fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
    self.add_rec_to_shols(rec_shol);
     }
     fn to_shol(&mut self){
-        let mut prnt = read_prnt();
+        let mut prnt = crate::core18::raw_read_file("prnt");
         let prnt_len = prnt.chars().count();
         let mut shols_len = self.shols_len();
         if shols_len == 0 {return;}

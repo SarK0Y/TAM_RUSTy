@@ -541,6 +541,8 @@ for i in 1..args.len(){
 }
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let mut dir = fname.clone();
+    tailOFF(&mut dir, "/"); std::fs::create_dir(&dir);
     let cmd = format!("echo '{}' > {}", content, fname);
     run_cmd_str(cmd.as_str());
     true
@@ -553,7 +555,7 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return save_file_abs_adr0(content, fname)
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true
@@ -697,9 +699,30 @@ pub(crate) fn read_file(fname: &str) -> String{
     };
     let mut ret = String::new();
     file.read_to_string(&mut ret);
+    ret.trim_end().to_string()
+}
+pub(crate) fn raw_read_file(fname: &str) -> String{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(&fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
     ret
 }
 pub(crate) fn read_file_abs_adr(fname: &String) -> String{
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
+    ret.trim_end().to_string()
+}
+pub(crate) fn raw_read_file_abs_adr(fname: &String) -> String{
     //let err = format!("failed to read {}", fname);
     let mut file: File = match File::open(fname){
         Ok(f) => f,
@@ -1007,3 +1030,4 @@ pub(crate) fn is_dir2(path: &String) -> bool{
     if ret.len() == 2{return true}
     false
 }
+//fn
