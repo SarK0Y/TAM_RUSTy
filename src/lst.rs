@@ -46,8 +46,8 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
     if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
-        #[cfg(feature="in_dbg")]
-        popup_msg("insert in patch");
+#[cfg(feature="in_dbg")]
+       {println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
         crate::C!(patch.insert(old0, new0));
     } 
     if old != None && new == None{
@@ -58,7 +58,7 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
         }
     }
 #[cfg(feature="in_dbg")]
-{println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
+   if crate::breaks("show patch", 1, true).0 == 1 && crate::breaks("show patch", 1, true).1 {println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
 ret
 }
 pub(crate) fn rec_from_patch(key: String) -> Option<String>{
@@ -69,7 +69,7 @@ pub(crate) fn rec_from_patch(key: String) -> Option<String>{
 pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
-    let (all_files, to) = parse_paths(&cmd);
+    let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
@@ -77,27 +77,29 @@ pub(crate) fn term_mv(cmd: &String){
     let vec_files = strn_2_vec(&all_files, &nl);
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("mv {all_files} {finally_to}");    
+    let cmd = format!("mv {add_opts} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
-    let (all_files, to) = parse_paths(&cmd);
+    let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
     let vec_files = strn_2_vec(&all_files, &nl);
+    //#[cfg(feature="in_dbg")]
+    //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("cp {all_files} {finally_to}");    
+    let cmd = format!("cp {add_opts} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
     getkey();
 }
 
-fn parse_paths(cmd: &String) -> (String, String){
+fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
     let re = Regex::new(r"(?x)
                             (?<long_name_opt>--\w+\s)|
@@ -108,7 +110,7 @@ fn parse_paths(cmd: &String) -> (String, String){
     let mut add_opts = String::new();
     let delim = "🁶".to_string(); let mut to = String::new();
     let mut all_files = String::new();
-    let mut ret = (String::new(), String::new());
+    let mut ret = (String::new(), String::new(), String::new());
     if cmd.substring(0, 1) == "-"{
         let caps = re.captures_iter(&cmd);
         for ca in caps{
@@ -130,7 +132,7 @@ fn parse_paths(cmd: &String) -> (String, String){
         let to = escape_backslash(&to);
         let to = escape_apostrophe(&to);
         let to = escape_symbs(&to);
-        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
+        ret.0 = format!("{}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 4) == "%enu"{
         all_files = crate::raw_read_file("found_files");
@@ -142,7 +144,7 @@ fn parse_paths(cmd: &String) -> (String, String){
         let to = escape_backslash(&to);
         let to = escape_apostrophe(&to);
         let to = escape_symbs(&to);
-        ret.0 = format!("--backup=t {}{}", add_opts, all_files); ret.1 = to; return ret
+        ret.0 = format!("--backup=t {}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 1) == "/"{
         let cmd = cmd.replace("\\ ", ":@@:");
@@ -152,7 +154,7 @@ fn parse_paths(cmd: &String) -> (String, String){
         let to = escape_backslash(&to);
         let to = escape_apostrophe(&to);
         let to = escape_symbs(&to);
-        ret.0 = format!("{}{}", add_opts, all_files); ret.1 = to; return ret
+        ret.0 = format!("{}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     ret
 }
