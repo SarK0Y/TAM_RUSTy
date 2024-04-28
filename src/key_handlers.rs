@@ -36,6 +36,7 @@ pub(crate) fn Ins_key() -> String{
     println!(" \rPlease, enter indx of dir/file name to autocomplete: {}", spaces);
     io::stdin().read_line(&mut file_indx).expect("Ins_key failed to read console");
     if file_indx.as_str().substring(0, 5) == "key::"{crate::switch_cmd_keys(&file_indx); return empty;}
+    if file_indx.as_str().substring(0, 12) == "::prnt patch"{crate::prnt_patch(); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&file_indx); return empty;}
     let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);

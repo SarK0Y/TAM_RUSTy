@@ -43,6 +43,7 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     let mut old0 = old.clone().unwrap_or(empty.clone()); let mut new0 = new.clone().unwrap_or(empty);
     if old == Some("".to_string()){old = None} if new == Some("".to_string()){new = None}
     if old == Some("::clear patch::".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false, 0)}
+    if old == Some("::prnt patch::".to_string()){crate::C!(dbg!(&patch)); return ("".to_string(), "".to_string(), false, 0)}
     if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
     if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
@@ -178,3 +179,4 @@ fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{
     crate::C!(mode = msg.unwrap_or(crate::C!(mode.clone())));
     crate::C!(mode.clone())
 }
+pub(crate) fn prnt_patch(){ __patch(Some("::prnt patch::".to_string()), None); dont_scrn_fix(true); getkey();}
