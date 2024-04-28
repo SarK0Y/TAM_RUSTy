@@ -89,7 +89,8 @@ pub(crate) fn term_cp(cmd: &String){
     let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let vec_files = strn_2_vec(&all_files, &nl);
+    let mut vec_files = paths_2_vec(&all_files, &nl);
+    if vec_files.len() == 0{vec_files = paths_2_vec(&all_files, " ");}
     //#[cfg(feature="in_dbg")]
     //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
@@ -180,3 +181,18 @@ fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{
     crate::C!(mode.clone())
 }
 pub(crate) fn prnt_patch(){ __patch(Some("::prnt patch::".to_string()), None); dont_scrn_fix(true); getkey();}
+pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let mut paths = strn.to_string();
+    if delim == " "{
+        paths = strn.replace(r"\ ", ":@:");
+        loop {
+            let (path, paths) = split_once(&paths, " /");
+            let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
+            let path = path.replace(":@:", r"\ ");
+            ret.push(path);
+            if paths.len() == 0{break;}
+        }
+    } else {strn_2_vec(strn, delim);}
+    ret
+}
