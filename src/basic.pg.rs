@@ -106,7 +106,7 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
         Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_num); if key {
             let len = entry.get()[&seg_num].len(); if len <= offset {return failed;}
             if patch_len() > 0{
-               let rec = match rec_from_patch(entry.get()[&seg_num][offset].clone()){
+               let rec = match rec_from_patch(&entry.get()[&seg_num][offset].clone()){
                 Some(val) => val,
                 None => entry.get()[&seg_num][offset].clone()
                }; return  (rec, cached_data::all_ok);

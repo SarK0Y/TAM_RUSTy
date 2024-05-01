@@ -62,10 +62,10 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
    if crate::breaks("show patch", 1, true).0 == 1 && crate::breaks("show patch", 1, true).1 {println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
 ret
 }
-pub(crate) fn rec_from_patch(key: String) -> Option<String>{
-    let key = full_escape(&full_escape(&key));
+pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
+    let key = full_escape(&key);
     let ret = __patch(Some(key), None);
-    if ret.2 {return Some(ret.1);}
+    if ret.2 {return Some(format!("{}::patch",ret.1));}
     None
 }
 pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }

@@ -188,8 +188,13 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
         _ => return msg()
     };
     //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
-    let mut filename = crate::escape_backslash(&get_item_from_front_list(file_indx, true));
-    filename = escape_symbs(&filename);
+    let mut filename = get_item_from_front_list(file_indx, true);
+    let filename_len = filename.chars().count();
+    let patch_mark_len = "::patch".to_string().chars().count();
+    if filename_len > patch_mark_len && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"{
+    filename = filename.replace("::patch", "");
+    }else{crate::escape_backslash(&filename);
+    filename = escape_symbs(&filename);}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
     if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
