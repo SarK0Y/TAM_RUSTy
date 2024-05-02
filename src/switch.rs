@@ -20,7 +20,7 @@ use std::{
 };
 pub const SWTCH_RUN_VIEWER: i64 = 0;
 pub const SWTCH_USER_WRITING_PATH: i64 = 1;
-use crate::{core18::{errMsg, get_path_from_prnt, update_user_written_path}, ps18::{set_ask_user, get_full_path, get_num_page, get_num_files, page_struct_ret, init_page_struct, child2run}, globs18::{get_item_from_front_list, set_ls_as_front, FRONT_, F3_key, take_list_adr}, func_id18::{viewer_, mk_cmd_file_, where_is_last_pg_}, update18::update_dir_list, complete_path, pg18::form_cmd_line_default, get_prnt, position_of_slash_in_prnt, usize_2_i64, escape_symbs, read_rgx_from_prnt, split_once, cpy_str, raw_ren_file, read_file, mark_front_lst, save_file, path_exists, drop_ls_mode, tui_or_not, run_term_app, read_front_list_but_ls, set_front_list, set_full_path};
+use crate::{core18::{errMsg, get_path_from_prnt, update_user_written_path}, ps18::{set_ask_user, get_full_path, get_num_page, get_num_files, page_struct_ret, init_page_struct, child2run}, globs18::{get_item_from_front_list, set_ls_as_front, FRONT_, F3_key, take_list_adr}, func_id18::{viewer_, mk_cmd_file_, where_is_last_pg_}, update18::update_dir_list, complete_path, pg18::form_cmd_line_default, get_prnt, position_of_slash_in_prnt, usize_2_i64, escape_symbs, read_rgx_from_prnt, split_once, cpy_str, raw_ren_file, read_file, mark_front_lst, save_file, path_exists, drop_ls_mode, tui_or_not, run_term_app, read_front_list_but_ls, set_front_list, set_full_path, full_escape};
 pub(crate) unsafe fn check_mode(mode: &mut i64){
     static mut state: i64 = 0;
     if *mode == -1 {*mode = state;}
@@ -152,7 +152,12 @@ fn viewer_n_adr(app: String, file: String) -> bool{
         Ok(v) => v,
         _ => return msg()
     };
-    let mut file = escape_symbs(&file);
+    let filename_len = file.chars().count();
+    let mut file = file;
+    let patch_mark_len = "::patch".to_string().chars().count();
+    if filename_len > patch_mark_len && file.substring(filename_len - patch_mark_len, filename_len) == "::patch"{
+    file = file.replace("::patch", "");
+    }else{file = full_escape(&file);}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
@@ -193,8 +198,7 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
     let patch_mark_len = "::patch".to_string().chars().count();
     if filename_len > patch_mark_len && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"{
     filename = filename.replace("::patch", "");
-    }else{crate::escape_backslash(&filename);
-    filename = escape_symbs(&filename);}
+    }else{filename = full_escape(&filename);}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
     if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
