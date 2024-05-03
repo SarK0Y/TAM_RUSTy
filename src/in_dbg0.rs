@@ -30,8 +30,8 @@ pub(crate) fn report(msg: &String, mark: &str){
     if unsafe{mark.is_empty()} {
         let len = {crate::C!(msgs.len())}; 
         for v in 0..len{
-            if unsafe{msgs[v].substring(0, mark.len())} == msg{
-                println!("{msg}")
+            if unsafe{msgs[v].substring(0, mark.len())} == mark{
+                println!("{}", crate::C!(msgs[v].clone()))
             }
         } crate::dont_scrn_fix(true); crate::getkey(); 
     } unsafe{msgs.push(format!("{mark}: {msg}"))};
