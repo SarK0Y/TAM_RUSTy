@@ -186,6 +186,8 @@ pub(crate) fn prnt_patch(){ __patch(Some("::prnt patch::".to_string()), None); d
 pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut ret = Vec::<String>::new();
     let mut paths = strn.to_string();
+#[cfg(feature="in_dbg")]
+    if crate::breaks("paths 2 vec", 1, true).1 && crate::breaks("paths 2 vec", 1, true).0 == 1{crate::report(&paths, "paths 2 vec");}
     if delim == " "{
         paths = strn.replace(r"\ ", ":@:");
         loop {

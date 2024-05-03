@@ -25,4 +25,15 @@ pub(crate) fn manage_breaks(cmd: &String){
 pub(crate) fn just_break(){
     println!("Just break")
 }
+pub(crate) fn report(msg: &String, mark: &str){
+    static mut msgs: Lazy<Vec<String>> = Lazy::new( ||{ Vec::new() } );
+    if unsafe{mark.is_empty()} {
+        let len = {crate::C!(msgs.len())}; 
+        for v in 0..len{
+            if unsafe{msgs[v].substring(0, mark.len())} == msg{
+                println!("{msg}")
+            }
+        } crate::dont_scrn_fix(true); crate::getkey(); 
+    } unsafe{msgs.push(format!("{mark}: {msg}"))};
+}
 // fn
