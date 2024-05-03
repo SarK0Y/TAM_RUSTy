@@ -33,7 +33,7 @@ pub(crate) fn report(msg: &String, mark: &str){
             if unsafe{msgs[v].substring(0, mark.len())} == mark{
                 println!("{}", crate::C!(msgs[v].clone()))
             }
-        } crate::dont_scrn_fix(true); crate::getkey(); 
+        } crate::dont_scrn_fix(true); crate::getkey(); return
     } unsafe{msgs.push(format!("{mark}: {msg}"))};
 }
 // fn

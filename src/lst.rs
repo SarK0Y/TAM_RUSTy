@@ -91,8 +91,8 @@ pub(crate) fn term_cp(cmd: &String){
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
     let mut vec_files = paths_2_vec(&all_files, &nl);
-    if vec_files.len() == 1{vec_files = paths_2_vec(&all_files, "\n");}
-    if vec_files.len() == 1{vec_files = paths_2_vec(&all_files, " ");}
+    //if vec_files.len() == 1{popup_msg("vec files0");vec_files = paths_2_vec(&all_files, "\n");}
+    //if vec_files.len() == 1{popup_msg("vec files");vec_files = paths_2_vec(&all_files, " ");}
     //#[cfg(feature="in_dbg")]
     //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
@@ -188,16 +188,22 @@ pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut paths = strn.to_string();
 #[cfg(feature="in_dbg")]
     if crate::breaks("paths 2 vec", 1, true).1 && crate::breaks("paths 2 vec", 1, true).0 == 1{crate::report(&paths, "paths 2 vec");}
-    if delim == " "{
+    //if delim == " "{
         paths = strn.replace(r"\ ", ":@:");
         loop {
             let (path, paths) = split_once(&paths, " /");
+            let paths = paths.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+            if path == "" && paths.substring(0, 1) == "/"{ret.push(paths); return ret;}
             let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
-            let path = path.replace(":@:", r"\ ");
-            ret.push(path.trim_end().trim_start().to_string());
+            let path = path.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+#[cfg(feature="in_dbg")]
+    let path121 = path.clone();
+            ret.push(path);
+#[cfg(feature="in_dbg")]
+    if crate::breaks("paths 2 vec0", 1, true).1 && crate::breaks("paths 2 vec0", 1, true).0 == 1{crate::report(&path121, "paths 2 vec0");}
             if paths.len() == 0{break;}
         }
-    } else {strn_2_vec(strn, delim);}
+  //  } else {strn_2_vec(strn, delim);}
     if ret.len() == 0{return strn_2_vec(strn, delim);}
     ret
 }
