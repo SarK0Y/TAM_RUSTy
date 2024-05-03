@@ -66,17 +66,13 @@ pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
 }
 pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }
 pub(crate) fn term_mv(cmd: &String){
-    let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
+    let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
     let mut vec_files = paths_2_vec(&all_files, &nl);
-    if vec_files.len() == 1{vec_files = paths_2_vec(&all_files, "\n");}
-    if vec_files.len() == 1{vec_files = paths_2_vec(&all_files, " ");}
-    //#[cfg(feature="in_dbg")]
-    //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("mv {add_opts} {all_files} {finally_to}");    
@@ -91,10 +87,6 @@ pub(crate) fn term_cp(cmd: &String){
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
     let mut vec_files = paths_2_vec(&all_files, &nl);
-    //if vec_files.len() == 1{popup_msg("vec files0");vec_files = paths_2_vec(&all_files, "\n");}
-    //if vec_files.len() == 1{popup_msg("vec files");vec_files = paths_2_vec(&all_files, " ");}
-    //#[cfg(feature="in_dbg")]
-    //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("cp {add_opts} {all_files} {finally_to}");    
