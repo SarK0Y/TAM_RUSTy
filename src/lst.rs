@@ -188,14 +188,13 @@ pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut paths = strn.to_string();
 #[cfg(feature="in_dbg")]
     if crate::breaks("paths 2 vec", 1, true).1 && crate::breaks("paths 2 vec", 1, true).0 == 1{crate::report(&paths, "paths 2 vec");}
-    //if delim == " "{
-        paths = strn.replace(r"\ ", ":@:");
-        loop {
-            let (path, paths) = split_once(&paths, " /");
-            let paths = paths.replace(":@:", r"\ ").trim_end().trim_start().to_string();
-            if path == "" && paths.substring(0, 1) == "/"{ret.push(paths); return ret;}
-            let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
-            let path = path.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+    paths = strn.replace(r"\ ", ":@:");
+    loop {
+        let (path, paths) = split_once(&paths, " /");
+        let paths = paths.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+        if path == "" && paths.substring(0, 1) == "/"{ret.push(paths); return ret;}
+        let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
+        let path = path.replace(":@:", r"\ ").trim_end().trim_start().to_string();
 #[cfg(feature="in_dbg")]
     let path121 = path.clone();
             ret.push(path);
@@ -203,7 +202,6 @@ pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     if crate::breaks("paths 2 vec0", 1, true).1 && crate::breaks("paths 2 vec0", 1, true).0 == 1{crate::report(&path121, "paths 2 vec0");}
             if paths.len() == 0{break;}
         }
-  //  } else {strn_2_vec(strn, delim);}
     if ret.len() == 0{return strn_2_vec(strn, delim);}
     ret
 }
