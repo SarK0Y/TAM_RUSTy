@@ -111,9 +111,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     let mut cmd = String::new();
     let ext_is_alive = if Some(&ext) == None{false}else{true};
     if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
-    else{
-        ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits();
-    }
+    else{ ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits(); if ext.as_mut().unwrap().as_mut().drop_dontPass_after_n_hotKeys > 0{return "dontPass".to_string(); }}
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::globs18::F1_key();
     } 
