@@ -22,4 +22,18 @@ pub(crate) fn manage_breaks(cmd: &String){
     let id = crate::globs18::strn_2_u64(id).unwrap();
     breaks(&name, id, false);
 }
+pub(crate) fn just_break(){
+    println!("Just break")
+}
+pub(crate) fn report(msg: &String, mark: &str){
+    static mut msgs: Lazy<Vec<String>> = Lazy::new( ||{ Vec::new() } );
+    if unsafe{mark.is_empty()} {
+        let len = {crate::C!(msgs.len())}; 
+        for v in 0..len{
+            if unsafe{msgs[v].substring(0, mark.len())} == mark{
+                println!("{}", crate::C!(msgs[v].clone()))
+            }
+        } crate::dont_scrn_fix(true); crate::getkey(); return
+    } unsafe{msgs.push(format!("{mark}: {msg}"))};
+}
 // fn

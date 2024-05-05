@@ -70,7 +70,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         };
         let reader = crate::BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {
-        if indx == get_indx{return (line.unwrap(), indx + base_indx);}
+        if indx == get_indx{let ret = String::from(&line.unwrap()); let ret = crate::rec_from_patch(&ret).unwrap_or(ret); return (ret, indx + base_indx);}
         len = indx;
     }
     return ("no str gotten".to_string(), len);

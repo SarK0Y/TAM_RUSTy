@@ -38,7 +38,11 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 5) == "key::"{crate::switch_cmd_keys(&file_indx); return empty;}
     if file_indx.as_str().substring(0, 12) == "::prnt patch"{crate::prnt_patch(); return empty;}
     #[cfg(feature="in_dbg")]
+    if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
+    #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&file_indx); return empty;}
+    #[cfg(feature="in_dbg")]
+    if file_indx.as_str().substring(0, 4) == "::br"{crate::just_break(); return empty;}
     let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);
     let mut err_msg = "".to_string();
     let mut handle_err =|e: std::num::ParseIntError| -> i64 {err_msg = format!("{:?}", e); -1i64};

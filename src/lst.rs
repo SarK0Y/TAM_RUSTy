@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -27,7 +27,7 @@ pub(crate) fn strn_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let delim = delim.chars().nth(0);
     let mut item = String::new();
     for ch in strn.chars(){
-        if Some(ch) == delim{ret.push(item.clone()); item.clear()}
+        if Some(ch) == delim{ret.push(item.trim_end().trim_start().to_string()); item.clear()}
         item.push(ch)
     }
     ret
@@ -47,8 +47,6 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
     if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
-#[cfg(feature="in_dbg")]
-       {println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
         crate::C!(patch.insert(old0, new0));
     } 
     if old != None && new == None{
@@ -58,13 +56,12 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
             _ => {}
         }
     }
-#[cfg(feature="in_dbg")]
-   if crate::breaks("show patch", 1, true).0 == 1 && crate::breaks("show patch", 1, true).1 {println!("{:?}", crate::C!(patch.clone())); dont_scrn_fix(false); getkey();}
 ret
 }
-pub(crate) fn rec_from_patch(key: String) -> Option<String>{
+pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
+    let key = full_escape(&key);
     let ret = __patch(Some(key), None);
-    if ret.2 {return Some(ret.1);}
+    if ret.2 {return Some(format!("{}::patch",ret.1));}
     None
 }
 pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }
@@ -75,7 +72,7 @@ pub(crate) fn term_mv(cmd: &String){
     let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let vec_files = strn_2_vec(&all_files, &nl);
+    let mut vec_files = paths_2_vec(&all_files, &nl);
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("mv {add_opts} {all_files} {finally_to}");    
@@ -90,15 +87,11 @@ pub(crate) fn term_cp(cmd: &String){
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
     let mut vec_files = paths_2_vec(&all_files, &nl);
-    if vec_files.len() == 0{vec_files = paths_2_vec(&all_files, " ");}
-    //#[cfg(feature="in_dbg")]
-    //{dbg!(vec_files.clone()); getkey();}
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let cmd = format!("cp {add_opts} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
-    getkey();
 }
 
 fn parse_paths(cmd: &String) -> (String, String, String){
@@ -169,9 +162,10 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
     let mut count = 0u64;
     let len = from_to.0.len();
     for v in 0..len{
-        let old = from_to.0[v].clone();
+        let mut old = from_to.0[v].clone();
         /*if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
         else*/ { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
+        old = old.replace(r"\\", r"\"); new = new.replace(r"\\", r"\");
         __patch(Some(old), Some(new));
     }
 }
@@ -184,15 +178,22 @@ pub(crate) fn prnt_patch(){ __patch(Some("::prnt patch::".to_string()), None); d
 pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     let mut ret = Vec::<String>::new();
     let mut paths = strn.to_string();
-    if delim == " "{
-        paths = strn.replace(r"\ ", ":@:");
-        loop {
-            let (path, paths) = split_once(&paths, " /");
-            let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
-            let path = path.replace(":@:", r"\ ");
+#[cfg(feature="in_dbg")]
+    if crate::breaks("paths 2 vec", 1, true).1 && crate::breaks("paths 2 vec", 1, true).0 == 1{crate::report(&paths, "paths 2 vec");}
+    paths = strn.replace(r"\ ", ":@:");
+    loop {
+        let (path, paths) = split_once(&paths, " /");
+        let paths = paths.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+        if path == "" && paths.substring(0, 1) == "/"{ret.push(paths); return ret;}
+        let path = if path.substring(0, 1) == "/"{path}else {format!("/{path}")};
+        let path = path.replace(":@:", r"\ ").trim_end().trim_start().to_string();
+#[cfg(feature="in_dbg")]
+    let path121 = path.clone();
             ret.push(path);
+#[cfg(feature="in_dbg")]
+    if crate::breaks("paths 2 vec0", 1, true).1 && crate::breaks("paths 2 vec0", 1, true).0 == 1{crate::report(&path121, "paths 2 vec0");}
             if paths.len() == 0{break;}
         }
-    } else {strn_2_vec(strn, delim);}
+    if ret.len() == 0{return strn_2_vec(strn, delim);}
     ret
 }
