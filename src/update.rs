@@ -10,6 +10,8 @@ pub(crate) fn main_update(){
         if  crate::checkArg("-path"){path = get_arg_in_cmd("-path").s.iter().collect(); no_path = false;}
         if  crate::checkArg("-path0"){path = get_arg_in_cmd("-path0").s.iter().collect(); no_path = false;}
         if no_path {panic!("No path was provided: set flag '-path' or '-path0");}
+        let w_id = instance_num(); let id_suffix = id_suffix();
+        let w_title = format!("{w_id}")
         if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-rows").s).as_str(), 10).expect(
             "set number of rows as an integer: '-rows 9'"
         ); crate::set_num_rows(val, func_id);}
