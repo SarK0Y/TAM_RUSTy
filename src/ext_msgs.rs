@@ -1,6 +1,4 @@
-#[derive(Default)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Default, Clone, PartialEq)]
 pub struct _ext_msgs{
     pub new_mode: bool,
     pub dontPass: bool,

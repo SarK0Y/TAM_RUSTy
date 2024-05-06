@@ -87,7 +87,7 @@ fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
    self.add_rec_to_shols(rec_shol);
     }
     fn to_shol(&mut self){
-        let mut prnt = read_prnt();
+        let mut prnt = crate::core18::raw_read_file("prnt");
         let prnt_len = prnt.chars().count();
         let mut shols_len = self.shols_len();
         if shols_len == 0 {return;}

@@ -239,6 +239,11 @@ pub(crate) fn escape_apostrophe(str0: &String) -> String{
 pub(crate) fn escape_backslash(str0: &String) -> String{
     return str0.as_str().replace("\\", r"\\");;
 }
+pub(crate) fn full_escape(str0: &String) -> String{
+    let str0 = escape_backslash(str0);
+    let str0 = escape_apostrophe(&str0);
+    escape_symbs(&str0)
+}
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
     crate::set_prnt("", func_id);
@@ -555,7 +560,7 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return save_file_abs_adr0(content, fname)
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true
@@ -1030,3 +1035,4 @@ pub(crate) fn is_dir2(path: &String) -> bool{
     if ret.len() == 2{return true}
     false
 }
+//fn
