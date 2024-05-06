@@ -239,6 +239,11 @@ pub(crate) fn escape_apostrophe(str0: &String) -> String{
 pub(crate) fn escape_backslash(str0: &String) -> String{
     return str0.as_str().replace("\\", r"\\");;
 }
+pub(crate) fn full_escape(str0: &String) -> String{
+    let str0 = escape_backslash(str0);
+    let str0 = escape_apostrophe(&str0);
+    escape_symbs(&str0)
+}
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, func_id)};
     crate::set_prnt("", func_id);

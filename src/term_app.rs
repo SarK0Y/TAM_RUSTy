@@ -115,7 +115,7 @@ pub(crate) fn term(cmd: &String){
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-    run_term_app(cmd);
+    run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
 }
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){

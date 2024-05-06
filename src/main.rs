@@ -291,7 +291,7 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
-    dont_clean_bash(false);
+    if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); return;}
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
    initSession();
    if checkArg("-rilocan"){rilocan(); return;}
