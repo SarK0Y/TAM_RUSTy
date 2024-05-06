@@ -24,21 +24,7 @@ my the Best Wishes to You 🙃
 ";
 const donate: &str = "Donations: https://boosty.to/alg0z/donate";
 pub(crate) fn info(){
-    use crossterm::{execute, terminal::{ScrollUp, SetTitle, size}};
-
-    use console::Term; 
-    Term::set_title(&Term::stdout(),"TAM RUSTy");
-    execute!(std::io::stdout(), SetTitle("TAM RUSTy"));
-    let consoleTitle: &str = "#!/bin/bash\necho -ne '\\033]30;TAM RUSTy\\007'";
-    let consoleTitle1: &str = "echo -ne '\033]30;TAM RUSTy\007'";
-    let consoleTitle0: &str = "\\033]30;TAM RUSTy\\007";
-    let mut writeIn_stdin = unsafe {crate::File::from_raw_fd(0/*stdin*/)};
-    //writeIn_stdin.write(consoleTitle1.as_bytes());
-    //std::io::stdout().write_all(consoleTitle0.as_bytes());
-    //print!("{}", consoleTitle0);
-    //run_cmd_str(consoleTitle);
-    let writeTermTitle = Command::new("python3").arg("-c").arg("import os; os.system('echo -ne \"\\033]30;TAM RUSTy\\007\"')").stderr(std::process::Stdio::piped()).stdout(std::process::Stdio::piped()).output();
-    std::io::stdout().write_all(&writeTermTitle.unwrap().stdout);
+    KonsoleTitle(&"TAM RUSTy".to_string());
     clear_screen();
   // println!("{}", crate::from_utf8(&tst.unwrap().stdout).unwrap());
 banners_line(Project, "◑"); println!("");
@@ -99,4 +85,12 @@ pub(crate) fn banner(delay: u64){
          banners_line("© SarK0Y 2023-2024", "∞");
          std::thread::sleep(std::time::Duration::from_millis(delay));
     }
+}
+pub(crate) fn KonsoleTitle(title: &String){
+    use console::Term; 
+    Term::set_title(&Term::stdout(), title);
+    let title = format!("import os; os.system('echo \"\\033]30;{}\\007\"')", title);
+    let writeTermTitle = Command::new("python3").arg("-c").arg(title).stderr(std::process::Stdio::piped()).stdout(std::process::Stdio::piped())
+    .output();
+    std::io::stdout().write_all(&writeTermTitle.unwrap().stdout);
 }
