@@ -57,6 +57,7 @@ pub(crate) fn rilocan(){
 
     }
 pub(crate) fn u64_from_strn(strn: &String) -> (u64, bool){
+    let strn = strn.trim_start().trim_end();
     match u64::from_str_radix(&strn, 10){
         Ok(u) => (u, true),
         _ => return (0, false)

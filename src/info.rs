@@ -1,12 +1,14 @@
-use crate::{repeat_char, run_cmd_out_sync, clear_screen};
+use crate::{repeat_char, run_cmd_out_sync, clear_screen, run_cmd_str};
+use std::io::Write; use std::os::fd::FromRawFd;
+use std::process::Command;
 
 pub(crate) fn SYS(){
-    println!("Have a nice day, DEAR USER\nSee You Soon", );
+    println!("\nHave a nice day, DEAR USER\nSee You Soon 🙃", );
     std::process::exit(0)
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";
 const Project: &str = "Project: Tiny Automation Manager.";
-const Ver: &str = "Ver: 1.9.84";
+const Ver: &str = "Ver: 1.9.85";
 const Telega: &str = "TELEGRAM: https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z)";
 const Ru_blog: &str = "ALG0Z RU: https://dzen.ru/alg0z";
 const En_blog: &str = "ALG0Z EN: https://alg0z.blogspot.com";
@@ -22,9 +24,9 @@ my the Best Wishes to You 🙃
 ";
 const donate: &str = "Donations: https://boosty.to/alg0z/donate";
 pub(crate) fn info(){
-    use console::Term;
+    KonsoleTitle(&"TAM RUSTy".to_string());
     clear_screen();
-    Term::set_title(&Term::stdout(),"TAM RUSTy");
+  // println!("{}", crate::from_utf8(&tst.unwrap().stdout).unwrap());
 banners_line(Project, "◑"); println!("");
 banners_line(Ver, "◑"); println!("");
 banners_line(Telega, "◑"); println!("");
@@ -83,4 +85,12 @@ pub(crate) fn banner(delay: u64){
          banners_line("© SarK0Y 2023-2024", "∞");
          std::thread::sleep(std::time::Duration::from_millis(delay));
     }
+}
+pub(crate) fn KonsoleTitle(title: &String){
+    use console::Term; 
+    Term::set_title(&Term::stdout(), title);
+    let title = format!("import os; os.system('echo \"\\033]30;{}\\007\"')", title);
+    let writeTermTitle = Command::new("python3").arg("-c").arg(title).stderr(std::process::Stdio::piped()).stdout(std::process::Stdio::piped())
+    .output();
+    std::io::stdout().write_all(&writeTermTitle.unwrap().stdout);
 }
