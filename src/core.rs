@@ -18,6 +18,15 @@ pub(crate) fn bkp_tmp_dir() -> String{
   }
   crate::C!(bkp.get().expect("bkp_tmp_dir failed").to_string())
 }
+pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
+    static mut tam: OnceCell<String> = OnceCell::new();
+  if crate::C!(tam.get()) == None && set_dir.is_some(){
+    let ret = set_dir.unwrap();
+    crate::C!(tam.set(ret.clone()));
+    return ret;
+  }
+  crate::C!(tam.get().expect("shm_tmp_dir failed").to_string())
+}
 pub(crate) fn up_front_list(){
     let list = read_front_list();
     let tmp_dir = get_tmp_dir(-1595741);
@@ -96,6 +105,11 @@ while true{
     if Path::new("/var/shm").exists(){path_2_shm = "/var/shm"; break;}
     panic!("no way for shared memory: device /dev/shm and its analogs don't exist or maybe Your system ain't common Linux");
 }
+let globalTAM = format!("{path_2_shm}/TAM");
+Command::new("mkdir").arg("-p").arg(&globalTAM).output().expect(&"Sorry, Failed to create shared TAM dir.".bold().red());
+let globalTAMdot = format!("{path_2_shm}/TAM/.");
+Command::new("chmod").arg("700").arg(&globalTAMdot).output().expect(&"Sorry, Failed to gain full access to shared TAM dir.".bold().red());
+shm_tam_dir(Some(globalTAM));
 let path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
 let err_msg = format!("{} wasn't created", path_2_found_files_list);
 let run_shell1 = Command::new("mkdir").arg("-p").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
@@ -719,13 +733,18 @@ pub(crate) fn raw_read_file(fname: &str) -> String{
 }
 pub(crate) fn read_file_abs_adr(fname: &String) -> String{
     //let err = format!("failed to read {}", fname);
-    let mut file: File = match File::open(fname){
+    let path = Path::new(fname);
+    let mut file: File = match File::open(&path){
         Ok(f) => f,
         Err(e) => return "".to_string()//format!("{:?}", e)
     };
     let mut ret = String::new();
     file.read_to_string(&mut ret);
     ret.trim_end().to_string()
+}
+pub(crate) fn read_file_abs_adr0(fname: &String) -> String{
+    let cmd = format!("cat {fname}");
+    run_cmd_out(cmd)
 }
 pub(crate) fn raw_read_file_abs_adr(fname: &String) -> String{
     //let err = format!("failed to read {}", fname);
