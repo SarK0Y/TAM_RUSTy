@@ -175,7 +175,7 @@ impl ManageLists for basic{
     let shol = format!("{}/shol", self.tmp_dir);
     crate::save_file_append_abs_adr(Key.to_string(), shol);
     self.rec_shol.0.push_str(Key.as_str());
-    self.ext_old_modes.drop_dontPass_after_n_hotKeys = 2; self.ext_old_modes.dontPass = true;
+    /*self.ext_old_modes.drop_dontPass_after_n_hotKeys = 1;*/ self.ext_old_modes.dontPass = true;
     return crate::hotKeys(Key, &mut Some(&mut self.ext_old_modes));
   }
   if Key == "#" || Key == "@"{
