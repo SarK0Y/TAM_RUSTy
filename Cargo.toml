@@ -5,6 +5,8 @@ edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
+repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
+description = "Automation tool to make Console/Terminal more comfy."
 crate_type = ["staticlib"]
 [dependencies]
 cli-table = "0.4.7"
