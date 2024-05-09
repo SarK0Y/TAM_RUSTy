@@ -7,7 +7,7 @@ globs18::{ins_last_char_to_string1_from_string1,
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -132,6 +132,10 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     }
     if crate::globs18::eq_ansi_str(&kcode::Alt_l, Key.as_str()) == 0 {
        show_ls();
+        return "dontPass".to_string();
+    }
+    if crate::globs18::eq_ansi_str(&kcode::Alt_2, Key.as_str()) == 0 {
+       swtch_tam_konsole();
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {

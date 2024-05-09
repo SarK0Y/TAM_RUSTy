@@ -1,10 +1,12 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.83"
+version = "1.9.85"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
+repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
+description = "Automation tool to make Console/Terminal more comfy."
 crate_type = ["staticlib"]
 [dependencies]
 cli-table = "0.4.7"
@@ -22,9 +24,10 @@ termion = "3.0.0"
 ansi_term = "0.12.1"
 os_pipe = "1.1.5"
 console = "0.15.6"
-#if_chain = "1.0.2"
+ctrlc = "1.0.2"
 #gag = "1.0.0"
 terminal_size = "0.3.0"
+crossterm="0.27.0"
 regex = "=1.10.3"
 #rustix = "0.38.28"
 #cached = "0.48.0"

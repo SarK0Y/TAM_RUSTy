@@ -1,3 +1,9 @@
+/* example
+#[cfg(feature="in_dbg")]
+    if crate::breaks("break patch", 1, true).0 == 1 && crate::breaks("break patch", 1, true).1{
+        println!("break patch 1")
+    }
+ */
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use once_cell::sync::Lazy; use substring::Substring;

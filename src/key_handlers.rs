@@ -1,4 +1,4 @@
-use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::take_list_adr, read_file_abs_adr, errMsg0, stop_term_msg};
+use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0};
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
     let front_list = read_front_list();
@@ -58,3 +58,8 @@ pub(crate) fn Ins_key() -> String{
     crate::set_prnt(&prnt, -1);
     prnt
 }
+pub(crate) fn swtch_tam_konsole(){
+    let id_suffix = id_suffix(); let cmd = format!("krunner '{id_suffix}'");
+    run_cmd0(cmd);
+}
+//fn
