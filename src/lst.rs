@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -89,13 +89,16 @@ pub(crate) fn term_cp(cmd: &String){
     let mut vec_files = paths_2_vec(&all_files, &nl);
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("cp {add_opts} {all_files} {finally_to}");    
+    let dummy_file = mk_dummy_file();
+    ending("cp");
+    let cmd = format!("cp {add_opts} {dummy_file} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
 
 fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
+    if match cmd.chars().nth(cmd.len() -1){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
     let re = Regex::new(r"(?x)
                             (?<long_name_opt>--\w+\s)|
                             (?<short_name_opt>-\w+\s)
