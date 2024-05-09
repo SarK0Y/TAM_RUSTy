@@ -4,12 +4,14 @@ use std::thread::Builder;
 use std::os::fd::AsRawFd;
 use std::io::BufRead;
 use std::io::prelude::*;
+use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
+use once_cell::sync::Lazy;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app(cmd: String) -> bool{
@@ -27,7 +29,9 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("clear;reset;{cmd} 2>&1");
+taken_term_msg();
+let adr_of_term_msg = adr_term_msg();
+let cmd = format!("clear;reset;{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -42,13 +46,23 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
     .spawn()
     .expect("can't run command in run_term_app");
 
- std::thread::spawn(move|| {
+let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
-run_command.wait();
-//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
-}).join();
+   let mut op_status = false;
+   while getkey().to_lowercase() != "k" {
+    if read_term_msg() == "free" {op_status = true; break;}
+       println!("press k or K")
+   }
+  if !op_status{println!("Operation aborted")};
+run_command.kill();
+//unsafe{libc::kill(g, SIGKILL)}
+kill_proc_w_pid(&get_pid_by_dummy(&ending("")), "-9")
+});
+while read_term_msg() != "free" {
+    std::thread::sleep(std::time::Duration::from_millis(150));
+}
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 true
@@ -176,3 +190,26 @@ pub(crate) fn taken_term_msg(){
 pub(crate) fn read_term_msg() -> String{
     read_file("msgs/term/state")
 }
+pub(crate) fn adr_term_msg() -> String{
+    take_list_adr("msgs/term/state")
+}
+pub(crate) fn mk_dummy_file() -> String{
+    save_file0("".to_string(), "msgs/term/dummy_file_4_id".to_string());
+    take_list_adr("msgs/term/dummy_file_4_id")
+}
+pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
+    let dummy = mk_dummy_file();
+    let cmd = format!("ps -eo pid,args|grep '{dummy}'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
+#[cfg(feature="in_dbg")]
+{ crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
+    run_cmd_out_sync(cmd)
+}
+pub(crate) fn kill_proc_w_pid(pid: &String, sig: &str){
+    run_cmd_out_sync(format!("kill {sig} {pid}"));
+}
+pub(crate) fn ending(sav: &str) -> String{
+    static mut save: Lazy<String> = Lazy::new(||{String::new()});
+    if sav != ""{unsafe {save.clear(); save.push_str(sav);}}
+    unsafe{let ret: String = save.to_string(); ret}
+}
+//fn
