@@ -231,6 +231,7 @@ pub(crate) struct ret0 {
    pub res: bool
 }
 pub(crate) fn escape_symbs(str0: &String) -> String{
+    if check_patch_mark(str0){return str0.to_string();}
     let  strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -248,9 +249,11 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
+    if check_patch_mark(str0){return str0.to_string();}
     return str0.as_str().replace("'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
+    if check_patch_mark(str0){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
