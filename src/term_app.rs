@@ -51,18 +51,16 @@ let abort = std::thread::spawn(move|| {
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
    let mut op_status = false;
+   println!("press Enter");
    while getkey().to_lowercase() != "k" {
     if read_term_msg() == "free" {op_status = true; break;}
-       println!("press k or K")
+       println!("press k or K to abort operation")
    }
   if !op_status{println!("Operation aborted")};
 run_command.kill();
 //unsafe{libc::kill(g, SIGKILL)}
 kill_proc_w_pid(&get_pid_by_dummy(&ending("")), "-9")
-});
-while read_term_msg() != "free" {
-    std::thread::sleep(std::time::Duration::from_millis(150));
-}
+}); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 true

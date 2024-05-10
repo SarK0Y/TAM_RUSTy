@@ -69,13 +69,15 @@ pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
-    let alt_nl = char::from_u32(0x0a).unwrap();
+   /*/ let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
-    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let mut vec_files = paths_2_vec(&all_files, &nl);
+    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("mv {add_opts} {all_files} {finally_to}");    
+    let dummy_file = mk_dummy_file();
+    ending("mv");
+    let cmd = format!("mv {add_opts} {dummy_file} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
@@ -83,10 +85,7 @@ pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
-    let alt_nl = char::from_u32(0x0a).unwrap();
-    let nl = String::from(alt_nl);
-    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let mut vec_files = paths_2_vec(&all_files, &nl);
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
     let all_files = reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
@@ -200,3 +199,25 @@ pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     if ret.len() == 0{return strn_2_vec(strn, delim);}
     ret
 }
+pub(crate) fn lines_2_vec(strn: &String) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let mut paths = strn.to_string();
+    let lines = paths.lines();
+    for line in lines{
+        ret.push(line.trim_end().trim_start().to_string())
+    }
+    ret
+}
+pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let mut paths = strn.to_string();
+    let lines = paths.lines();
+    for line in lines{
+        let line = line.trim_end().trim_start().to_string();
+        let last = if line.chars().count() > 0{line.chars().count() -1}else {continue;};
+        if line.chars().nth(last).unwrap().to_string() == "/" {continue;}
+        ret.push(line)
+    }
+    ret
+}
+//fn
