@@ -330,7 +330,7 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
     let stdin_fd = 0;
     let mut stdout = io::stdout(); 
     let mut stdin_buf: [u8; 6] =[0;6];
-    let termios = Termios::from_fd(stdin_fd).unwrap();
+    let termios = match Termios::from_fd(stdin_fd){Ok(t) => t, _ => return "".to_string()};
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap(); 
     new_termios.c_lflag &= !(ICANON | ECHO); 

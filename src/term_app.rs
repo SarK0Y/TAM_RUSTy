@@ -1,9 +1,6 @@
 use std::process::Command;
-use std::io::{Write, Read};
-use std::thread::Builder;
-use std::os::fd::AsRawFd;
-use std::io::BufRead;
-use std::io::prelude::*;
+use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
+use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
 use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
@@ -51,18 +48,19 @@ let abort = std::thread::spawn(move|| {
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
    let mut op_status = false;
+   println!("press Enter");
+    let enter: [u8; 1] = [13; 1];
+    //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
+   // writeIn_stdin.write(&enter);
    while getkey().to_lowercase() != "k" {
     if read_term_msg() == "free" {op_status = true; break;}
-       println!("press k or K")
+       println!("press k or K to abort operation")
    }
   if !op_status{println!("Operation aborted")};
 run_command.kill();
 //unsafe{libc::kill(g, SIGKILL)}
 kill_proc_w_pid(&get_pid_by_dummy(&ending("")), "-9")
-});
-while read_term_msg() != "free" {
-    std::thread::sleep(std::time::Duration::from_millis(150));
-}
+}); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 true
@@ -199,7 +197,9 @@ pub(crate) fn mk_dummy_file() -> String{
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();
-    let cmd = format!("ps -eo pid,args|grep '{dummy}'|grep -Ei '\\d+\\s+{ending}'|grep -E '\\d+'");
+    let cmd = format!("ps -eo pid,args|grep '{dummy}'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
+#[cfg(feature="in_dbg")]
+{ crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
     run_cmd_out_sync(cmd)
 }
 pub(crate) fn kill_proc_w_pid(pid: &String, sig: &str){
