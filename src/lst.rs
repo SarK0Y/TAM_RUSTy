@@ -90,7 +90,7 @@ pub(crate) fn term_cp(cmd: &String){
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     ending("cp");
-    let cmd = format!("cp {add_opts} {dummy_file} {all_files} {finally_to}");    
+    let cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
 }
@@ -223,10 +223,12 @@ pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
 }
 pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> String{
     let mut ret = String::new();
+    let nl = char::from_u32(0x0a).unwrap().to_string();
     let mut len = vec_strn.len(); len = if len > cut_off{len - cut_off}else{len};
     for ln in vec_strn{
+        let ln = ln.trim_end().trim_start().trim_end_matches('\\');
         if len == 0 {break;}
-        ret.push_str(format!(" {ln}\\\n").as_str());
+        ret.push_str(format!("\\{nl} {ln}").as_str());
         len -= 1;
     } ret
 }
