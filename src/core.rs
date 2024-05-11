@@ -245,12 +245,12 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
-    //let strr = strr.replace("\\", r"\\");
+    let strr = strr.replace(r"\\'", r"\'");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
     if check_patch_mark(str0){return str0.to_string();}
-    return str0.as_str().replace("'", r"\'");
+    return str0.as_str().replace(r"'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
     if check_patch_mark(str0){return str0.to_string();}
