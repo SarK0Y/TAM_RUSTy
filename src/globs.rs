@@ -619,4 +619,10 @@ pub(crate) fn id_suffix() -> String{
 pub(crate) fn gen_win_title() -> String{
     let win_num = instance_num(); let win_class_id = id_suffix(); return format!("{win_num}{win_class_id}");
 }
+pub(crate) fn check_patch_mark(strn: &String) -> bool{
+    let strn_len = strn.chars().count();
+    let mut strn = strn;
+    let patch_mark_len = "::patch".to_string().chars().count();
+    if strn_len > patch_mark_len && strn.substring(strn_len - patch_mark_len, strn_len) == "::patch"{return true} false
+}
 //fn

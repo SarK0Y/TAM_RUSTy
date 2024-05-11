@@ -1,9 +1,6 @@
 use std::process::Command;
-use std::io::{Write, Read};
-use std::thread::Builder;
-use std::os::fd::AsRawFd;
-use std::io::BufRead;
-use std::io::prelude::*;
+use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
+use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
 use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
@@ -14,7 +11,7 @@ use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
 use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync};
 #[path = "keycodes.rs"]
 mod kcode;
-pub(crate) fn run_term_app(cmd: String) -> bool{
+pub(crate) fn run_term_app_ren(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 crate::set_ask_user(cmd.as_str(), func_id);
 let mut lc = "ru_RU.UTF-8".to_string();
@@ -44,13 +41,17 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
     .spawn()
-    .expect("can't run command in run_term_app");
+    .expect("can't run command in run_term_app_ren");
 
 let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
    let mut op_status = false;
+   println!("press Enter");
+    let enter: [u8; 1] = [13; 1];
+    //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
+   // writeIn_stdin.write(&enter);
    while getkey().to_lowercase() != "k" {
     if read_term_msg() == "free" {op_status = true; break;}
        println!("press k or K to abort operation")
@@ -78,6 +79,42 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
 let cmd = format!("{cmd} 2>&1");
+//let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
+let path_2_cmd = crate::mk_cmd_file(cmd);
+let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
+let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
+let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+//let run_command = Command::new(cmd)
+    .env("LC_ALL", &lc) //"ru_RU.UTF-8")
+    .env("LANG", lc)
+    .stderr(fstderr)
+//    .stdout(out_in)//(std::process::Stdio::piped())
+  //  .stdin(in_out)//(std::process::Stdio::piped())
+    .spawn()
+    .expect("can't run command in run_term_app1");
+
+ std::thread::spawn(move|| {
+run_command.wait();
+//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
+}).join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
+true
+}
+pub(crate) fn run_term_app(cmd: String) -> bool{
+let func_id = crate::func_id18::run_cmd_viewer_;
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
+crate::set_ask_user(cmd.as_str(), func_id);
+let fstdout: String; 
+let mut stderr_path = "stderr".to_string();
+stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
+crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+let fstderr = crate::File::create(stderr_path).unwrap();
+//unblock_fd(fstdin0.as_raw_fd());
+//let mut fstdout0 = io::BufReader::new(fstdout0);
+//errMsg_dbg(&in_name, func_id, -1.0);
+let cmd = format!("clear;reset;{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
