@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -162,6 +162,7 @@ pub(crate) fn term(cmd: &String){
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
     run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
 }

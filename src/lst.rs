@@ -94,7 +94,23 @@ pub(crate) fn term_cp(cmd: &String){
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
 }
-
+pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
+    let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
+    if if_shol_a.len() == 0{return false;}
+    let cmd = cmd.replace("term", "").trim_start_matches(' ').to_string();
+    let (cmd_name, cmd) = split_once(&cmd, " ");
+    ending(cmd_name.as_str());
+    let cmd = cmd.trim_start_matches(' ').to_string();
+    let (_, all_files, _) = parse_paths(&cmd);
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    //let dummy_file = mk_dummy_file();
+    let cmd = cmd.replace("%a", &all_files);
+    let cmd = format!("{cmd_name} {cmd}");    
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    crate::run_term_app(cmd);
+    true
+}
 fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
     if match cmd.chars().nth(cmd.len() -1){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
