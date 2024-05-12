@@ -353,7 +353,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     let cpy: fn(&String) -> String = |val: &String| -> String{return val.to_string();}; 
     if id_of_val == PRNT_  {ps_ret.str_.push_str(cpy_str(&*PRNT.get()).as_str());/*String::from(PRNT.get().unwrap())*/; return ps_ret;}
     if id_of_val == crate::set(PRNT_) {crate::set_prnt_!(&val.to_string()); file_prnt(val.to_string()); 
-       if *PRNT.get() != val {panic!("set_prtn failed")} ps_ret.str_= "ok".to_string(); prnt_set =true; return ps_ret;}
+       if *PRNT.get() != val {println!("set_prtn failed")} ps_ret.str_= "ok".to_string(); prnt_set =true; return ps_ret;}
     if id_of_val == NUM_OF_VIEWERS  {ps_ret.int = VIEWER.get().unwrap().len().to_i64().unwrap(); return ps_ret;}
     if id_of_val == VIEWER_  {
       let indx = share_usize(usize::MAX, id_of_caller);

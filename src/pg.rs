@@ -194,7 +194,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
         if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}
-        return Key.to_string();
+        return "".to_string();
 //return get_prnt(func_id);
 }
 pub fn manage_pages(ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>){

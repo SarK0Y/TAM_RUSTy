@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -70,6 +70,7 @@ let func_id = crate::func_id18::run_cmd_viewer_;
 let mut lc = "ru_RU.UTF-8".to_string();
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
+{dont_scrn_fix(true); no_view(true, true);}
 let fstdout: String; 
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
@@ -99,6 +100,7 @@ run_command.wait();
 }).join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
+{dont_scrn_fix(true); no_view(true, false);}
 true
 }
 pub(crate) fn run_term_app(cmd: String) -> bool{
@@ -106,6 +108,7 @@ let func_id = crate::func_id18::run_cmd_viewer_;
 let mut lc = "ru_RU.UTF-8".to_string();
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
+{dont_scrn_fix(true); no_view(true, true);}
 let fstdout: String; 
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
@@ -135,6 +138,7 @@ run_command.wait();
 }).join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
+{dont_scrn_fix(true); no_view(true, false);}
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{

@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use crate::{checkArg, getkey};
-pub(crate) fn dont_clean_bash(set: bool) -> bool{
+pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;
     if !crate::C!(fst_run){
@@ -8,10 +8,10 @@ pub(crate) fn dont_clean_bash(set: bool) -> bool{
         if checkArg("-dont-clean-bash"){crate::C!(state = true)}
         println!("dont_clean_bash status: {}", crate::C!(state))
     }
-    if set{crate::C!(state = !state); println!("dont_clean_bash status: {}", crate::C!(state)); }
+    if roll{crate::C!(state = !state); println!("dont_clean_bash status: {}", crate::C!(state)); }
     crate::C!(state)
 }
-pub(crate) fn dbg(set: bool) -> bool{
+pub(crate) fn dbg(roll: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;
     if !crate::C!(fst_run){
@@ -19,7 +19,7 @@ pub(crate) fn dbg(set: bool) -> bool{
         if checkArg("-dbg"){crate::C!(state = true)}
         println!("dbg status: {}", crate::C!(state))
     }
-    if set{crate::C!(state = !state); println!("dbg status: {}", crate::C!(state));}
+    if roll{crate::C!(state = !state); println!("dbg status: {}", crate::C!(state));}
     crate::C!(state)
 }
 pub(crate) fn switch_cmd_keys(cmd: &String){
@@ -31,7 +31,7 @@ pub(crate) fn switch_cmd_keys(cmd: &String){
         _ => {}
     }
 }
-pub(crate) fn dont_scrn_fix(set: bool) -> (bool, bool){
+pub(crate) fn dont_scrn_fix(roll: bool) -> (bool, bool){
     static mut state: bool = false;
     static mut fst_run: bool = false;
     static mut local_set: bool = false;
@@ -40,7 +40,18 @@ pub(crate) fn dont_scrn_fix(set: bool) -> (bool, bool){
         if checkArg("-dont-scrn-fix"){crate::C!(state = true)}
         println!("dont_scrn_fix status: {}", crate::C!(state))
     }
-    if set{unsafe {state = !state; local_set = true}; println!("dont_scrn_fix status: {}", crate::C!(state));}
+    if roll{unsafe {state = !state; local_set = true}; println!("dont_scrn_fix status: {}", crate::C!(state));}
     crate::C!((state, local_set))
+}
+pub(crate) fn no_view(set: bool, new_state: bool) -> bool{
+    static mut state: bool = false;
+    static mut fst_run: bool = false;
+    if !crate::C!(fst_run){
+        crate::C!(fst_run = true);
+        if checkArg("-no-view"){crate::C!(state = true)}
+        println!("dbg status: {}", crate::C!(state))
+    }
+    if set{crate::C!(state = new_state); println!("dbg status: {}", crate::C!(state));}
+    crate::C!(state)
 }
 //fn
