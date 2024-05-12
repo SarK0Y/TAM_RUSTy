@@ -73,28 +73,44 @@ pub(crate) fn term_mv(cmd: &String){
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = reorder_strn_4_cmd(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     ending("mv");
     let cmd = format!("mv {add_opts} {dummy_file} {all_files} {finally_to}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app(cmd);
+    crate::run_term_app_ren(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = reorder_strn_4_cmd(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     ending("cp");
-    let cmd = format!("cp {add_opts} {dummy_file} {all_files} {finally_to}");    
+    let cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");    
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    crate::run_term_app_ren(cmd);
+}
+pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
+    let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
+    if if_shol_a.len() == 0{return false;}
+    let cmd = cmd.replace("term", "").trim_start_matches(' ').to_string();
+    let (cmd_name, cmd) = split_once(&cmd, " ");
+    ending(cmd_name.as_str());
+    let cmd = cmd.trim_start_matches(' ').to_string();
+    let (_, all_files, _) = parse_paths(&cmd);
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    //let dummy_file = mk_dummy_file();
+    let cmd = cmd.replace("%a", &all_files);
+    let cmd = format!("{cmd_name} {cmd}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
+    true
 }
-
 fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
     if match cmd.chars().nth(cmd.len() -1){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
@@ -215,9 +231,21 @@ pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
     for line in lines{
         let line = line.trim_end().trim_start().to_string();
         let last = if line.chars().count() > 0{line.chars().count() -1}else {continue;};
+   // #[cfg(feature="in_dbg")] {println!("{}", line.chars().nth(last).unwrap().to_string()); getkey();}
         if line.chars().nth(last).unwrap().to_string() == "/" {continue;}
         ret.push(line)
     }
     ret
+}
+pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> String{
+    let mut ret = String::new();
+    let nl = char::from_u32(0x0a).unwrap().to_string();
+    let mut len = vec_strn.len(); len = if len > cut_off{len - cut_off}else{len};
+    for ln in vec_strn{
+        let ln = ln.trim_end().trim_start().trim_end_matches('\\');
+        if len == 0 {break;}
+        ret.push_str(format!("\\{nl} {ln}").as_str());
+        len -= 1;
+    } ret
 }
 //fn

@@ -231,6 +231,7 @@ pub(crate) struct ret0 {
    pub res: bool
 }
 pub(crate) fn escape_symbs(str0: &String) -> String{
+    if check_patch_mark(str0){return str0.to_string();}
     let  strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -244,13 +245,15 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
-    //let strr = strr.replace("\\", r"\\");
+    let strr = strr.replace(r"\\'", r"\'");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
-    return str0.as_str().replace("'", r"\'");
+    if check_patch_mark(str0){return str0.to_string();}
+    return str0.as_str().replace(r"'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
+    if check_patch_mark(str0){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
@@ -330,7 +333,7 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
     let stdin_fd = 0;
     let mut stdout = io::stdout(); 
     let mut stdin_buf: [u8; 6] =[0;6];
-    let termios = Termios::from_fd(stdin_fd).unwrap();
+    let termios = match Termios::from_fd(stdin_fd){Ok(t) => t, _ => return "".to_string()};
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap(); 
     new_termios.c_lflag &= !(ICANON | ECHO); 

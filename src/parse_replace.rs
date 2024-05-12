@@ -1,4 +1,4 @@
-use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0, full_escape};
 
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
@@ -53,9 +53,7 @@ fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
    if !tag_at {sholName = format!("{inc_id}@@{}", sholName.replace("< ", ""))}
    else {sholName = format!("{inc_id}##{}", sholName.replace("< ", ""))}
    crate::set_prnt(&prnt, -4654038917961);
-    let mut path = escape_backslash(&path);
-    path = escape_apostrophe(&path);
-    path = escape_symbs(&path);
+    let mut path =full_escape(&path);
    let rec_shol = (sholName.clone(), path.clone());
    self.add_rec_to_shols(rec_shol);
    if !tag_at{return sholName}
@@ -80,9 +78,7 @@ fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
    prnt = prnt.replace(&path, &sholName); prnt = prnt.replace(&mop_count_ending, "");
    crate::set_prnt(&prnt, -4954038917661);
     path = path.trim_end().to_string();
-    path = escape_backslash(&path);
-    path = escape_apostrophe(&path);
-    path = escape_symbs(&path);
+    path = full_escape(&path);
    let rec_shol = (sholName.clone(), path.clone());
    self.add_rec_to_shols(rec_shol);
     }
