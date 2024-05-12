@@ -378,6 +378,7 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
     #[cfg(feature="in_dbg")]
     if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}

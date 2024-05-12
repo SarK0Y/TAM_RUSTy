@@ -52,14 +52,23 @@ let abort = std::thread::spawn(move|| {
     let enter: [u8; 1] = [13; 1];
     //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
    // writeIn_stdin.write(&enter);
-   while getkey().to_lowercase() != "k" {
+   let mut pause_operation = false;
+   let mut fst = true;
+   let mut key = getkey().to_lowercase(); 
+   while key != "k" {
+    if !fst{key = getkey().to_lowercase();}
+    fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
-       println!("press k or K to abort operation")
+       println!("press k or K to abort operation\nHit P or p to pause.");
+       if key == "p"{
+        if !pause_operation{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-STOP"); popup_msg("pause"); pause_operation = true;}
+        else{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-CONT"); popup_msg("continue"); pause_operation = false;}
+       }
    }
   if !op_status{println!("Operation aborted")};
 run_command.kill();
 //unsafe{libc::kill(g, SIGKILL)}
-kill_proc_w_pid(&get_pid_by_dummy(&ending("")), "-9")
+kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-9")
 }); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
@@ -243,12 +252,12 @@ pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
 { crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
     run_cmd_out_sync(cmd)
 }
-pub(crate) fn kill_proc_w_pid(pid: &String, sig: &str){
-    run_cmd_out_sync(format!("kill {sig} {pid}"));
-}
 pub(crate) fn ending(sav: &str) -> String{
     static mut save: Lazy<String> = Lazy::new(||{String::new()});
     if sav != ""{unsafe {save.clear(); save.push_str(sav);}}
     unsafe{let ret: String = save.to_string(); ret}
+}
+pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
+    run_cmd_out_sync(format!("kill {sig} {pid}"));
 }
 //fn
