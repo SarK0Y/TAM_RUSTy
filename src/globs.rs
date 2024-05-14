@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -559,16 +559,17 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
         if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
             maybe.push(i);
             count_delim_chars += 1;
-            //println!("{}", maybe);
+            if maybe == *delim {found = true;}
         } else {
             if found {ret.1.push(i); continue;}
-            if maybe == *delim {ret.1.push(i); found = true; continue;}
+           // if maybe == *delim {ret.1.push(i); found = true; continue;}
             count_delim_chars = 0;
             ret.0.push_str(maybe.as_str());
             ret.0.push(i);
             maybe = String::new();
         }
     }
+    if !found {return ("none".to_string(), "none".to_string())}
     ret
 }
 pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
@@ -593,26 +594,32 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
     }
     false
 }
-pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> String{
+pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     let sub_cmd0 = sub_cmd.to_string();
     let mut full_sub_cmd = String::new(); let mut val = String::new();
     if check_substrn(&cmd, sub_cmd){
         let (_, sub_cmd) = split_once(cmd, &sub_cmd);
         let (sub_cmd_val, _) = split_once( &sub_cmd, "::");
-        if sub_cmd_val == "none"{set_ask_user("Example of sub-command: >>>lst::name_of_list::<<<", 43001271); return cmd.to_string();}
+        if sub_cmd_val == "none"{errMsg0("Example of sub-command: >>>lst::name_of_list::<<<"); return (cmd.to_string(), false);}
         full_sub_cmd = format!("{sub_cmd0}{sub_cmd_val}::"); val = sub_cmd_val;
     }
     match sub_cmd{
         "lst::" => {
             let lst_adr = take_list_adr_env(&val);
-            return cmd.replace(&full_sub_cmd, &lst_adr);
+            return (cmd.replace(&full_sub_cmd, &lst_adr), true);
         }
-        _ => return cmd.to_string()
+        _ => return (cmd.to_string(), false)
     }
 }
-pub(crate) fn decode_sub_cmds(cmd: &String, sub_cmd: &str) -> String{
- 
-    "".to_string()
+pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
+    let mut ret0 = cmd.to_string();
+    loop {
+        let ret = decode_sub_cmd(&ret0, "lst::");
+        if ret.1{ret0 = ret.0}
+        else {break;}
+    } 
+#[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
+    ret0    
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
     match name {
@@ -620,6 +627,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "filter" => return take_list_adr("filter"),
         "cd" => return take_list_adr("cd"),
         "ls" => return take_list_adr("ls"),
+        "merge" => return take_list_adr("merge"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
     }
 }

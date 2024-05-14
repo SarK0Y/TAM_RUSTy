@@ -4,7 +4,7 @@ use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prn
  core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, 
 globs18::{ins_last_char_to_string1_from_string1, 
     rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, 
-    len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, 
+    len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
     read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1};
@@ -183,7 +183,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     };
     if ansiKey == 0{if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}} return crate::get_prnt(func_id);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
-    if kcode::ENTER == ansiKey{crate::globs18::Enter(); return crate::get_prnt(func_id);} 
+    if kcode::ENTER == ansiKey{crate::globs18::Enter(); let decoded_prnt = crate::globs18::decode_sub_cmds(& crate::get_prnt(func_id)); return decoded_prnt;} 
     if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
     if kcode::ESCAPE == ansiKey{println!("esc pressed");}
     if kcode::TAB == ansiKey{println!("tab pressed");}  
