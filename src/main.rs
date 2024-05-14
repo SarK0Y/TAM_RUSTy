@@ -7,6 +7,7 @@
 #![allow(non_upper_case_globals)]
 #![allow(while_true)]
 #[allow(arithmetic_overflow)]
+#[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt};
@@ -59,7 +60,7 @@ let err_msg = format!("failed create {}", &path_2_cmd);
 let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
-if !checkArg("-dbg"){
+if !dbg(false) && !dont_clean_bash(false){
     cmd = format!("{cmd};rm -f {}", path_2_cmd);
 }
 make_cmd_file.write_all(&cmd.as_bytes());
@@ -104,10 +105,10 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd");
-if run_command.status.success(){
+if !run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
     return match from_utf8(&run_command.stdout){
@@ -212,7 +213,7 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd_out_sync");
 return match from_utf8(&run_command.stdout){
@@ -288,7 +289,13 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 fn main (){
+    /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
+    panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
+    use ctrlc;
+    ctrlc::CtrlC::set_handler(||{SYS()});
+    if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
    initSession();
+   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); return;}
    if checkArg("-rilocan"){rilocan(); return;}
    /*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}

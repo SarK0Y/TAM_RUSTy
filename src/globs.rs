@@ -1,6 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
@@ -44,7 +44,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -75,7 +75,7 @@ pub(crate) fn sieve_list(data: String){
     set_full_path(&data, -19784542001);
 }
 pub(crate) fn sieve_list0(data: String){
-    clean_cache("sieve");
+    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
@@ -147,7 +147,7 @@ pub(crate) fn show_ls(){
     crate::ps18::fix_num_files(-13972);
 }
 pub(crate) fn get_num_pg_4_main0() -> i64{
-    let num_pg = read_file("main0.pg");
+    let num_pg = crate::read_file("main0.pg");
     match i64::from_str_radix(&num_pg, 10){
         Ok(num) => return num,
         _ => return 0
@@ -188,28 +188,6 @@ pub(crate) fn F3_key() -> String{
     /*let user_wrote_path = user_wrote_path();
     rm_file(&user_wrote_path);*/
     set_user_written_path_from_strn(path.to_string());
-    prnt
-}
-pub(crate) fn Ins_key() -> String{
-    let mut prnt: String = read_prnt();
-    let path = get_path_from_strn(crate::cpy_str(&prnt));
-    let mut file_indx = String::new();
-    let spaces = repeat_char(63, " ");
-    println!(" \rPlease, enter indx of dir/file name to autocomplete: {}", spaces);
-    io::stdin().read_line(&mut file_indx).expect("Ins_key failed to read console");
-    let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);
-    let mut err_msg = "".to_string();
-    let mut handle_err =|e: std::num::ParseIntError| -> i64 {err_msg = format!("{:?}", e); -1i64};
-    let file_indx = match i64::from_str_radix(&file_indx, 10){
-        Ok(int) => int,
-        Err(e) => handle_err(e)
-    };
-    if file_indx == -1i64{set_ask_user(&err_msg, -1); return "none done".to_string();}
-    let mut file = get_item_from_front_list(file_indx, true);
-    let is_dir = crate::Path::new(&file).is_dir();
-    if is_dir {file.push('/');}
-    prnt = prnt.replace(&path, &file);
-    crate::set_prnt(&prnt, -1);
     prnt
 }
 pub(crate) fn Enter(){
@@ -415,6 +393,7 @@ pub fn len_of_front_list_wc() -> String{
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let last_pg = where_is_last_pg();
+    let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
         if last_pg < indx{
@@ -425,8 +404,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
         return (i64_2_usize(indx), indx);
     }
     let mut fix_inputed_indx = indx;
-    if !unsafe {local_indx(false)} && fixed_indx {fix_inputed_indx += calc_num_files_up2_cur_pg();}
-    let indx = fix_inputed_indx;
+    if !unsafe {local_indx(false)} && fixed_indx == true {fix_inputed_indx += calc_num_files_up2_cur_pg(); indx = fix_inputed_indx;}
     let mut proper_indx: i64 = 0;
     let mut len: i64 = 0;
     if indx > 0{proper_indx = indx;}
@@ -581,19 +559,133 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
         if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars) && !found{
             maybe.push(i);
             count_delim_chars += 1;
-            //println!("{}", maybe);
+            if maybe == *delim {found = true;}
         } else {
             if found {ret.1.push(i); continue;}
-            if maybe == *delim {ret.1.push(i); found = true; continue;}
+           // if maybe == *delim {ret.1.push(i); found = true; continue;}
             count_delim_chars = 0;
             ret.0.push_str(maybe.as_str());
             ret.0.push(i);
             maybe = String::new();
         }
     }
+    if !found {return ("none".to_string(), "none".to_string())}
     ret
+}
+pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    for i in strn.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if maybe == *delim {return true}
+            count_delim_chars = 0;
+            maybe = String::new();
+            if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            }
+        }
+    }
+    false
+}
+pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
+    let sub_cmd0 = sub_cmd.to_string();
+    let mut full_sub_cmd = String::new(); let mut val = String::new();
+    if crate::core18::check_substr(&cmd, sub_cmd, 0){
+        let (_, sub_cmd) = split_once_alt(&cmd, &sub_cmd.to_string());
+        let (sub_cmd_val, _) = split_once_alt( &sub_cmd, &"::".to_string());
+        if sub_cmd_val == "none"{errMsg0("Example of sub-command: >>>lst::name_of_list::<<<"); return (cmd.to_string(), false);}
+        full_sub_cmd = format!("{sub_cmd0}{sub_cmd_val}::"); val = sub_cmd_val;
+    }
+    match sub_cmd{
+        "lst::" => {
+            let lst_adr = take_list_adr_env(&val);
+            return (cmd.replace(&full_sub_cmd, &lst_adr), true);
+        }
+        _ => return (cmd.to_string(), false)
+    }
+}
+pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
+    let mut ret0 = cmd.to_string();
+    let mut count_out = 10;
+    loop {
+        let ret = decode_sub_cmd(&ret0, "lst::");
+        if ret.1{ret0 = ret.0; popup_msg("msg"); continue;}
+        {popup_msg("br"); break;}
+        if count_out == 0{break;}
+        count_out -= 1;
+    } 
+#[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
+    ret0    
+}
+pub(crate) fn take_list_adr_env(name: &str) -> String{
+    match name {
+        "main0" => return take_list_adr("main0"),
+        "filter" => return take_list_adr("filter"),
+        "cd" => return take_list_adr("cd"),
+        "ls" => return take_list_adr("ls"),
+        "merge" => return take_list_adr("merge"),
+        _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
+    }
 }
 pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     Key.clear();
     return crate::hotKeys(Key, ext);
 }
+pub(crate) fn strn_2_u64(strn: String) -> Option<u64>{
+    match u64::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}
+pub(crate) fn strn_2_usize(strn: String) -> Option<usize>{
+    match usize::from_str_radix(&strn, 10){
+        Ok(num) => Some(num),
+        _ => None
+    }
+}
+pub(crate) fn seg_size() -> usize{
+    static mut fst_run: bool = false;
+    static mut seg_size: usize = 150;
+    if !unsafe {fst_run}{
+        unsafe {fst_run = true;}
+        if crate::checkArg("-cache-seg-size"){
+            let seg_size_new = String::from_iter(crate::get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
+            let ret = strn_2_usize(seg_size_new);
+            if ret != None{unsafe {seg_size = ret.unwrap();}}
+        }
+    }
+    unsafe{seg_size}
+}
+pub(crate) fn check_char_in_strn(strn: &String, is_there_ch: char) -> String{
+    for ch in strn.chars(){
+        if ch == is_there_ch{return String::from(is_there_ch);}
+    }
+    "no".to_string()
+}
+pub(crate) fn instance_num() -> u64{
+    let path_2_id_suffix = format!("{}/{}", shm_tam_dir(None), crate::full_escape( &id_suffix() ) ); let num = crate::read_file_abs_adr0(&path_2_id_suffix); 
+    let num = u64_from_strn(&num).0; save_file_abs_adr0((num + 1).to_string(), path_2_id_suffix); num
+}
+pub(crate) fn id_suffix() -> String{
+    if checkArg("-window-mark"){
+        return String::from_iter(get_arg_in_cmd("-window-mark").s).trim_end_matches('\0').to_string() 
+    }
+    return format!("{}TR{}", crate::getStop_code__!(), crate::getStop_code__!())
+}
+pub(crate) fn gen_win_title() -> String{
+    let win_num = instance_num(); let win_class_id = id_suffix(); return format!("{win_num}{win_class_id}");
+}
+pub(crate) fn check_patch_mark(strn: &String) -> bool{
+    let strn_len = strn.chars().count();
+    let mut strn = strn;
+    let patch_mark_len = "::patch".to_string().chars().count();
+    if strn_len > patch_mark_len && strn.substring(strn_len - patch_mark_len, strn_len) == "::patch"{return true} false
+}
+//fn

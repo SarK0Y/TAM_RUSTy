@@ -4,10 +4,19 @@ pub(crate) enum cached_data{
     no_list,
     all_ok
 }
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) enum cache_state{
     empty,
-    ready, 
+    ready,
+    ready0, 
     no_data_to_add,
-    forming
+    forming,
+    taken,
+    cache_seg_corrupted,
+}
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum parse_paths{
+    all_files,
+    each_name_unique,
+    default,
 }
