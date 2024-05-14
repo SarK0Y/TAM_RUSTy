@@ -597,15 +597,16 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     let sub_cmd0 = sub_cmd.to_string();
     let mut full_sub_cmd = String::new(); let mut val = String::new();
-    if check_substrn(&cmd, sub_cmd){
-        let (_, sub_cmd) = split_once(cmd, &sub_cmd);
-        let (sub_cmd_val, _) = split_once( &sub_cmd, "::");
+    if crate::core18::check_substr(&cmd, sub_cmd, 0){
+        let (_, sub_cmd) = split_once_alt(&cmd, &sub_cmd.to_string());
+        let (sub_cmd_val, _) = split_once_alt( &sub_cmd, &"::".to_string());
         if sub_cmd_val == "none"{errMsg0("Example of sub-command: >>>lst::name_of_list::<<<"); return (cmd.to_string(), false);}
         full_sub_cmd = format!("{sub_cmd0}{sub_cmd_val}::"); val = sub_cmd_val;
     }
     match sub_cmd{
         "lst::" => {
             let lst_adr = take_list_adr_env(&val);
+            if full_sub_cmd ==""{return (cmd.to_string(), false)}
             return (cmd.replace(&full_sub_cmd, &lst_adr), true);
         }
         _ => return (cmd.to_string(), false)
@@ -613,10 +614,13 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
 }
 pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
     let mut ret0 = cmd.to_string();
+    let mut count_out = 2;
     loop {
         let ret = decode_sub_cmd(&ret0, "lst::");
-        if ret.1{ret0 = ret.0}
-        else {break;}
+        if ret.1{ret0 = ret.0; popup_msg("msg"); continue;}
+        {popup_msg("br"); break;}
+        if count_out == 0{break;}
+        count_out -= 1;
     } 
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
     ret0    
