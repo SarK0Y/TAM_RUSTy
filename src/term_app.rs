@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -170,7 +170,8 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
 pub(crate) fn term(cmd: &String){
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
-     let (cmd, subcmd) = split_once(&cmd, ":>:");
+    let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
+     if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
     //let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}

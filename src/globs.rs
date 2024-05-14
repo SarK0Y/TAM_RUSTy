@@ -597,7 +597,7 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     let sub_cmd0 = sub_cmd.to_string();
     let mut full_sub_cmd = String::new(); let mut val = String::new();
-    if crate::core18::check_substr(&cmd, sub_cmd, 0){
+    if crate::globs18::check_substrn(&cmd, sub_cmd){
         let (_, sub_cmd) = split_once_alt(&cmd, &sub_cmd.to_string());
         let (sub_cmd_val, _) = split_once_alt( &sub_cmd, &"::".to_string());
         if sub_cmd_val == "none"{errMsg0("Example of sub-command: >>>lst::name_of_list::<<<"); return (cmd.to_string(), false);}
