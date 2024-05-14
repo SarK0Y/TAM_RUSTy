@@ -571,6 +571,24 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
     }
     ret
 }
+pub(crate) fn check_substrn(strn: &String, delim: &String) -> bool{
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    for i in strn.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if maybe == *delim {return true}
+            count_delim_chars = 0;
+            maybe = String::new();
+        }
+    }
+    false
+}
 pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     Key.clear();
     return crate::hotKeys(Key, ext);

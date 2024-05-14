@@ -7,7 +7,7 @@ globs18::{ins_last_char_to_string1_from_string1,
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -194,7 +194,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
         if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}
-        return Key.to_string();
+        return "".to_string();
 //return get_prnt(func_id);
 }
 pub fn manage_pages(ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>){
@@ -378,6 +378,8 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
+    if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
     #[cfg(feature="in_dbg")]
     if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}
