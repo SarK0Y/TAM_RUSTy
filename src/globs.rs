@@ -571,7 +571,7 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
     }
     ret
 }
-pub(crate) fn check_substrn(strn: &String, delim: &String) -> bool{
+pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
     let mut maybe = String::new();
     let delim_len = delim.chars().count();
     let strn_len = strn.chars().count();
@@ -585,9 +585,31 @@ pub(crate) fn check_substrn(strn: &String, delim: &String) -> bool{
             if maybe == *delim {return true}
             count_delim_chars = 0;
             maybe = String::new();
+            if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            }
         }
     }
     false
+}
+pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> String{
+    if check_substrn(&cmd, sub_cmd){
+        let (_, sub_cmd) = split_once(cmd, &sub_cmd);
+        let (sub_cmd, _) = split_once( &sub_cmd, "::");
+        if sub_cmd == "none"{set_ask_user("Example of sub-command: >>>lst::name_of_list::<<<", 43001271); return "".to_string();}
+        return sub_cmd
+    }
+    "".to_string()
+}
+pub(crate) fn take_list_adr_env(name: &str) -> String{
+    match name {
+        "main0" => return take_list_adr("main0"),
+        "filter" => return take_list_adr("filter"),
+        "cd" => return take_list_adr("cd"),
+        "ls" => return take_list_adr("ls"),
+        _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
+    }
 }
 pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     Key.clear();
