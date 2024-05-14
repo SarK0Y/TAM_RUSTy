@@ -594,12 +594,24 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
     false
 }
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> String{
+    let sub_cmd0 = sub_cmd.to_string();
+    let mut full_sub_cmd = String::new(); let mut val = String::new();
     if check_substrn(&cmd, sub_cmd){
         let (_, sub_cmd) = split_once(cmd, &sub_cmd);
-        let (sub_cmd, _) = split_once( &sub_cmd, "::");
-        if sub_cmd == "none"{set_ask_user("Example of sub-command: >>>lst::name_of_list::<<<", 43001271); return "".to_string();}
-        return sub_cmd
+        let (sub_cmd_val, _) = split_once( &sub_cmd, "::");
+        if sub_cmd_val == "none"{set_ask_user("Example of sub-command: >>>lst::name_of_list::<<<", 43001271); return cmd.to_string();}
+        full_sub_cmd = format!("{sub_cmd0}{sub_cmd_val}::"); val = sub_cmd_val;
     }
+    match sub_cmd{
+        "lst::" => {
+            let lst_adr = take_list_adr_env(&val);
+            return cmd.replace(&full_sub_cmd, &lst_adr);
+        }
+        _ => return cmd.to_string()
+    }
+}
+pub(crate) fn decode_sub_cmds(cmd: &String, sub_cmd: &str) -> String{
+ 
     "".to_string()
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
