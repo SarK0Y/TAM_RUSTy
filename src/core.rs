@@ -40,7 +40,7 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -52,7 +52,7 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -142,6 +142,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
     crate::run_cmd0(mk_cache_dir);
     return true;
 }

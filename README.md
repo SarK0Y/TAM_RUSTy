@@ -40,5 +40,15 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  [![Watch the video](https://img.youtube.com/vi/dkRJKsMTyoc/maxresdefault.jpg)](https://youtu.be/dkRJKsMTyoc)
  # Supported Platforms:
  
- So far, TAM has been tested only for Linux. However, theoretically this variant must work on FreeBSD, NetBSD & MacOS quite smoothly (but i don't guarantee it).
+ So far, TAM has been tested only for Linux. However, theoretically this variant must work on FreeBSD, NetBSD & MacOS quite smoothly (but i don't guarantee it). <br>
+ # Links: <br>
+ <b>TELEGRAM:</b> https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z). <br>
+ <b>ALG0Z RU:</b> https://dzen.ru/alg0z <br>
+ <b>ALG0Z EN:</b> https://alg0z.blogspot.com <br>
+ <b>ChangeLog:</b> https://alg0z8n8its9lovely6tricks.blogspot.com/2023/09/tam-changelog.html <br>
+ <b>FORUM:</b> https://www.neowin.net/forum/topic/1430114-tam/ <br>
+ <b>E-MAIL:</b> sark0y@protonmail.com <br>
+ <b>GITHUB:</b> https://github.com/SarK0Y/TAM_RUSTy.git <br>
+ Donations: https://boosty.to/alg0z/donate <br>
+ 
 # my the Best Wishes to You 🙃

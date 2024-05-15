@@ -17,9 +17,9 @@ pub(crate) fn dbg(roll: bool) -> bool{
     if !crate::C!(fst_run){
         crate::C!(fst_run = true);
         if checkArg("-dbg"){crate::C!(state = true)}
-        println!("dbg status: {}", crate::C!(state))
+        if !silent(){println!("dbg status: {}", crate::C!(state));}
     }
-    if roll{crate::C!(state = !state); println!("dbg status: {}", crate::C!(state));}
+    if roll{crate::C!(state = !state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!(state)
 }
 pub(crate) fn switch_cmd_keys(cmd: &String){
@@ -38,9 +38,9 @@ pub(crate) fn dont_scrn_fix(roll: bool) -> (bool, bool){
     if !crate::C!(fst_run){
         crate::C!(fst_run = true);
         if checkArg("-dont-scrn-fix"){crate::C!(state = true)}
-        println!("dont_scrn_fix status: {}", crate::C!(state))
+        if !silent(){println!("dbg status: {}", crate::C!(state));}
     }
-    if roll{unsafe {state = !state; local_set = true}; println!("dont_scrn_fix status: {}", crate::C!(state));}
+    if roll{unsafe {state = !state; local_set = true}; if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!((state, local_set))
 }
 pub(crate) fn no_view(set: bool, new_state: bool) -> bool{
@@ -51,7 +51,14 @@ pub(crate) fn no_view(set: bool, new_state: bool) -> bool{
         if checkArg("-no-view"){crate::C!(state = true)}
         println!("dbg status: {}", crate::C!(state))
     }
-    if set{crate::C!(state = new_state); println!("dbg status: {}", crate::C!(state));}
+    if set{crate::C!(state = new_state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!(state)
 }
+pub(crate) fn be_silent(set: bool, new_state: bool) -> bool{
+    static mut state: bool = false;
+    static mut fst_run: bool = false;
+    if set{crate::C!(state = new_state);}
+    crate::C!(state)
+}
+pub(crate) fn silent() -> bool{be_silent(false, false)}
 //fn

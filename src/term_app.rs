@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -52,14 +52,23 @@ let abort = std::thread::spawn(move|| {
     let enter: [u8; 1] = [13; 1];
     //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
    // writeIn_stdin.write(&enter);
-   while getkey().to_lowercase() != "k" {
+   let mut pause_operation = false;
+   let mut fst = true;
+   let mut key = getkey().to_lowercase(); 
+   while key != "k" {
+    if !fst{key = getkey().to_lowercase();}
+    fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
-       println!("press k or K to abort operation")
+       if key == "p"{
+        if !pause_operation{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-STOP"); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
+        else{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-CONT"); popup_msg("continue"); pause_operation = false;}
+       }
+       println!("press k or K to abort operation\nHit P or p to pause.");
    }
   if !op_status{println!("Operation aborted")};
 run_command.kill();
 //unsafe{libc::kill(g, SIGKILL)}
-kill_proc_w_pid(&get_pid_by_dummy(&ending("")), "-9")
+kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-9")
 }); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
@@ -161,7 +170,8 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
 pub(crate) fn term(cmd: &String){
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
-     let (cmd, subcmd) = split_once(&cmd, ":>:");
+    let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
+     if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
     //let (_, cmd) = split_once(&cmd, " ");
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
@@ -243,12 +253,12 @@ pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
 { crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
     run_cmd_out_sync(cmd)
 }
-pub(crate) fn kill_proc_w_pid(pid: &String, sig: &str){
-    run_cmd_out_sync(format!("kill {sig} {pid}"));
-}
 pub(crate) fn ending(sav: &str) -> String{
     static mut save: Lazy<String> = Lazy::new(||{String::new()});
     if sav != ""{unsafe {save.clear(); save.push_str(sav);}}
     unsafe{let ret: String = save.to_string(); ret}
+}
+pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
+    run_cmd_out_sync(format!("kill {sig} {pid}"));
 }
 //fn

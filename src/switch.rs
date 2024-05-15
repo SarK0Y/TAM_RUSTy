@@ -165,7 +165,7 @@ fn viewer_n_adr(app: String, file: String) -> bool{
     return crate::run_cmd_viewer(cmd)
 }
 pub(crate) fn run_viewer(cmd: String) -> bool{
-    if no_view(false, false){return false}
+    if stop_run_viewer(&cmd){return false}
     let func_id = crate::func_id18::viewer_;
     if cmd.as_str().substring(0, 1) == "/"{
         let app_indx = "0".to_string();
@@ -392,3 +392,9 @@ pub(crate) fn check_symlink() -> String{
     let found_files = take_list_adr("found_files");
     std::fs::read_link(&found_files).unwrap().as_os_str().to_str().unwrap().to_string()
 }
+fn stop_run_viewer(cmd: &String) -> bool{
+    if no_view(false, false){return true}
+    if cmd.as_str().substring(0, 5) == "term "{return true}
+    false
+}
+//fn
