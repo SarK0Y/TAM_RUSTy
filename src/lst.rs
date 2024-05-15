@@ -283,7 +283,7 @@ pub(crate) fn manage_lst(cmd: &String){
         let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
         let cmd = format!("ln -sf {item} {link_2_item}");
         run_cmd0(cmd);
-        mark_front_lst(&head); set_front_list2(&head, 0); return;
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
     let ret = strn_2_usize(cmd);
@@ -296,7 +296,7 @@ pub(crate) fn manage_lst(cmd: &String){
         let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
         let cmd = format!("ln -sf {item} {link_2_item}");
         run_cmd0(cmd);
-        mark_front_lst(&head); set_front_list2(&head, 0); return;
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191); return;
     }
     let head = read_tail(&item, "/");
     mark_front_lst(&head); set_front_list2(&head, 0);
