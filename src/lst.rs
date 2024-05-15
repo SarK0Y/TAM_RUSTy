@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -247,5 +247,58 @@ pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> S
         ret.push_str(format!("\\{nl} {ln}").as_str());
         len -= 1;
     } ret
+}
+pub(crate) fn list_the_lists(){
+    let lst = take_list_adr("lst");
+    let lst_dir = take_list_adr("env/lst");
+    let cmd = format!("find {lst_dir} > {lst}");
+    run_cmd0(cmd);
+    // check & add default lsts
+    if crate::Path::new(&take_list_adr("main0")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("main0"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("filter")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("filter"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("cd")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("cd"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("merge")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+    mark_front_lst("lst"); set_front_list2("lst", 0);
+}
+pub(crate) fn manage_lst(cmd: &String){
+    if *cmd == "lst"{list_the_lists(); return;}
+    let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    if cmd.substring(0, 1) == "/"{
+        let item = get_path_from_strn(cmd.clone());
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    if lst_dir != path_2_item{
+        let head = read_tail(&item, "/");
+        let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
+        let cmd = format!("ln -sf {item} {link_2_item}");
+        run_cmd0(cmd);
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
+    }
+    }
+    let ret = strn_2_usize(cmd);
+    if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
+    let item_indx = usize_2_i64(ret.unwrap());
+    let item = get_item_from_front_list(item_indx, true);
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    if lst_dir != path_2_item{
+        let head = read_tail(&item, "/");
+        let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
+        let cmd = format!("ln -sf {item} {link_2_item}");
+        run_cmd0(cmd);
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191); return;
+    }
+    let head = read_tail(&item, "/");
+    mark_front_lst(&head); set_front_list2(&head, 0);
 }
 //fn

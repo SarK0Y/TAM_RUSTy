@@ -183,13 +183,13 @@ pub(crate) fn set_num_page(val: i64, func_id: i64) -> i64{
   set_proper_num_pg(proper_val);
   return unsafe{page_struct_int(proper_val, crate::set(NUM_PAGE_), func_id)}}
 pub(crate) fn get_num_pages(func_id: i64) -> i64{return unsafe{page_struct_int(0, COUNT_PAGES_, func_id)}}
-pub(crate) fn get_num_files(func_id: i64) ->i64{return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
+pub(crate) fn get_num_files(func_id: i64) ->i64{ return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
 pub(crate) fn fix_num_files(func_id: i64) ->i64{
    let mut len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10){
     Ok(i) => i,
     _ => 0
   } - 1; 
-   if len_of_front == -1{len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10).unwrap() - 1; }
+   if len_of_front == -1{len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){ Ok(i) => i, _ => 0}; }
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
    pub(crate) fn fix_num_files0(func_id: i64) ->i64{
    let len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){

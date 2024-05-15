@@ -2,6 +2,7 @@
 #[path = "exts.rs"]
 mod exts;
 use exts::*;
+use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
 use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
@@ -40,24 +41,31 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing()
+}
+pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
+    static mut name0: Lazy<String> = Lazy::new(||{String::new()});
+    if set {unsafe { *name0 = name.to_string();}}
+    unsafe{name0.to_string()}
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
@@ -142,6 +150,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/patch");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
     crate::run_cmd0(mk_cache_dir);
     return true;
 }
