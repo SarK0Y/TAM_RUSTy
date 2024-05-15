@@ -277,7 +277,7 @@ pub(crate) fn manage_lst(cmd: &String){
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     if cmd.substring(0, 1) == "/"{mark_front_lst(&cmd); set_front_list2(&cmd, 0); return;}
     let ret = strn_2_usize(cmd);
-    if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); }
+    if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
