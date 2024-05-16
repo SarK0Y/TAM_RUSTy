@@ -359,10 +359,10 @@ pub fn len_of_front_list() -> String{
         if list_id.1{break;}
     }
     if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
-    let mut front_list = read_front_list();
+    let mut front_list = take_list_adr_env(&read_front_list());
     front_list.push_str(".len");
     //if front_list != "main0.len"{return len_of_list_wc(&front_list);}
-    let num = read_file(&front_list);
+    let num = read_file_abs_adr(&front_list);
     if num == ""{return "0".to_string()}
     return num;
 }
@@ -617,8 +617,8 @@ pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
     let mut count_out = 2;
     loop {
         let ret = decode_sub_cmd(&ret0, "lst::");
-        if ret.1{ret0 = ret.0; popup_msg("msg"); continue;}
-        {popup_msg("br"); break;}
+        if ret.1{ret0 = ret.0; continue;}
+        {break;}
         if count_out == 0{break;}
         count_out -= 1;
     } 

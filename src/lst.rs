@@ -277,6 +277,7 @@ pub(crate) fn manage_lst(cmd: &String){
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
+        if std::fs::metadata(&item).unwrap().len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -290,6 +291,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
+    if std::fs::metadata(&item).unwrap().len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
