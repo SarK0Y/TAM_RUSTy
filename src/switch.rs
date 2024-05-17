@@ -307,7 +307,7 @@ pub fn print_pg_info(){
     let num_page = get_num_page(-1);
     let num_files = get_num_files(-1);
     let last_pg = crate::where_is_last_pg();
-    let info = format!("Number of files/pages {}/{} p. {}", num_files, last_pg, num_page);
+    let info = format!("Number of files/pages {}/{} p. {} Front list: {}", num_files, last_pg, num_page, crate::name_of_front_list("", false));
     println!("{}", info);
 }
 pub(crate) fn user_wrote_path() -> String{
