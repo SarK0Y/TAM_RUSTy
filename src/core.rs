@@ -153,6 +153,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
     crate::run_cmd0(mk_cache_dir);
+     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
+    crate::run_cmd0(mk_cache_dir);
     return true;
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
@@ -594,7 +596,10 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
 }
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     logs(&fname, "rewrite_file_abs_adr");
-    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let anew_file = || -> File{rm_file(&fname); return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return Box::new(Box::new(File::options().create_new(true).write(true).open(&fname)))
+            .expect(&format!("Failed again to create {fname}... Sorry"))}
+    }};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
@@ -611,7 +616,7 @@ pub(crate) fn save_file_abs_adr0(content: String, fname: String) -> bool{
     run_cmd_str(cmd.as_str());
     true
 }
-#[inline(always)]
+//#[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
     mkdir(path_to_file);
@@ -621,11 +626,11 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().read(true).append(true).write(true).open(&fname){
+    let mut file: File = match File::options().read(true).write(true).open(&fname){
         Ok(f) => f,
         Err(e) => match e.kind(){
             std::io::ErrorKind::NotFound => anew_file(),
-            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            std::io::ErrorKind::AlreadyExists => {rm_file(&fname); File::create_new(&fname).unwrap()},
             _ => existing_file()
         }
     };

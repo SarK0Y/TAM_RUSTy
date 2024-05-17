@@ -92,6 +92,10 @@ pub(crate) fn sieve_list0(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path, filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
+    if match std::fs::metadata(&filter_file_path_tmp){
+        Ok(g) => g,
+        _=> return errMsg0("Sorry, sieve failed")
+    }.len() == 0{errMsg0("Sorry, sieve failed"); return}
     let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
@@ -359,18 +363,18 @@ pub fn len_of_front_list() -> String{
         if list_id.1{break;}
     }
     if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
-    let mut front_list = take_list_adr_env(&read_front_list());
-    front_list.push_str(".len");
+    let name_front_list = read_front_list();
+    let mut front_list = take_list_adr_len(&name_front_list);
     //if front_list != "main0.len"{return len_of_list_wc(&front_list);}
     let num = read_file_abs_adr(&front_list);
-    if num == ""{return "0".to_string()}
+    if num == ""{return len_of_list_wc(&name_front_list)}
     return num;
 }
 pub fn len_of_list_wc(name: &str) -> String{
     let mut list_adr = take_list_adr_env(&name);
     let cmd = format!("wc -l {list_adr}");
     let len_list = crate::run_cmd_out_sync(cmd);
-    list_adr.push_str(".len");
+    list_adr = take_list_adr_len(&name);
     let (len_list, _) = split_once(&len_list, " ");
     crate::rewrite_file_abs_adr(cpy_str(&len_list), list_adr.to_string());
     return len_list;
@@ -386,9 +390,9 @@ pub fn len_of_front_list_wc() -> String{
     let front_list_adr = take_list_adr_env(&front_list);
     let cmd = format!("wc -l {front_list_adr}");
     let len_front_list = crate::run_cmd_out_sync(cmd);
-    front_list.push_str(".len");
+    front_list = take_list_adr_len(&front_list);
     let (len_front_list, _) = split_once(&len_front_list, " ");
-    crate::save_file(cpy_str(&len_front_list), front_list);
+    crate::save_file_abs_adr0(cpy_str(&len_front_list), front_list);
     return len_front_list;
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
@@ -634,6 +638,28 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "merge" => return take_list_adr("merge"),
         "lst" => return take_list_adr("lst"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
+    }
+}
+pub(crate) fn take_list_adr_len(name: &str) -> String{
+    match name {
+        "main0" => return take_list_adr("main0.len"),
+        "filter" => return take_list_adr("filter.len"),
+        "cd" => return take_list_adr("cd.len"),
+        "ls" => return take_list_adr("ls.len"),
+        "merge" => return take_list_adr("merge.len"),
+        "lst" => return take_list_adr("lst.len"),
+        _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.len"))),
+    }
+}
+pub(crate) fn take_list_adr_pg(name: &str) -> String{
+    match name {
+        "main0" => return take_list_adr("main0.pg"),
+        "filter" => return take_list_adr("filter.pg"),
+        "cd" => return take_list_adr("cd.pg"),
+        "ls" => return take_list_adr("ls.pg"),
+        "merge" => return take_list_adr("merge.pg"),
+        "lst" => return take_list_adr("lst.pg"),
+        _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.pg"))),
     }
 }
 pub(crate) fn drop_key(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{

@@ -8,6 +8,8 @@ readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
 description = "Automation tool to make Console/Terminal more comfy."
 crate_type = ["staticlib"]
+keywords = ["automation", "file-manager", "file_manager", "filemanager", "file manager", "exotic", "energonomic", "ergonomic", "ergonomics", "tam", "console", "cli"]
+categories = ["filesystem", "command-line-utilities"]
 [dependencies]
 cli-table = "0.4.7"
 once_cell = "1.18.0"
@@ -17,7 +19,7 @@ substring = "1.4.5"
 colored = "2.0.4"
 num-traits = "0.2.17"
 #c-gull = "0.15.31"
-libc = "=0.2.149"
+libc = "0.2.152" #"0.2.149"
 termios = "=0.3.3"
 termion = "3.0.0"
 #close_file ="0.1.0"

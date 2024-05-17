@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -273,11 +273,12 @@ pub(crate) fn list_the_lists(){
     mark_front_lst("lst"); set_front_list2("lst", 0);
 }
 pub(crate) fn manage_lst(cmd: &String){
-    if *cmd == "lst"{list_the_lists(); return;}
+    if *cmd == "lst"{list_the_lists(); mark_front_lst("lst"); set_front_list2("lst", 0); return;}
+    if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
-        if std::fs::metadata(&item).unwrap().len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+        if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -291,7 +292,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
-    if std::fs::metadata(&item).unwrap().len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+    if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -301,6 +302,6 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191); return;
     }
     let head = read_tail(&item, "/");
-    mark_front_lst(&head); set_front_list2(&head, 0);
+    mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
 }
 //fn
