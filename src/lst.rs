@@ -302,6 +302,6 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191); return;
     }
     let head = read_tail(&item, "/");
-    mark_front_lst(&head); set_front_list2(&head, 0);
+    mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
 }
 //fn

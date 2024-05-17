@@ -200,8 +200,7 @@ pub(crate) fn fix_num_files(func_id: i64) ->i64{
 
 pub(crate) fn set_num_files(func_id: i64) ->i64{
    let len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10).unwrap();
-   let mut list_len_adr = read_front_list();
-   list_len_adr.push_str(".len");
+   let mut list_len_adr = crate::globs18::take_list_adr_len(&read_front_list());
    save_file(len_of_front.to_string(), list_len_adr); 
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
 pub(crate) fn set_num_files0(func_id: i64, len_of_front: usize) ->i64{
@@ -234,7 +233,9 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
     if val_id == NUM_ROWS_ {return NUM_ROWS}
     if val_id == crate::set(NUM_ROWS_) {NUM_ROWS = val; return val}
     if val_id == NUM_FILES_ {return NUM_FILES}
-    if val_id == crate::set(NUM_FILES_) {NUM_FILES = val; return val;}
+    if val_id == crate::set(NUM_FILES_) {
+#[cfg(feature="in_dbg")] if crate::breaks("show num files", 1, true).0 == 1 && crate::breaks("show num files", 1, true).1{crate::report(&format!("{val}"), "num files");}
+      NUM_FILES = val; return val;}
     if val_id ==  COUNT_PAGES_ {return COUNT_PAGES}
     if val_id == crate::set(COUNT_PAGES_) {COUNT_PAGES = val; return val;}
     if val_id ==  CUR_CUR_POS_ {return CUR_CUR_POS as i64}
