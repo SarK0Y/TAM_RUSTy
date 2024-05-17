@@ -596,7 +596,10 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
 }
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     logs(&fname, "rewrite_file_abs_adr");
-    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let anew_file = || -> File{rm_file(&fname); return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return Box::new(Box::new(File::options().create_new(true).write(true).open(&fname)))
+            .expect(&format!("Failed again to create {fname}... Sorry"))}
+    }};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
         _ => anew_file()
