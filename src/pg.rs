@@ -7,7 +7,7 @@ globs18::{ins_last_char_to_string1_from_string1,
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1, manage_lst};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -337,6 +337,10 @@ pub(crate) fn exec_cmd(cmd: String){
     }
     if cmd.as_str().substring(0, 4) == "ren "{
         renFile();
+        return;
+    }
+    if cmd.as_str().substring(0, 3) == "lst"{
+        manage_lst(&cmd);
         return;
     }
     if cmd.as_str().substring(0, 2) == "cd"{

@@ -2,6 +2,7 @@
 #[path = "exts.rs"]
 mod exts;
 use exts::*;
+use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
 use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
@@ -40,24 +41,31 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing()
+}
+pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
+    static mut name0: Lazy<String> = Lazy::new(||{String::new()});
+    if set {unsafe { *name0 = name.to_string();}}
+    unsafe{name0.to_string()}
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
@@ -144,6 +152,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
+    crate::run_cmd0(mk_cache_dir);
+     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
     return true;
 }
@@ -603,7 +613,7 @@ pub(crate) fn save_file_abs_adr0(content: String, fname: String) -> bool{
     run_cmd_str(cmd.as_str());
     true
 }
-#[inline(always)]
+//#[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
     mkdir(path_to_file);
@@ -613,11 +623,11 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().read(true).append(true).write(true).open(&fname){
+    let mut file: File = match File::options().read(true).write(true).open(&fname){
         Ok(f) => f,
         Err(e) => match e.kind(){
             std::io::ErrorKind::NotFound => anew_file(),
-            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            std::io::ErrorKind::AlreadyExists => {rm_file(&fname); File::create_new(&fname).unwrap()},
             _ => existing_file()
         }
     };
