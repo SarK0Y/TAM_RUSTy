@@ -219,7 +219,7 @@ pub fn bksp() -> String{
      let mut ret = String::new();
      let prnt = get_prnt(-3);
      if len > 0 {len -= 1;}
-    let mut indx = unsafe {shift_cursor_of_prnt(2, -2).shift};
+    let mut indx = unsafe {shift_cursor_of_prnt(2, None, -2).shift};
     if indx <= len {indx = len - indx;}
     ret = rm_char_from_string(indx, &prnt);
     if len == 0{save_file("".to_string(), "prnt".to_string());}

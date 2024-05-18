@@ -123,7 +123,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
        // achtung(Key.as_str());
-        unsafe {shift_cursor_of_prnt(1, func_id).shift};
+        unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F5, Key.as_str()) == 0 {
@@ -139,13 +139,13 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(i64::MIN, func_id).shift};
+    unsafe {shift_cursor_of_prnt(i64::MIN, None, func_id).shift};
     return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(i64::MAX, func_id).shift};
+    unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
     return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(-1, func_id).shift};
+    unsafe {shift_cursor_of_prnt(-1, None, func_id).shift};
     //io::stdout().lock().flush().unwrap();
     achtung("left arrow");
     return "dontPass".to_string();}
@@ -171,7 +171,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0{
         key_f12(func_id); return "dontPass".to_string();} 
     if crate::globs18::eq_ansi_str(&kcode::DELETE, Key.as_str()) == 0{
-        let shift = unsafe {shift_cursor_of_prnt(1, func_id).shift};
+        let shift = unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
         let mut indx = get_prnt(func_id).chars().count();
         if shift <= indx {indx -= shift;}
         let prnt = rm_char_from_string(indx, &get_prnt(func_id));
@@ -237,7 +237,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
 }
 pub(crate) fn form_cmd_newline_default(){
     let func_id = crate::func_id18::form_cmd_line_default_;
-    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, None, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
     let full_path = read_user_written_path();
@@ -262,7 +262,7 @@ pub(crate) fn form_cmd_newline_default(){
 
 pub(crate) fn form_cmd_line_default(){
     let func_id = crate::func_id18::form_cmd_line_default_;
-    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, None, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
     let full_path = read_user_written_path();
