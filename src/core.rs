@@ -5,7 +5,7 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -153,9 +153,24 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
     crate::run_cmd0(mk_cache_dir);
-     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
+    crate::run_cmd0(mk_cache_dir);
+    mk_dummy_lnks();
     return true;
+}
+pub(crate) fn mk_dummy_lnks(){
+    mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
+}
+pub(crate) fn mk_dummy_lnk(head: &str){
+    let cmd = "whereis ".to_string() + head;
+    let ret = run_cmd_out(cmd).replace(&format!("{head}:"), "").trim_start().to_string();
+    let (ret, _) = split_once(&ret, head);
+    if ret != "none"{
+        let cmd = format!("ln -sf {ret}/{head} {}", format!("{}/{head}", take_list_adr("env/dummy_lnks")));
+        run_cmd0(cmd);
+    }
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {return}
@@ -597,12 +612,12 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     logs(&fname, "rewrite_file_abs_adr");
     let anew_file = || -> File{rm_file(&fname); return match File::options().create_new(true).write(true).open(&fname){
-        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return Box::new(Box::new(File::options().create_new(true).write(true).open(&fname)))
+        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return File::options().create_new(true).write(true).open(&fname)
             .expect(&format!("Failed again to create {fname}... Sorry"))}
     }};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return false
     };
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true

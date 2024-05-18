@@ -251,7 +251,7 @@ pub(crate) fn mk_dummy_file() -> String{
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();
-    let cmd = format!("ps -eo pid,args|grep '{dummy}'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
+    let cmd = format!("ps -eo pid,args|grep -Ei 'tam.*dummy'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
 #[cfg(feature="in_dbg")]
 { crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
     run_cmd_out_sync(cmd)
