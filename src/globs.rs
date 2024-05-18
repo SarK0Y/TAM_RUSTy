@@ -716,4 +716,24 @@ pub(crate) fn check_patch_mark(strn: &String) -> bool{
     let patch_mark_len = "::patch".to_string().chars().count();
     if strn_len > patch_mark_len && strn.substring(strn_len - patch_mark_len, strn_len) == "::patch"{return true} false
 }
+pub(crate) fn split_strn_by_not_escaped_spaces(strn: &String) -> Vec<String>{
+    let mut vec: Vec<String> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    let len = strn.chars().count();
+    let mut slice = "".to_string();
+    for v in 0..len{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){vec.push(slice.clone()); slice.clear(); continue;}
+        slice.push(ch.unwrap());
+    }
+    vec
+}
+pub(crate) fn enum_not_escaped_spaces_in_strn(strn: &String) -> Vec<usize>{
+    let mut vec: Vec<usize> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    let len = strn.chars().count();
+    for v in 0..len{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){ vec.push(v.clone()); }
+    }
+    vec
+}
 //fn

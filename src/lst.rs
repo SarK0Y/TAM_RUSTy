@@ -76,8 +76,10 @@ pub(crate) fn term_mv(cmd: &String){
     let all_files = vec_2_strn_multilined(&vec_files, 1);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
-    ending("mv");
-    let cmd = format!("mv {add_opts} {dummy_file} {all_files} {finally_to}");    
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/mv");
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
 }
@@ -89,8 +91,10 @@ pub(crate) fn term_cp(cmd: &String){
     let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
-    ending("cp");
-    let cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");    
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
 }

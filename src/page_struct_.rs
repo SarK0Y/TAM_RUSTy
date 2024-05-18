@@ -233,7 +233,7 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
     if val_id == NUM_ROWS_ {return NUM_ROWS}
     if val_id == crate::set(NUM_ROWS_) {NUM_ROWS = val; return val}
     if val_id == NUM_FILES_ {return NUM_FILES}
-    if val_id == crate::set(NUM_FILES_) {
+    if val_id == crate::set(NUM_FILES_) { let mut val = val; if val == 0 {val += 1;};
 #[cfg(feature="in_dbg")] if crate::breaks("show num files", 1, true).0 == 1 && crate::breaks("show num files", 1, true).1{crate::report(&format!("{val}"), "num files");}
       NUM_FILES = val; return val;}
     if val_id ==  COUNT_PAGES_ {return COUNT_PAGES}
