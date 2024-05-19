@@ -365,7 +365,7 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
 pub(crate) fn user_writing_path(key: String) -> bool{
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
     let mut cur_cur_pos = crate::read_prnt().chars().count();
-    let shift = unsafe {crate::shift_cursor_of_prnt(0, -19).shift};
+    let shift = unsafe {crate::shift_cursor_of_prnt(0, None, -19).shift};
     if cur_cur_pos > shift {cur_cur_pos -= shift;}
     if position_of_slash_in_prnt() >= cur_cur_pos {unsafe {swtch_fn(-2, crate::cpy_str(&key))} return false;}
    // set_ask_user(&save_path, -1); //dbg here

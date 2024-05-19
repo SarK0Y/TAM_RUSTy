@@ -219,7 +219,7 @@ pub fn bksp() -> String{
      let mut ret = String::new();
      let prnt = get_prnt(-3);
      if len > 0 {len -= 1;}
-    let mut indx = unsafe {shift_cursor_of_prnt(2, -2).shift};
+    let mut indx = unsafe {shift_cursor_of_prnt(2, None, -2).shift};
     if indx <= len {indx = len - indx;}
     ret = rm_char_from_string(indx, &prnt);
     if len == 0{save_file("".to_string(), "prnt".to_string());}
@@ -716,4 +716,42 @@ pub(crate) fn check_patch_mark(strn: &String) -> bool{
     let patch_mark_len = "::patch".to_string().chars().count();
     if strn_len > patch_mark_len && strn.substring(strn_len - patch_mark_len, strn_len) == "::patch"{return true} false
 }
+pub(crate) fn split_strn_by_not_escaped_spaces(strn: &String) -> Vec<String>{
+    let mut vec: Vec<String> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    let len = strn.chars().count();
+    let mut slice = "".to_string();
+    for v in 0..len{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){vec.push(slice.clone()); slice.clear(); continue;}
+        slice.push(ch.unwrap());
+    }
+    vec
+}
+pub(crate) fn enum_not_escaped_spaces_in_strn(strn: &String) -> Vec<usize>{
+    let mut vec: Vec<usize> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    let len = strn.chars().count();
+    for v in 0..len{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){ vec.push(v.clone()); }
+    }
+    vec
+}
+pub(crate) fn enum_not_escaped_spaces_in_strn_down_to(strn: &String, bar: usize) -> Vec<usize>{
+    let mut vec: Vec<usize> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    let len = strn.chars().count();
+    for v in 0..len{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\') && v > bar{ vec.push(v.clone()); }
+    }
+    vec
+}
+pub(crate) fn enum_not_escaped_spaces_in_strn_up_to(strn: &String, bar: usize) -> Vec<usize>{
+    let mut vec: Vec<usize> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    for v in 0..bar{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){ vec.push(v.clone()); }
+    }
+    vec
+}
+
 //fn

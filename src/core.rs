@@ -289,7 +289,7 @@ pub(crate) fn full_escape(str0: &String) -> String{
     escape_symbs(&str0)
 }
 pub(crate) fn key_f12(func_id: i64){
-    unsafe {crate::shift_cursor_of_prnt(0, func_id)};
+    unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
     crate::set_prnt("", func_id);
     rm_user_written_path(func_id)
 }

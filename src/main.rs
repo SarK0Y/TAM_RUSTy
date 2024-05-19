@@ -291,6 +291,8 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
+    // let mut x = 0u64;
+ //   loop{ x += 1;}
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
