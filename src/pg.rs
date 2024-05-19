@@ -7,7 +7,7 @@ globs18::{ins_last_char_to_string1_from_string1,
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1, manage_lst, PgDown};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1, manage_lst, PgDown, set_cur_cur_pos, usize_2_i64};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -121,9 +121,15 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if crate::globs18::eq_ansi_str(&kcode::UP_ARROW, Key.as_str()) == 0 {
         return "np".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(-1, None, func_id).shift};
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
-       // achtung(Key.as_str());
-        unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
+       unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F5, Key.as_str()) == 0 {
@@ -144,15 +150,16 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(i64::MIN, None, func_id).shift};
-    return "dontPass".to_string();}
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
-    return "dontPass".to_string();}
-    if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(-1, None, func_id).shift};
-    //io::stdout().lock().flush().unwrap();
-    achtung("left arrow");
-    return "dontPass".to_string();}
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::INSERT, Key.as_str()) == 0 {
         let cmd = format!("{}>::insert",crate::Ins_key());
         return cmd;

@@ -79,7 +79,7 @@ pub(crate) fn PgDown(){
     loop {
         let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, 74444418691).shift};
         if cur_cur_pos == enum_spaces[0]{ return;}
-        if cur_cur_pos == enum_spaces[i] && !pass{ pass = true; continue;}
+        if delta::<usize>(cur_cur_pos, enum_spaces[i]) < 3 && !pass{ pass = true; continue;}
         if cur_cur_pos > enum_spaces[i]{
             pass = false;
             popup_msg(&cur_cur_pos.to_string());
@@ -89,5 +89,9 @@ pub(crate) fn PgDown(){
         if i == 0{break;}
         i -= 1;
     }
+}
+pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::Sub<Output=T> + std::cmp::PartialOrd{
+    if fst > nd{return fst - nd;}
+    return nd - fst
 }
 //fn
