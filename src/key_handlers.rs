@@ -69,7 +69,7 @@ pub(crate) fn PgDown(){
     let mut dt = usize::MAX;
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
     let len = read_prnt().len();
-    popup_msg(&cur_cur_pos.to_string());
+    //popup_msg(&cur_cur_pos.to_string());
     let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
@@ -79,10 +79,11 @@ pub(crate) fn PgDown(){
     loop {
         let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, 74444418691).shift};
         if cur_cur_pos == enum_spaces[0]{ return;}
-        if delta::<usize>(cur_cur_pos, enum_spaces[i]) < 3 && !pass{ pass = true; continue;}
+        if delta::<usize>(cur_cur_pos, enum_spaces[mm(i, 1)]) < 3{ set_cur_cur_pos(crate::usize_2_i64(enum_spaces[mm(i, 1)]), 74444418691);
+            {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[ mm(i, 1) ]), 74444418691).shift}; return}}
         if cur_cur_pos > enum_spaces[i]{
             pass = false;
-            popup_msg(&cur_cur_pos.to_string());
+           // popup_msg(&cur_cur_pos.to_string());
             set_cur_cur_pos(crate::usize_2_i64(enum_spaces[i]),74444418691);
             {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[i]), 74444418691).shift}; return}
         } 
@@ -93,5 +94,12 @@ pub(crate) fn PgDown(){
 pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::Sub<Output=T> + std::cmp::PartialOrd{
     if fst > nd{return fst - nd;}
     return nd - fst
+}
+pub(crate) fn mm <T>(val: T, m: T) -> T where T: std::ops::Sub<Output=T> + std::cmp::PartialOrd{
+    if val > m {return val - m;}
+    val
+}
+fn ret_type_of<T>(_: &T) -> &str {
+   std::any::type_name::<T>()
 }
 //fn
