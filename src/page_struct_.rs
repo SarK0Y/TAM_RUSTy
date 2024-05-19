@@ -268,7 +268,8 @@ pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, just_set_shift: Option<usi
       };
   }
   if shift == 0{
-    ret.shift= num_of_shifts;
+    ret.shift= len - num_of_shifts;
+    if ret.shift == 0{ret.shift = len}
   }
     ret.str__.push_str(shift!());
     return ret

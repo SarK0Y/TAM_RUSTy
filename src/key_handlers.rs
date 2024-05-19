@@ -1,4 +1,4 @@
-use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg};
+use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg};
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
     let front_list = read_front_list();
@@ -64,23 +64,24 @@ pub(crate) fn swtch_tam_konsole(){
     run_cmd0(cmd);
 }
 pub(crate) fn PgDown(){
-    let enum_spaces = enum_not_escaped_spaces_in_strn(&read_prnt());
-    if enum_spaces.len() == 0{return;}
-    let mut dt = usize::MAX;
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
     let len = read_prnt().len();
-    //popup_msg(&cur_cur_pos.to_string());
-    let mut som = Some(len - cur_cur_pos);
+     let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
-    if cur_cur_pos == enum_spaces[0]{ return;}
+    if cur_cur_pos == 0{ return;}
+    let enum_spaces = enum_not_escaped_spaces_in_strn_up_to(&read_prnt(), cur_cur_pos);
+    if enum_spaces.len() == 0{return;}
+    let mut dt = usize::MAX;
+    //popup_msg(&cur_cur_pos.to_string());
     let mut i = enum_spaces.len() - 1;
     let mut pass = false;
     loop {
         let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, 74444418691).shift};
         if cur_cur_pos == enum_spaces[0]{ return;}
-        if delta::<usize>(cur_cur_pos, enum_spaces[mm(i, 1)]) < 3{ set_cur_cur_pos(crate::usize_2_i64(enum_spaces[mm(i, 1)]), 74444418691);
-            {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[ mm(i, 1) ]), 74444418691).shift}; return}}
+        /*if delta::<usize>(cur_cur_pos, enum_spaces[i]) < 3{ set_cur_cur_pos(crate::usize_2_i64(enum_spaces[mm(i, 1)]), 74444418691);
+            {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[ mm(i, 1) ]), 74444418691).shift};
+            popup_msg("msg"); return}}*/
         if cur_cur_pos > enum_spaces[i]{
             pass = false;
            // popup_msg(&cur_cur_pos.to_string());
@@ -96,7 +97,7 @@ pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::
     return nd - fst
 }
 pub(crate) fn mm <T>(val: T, m: T) -> T where T: std::ops::Sub<Output=T> + std::cmp::PartialOrd{
-    if val > m {return val - m;}
+    if val >= m {return val - m;}
     val
 }
 fn ret_type_of<T>(_: &T) -> &str {

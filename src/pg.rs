@@ -156,7 +156,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
-       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       let pos = read_prnt().len();
        set_cur_cur_pos(usize_2_i64(pos), func_id);
         return "dontPass".to_string();
     }

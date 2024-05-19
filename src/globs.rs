@@ -736,4 +736,12 @@ pub(crate) fn enum_not_escaped_spaces_in_strn(strn: &String) -> Vec<usize>{
     }
     vec
 }
+pub(crate) fn enum_not_escaped_spaces_in_strn_up_to(strn: &String, bar: usize) -> Vec<usize>{
+    let mut vec: Vec<usize> = Vec::new(); let strn = strn.trim_start_matches(' ').trim_end_matches(' ').to_string();
+    for v in 0..bar{
+        let ch = strn.chars().nth(v);
+        if ch == Some(' ') && v > 0 && strn.chars().nth(v - 1) != Some('\\'){ vec.push(v.clone()); }
+    }
+    vec
+}
 //fn
