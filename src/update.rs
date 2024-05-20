@@ -48,7 +48,7 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
-background_fixing_count(4);
+background_fixing_count(2);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
@@ -75,7 +75,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls(cmd);
-    background_fixing();
+    background_fixing_count(1);
 }
 pub(crate) fn lets_write_path(key: String){
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
@@ -159,7 +159,7 @@ let ls_mode = take_list_adr("ls.mode");
 pub(crate) fn fix_screen(){
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
-        for i in 0..2{
+        for i in 0..1{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
