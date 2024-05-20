@@ -198,7 +198,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     };
     if ansiKey == 0{if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}} return crate::get_prnt(func_id);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
-    if kcode::ENTER == ansiKey{crate::globs18::Enter(); let decoded_prnt = crate::globs18::decode_sub_cmds(& crate::get_prnt(func_id)); return decoded_prnt;} 
+    if kcode::ENTER == ansiKey{crate::Enter(); let decoded_prnt = crate::globs18::decode_sub_cmds(& crate::get_prnt(func_id)); return decoded_prnt;} 
     if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
     if kcode::ESCAPE == ansiKey{println!("esc pressed");}
     if kcode::TAB == ansiKey{println!("tab pressed");}  

@@ -194,18 +194,6 @@ pub(crate) fn F3_key() -> String{
     set_user_written_path_from_strn(path.to_string());
     prnt
 }
-pub(crate) fn Enter(){
-    let mut prnt = get_prnt(-881454);
-    let (term, _) = split_once(&prnt, " ");
-    if term == "term"{
-        prnt = format!("{prnt}:>:no_upd_scrn");
-        //set_prnt(&prnt, -881454);
-    }
-    let mut mode = 0i64;
-    crate::C!(check_mode(&mut mode));
-    if mode == SWTCH_USER_WRITING_PATH{mode = SWTCH_RUN_VIEWER}
-    crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
-}
 pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     let flags = unsafe { fcntl(fd, F_GETFL, 0) };
     if flags < 0 {return Err(io::Error::last_os_error());}
