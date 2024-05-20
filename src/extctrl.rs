@@ -111,7 +111,7 @@ impl ManageLists for basic{
     let mut count: u64 = 0;
     let mut bal =String::new();
     loop{
-        //set_prnt(&bal, -1);
+        crate::clear_screen();
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
         let num_pg = crate::get_num_page(-55541555121);
