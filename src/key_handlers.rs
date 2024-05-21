@@ -78,7 +78,7 @@ pub(crate) fn swtch_tam_konsole(){
 }
 pub(crate) fn PgDown(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
-    let len = read_prnt().len();
+    let len = read_prnt().chars().count();
      let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
@@ -102,7 +102,7 @@ pub(crate) fn PgDown(){
 }
 pub(crate) fn PgUp(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
-    let len = read_prnt().len();
+    let len = read_prnt().chars().count();
      let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
