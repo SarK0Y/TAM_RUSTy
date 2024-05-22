@@ -36,6 +36,8 @@ use func_id18::*;
 #[path = "info.rs"]
 mod info;
 use info::*;
+#[path = "custom.traits.rs"]
+mod custom_traits;
 #[path = "cmd_keys.rs"]
 mod cmd_keys;
 use cmd_keys::*;
