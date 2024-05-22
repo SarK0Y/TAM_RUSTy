@@ -1,4 +1,4 @@
-use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg, drop_ls_mode};
+use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg, drop_ls_mode, add_cmd_in_history};
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
     let front_list = read_front_list();
@@ -39,6 +39,7 @@ pub(crate) fn Enter(){
     crate::C!(crate::swtch::check_mode(&mut mode));
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH{mode = crate::swtch::SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
+    add_cmd_in_history();
 }
 pub(crate) fn Ins_key() -> String{
     stop_term_msg();
@@ -78,7 +79,7 @@ pub(crate) fn swtch_tam_konsole(){
 }
 pub(crate) fn PgDown(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
-    let len = read_prnt().len();
+    let len = read_prnt().chars().count();
      let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
@@ -102,7 +103,7 @@ pub(crate) fn PgDown(){
 }
 pub(crate) fn PgUp(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
-    let len = read_prnt().len();
+    let len = read_prnt().chars().count();
      let mut som = Some(len - cur_cur_pos);
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};

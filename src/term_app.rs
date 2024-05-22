@@ -5,10 +5,11 @@ use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
+use crate::custom_traits::{STRN, helpful_math_ops};
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode, save_file_append_newline};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -263,5 +264,9 @@ pub(crate) fn ending(sav: &str) -> String{
 }
 pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
     run_cmd_out_sync(format!("kill {sig} {pid}"));
+}
+pub(crate) fn add_cmd_in_history(){
+    let prnt = read_prnt();
+    save_file_append_newline(prnt, "history".strn());
 }
 //fn

@@ -1,5 +1,6 @@
 use chrono::format;
 use num_traits::ToPrimitive;
+use crate::custom_traits::{STRN, helpful_math_ops};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
 pub const MAIN0_: i64 =  1;
@@ -206,7 +207,7 @@ pub fn bksp() -> String{
        let mut len = get_prnt(-3).chars().count(); if len == 0 {return len.to_string();}
      let mut ret = String::new();
      let prnt = get_prnt(-3);
-     if len > 0 {len -= 1;}
+     len.dec();
     let mut indx = unsafe {shift_cursor_of_prnt(2, None, -2).shift};
     if indx <= len {indx = len - indx;}
     ret = rm_char_from_string(indx, &prnt);
@@ -220,7 +221,7 @@ pub fn bksp() -> String{
 pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) -> String{
     let mut len = origString.chars().count(); if len == 0 || len == 1 || indx == len -1 {return origString.to_string();}
      let mut ret = String::new();
-     len -= 1; 
+     len.dec(); 
     let char0: char =match origString.chars().nth(len){
         Some(ch) => ch,
         _ => {/*println!("kkkkkkkkk");*/ return origString.to_string();}
@@ -242,7 +243,7 @@ pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) ->
 pub fn ins_last_char_to_string1_from_string1_ptr(indx: usize, origString: &mut String) {
     let mut len = origString.chars().count(); if len == 0 || len == 1 || indx == len -1 {return}
      let mut ret = String::new();
-     len -= 1; 
+     len.dec(); 
     let char0: char =match origString.chars().nth(len){
         Some(ch) => ch,
         _ => {/*println!("kkkkkkkkk");*/ return;}
@@ -612,7 +613,7 @@ pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
         if ret.1{ret0 = ret.0; continue;}
         {break;}
         if count_out == 0{break;}
-        count_out -= 1;
+        count_out.dec();
     } 
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
     ret0    

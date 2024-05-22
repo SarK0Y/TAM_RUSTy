@@ -8,7 +8,7 @@ pub(crate) fn SYS(){
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";
 const Project: &str = "Project: Tiny Automation Manager.";
-pub const Ver: &str = "Ver: 1.9.101-comfy-cli";
+pub const Ver: &str = "Ver: 1.9.105";
 const Telega: &str = "TELEGRAM: https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z)";
 const Ru_blog: &str = "ALG0Z RU: https://dzen.ru/alg0z";
 const En_blog: &str = "ALG0Z EN: https://alg0z.blogspot.com";
@@ -16,6 +16,8 @@ const ChangeLog: &str = "ChangeLog: https://alg0z8n8its9lovely6tricks.blogspot.c
 const Forum: &str = "FORUM: https://www.neowin.net/forum/topic/1430114-tam/";
 const E_mail: &str = " E-MAIL: sark0y@protonmail.com";
 const Github: &str = "GITHUB: https://github.com/SarK0Y/TAM_RUSTy.git";
+const YouTube: &str = "YouTube: https://www.youtube.com/@evgeneyknyazhev968";
+const Twitter_X: &str = "Twitter/X: https://x.com/SarK0Y8";
 const Supported_platforms: &str = "Supported platforms: TAM  for Linux & alike; TAW for Windows.";
 const LICENSE: &str = "License/Agreement:\n
 Personal usage will cost You $0.00, but don't be shy to donate me.. or You could support me any other way You want - just call/mail me to discuss possible variants for mutual gains. 🙂\n
@@ -36,6 +38,8 @@ banners_line(ChangeLog, "◑"); println!("");
 banners_line(Forum, "◑"); println!("");
 banners_line(E_mail, "◑"); println!("");
 banners_line(Github, "◑"); println!("");
+banners_line(YouTube, "◑"); println!("");
+banners_line(Twitter_X, "◑"); println!("");
 banners_line(Supported_platforms, "◑"); println!("");
 println!("{}", LICENSE);
 banners_line(donate, "◑"); println!("\n");
@@ -53,6 +57,8 @@ banners_line(ChangeLog, "◑"); println!("");
 banners_line(Forum, "◑"); println!("");
 banners_line(E_mail, "◑"); println!("");
 banners_line(Github, "◑"); println!("");
+banners_line(YouTube, "◑"); println!("");
+banners_line(Twitter_X, "◑"); println!("");
 banners_line(Supported_platforms, "◑"); println!("");
 println!("{}", LICENSE);
 banners_line(donate, "◑"); println!("\n");

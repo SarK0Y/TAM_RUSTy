@@ -277,8 +277,7 @@ pub(crate) fn list_the_lists(){
     mark_front_lst("lst"); set_front_list2("lst", 0);
 }
 pub(crate) fn manage_lst(cmd: &String){
-    if *cmd == "lst"{list_the_lists(); mark_front_lst("lst"); set_front_list2("lst", 0); return;}
-    if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
+    let cmd0 =cmd.to_string();
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
@@ -286,25 +285,21 @@ pub(crate) fn manage_lst(cmd: &String){
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
-        let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
+        let item = full_escape(&item);
+        let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head));
         let cmd = format!("ln -sf {item} {link_2_item}");
         run_cmd0(cmd);
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
+    if cmd0 == "lst"{list_the_lists(); mark_front_lst("lst"); set_front_list2("lst", 0); return;}
+    if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
     if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
-    if lst_dir != path_2_item{
-        let head = read_tail(&item, "/");
-        let link_2_item = format!("{}/{}", take_list_adr("env/lst"), head);
-        let cmd = format!("ln -sf {item} {link_2_item}");
-        run_cmd0(cmd);
-        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191); return;
-    }
     let head = read_tail(&item, "/");
     mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
 }
