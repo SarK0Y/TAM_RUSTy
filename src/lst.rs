@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape};
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -43,7 +43,7 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     let mut old0 = old.clone().unwrap_or(empty.clone()); let mut new0 = new.clone().unwrap_or(empty);
     if old == Some("".to_string()){old = None} if new == Some("".to_string()){new = None}
     if old == Some("::clear patch::".to_string()){crate::C!(patch.clear()); return ("".to_string(), "".to_string(), false, 0)}
-    if old == Some("::prnt patch::".to_string()){crate::C!(dbg!(&patch)); return ("".to_string(), "".to_string(), false, 0)}
+    if old == Some("::prnt patch::".to_string()){crate::C!(dbg!(&patch.clone())); return ("".to_string(), "".to_string(), false, 0)}
     if old == Some("::patch len::".to_string()){return ("".to_string(), "".to_string(), false, crate::C!(patch.len()))}
     if old != None && new == Some("::clear entry::".to_string()){crate::C!(patch.remove(&old.unwrap())); return ("".to_string(), "".to_string(), false, 0)}
     if old != None && new != None{
@@ -69,33 +69,55 @@ pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
-    let alt_nl = char::from_u32(0x0a).unwrap();
+   /*/ let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
-    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let mut vec_files = paths_2_vec(&all_files, &nl);
-    let all_files = reorder_strn_4_cmd(&all_files);
+    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("mv {add_opts} {all_files} {finally_to}");    
+    let dummy_file = mk_dummy_file();
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/mv");
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app(cmd);
+    crate::run_term_app_ren(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
-    let alt_nl = char::from_u32(0x0a).unwrap();
-    let nl = String::from(alt_nl);
-    let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};
-    let mut vec_files = paths_2_vec(&all_files, &nl);
-    let all_files = reorder_strn_4_cmd(&all_files);
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
-    let cmd = format!("cp {add_opts} {all_files} {finally_to}");    
+    let dummy_file = mk_dummy_file();
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    crate::run_term_app_ren(cmd);
+}
+pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
+    let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
+    if if_shol_a.len() == 0{return false;}
+    let cmd = cmd.replace("term", "").trim_start_matches(' ').to_string();
+    let (cmd_name, cmd) = split_once(&cmd, " ");
+    ending(cmd_name.as_str());
+    let cmd = cmd.trim_start_matches(' ').to_string();
+    let (_, all_files, _) = parse_paths(&cmd);
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    //let dummy_file = mk_dummy_file();
+    let cmd = cmd.replace("%a", &all_files);
+    let cmd = format!("{cmd_name} {cmd}");    
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app(cmd);
+    true
 }
-
 fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
+    if match cmd.chars().nth(cmd.len() -1){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
     let re = Regex::new(r"(?x)
                             (?<long_name_opt>--\w+\s)|
                             (?<short_name_opt>-\w+\s)
@@ -197,3 +219,88 @@ pub(crate) fn paths_2_vec(strn: &String, delim: &str) -> Vec<String>{
     if ret.len() == 0{return strn_2_vec(strn, delim);}
     ret
 }
+pub(crate) fn lines_2_vec(strn: &String) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let mut paths = strn.to_string();
+    let lines = paths.lines();
+    for line in lines{
+        ret.push(line.trim_end().trim_start().to_string())
+    }
+    ret
+}
+pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
+    let mut ret = Vec::<String>::new();
+    let mut paths = strn.to_string();
+    let lines = paths.lines();
+    for line in lines{
+        let line = line.trim_end().trim_start().to_string();
+        let last = if line.chars().count() > 0{line.chars().count() -1}else {continue;};
+   // #[cfg(feature="in_dbg")] {println!("{}", line.chars().nth(last).unwrap().to_string()); getkey();}
+        if line.chars().nth(last).unwrap().to_string() == "/" {continue;}
+        ret.push(line)
+    }
+    ret
+}
+pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> String{
+    let mut ret = String::new();
+    let nl = char::from_u32(0x0a).unwrap().to_string();
+    let mut len = vec_strn.len(); len = if len > cut_off{len - cut_off}else{len};
+    for ln in vec_strn{
+        let ln = ln.trim_end().trim_start().trim_end_matches('\\');
+        if len == 0 {break;}
+        ret.push_str(format!("\\{nl} {ln}").as_str());
+        len -= 1;
+    } ret
+}
+pub(crate) fn list_the_lists(){
+    let lst = take_list_adr("lst");
+    let lst_dir = take_list_adr("env/lst");
+    let cmd = format!("find {lst_dir} > {lst}");
+    run_cmd0(cmd);
+    // check & add default lsts
+    if crate::Path::new(&take_list_adr("main0")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("main0"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("filter")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("filter"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("cd")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("cd"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("merge")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+    mark_front_lst("lst"); set_front_list2("lst", 0);
+}
+pub(crate) fn manage_lst(cmd: &String){
+    let cmd0 =cmd.to_string();
+    let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    if cmd.substring(0, 1) == "/"{
+        let item = get_path_from_strn(cmd.clone());
+        if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    if lst_dir != path_2_item{
+        let head = read_tail(&item, "/");
+        let item = full_escape(&item);
+        let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head));
+        let cmd = format!("ln -sf {item} {link_2_item}");
+        run_cmd0(cmd);
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
+    }
+    }
+    if cmd0 == "lst"{list_the_lists(); mark_front_lst("lst"); set_front_list2("lst", 0); return;}
+    if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
+    let ret = strn_2_usize(cmd);
+    if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
+    let item_indx = usize_2_i64(ret.unwrap());
+    let item = get_item_from_front_list(item_indx, true);
+    if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    let head = read_tail(&item, "/");
+    mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
+}
+//fn

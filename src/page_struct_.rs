@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file, read_front_list_but_ls};
+use crate::{globs18::{len_of_front_list, take_list_adr}, func_id18, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, cpy_str, complete_path, get_path_from_strn, rewrite_user_written_path, file_prnt, set_proper_num_pg, read_proper_num_pg, bkp_tmp_dir, read_front_list, save_file, read_front_list_but_ls, i64_2_usize};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -108,7 +108,7 @@ pub(crate) fn INS(val: &str) -> bool{
   if val == ""{return false}
   let func_id = crate::func_id18::INS_;
   let mut cur_cur_pos = get_prnt(func_id).chars().count();
-  let shift = unsafe {shift_cursor_of_prnt(2, func_id).shift};
+  let shift = unsafe {shift_cursor_of_prnt(2, None, func_id).shift};
   if cur_cur_pos >= shift {cur_cur_pos -= shift;}
       let mut string1 = "".to_string();
       let mut prnt0: String;
@@ -183,13 +183,13 @@ pub(crate) fn set_num_page(val: i64, func_id: i64) -> i64{
   set_proper_num_pg(proper_val);
   return unsafe{page_struct_int(proper_val, crate::set(NUM_PAGE_), func_id)}}
 pub(crate) fn get_num_pages(func_id: i64) -> i64{return unsafe{page_struct_int(0, COUNT_PAGES_, func_id)}}
-pub(crate) fn get_num_files(func_id: i64) ->i64{return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
+pub(crate) fn get_num_files(func_id: i64) ->i64{ return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
 pub(crate) fn fix_num_files(func_id: i64) ->i64{
    let mut len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10){
     Ok(i) => i,
     _ => 0
   } - 1; 
-   if len_of_front == -1{len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10).unwrap() - 1; }
+   if len_of_front == -1{len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){ Ok(i) => i, _ => 0}; }
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
    pub(crate) fn fix_num_files0(func_id: i64) ->i64{
    let len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){
@@ -200,8 +200,7 @@ pub(crate) fn fix_num_files(func_id: i64) ->i64{
 
 pub(crate) fn set_num_files(func_id: i64) ->i64{
    let len_of_front = i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10).unwrap();
-   let mut list_len_adr = read_front_list();
-   list_len_adr.push_str(".len");
+   let mut list_len_adr = crate::globs18::take_list_adr_len(&read_front_list());
    save_file(len_of_front.to_string(), list_len_adr); 
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
 pub(crate) fn set_num_files0(func_id: i64, len_of_front: usize) ->i64{
@@ -214,7 +213,8 @@ pub(crate) fn set_col_width(val: i64, func_id: i64) -> i64{return unsafe{page_st
 pub(crate) fn get_num_rows(func_id: i64) -> i64{return unsafe{page_struct_int(0, NUM_ROWS_, func_id)}}
 pub(crate) fn set_num_rows(val: i64, func_id: i64) -> i64{return unsafe{page_struct_int(val, crate::set(NUM_ROWS_), func_id)}}
 pub(crate) fn get_cur_cur_pos(func_id: i64) -> i64{return unsafe{page_struct_int(0, CUR_CUR_POS_, func_id)}}
-pub(crate) fn set_cur_cur_pos(val: i64, func_id: i64) -> i64{return unsafe{page_struct_int(val, crate::set(CUR_CUR_POS_), func_id)}}
+pub(crate) fn set_cur_cur_pos(val: i64, func_id: i64) -> i64{
+  return unsafe{page_struct_int(val, crate::set(CUR_CUR_POS_), func_id)}}
 pub(crate) fn get_left_shift_4_cur(func_id: i64) -> i64{return unsafe{page_struct_int(0, LEFT_SHIFT_4_CUR_, func_id)}}
 pub(crate) fn set_left_shift_4_cur(val: i64, func_id: i64) -> i64{return unsafe{page_struct_int(val, crate::set(LEFT_SHIFT_4_CUR_), func_id)}}
 pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i64{
@@ -234,7 +234,9 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
     if val_id == NUM_ROWS_ {return NUM_ROWS}
     if val_id == crate::set(NUM_ROWS_) {NUM_ROWS = val; return val}
     if val_id == NUM_FILES_ {return NUM_FILES}
-    if val_id == crate::set(NUM_FILES_) {NUM_FILES = val; return val;}
+    if val_id == crate::set(NUM_FILES_) { let mut val = val; if val == 0 {val += 1;};
+#[cfg(feature="in_dbg")] if crate::breaks("show num files", 1, true).0 == 1 && crate::breaks("show num files", 1, true).1{crate::report(&format!("{val}"), "num files");}
+      NUM_FILES = val; return val;}
     if val_id ==  COUNT_PAGES_ {return COUNT_PAGES}
     if val_id == crate::set(COUNT_PAGES_) {COUNT_PAGES = val; return val;}
     if val_id ==  CUR_CUR_POS_ {return CUR_CUR_POS as i64}
@@ -245,22 +247,29 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
     if val_id == crate::set(COL_WIDTH_) {COL_WIDTH = val; return val;}
  return -1;  
 }
-pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, func_id: i64) -> shift_cur_struct{ // shift == 0 to get cursor position, -1 to move left for one char, 1 to move right /
+pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, just_set_shift: Option<usize>, func_id: i64) -> shift_cur_struct{ // shift == 0 to get cursor position, -1 to move left for one char, 1 to move right /
   static mut num_of_shifts: usize = 0;                                          // i64::MIN/MAX to set num_of_shifts = 0/END, 2 to ret num_of_shifts w/ no string /
   let mut str__ = String::from("");                                             // 3 to ret str of shifts
+  if just_set_shift.is_some(){
+    num_of_shifts = just_set_shift.unwrap(); return shift_cur_struct{
+      str__: "".to_string(),
+      shift: num_of_shifts
+    };
+  }
   let len = get_prnt(func_id).chars().count();
   let mut ret = shift_cur_struct{shift: num_of_shifts, str__: str__};
   if shift == i64::MIN{num_of_shifts = len;}
   if shift == i64::MAX{num_of_shifts = 0;}
   if shift == 2 {return ret;}
-  if shift == 0 && shift == 3{
+  if shift == 0 || shift == 3{
   macro_rules! shift {
       () => {
       repeat_char(num_of_shifts, "\x1b[D").as_str()      
       };
   }
   if shift == 0{
-    ret.str__ = get_prnt(-2);
+    if len > num_of_shifts {ret.shift= len - num_of_shifts;}
+    if ret.shift == 0{ret.shift = len}
   }
     ret.str__.push_str(shift!());
     return ret
@@ -353,7 +362,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     let cpy: fn(&String) -> String = |val: &String| -> String{return val.to_string();}; 
     if id_of_val == PRNT_  {ps_ret.str_.push_str(cpy_str(&*PRNT.get()).as_str());/*String::from(PRNT.get().unwrap())*/; return ps_ret;}
     if id_of_val == crate::set(PRNT_) {crate::set_prnt_!(&val.to_string()); file_prnt(val.to_string()); 
-       if *PRNT.get() != val {panic!("set_prtn failed")} ps_ret.str_= "ok".to_string(); prnt_set =true; return ps_ret;}
+       if *PRNT.get() != val {println!("set_prtn failed")} ps_ret.str_= "ok".to_string(); prnt_set =true; return ps_ret;}
     if id_of_val == NUM_OF_VIEWERS  {ps_ret.int = VIEWER.get().unwrap().len().to_i64().unwrap(); return ps_ret;}
     if id_of_val == VIEWER_  {
       let indx = share_usize(usize::MAX, id_of_caller);

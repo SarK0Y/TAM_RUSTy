@@ -1,3 +1,9 @@
+/* example
+#[cfg(feature="in_dbg")]
+    if crate::breaks("break patch", 1, true).0 == 1 && crate::breaks("break patch", 1, true).1{
+        println!("break patch 1")
+    }
+ */
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use once_cell::sync::Lazy; use substring::Substring;
@@ -19,7 +25,7 @@ pub(crate) fn manage_breaks(cmd: &String){
     let (name, id) = crate::split_once(cmd.as_str(), "::");
     let name = name.trim_end_matches(' ').trim_start_matches(' ').to_string(); let id = id.trim_end().trim_start().to_string();
     println!("id: {id}");
-    let id = crate::globs18::strn_2_u64(id).unwrap();
+    let id = match crate::globs18::strn_2_u64(id){Some(id) => id, _ => return crate::errMsg0("Example: br:my mark::num")};
     breaks(&name, id, false);
 }
 pub(crate) fn just_break(){

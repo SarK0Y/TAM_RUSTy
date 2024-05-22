@@ -105,10 +105,10 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd");
-if run_command.status.success(){
+if !run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
     return match from_utf8(&run_command.stdout){
@@ -213,7 +213,7 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd_out_sync");
 return match from_utf8(&run_command.stdout){
@@ -291,6 +291,8 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
+    // let mut x = 0u64;
+ //   loop{ x += 1;}
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
