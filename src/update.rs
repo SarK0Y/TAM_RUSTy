@@ -1,4 +1,4 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists, dont_scrn_fix, KonsoleTitle};
+use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists, dont_scrn_fix, KonsoleTitle, swtch_ls};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
@@ -53,6 +53,7 @@ background_fixing_count(2);
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
 pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
+    if !swtch_ls(false, false){drop_ls_mode(); return}
     let mut head = String::new();
     let mut tail = String::new();
     let os_str = OsStr::new("");

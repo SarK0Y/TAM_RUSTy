@@ -54,6 +54,8 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 9) == "::drop ls"{crate::drop_ls_mode(); return empty;}
     if file_indx.as_str().substring(0, 6) == "no esc"{crate::swtch_esc(true, false); return empty;}
     if file_indx.as_str().substring(0, 6) == "en esc"{crate::swtch_esc(true, true); return empty;}
+    if file_indx.as_str().substring(0, 5) == "en ls"{crate::swtch_ls(true, true); return empty;}
+    if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
