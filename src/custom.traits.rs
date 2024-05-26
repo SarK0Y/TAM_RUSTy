@@ -1,4 +1,4 @@
-use num_traits::Bounded;
+use num_traits::Bounded; use core::mem::size_of;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
 }
@@ -26,6 +26,19 @@ pub(crate) trait helpful_math_ops
 {
     fn inc(&mut self) -> Self;
     fn dec(&mut self) -> Self;
+}
+pub(crate) trait arr2number {
+    fn arr2u64(&mut self) -> u64;
+}
+impl arr2number for Vec<u8>{
+    fn arr2u64(&mut self) -> u64 {
+        let mut ret = 0u64;
+        let len = if size_of::<u64>() > self.len(){self.len()}else{size_of::<u64>()};
+        for i in 0..len{
+            ret +=(self[i] << i) as u64;
+        }
+        ret
+    }
 }
 impl helpful_math_ops for usize {
     fn inc(&mut self) -> Self{
