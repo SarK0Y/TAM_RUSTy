@@ -1,11 +1,12 @@
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::Entry;
 use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list};
+use crate::custom_traits::STRN;
+use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
 pub(crate) fn reorder_list_4_cmd(name: &str) -> String{
@@ -57,6 +58,18 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
         }
     }
 ret
+}
+pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
+    static mut no_esc: Lazy<no_esc_t> = Lazy::new(||{HashSet::new()});
+    if insert{
+        unsafe{
+            no_esc.insert(rec.strn());
+        } return None
+    }
+    unsafe{match no_esc.get(rec){
+        Some(j) => Some("".strn()),
+        _ => None
+    }}
 }
 pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
     let key = full_escape(&key);
