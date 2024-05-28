@@ -288,11 +288,6 @@ pub(crate) fn full_escape(str0: &String) -> String{
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)
 }
-pub(crate) fn key_f12(func_id: i64){
-    unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
-    crate::set_prnt("", func_id);
-    rm_user_written_path(func_id)
-}
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;
     let probe: String = String::from(probe.to_string());

@@ -81,6 +81,20 @@ pub(crate) fn swtch_tam_konsole(){
     let id_suffix = id_suffix(); let cmd = format!("krunner '{id_suffix}'");
     run_cmd0(cmd);
 }
+pub(crate) fn F1_key() -> String{
+    let mut prnt: String = read_prnt();
+   crate::globs18::set_main0_as_front();
+   crate::ps18::fix_num_files(-13971);
+   crate::clean_cache("main0");
+   crate::core18::rm_file(&take_list_adr("msgs/term/state"));
+format!("go2 {}", read_file("main0.pg"))
+}
+pub(crate) fn key_f12(func_id: i64){
+    unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
+    crate::set_prnt("", func_id);
+    crate::core18::rm_file(&take_list_adr("msgs/term/state"));
+    crate::rm_user_written_path(func_id)
+}
 pub(crate) fn PgDown(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
     let len = read_prnt().chars().count();

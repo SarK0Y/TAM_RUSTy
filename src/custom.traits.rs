@@ -29,6 +29,7 @@ pub(crate) trait helpful_math_ops
 }
 pub(crate) trait arr2number {
     fn arr2u64(&mut self) -> u64;
+    fn arr2u128(&mut self) -> u128;
 }
 impl arr2number for Vec<u8>{
     fn arr2u64(&mut self) -> u64 {
@@ -36,6 +37,32 @@ impl arr2number for Vec<u8>{
         let len = if size_of::<u64>() > self.len(){self.len()}else{size_of::<u64>()};
         for i in 0..len{
             ret +=(self[i] << i) as u64;
+        }
+        ret
+    }
+     fn arr2u128(&mut self) -> u128 {
+        let mut ret = 0u128;
+        let len = if size_of::<u128>() > self.len(){self.len()}else{size_of::<u128>()};
+        for i in 0..len{
+            ret +=(self[i] << i) as u128;
+        }
+        ret
+    }
+}
+impl arr2number for Vec<u16>{
+    fn arr2u64(&mut self) -> u64 {
+        let mut ret = 0u64;
+        let len = if size_of::<u64>() > self.len(){self.len()}else{size_of::<u64>()};
+        for i in 0..len{
+            ret +=(self[i] << i) as u64;
+        }
+        ret
+    }
+    fn arr2u128(&mut self) -> u128 {
+        let mut ret = 0u128;
+        let len = if size_of::<u128>() > self.len(){self.len()}else{size_of::<u128>()};
+        for i in 0..len{
+            ret +=(self[i] << i) as u128;
         }
         ret
     }

@@ -145,7 +145,7 @@ pub(crate) fn clear_merge(){
     let filter_file_path = format!("{}/merge", get_tmp_dir(1911471));
     rm_file(&filter_file_path);
     clean_cache("merge");
-    F1_key();
+    crate::key_handlers::F1_key();
 }
 pub(crate) fn show_ls(){
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
@@ -164,13 +164,6 @@ pub(crate) fn set_valid_list_as_front(){
     let front_list_link = format!("{}/found_files", &tmp_dir);
     let cmd = format!("#valid list as front\nln -sf {} {}", active_lst, front_list_link);
     run_cmd_str(&cmd);
-}
-pub(crate) fn F1_key() -> String{
-    let mut prnt: String = read_prnt();
-   set_main0_as_front();
-   crate::ps18::fix_num_files(-13971);
-   clean_cache("main0");
-format!("go2 {}", read_file("main0.pg"))
 }
 pub(crate) fn F3_key() -> String{
     let mut prnt: String = read_prnt();
