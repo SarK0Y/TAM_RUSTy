@@ -6,8 +6,10 @@ globs18::{ins_last_char_to_string1_from_string1,
     rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, 
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
+    custom_traits::STRN,
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1, manage_lst, PgDown, set_cur_cur_pos, usize_2_i64, PgUp};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, 
+    main_update, swtch_tam_konsole, info1, manage_lst, PgDown, set_cur_cur_pos, usize_2_i64, PgUp};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -297,6 +299,8 @@ pub(crate) fn form_cmd_line_default(){
     let whole_line_len = prompt.len() + prnt.len() + 2;
     prnt.push_str(shift.as_str());
     wipe_cmd_line(whole_line_len);
+    //let prompt = format!("\033[1m{}\033[0m", prompt);
+    let prompt = format!("{}", prompt.bold());
     form_cmd_line(prompt, prnt)
 }
 pub(crate) fn custom_input(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
