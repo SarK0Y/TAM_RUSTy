@@ -2,6 +2,19 @@ use num_traits::Bounded; use core::mem::size_of;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
 }
+pub(crate) trait STRN_strip {
+    fn strip(&self, ch: &str) -> String;
+}
+impl STRN_strip for str {
+    fn strip(&self, ch_strip: &str) -> String{
+        let mut ret = "".strn();
+        let ch_strip = ch_strip.chars().nth(0);
+        for ch in self.chars(){
+            if let Some(ch) = ch_strip{continue;}
+            ret.push(ch);
+        } ret
+    }
+}
 impl STRN for str {
     fn strn(&self) -> String{
         String::from(self)

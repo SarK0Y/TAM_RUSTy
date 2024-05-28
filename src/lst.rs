@@ -5,7 +5,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::custom_traits::STRN;
+use crate::custom_traits::{STRN, STRN_strip};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -159,9 +159,6 @@ fn parse_paths(cmd: &String) -> (String, String, String){
         let all_files = escape_backslash(&all_files);
         let all_files = escape_apostrophe(&all_files);
         let all_files = escape_symbs(&all_files);
-        let to = escape_backslash(&to);
-        let to = escape_apostrophe(&to);
-        let to = escape_symbs(&to);
         ret.0 = format!("{}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 4) == "%enu"{
@@ -171,9 +168,6 @@ fn parse_paths(cmd: &String) -> (String, String, String){
         let all_files = escape_backslash(&all_files);
         let all_files = escape_apostrophe(&all_files);
         let all_files = escape_symbs(&all_files);
-        let to = escape_backslash(&to);
-        let to = escape_apostrophe(&to);
-        let to = escape_symbs(&to);
         ret.0 = format!("--backup=t {}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 1) == "/"{
@@ -181,15 +175,12 @@ fn parse_paths(cmd: &String) -> (String, String, String){
         let cmd = cmd.replace(" /", &delim); to = read_tail(&cmd, &delim);
         to = to.replace(":@@:", "\\ "); all_files = cmd.replace(&delim, "").replace(":@@:", "\\ ").replace(&to, "");
         to = format!("/{to}");
-        let to = escape_backslash(&to);
-        let to = escape_apostrophe(&to);
-        let to = escape_symbs(&to);
         ret.0 = format!("{}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     ret
 }
 fn all_to_patch(from_to: &(Vec<String>, String)){
-    let dir = from_to.1.clone();
+    let path = from_to.1.clone();
     //let err_msg =format!("{dir} isn't directory");
     //let mode_2_parse_paths = patch_msg(None);
     //if !is_dir2(&dir){errMsg0(&err_msg); return}
@@ -198,8 +189,8 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
     let len = from_to.0.len();
     for v in 0..len{
         let mut old = from_to.0[v].clone();
-        /*if mode_2_parse_paths == parse_paths::each_name_unique{ new = format!("{dir}/{count}_{}", read_tail(&old, "/")).replace("//", "/"); count += 1 }
-        else*/ { new = format!("{dir}/{}", read_tail(&old, "/")).replace("//", "/"); }
+        if crate::Path::new(&path.strip("\\")).is_dir(){ new = format!("{path}/{}", read_tail(&old, "/")).replace("//", "/"); }
+        else{ new = format!("{path}")}
         old = old.replace(r"\\", r"\"); new = new.replace(r"\\", r"\");
         __patch(Some(old), Some(new));
     }
