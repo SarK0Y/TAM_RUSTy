@@ -52,6 +52,10 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 5) == "key::"{crate::switch_cmd_keys(&file_indx); return empty;}
     if file_indx.as_str().substring(0, 12) == "::prnt patch"{crate::prnt_patch(); return empty;}
     if file_indx.as_str().substring(0, 9) == "::drop ls"{crate::drop_ls_mode(); return empty;}
+    if file_indx.as_str().substring(0, 6) == "no esc"{crate::swtch_esc(true, false); return empty;}
+    if file_indx.as_str().substring(0, 6) == "en esc"{crate::swtch_esc(true, true); return empty;}
+    if file_indx.as_str().substring(0, 5) == "en ls"{crate::swtch_ls(true, true); return empty;}
+    if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
@@ -76,6 +80,20 @@ pub(crate) fn Ins_key() -> String{
 pub(crate) fn swtch_tam_konsole(){
     let id_suffix = id_suffix(); let cmd = format!("krunner '{id_suffix}'");
     run_cmd0(cmd);
+}
+pub(crate) fn F1_key() -> String{
+    let mut prnt: String = read_prnt();
+   crate::globs18::set_main0_as_front();
+   crate::ps18::fix_num_files(-13971);
+   crate::clean_cache("main0");
+   crate::core18::rm_file(&take_list_adr("msgs/term/state"));
+format!("go2 {}", read_file("main0.pg"))
+}
+pub(crate) fn key_f12(func_id: i64){
+    unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
+    crate::set_prnt("", func_id);
+    crate::core18::rm_file(&take_list_adr("msgs/term/state"));
+    crate::rm_user_written_path(func_id)
 }
 pub(crate) fn PgDown(){
     let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));

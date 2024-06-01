@@ -1,12 +1,12 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.105"
+version = "1.9.113"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
-description = "Automation tool to make Console/Terminal more comfy."
+description = "Automation tool to make Console/Terminal more comfy. Have a great day, Dear User 💯❤️"
 crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "exotic", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities"]
@@ -31,6 +31,7 @@ ctrlc = "1.0.2"
 terminal_size = "0.3.0"
 crossterm="0.27.0"
 regex = "=1.10.3"
+Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.1"}
 #rustix = "0.38.28"
 #cached = "0.48.0"
 [features]

@@ -5,7 +5,7 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0, swtch_esc, no_esc_lst, custom_traits::STRN};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -258,7 +258,8 @@ pub(crate) struct ret0 {
    pub res: bool
 }
 pub(crate) fn escape_symbs(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     let  strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -276,22 +277,19 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace(r"'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
     let str0 = escape_backslash(str0);
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)
-}
-pub(crate) fn key_f12(func_id: i64){
-    unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
-    crate::set_prnt("", func_id);
-    rm_user_written_path(func_id)
 }
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;
