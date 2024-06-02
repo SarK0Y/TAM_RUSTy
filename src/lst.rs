@@ -278,6 +278,14 @@ pub(crate) fn list_the_lists(){
         let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
         run_cmd0(cmd);
     }
+     if crate::Path::new(&take_list_adr("mae")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+     if crate::Path::new(&take_list_adr("decrypted")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
     mark_front_lst("lst"); set_front_list2("lst", 0);
 }
 pub(crate) fn manage_lst(cmd: &String){

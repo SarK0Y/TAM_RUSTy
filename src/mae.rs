@@ -16,7 +16,8 @@ pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
         open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.encrypt(&fst_pswd, IK_len, buf_size);
-    crate::save_file0(file_to_encrypt, "mae".strn());
+    crate::save_file0(format!("{}.mae", file_to_encrypt), "mae".strn());
+    #[cfg(feature="in_dbg")] println!("pswd {fst_pswd}");
     println!("Dear User, Please, hit any key to continue.. Thanks."); getkey();
 }
 pub(crate) fn decrypt_copy(cmd: &String){
@@ -24,13 +25,15 @@ pub(crate) fn decrypt_copy(cmd: &String){
     let file_to_decrypt = cmd.replace("decrypt copy", "").trim_start().trim_end().strn();
     match std::fs::copy(&file_to_decrypt, file_to_decrypt.replace(".mae", "")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
     let fst_pswd = pswd(None);
-    let mut file = match help_funcs::get_file(&format!("{file_to_decrypt}")){Ok(f) => f, 
-                                                            Err(e) => return println!("Sorry, can't open {file_to_decrypt}: {e:?}")};
+    let mut file = match help_funcs::get_file(
+        &format!("{}", file_to_decrypt.replace(".mae", "") )
+    ){Ok(f) => f, Err(e) => return println!("Sorry, can't open {file_to_decrypt}: {e:?}")};
     let buf_size = crate::globs18::strn_2_usize(
         open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.decrypt(&fst_pswd, buf_size);
-    crate::save_file0(file_to_decrypt, "decrypted".strn());
+    crate::save_file0(file_to_decrypt.replace(".mae", ""), "decrypted".strn());
+#[cfg(feature="in_dbg")] println!("pswd {fst_pswd}");
     println!("Dear User, Please, hit any key to continue.. Thanks."); getkey();
 }
 pub(crate) fn kb_input(prompt: Option<String>, echo: bool) -> String{
@@ -45,7 +48,7 @@ pub(crate) fn kb_input(prompt: Option<String>, echo: bool) -> String{
         let ansiKey: u8 = match k.as_str().bytes().next(){
         Some(val) => val,
         _ => 0
-        };
+        }; // possible problem could be ahead
         if ansiKey == crate::kcode01::ENTER{break;}
         typed.push_str(k.as_str());
         if echo{print!("\r{prompt1}{}", typed.clone())}   
