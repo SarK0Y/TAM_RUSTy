@@ -1,39 +1,42 @@
 use Mademoiselle_Entropia::{Mademoiselle_Entropia::cipher, help_funcs};
 use crate::{custom_traits::{STRN, STRN_strip}, getkey};
-pub(crate) fn encrypt_n_keep_orig_file(cmd: String){
+pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
     let func_name = "encrypt_n_keep_orig_file".strn();
     let file_to_encrypt = cmd.replace("encrypt copy", "").trim_start().trim_end().strn();
     match std::fs::copy(&file_to_encrypt, format!("{file_to_encrypt}.mae")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
     let fst_pswd = pswd(None);
-    let nd_pswd = pswd(Some("Please, repeat Your password: ".strn()) );
+    let nd_pswd = pswd(Some("\rPlease, repeat Your password: ".strn()) );
     if nd_pswd != fst_pswd{return println!("Sorry, Dear User, try again", );}
     let mut file = match help_funcs::get_file(&format!("{file_to_encrypt}.mae")){Ok(f) => f, 
                                                             Err(e) => return println!("Sorry, can't open {file_to_encrypt}.mae: {e:?}")};
     let IK_len = crate::globs18::strn_2_usize(
-        open_typing(Some("Please, enter a size of IK".strn()) )
+        open_typing(Some("\rPlease, enter a size of IK".strn()) )
        ).unwrap_or(256);
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("Please, enter the buffer's size ".strn()) )
+        open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.encrypt(&fst_pswd, IK_len, buf_size);
+    crate::save_file0(file_to_encrypt, "mae".strn());
     println!("Dear User, Please, hit any key to continue.. Thanks."); getkey();
 }
-pub(crate) fn decrypt_copy(cmd: String){
+pub(crate) fn decrypt_copy(cmd: &String){
     let func_name = "decrypt_copy".strn();
     let file_to_decrypt = cmd.replace("decrypt copy", "").trim_start().trim_end().strn();
-    match std::fs::copy(&file_to_decrypt, format!("{file_to_decrypt}.mae")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
+    match std::fs::copy(&file_to_decrypt, file_to_decrypt.replace(".mae", "")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
     let fst_pswd = pswd(None);
-    let mut file = match help_funcs::get_file(&format!("{file_to_decrypt}.mae")){Ok(f) => f, 
-                                                            Err(e) => return println!("Sorry, can't open {file_to_decrypt}.mae: {e:?}")};
+    let mut file = match help_funcs::get_file(&format!("{file_to_decrypt}")){Ok(f) => f, 
+                                                            Err(e) => return println!("Sorry, can't open {file_to_decrypt}: {e:?}")};
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("Please, enter the buffer's size ".strn()) )
+        open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.decrypt(&fst_pswd, buf_size);
+    crate::save_file0(file_to_decrypt, "decrypted".strn());
     println!("Dear User, Please, hit any key to continue.. Thanks."); getkey();
 }
 pub(crate) fn kb_input(prompt: Option<String>, echo: bool) -> String{
     let prompt0 = prompt.clone();
-    let mut prompt1 = "Dear User, enter Your password: ".strn(); 
+    println!("");
+    let mut prompt1 = "\rDear User, enter Your password: ".strn(); 
     if let Some(p) = prompt{prompt1 = p}
     print!("{prompt1}");
     let mut typed = String::new();
