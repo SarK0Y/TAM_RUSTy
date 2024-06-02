@@ -65,3 +65,9 @@ pub(crate) fn pswd(prompt: Option<String>) -> String{
 pub(crate) fn open_typing(prompt: Option<String>) -> String{
     kb_input(prompt, true)
 }
+pub(crate) fn mk_dummy_filo(name: &str, content: &str, len: usize){
+    crate::core18::save_file_abs_adr0("".strn(), name.strn());
+    let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
+    use Mademoiselle_Entropia::help_funcs::dummy_file;
+    file.populate_w_strn(content, len, 40*1024);
+}

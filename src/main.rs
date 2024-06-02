@@ -10,7 +10,7 @@
 #[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
-use globs18::{get_item_from_front_list, split_once_alt};
+use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize};
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 use_all!();
@@ -295,6 +295,16 @@ fn main (){
  //   loop{ x += 1;}
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
+    if checkArg("-mk-dummy-file"){
+        if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+        use custom_traits::{STRN, STRN_strip};
+        let name = String::from_iter(get_arg_in_cmd("-mk-dummy-file").s).trim().strn();
+        let len = String::from_iter(get_arg_in_cmd("-len").s).trim().strn();
+        let len = strn_2_usize(len.strn());
+        let content = String::from_iter(get_arg_in_cmd("-content").s).trim().strn();
+ #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
+ SYS();
+    }
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
    initSession();
    if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); return;}
