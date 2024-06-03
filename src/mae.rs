@@ -66,8 +66,13 @@ pub(crate) fn open_typing(prompt: Option<String>) -> String{
     kb_input(prompt, true)
 }
 pub(crate) fn mk_dummy_filo(name: &str, content: &str, len: usize){
-    crate::core18::save_file_abs_adr0("".strn(), name.strn());
+    let func_name = "mk_dummy_filo".strn();
+    let name = name.trim_end().trim_end_matches('\0');
+    let content = content.trim_end().trim_end_matches('\0');
+    match std::fs::File::options().write(true).read(true).create_new(true).open(&name){Ok(f) => f,
+                                                         Err(e) => return println!("{func_name} got {e:?}")};
     let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
     use Mademoiselle_Entropia::help_funcs::dummy_file;
     file.populate_w_strn(content, len, 40*1024);
+    println!("{name} created with length {len}");
 }
