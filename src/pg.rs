@@ -404,8 +404,12 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
-    #[cfg(feature="in_dbg")]
+#[cfg(feature="in_dbg")]
     if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}
+#[cfg(feature="mae")]
+    if cmd.as_str().substring(0, "encrypt copy".len()) == "encrypt copy"{crate::encrypt_n_keep_orig_file(&cmd); return;}
+#[cfg(feature="mae")]
+    if cmd.as_str().substring(0, "encrypt copy".len()) == "decrypt copy"{crate::decrypt_copy(&cmd); return;}
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{
