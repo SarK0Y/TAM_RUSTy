@@ -27,7 +27,8 @@ my the Best Wishes to You 🙃
 #[cfg(feature="mae")]
 const LICENSE_MAE: &str = "🠳 License/Agreement for Mademoiselle Entropia 🠳\n Price for Personal usage: $0.78 per month.\n
  Price for commercial usage: $7.13.\n
-Or just Your Soul 😇😜";
+Or just Your Soul 😇😜\n my the Best Wishes to You 🙃";
+
 const donate: &str = "Donations: https://boosty.to/alg0z/donate";
 pub(crate) fn info(){
     KonsoleTitle(&"TAM RUSTy".to_string());

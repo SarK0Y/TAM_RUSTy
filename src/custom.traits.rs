@@ -1,4 +1,5 @@
 use num_traits::Bounded; use core::mem::size_of;
+use std::io::Read;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
 }
@@ -131,5 +132,26 @@ impl helpful_math_ops for i32 {
     fn dec(&mut self) -> Self{
        if *self > Self::MIN{*self = *self - 1; return *self;}
        *self
+    }
+}
+pub trait content_stat {
+    fn count_chars(&mut self, ch: &str);
+}
+impl content_stat for std::fs::File{
+    fn count_chars(&mut self, ch: &str) {
+        let func_name = "count_chars".strn();
+        let ch = match ch.chars().nth(0){Some(ch) => ch, _ => return println!("{func_name} got wrong character.")};
+        let mut count = 0u64;
+        let buf_size = 20*1024;
+        let mut buf = vec![0u8; buf_size];
+        loop{
+            let len_of_read = match self.read(&mut buf){Ok(f) => f, Err(e) => return println!("func {func_name} got {:?}", e)};
+            if len_of_read == 0{break;}
+            let str0 = String::from_utf8_lossy(&buf);
+            for j in str0.chars(){
+                if j == ch{count.inc();}
+            }
+        }
+        println!("File contains {count} of {ch}");        
     }
 }

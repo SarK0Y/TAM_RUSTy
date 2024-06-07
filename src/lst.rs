@@ -73,8 +73,9 @@ pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
 }
 pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
     let key = full_escape(&key);
-    let ret = __patch(Some(key), None);
-    if ret.2 {return Some(format!("{}::patch",ret.1));}
+    let ret = __patch(Some(key.strn()), None);
+    //if ret.2 {return Some(format!("{}::patch",ret.1));}
+    if ret.2 {return Some(format!("{}",ret.1));}
     None
 }
 pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), None).3 }
@@ -156,18 +157,12 @@ fn parse_paths(cmd: &String) -> (String, String, String){
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("%a ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::all_files) );
-        let all_files = escape_backslash(&all_files);
-        let all_files = escape_apostrophe(&all_files);
-        let all_files = escape_symbs(&all_files);
         ret.0 = format!("{}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 4) == "%enu"{
         all_files = crate::raw_read_file("found_files");
         to = cmd.replace("%enu ", "").trim_start_matches(' ').to_string();
         patch_msg( Some(parse_paths::each_name_unique) );
-        let all_files = escape_backslash(&all_files);
-        let all_files = escape_apostrophe(&all_files);
-        let all_files = escape_symbs(&all_files);
         ret.0 = format!("--backup=t {}", add_opts); ret.1 = all_files; ret.2 = to; return ret;
     }
     if cmd.substring(0, 1) == "/"{
@@ -240,7 +235,7 @@ pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
         let line = line.trim_end().trim_start().to_string();
         let last = if line.chars().count() > 0{line.chars().count() -1}else {continue;};
    // #[cfg(feature="in_dbg")] {println!("{}", line.chars().nth(last).unwrap().to_string()); getkey();}
-        if line.chars().nth(last).unwrap().to_string() == "/" {continue;}
+        if crate::Path::new(&line).is_dir() {continue;}
         ret.push(line)
     }
     ret
@@ -252,6 +247,7 @@ pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> S
     for ln in vec_strn{
         let ln = ln.trim_end().trim_start().trim_end_matches('\\');
         if len == 0 {break;}
+        let ln = full_escape(&ln.strn());
         ret.push_str(format!("\\{nl} {ln}").as_str());
         len -= 1;
     } ret

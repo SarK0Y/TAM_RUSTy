@@ -254,6 +254,15 @@ let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f{in_name} >>
 run_cmd0(cmd);
 return true;
 }
+fn get_arg_in_cmd0(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
+}
 fn get_arg_in_cmd(key: &str) -> core18::ret0{
 let mut s: [char; 512] = ['\0'; 512];
 let mut ret: core18::ret0 = core18::ret0{s, res: false};
@@ -320,6 +329,16 @@ fn main (){
     if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
     let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     #[cfg(feature="mae")] decrypt_copy(&name);
+    SYS();
+   }
+   let key = "-count-ch".strn();
+#[cfg(feature="mae")] 
+   if checkArg(&key){
+     use Mademoiselle_Entropia::help_funcs;
+    let ch = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
+    let name = String::from_iter(get_arg_in_cmd("-file").s).trim().trim_matches('\0').strn();
+     let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
+    file.count_chars(&ch);
     SYS();
    }
    /*/
