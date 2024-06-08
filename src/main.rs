@@ -254,6 +254,15 @@ let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f{in_name} >>
 run_cmd0(cmd);
 return true;
 }
+fn get_arg_in_cmd0(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
+}
 fn get_arg_in_cmd(key: &str) -> core18::ret0{
 let mut s: [char; 512] = ['\0'; 512];
 let mut ret: core18::ret0 = core18::ret0{s, res: false};

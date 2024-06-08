@@ -8,7 +8,7 @@ pub(crate) fn SYS(){
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";
 const Project: &str = "Project: Tiny Automation Manager.";
-pub const Ver: &str = "Ver: 1.9.114";
+pub const Ver: &str = "Ver: 1.9.115";
 const Telega: &str = "TELEGRAM: https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z)";
 const Ru_blog: &str = "ALG0Z RU: https://dzen.ru/alg0z";
 const En_blog: &str = "ALG0Z EN: https://alg0z.blogspot.com";
@@ -27,7 +27,8 @@ my the Best Wishes to You 🙃
 #[cfg(feature="mae")]
 const LICENSE_MAE: &str = "🠳 License/Agreement for Mademoiselle Entropia 🠳\n Price for Personal usage: $0.78 per month.\n
  Price for commercial usage: $7.13.\n
-Or just Your Soul 😇😜";
+Or just Your Soul 😇😜\n my the Best Wishes to You 🙃";
+
 const donate: &str = "Donations: https://boosty.to/alg0z/donate";
 pub(crate) fn info(){
     KonsoleTitle(&"TAM RUSTy".to_string());

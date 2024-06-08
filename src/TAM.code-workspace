@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"rust-analyzer.checkOnSave": true,
+		"rust-analyzer.linkedProjects": [
+			"./Cargo.toml"
+		],
+		"git.ignoreLimitWarning": true,
+		"editor.semanticTokenColorCustomizations": {
+			"[Material Theme Deepforest]": {}
+		},
+		"workbench.colorTheme": "Material Theme Deepforest",
+		"workbench.editor.decorations.colors": false,
+		"workbench.preferredHighContrastColorTheme": "Material Theme",
+		"workbench.preferredHighContrastLightColorTheme": "Material Theme",
+		"workbench.preferredLightColorTheme": "Material Theme"
+	}
+}
