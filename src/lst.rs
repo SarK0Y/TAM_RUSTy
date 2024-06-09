@@ -72,7 +72,6 @@ pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
     }}
 }
 pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
-    let key = full_escape(&key);
     let ret = __patch(Some(key.strn()), None);
     //if ret.2 {return Some(format!("{}::patch",ret.1));}
     if ret.2 {return Some(format!("{}",ret.1));}
