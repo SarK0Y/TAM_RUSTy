@@ -7,9 +7,10 @@
 #![allow(non_upper_case_globals)]
 #![allow(while_true)]
 #[allow(arithmetic_overflow)]
+#[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
-use globs18::{get_item_from_front_list, split_once_alt};
+use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize};
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 use_all!();
@@ -59,7 +60,7 @@ let err_msg = format!("failed create {}", &path_2_cmd);
 let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
-if !checkArg("-dbg"){
+if !dbg(false) && !dont_clean_bash(false){
     cmd = format!("{cmd};rm -f {}", path_2_cmd);
 }
 make_cmd_file.write_all(&cmd.as_bytes());
@@ -104,10 +105,10 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd");
-if run_command.status.success(){
+if !run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
     return match from_utf8(&run_command.stdout){
@@ -212,7 +213,7 @@ let fstderr = File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
-    .stderr(fstderr)
+    .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
     .expect("can't run command in run_cmd_out_sync");
 return match from_utf8(&run_command.stdout){
@@ -253,6 +254,15 @@ let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f{in_name} >>
 run_cmd0(cmd);
 return true;
 }
+fn get_arg_in_cmd0(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
+}
 fn get_arg_in_cmd(key: &str) -> core18::ret0{
 let mut s: [char; 512] = ['\0'; 512];
 let mut ret: core18::ret0 = core18::ret0{s, res: false};
@@ -288,8 +298,49 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 fn main (){
+    /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
+    panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
+    // let mut x = 0u64;
+ //   loop{ x += 1;}
+    use ctrlc;
+    ctrlc::CtrlC::set_handler(||{SYS()});
+    if checkArg("-mk-dummy-file"){
+        if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+        let name = String::from_iter(get_arg_in_cmd("-mk-dummy-file").s).trim().strn();
+        let len = String::from_iter(get_arg_in_cmd("-len").s).trim().trim_matches('\0').strn();
+        let len = strn_2_usize(len.strn());
+        let content = String::from_iter(get_arg_in_cmd("-content").s).trim().strn();
+ #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
+ SYS();
+    }
+    if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
    initSession();
+   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); SYS();}
    if checkArg("-rilocan"){rilocan(); return;}
+   let key = "-encrypt-copy".strn();
+   if checkArg(&key){
+    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
+    #[cfg(feature="mae")] encrypt_n_keep_orig_file(&name);
+    SYS();
+   }
+   let key = "-decrypt-copy".strn();
+   if checkArg(&key){
+    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
+    #[cfg(feature="mae")] decrypt_copy(&name);
+    SYS();
+   }
+   let key = "-count-ch".strn();
+#[cfg(feature="mae")] 
+   if checkArg(&key){
+     use Mademoiselle_Entropia::help_funcs;
+    let ch = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
+    let name = String::from_iter(get_arg_in_cmd("-file").s).trim().trim_matches('\0').strn();
+     let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
+    file.count_chars(&ch);
+    SYS();
+   }
    /*/
     if checkArg("-dbg") || checkArg("-dbg1") || checkArg("-dbg2"){popup_msg("starting");}
 let mut path: String = String::from("~/");

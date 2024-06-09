@@ -423,3 +423,14 @@ pub(crate) fn get_proper_indx__glitchy_ver(indx: i64, fixed_indx: bool) -> (usiz
     if proper_indx > len {let ret = proper_indx - (proper_indx/len) * len; return (ret.to_usize().unwrap(), ret) }
     return (0usize, 0);
 }
+// unsafe overtures :)
+ //tst
+ fn c_style(){
+    unsafe {
+        let mut me_fkup: libc::uint64_t = 0;
+        let cc: *const libc::c_char = std::ffi::CString::new("me fkup %ld").unwrap().as_ptr() as *const i8;
+        let msg = cc;
+        me_fkup += 1; libc::printf(msg, me_fkup);
+    };
+}
+    //tst

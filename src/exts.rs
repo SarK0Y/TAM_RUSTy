@@ -26,6 +26,9 @@ use std::path::Path;
 use num_traits::cast::ToPrimitive;
 use std::io::{BufRead, BufReader};
 use std::os::unix::io::{AsRawFd, RawFd};
+#[path = "mae.rs"]
+#[cfg(feature="mae")] mod mae;
+#[cfg(feature="mae")] use mae::*;
 #[path = "keycodes.rs"]
 mod kcode01;
 #[path = "switch.rs"]
@@ -33,6 +36,31 @@ mod swtch;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
+#[path = "info.rs"]
+mod info;
+use info::*;
+#[path = "custom.traits.rs"]
+mod custom_traits;
+use custom_traits::*;
+#[path = "cmd_keys.rs"]
+mod cmd_keys;
+use cmd_keys::*;
+#[path = "key_handlers.rs"]
+mod key_handlers;
+use key_handlers::*;
+#[path = "types.rs"]
+mod types;
+use types::*;
+#[path = "lst.rs"]
+mod lst;
+use lst::*;
+#[cfg(feature="in_dbg")] #[path = "in_dbg0.rs"]
+mod in_dbg0;
+#[cfg(feature="in_dbg")]
+use in_dbg0::*;
+#[path = "enums.rs"]
+mod enums;
+use enums::*;
 #[path = "basic.pg.rs"]
 mod basic_pg;
 use basic_pg::*;

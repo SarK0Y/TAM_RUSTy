@@ -1,5 +1,5 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists};
-use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list}, ps0::set_num_files};
+use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{set_main0_as_front, MAIN0_}, popup_msg, read_file, read_front_list, read_midway_data, read_prnt, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists};
+use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -10,6 +10,7 @@ pub(crate) fn main_update(){
         if  crate::checkArg("-path"){path = get_arg_in_cmd("-path").s.iter().collect(); no_path = false;}
         if  crate::checkArg("-path0"){path = get_arg_in_cmd("-path0").s.iter().collect(); no_path = false;}
         if no_path {panic!("No path was provided: set flag '-path' or '-path0");}
+        KonsoleTitle(&gen_win_title());
         if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-rows").s).as_str(), 10).expect(
             "set number of rows as an integer: '-rows 9'"
         ); crate::set_num_rows(val, func_id);}
@@ -29,7 +30,7 @@ pub(crate) fn main_update(){
             if crate::dirty!(){println!("exit midway data");}
         });
     }
-
+clear_patch();
 }
 pub(crate) fn prime(){
     crate::initSession();
@@ -47,11 +48,12 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
-background_fixing_count(4);
+background_fixing_count(2);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
 pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
+    if !swtch_ls(false, false){drop_ls_mode(); return}
     let mut head = String::new();
     let mut tail = String::new();
     let os_str = OsStr::new("");
@@ -74,7 +76,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls(cmd);
-    background_fixing();
+    background_fixing_count(2);
 }
 pub(crate) fn lets_write_path(key: String){
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
@@ -93,7 +95,7 @@ pub(crate) fn background_fixing(){
  builder.spawn(|| {
     let mut bkgrnd: fn() = _background_fixing;
      if checkArg("-dbg"){bkgrnd = dbg_background_fixing;}
-     bkgrnd();
+    bkgrnd();
     fix_screen();
 });
 }
@@ -156,8 +158,9 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
-        for i in 0..2{
+        for i in 0..1{
             clear_screen();
             let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
             let mut data = "".to_string();
@@ -173,6 +176,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
         for i in 0..num{
             clear_screen();
@@ -188,4 +192,4 @@ pub(crate) fn fix_screen_count(num: usize){
            std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
-}
+} //fn

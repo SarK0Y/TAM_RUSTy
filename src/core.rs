@@ -2,9 +2,10 @@
 #[path = "exts.rs"]
 mod exts;
 use exts::*;
+use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
+use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0, swtch_esc, no_esc_lst, custom_traits::STRN};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -17,6 +18,15 @@ pub(crate) fn bkp_tmp_dir() -> String{
     return ret;
   }
   crate::C!(bkp.get().expect("bkp_tmp_dir failed").to_string())
+}
+pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
+    static mut tam: OnceCell<String> = OnceCell::new();
+  if crate::C!(tam.get()) == None && set_dir.is_some(){
+    let ret = set_dir.unwrap();
+    crate::C!(tam.set(ret.clone()));
+    return ret;
+  }
+  crate::C!(tam.get().expect("shm_tmp_dir failed").to_string())
 }
 pub(crate) fn up_front_list(){
     let list = read_front_list();
@@ -31,24 +41,31 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing()
+}
+pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
+    static mut name0: Lazy<String> = Lazy::new(||{String::new()});
+    if set {unsafe { *name0 = name.to_string();}}
+    unsafe{name0.to_string()}
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
     crate::wait_4_empty_cache();
     //if list == "merge"
+    name_of_front_list(list, true);
     background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
@@ -96,6 +113,11 @@ while true{
     if Path::new("/var/shm").exists(){path_2_shm = "/var/shm"; break;}
     panic!("no way for shared memory: device /dev/shm and its analogs don't exist or maybe Your system ain't common Linux");
 }
+let globalTAM = format!("{path_2_shm}/TAM");
+Command::new("mkdir").arg("-p").arg(&globalTAM).output().expect(&"Sorry, Failed to create shared TAM dir.".bold().red());
+let globalTAMdot = format!("{path_2_shm}/TAM/.");
+Command::new("chmod").arg("700").arg(&globalTAMdot).output().expect(&"Sorry, Failed to gain full access to shared TAM dir.".bold().red());
+shm_tam_dir(Some(globalTAM));
 let path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
 let err_msg = format!("{} wasn't created", path_2_found_files_list);
 let run_shell1 = Command::new("mkdir").arg("-p").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
@@ -129,7 +151,26 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
+    crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
+    crate::run_cmd0(mk_cache_dir);
+    mk_dummy_lnks();
     return true;
+}
+pub(crate) fn mk_dummy_lnks(){
+    mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
+}
+pub(crate) fn mk_dummy_lnk(head: &str){
+    let cmd = "whereis ".to_string() + head;
+    let ret = run_cmd_out(cmd).replace(&format!("{head}:"), "").trim_start().to_string();
+    let (ret, _) = split_once(&ret, head);
+    if ret != "none"{
+        let cmd = format!("ln -sf {ret}/{head} {}", format!("{}/{head}", take_list_adr("env/dummy_lnks")));
+        run_cmd0(cmd);
+    }
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {return}
@@ -217,6 +258,8 @@ pub(crate) struct ret0 {
    pub res: bool
 }
 pub(crate) fn escape_symbs(str0: &String) -> String{
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     let  strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -230,19 +273,23 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("[", r"\[");
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
-    //let strr = strr.replace("\\", r"\\");
+    let strr = strr.replace(r"\\'", r"\'");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
-    return str0.as_str().replace("'", r"\'");
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
+    return str0.as_str().replace(r"'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
-pub(crate) fn key_f12(func_id: i64){
-    unsafe {crate::shift_cursor_of_prnt(0, func_id)};
-    crate::set_prnt("", func_id);
-    rm_user_written_path(func_id)
+pub(crate) fn full_escape(str0: &String) -> String{
+    let str0 = escape_backslash(str0);
+    let str0 = escape_apostrophe(&str0);
+    escape_symbs(&str0)
 }
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;
@@ -311,7 +358,7 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
     let stdin_fd = 0;
     let mut stdout = io::stdout(); 
     let mut stdin_buf: [u8; 6] =[0;6];
-    let termios = Termios::from_fd(stdin_fd).unwrap();
+    let termios = match Termios::from_fd(stdin_fd){Ok(t) => t, _ => return "".to_string()};
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap(); 
     new_termios.c_lflag &= !(ICANON | ECHO); 
@@ -526,15 +573,23 @@ pub(crate) fn get_path_from_prnt() -> String{
 }
 pub(crate) fn logs(data: &String, logname: &str){
     if !checkArg("-logs"){return;}
-    let typelog = String::from_iter(get_arg_in_cmd("-logs").s).trim_start().trim_end().to_string();
+    let args: Vec<_> = env::args().collect();
+    let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if args_2_str[i] == "-logs" {
+
+    let typelog = args_2_str[i+1].clone();
     if typelog != ""{
         if eq_str(typelog.as_str(), logname) != 0 /*typelog != logname*/{return}
     }
     let logname = format!("logs/{logname}");
     save_file_append_newline(data.to_string(), logname);
+}}
 }
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    let mut dir = fname.clone();
+    tailOFF(&mut dir, "/"); std::fs::create_dir(&dir);
     let cmd = format!("echo '{}' > {}", content, fname);
     run_cmd_str(cmd.as_str());
     true
@@ -547,32 +602,48 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
     let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return save_file_abs_adr0(content, fname)
     };
     file.write(content.as_bytes()).expect("save_file failed");
     true
 }
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     logs(&fname, "rewrite_file_abs_adr");
-    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let anew_file = || -> File{rm_file(&fname); return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return File::options().create_new(true).write(true).open(&fname)
+            .expect(&format!("Failed again to create {fname}... Sorry"))}
+    }};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return false
     };
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true
 }
-#[inline(always)]
+pub(crate) fn save_file_abs_adr0(content: String, fname: String) -> bool{
+    let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
+    mkdir(path_to_file);
+    let cmd = format!("touch -f {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("echo '{content}' > {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    true
+}
+//#[inline(always)]
 pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
-    let anew_file = || -> File{rm_file(&fname); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut path_to_file = fname.clone(); tailOFF(&mut path_to_file, "/");
+    mkdir(path_to_file);
+    let cmd = format!("touch -f {fname} 2>&1");
+    run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return File::create(&fname).expect(&fname)};
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
-    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+    let mut file: File = match File::options().read(true).write(true).open(&fname){
         Ok(f) => f,
         Err(e) => match e.kind(){
             std::io::ErrorKind::NotFound => anew_file(),
-            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            std::io::ErrorKind::AlreadyExists => {rm_file(&fname); File::create_new(&fname).unwrap()},
             _ => existing_file()
         }
     };
@@ -580,14 +651,14 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn save_file_append_newline(content: String, fname: String) -> bool{
-    let content = format!("{}/n", content);
+    let content = format!("{}\n", content);
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     let mut dir = fname.clone(); tailOFF(&mut dir, "/");
     let mk_dir = format!("mkdir -p {}", dir);
     run_cmd_str(mk_dir.as_str());
     let cmd = format!("touch -f {fname}");
     run_cmd_str(cmd.as_str());
-    let anew_file = || -> File{popup_msg(&fname); return File::create(&fname).expect(&fname)};
+    let anew_file = || -> File{return File::create(&fname).expect(&fname)};
     let existing_file = || -> File{
         let timestamp = Local::now();
         let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
@@ -678,9 +749,35 @@ pub(crate) fn read_file(fname: &str) -> String{
     };
     let mut ret = String::new();
     file.read_to_string(&mut ret);
+    ret.trim_end().to_string()
+}
+pub(crate) fn raw_read_file(fname: &str) -> String{
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+    //let err = format!("failed to read {}", fname);
+    let mut file: File = match File::open(&fname){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
     ret
 }
 pub(crate) fn read_file_abs_adr(fname: &String) -> String{
+    //let err = format!("failed to read {}", fname);
+    let path = Path::new(fname);
+    let mut file: File = match File::open(&path){
+        Ok(f) => f,
+        Err(e) => return "".to_string()//format!("{:?}", e)
+    };
+    let mut ret = String::new();
+    file.read_to_string(&mut ret);
+    ret.trim_end().to_string()
+}
+pub(crate) fn read_file_abs_adr0(fname: &String) -> String{
+    let cmd = format!("cat {fname}");
+    run_cmd_out(cmd)
+}
+pub(crate) fn raw_read_file_abs_adr(fname: &String) -> String{
     //let err = format!("failed to read {}", fname);
     let mut file: File = match File::open(fname){
         Ok(f) => f,
@@ -788,7 +885,7 @@ pub(crate) fn calc_num_files_up2_cur_pg() -> i64{
     let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
-    let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
+    //let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     let counted_files = num_page * num_cols * num_rows;
     return counted_files;
 }
@@ -858,6 +955,8 @@ pub(crate) fn raw_ren_file(src: String, dst: String){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn mkdir(name: String){
+    let name = escape_backslash(&name);
+    let name = escape_apostrophe(&name);
     let name = escape_symbs(&name);
     let cmd = format!("mkdir -p {name}");
     run_cmd_str(cmd.as_str());
@@ -986,3 +1085,4 @@ pub(crate) fn is_dir2(path: &String) -> bool{
     if ret.len() == 2{return true}
     false
 }
+//fn
