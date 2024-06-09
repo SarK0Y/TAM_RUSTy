@@ -6,8 +6,10 @@ globs18::{ins_last_char_to_string1_from_string1,
     rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, 
     len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
     split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
+    custom_traits::STRN,
     update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, main_update, swtch_tam_konsole, info1};
+    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, 
+    main_update, swtch_tam_konsole, info1, manage_lst, PgDown, set_cur_cur_pos, usize_2_i64, PgUp};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -113,7 +115,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if !ext_is_alive{Key.push_str(crate::getkey().as_str());}
     else{ ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits(); if ext.as_mut().unwrap().as_mut().drop_dontPass_after_n_hotKeys > 0{return "dontPass".to_string(); }}
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
-        return crate::globs18::F1_key();
+        return crate::key_handlers::F1_key();
     } 
     if crate::globs18::eq_ansi_str(&kcode::DOWN_ARROW, Key.as_str()) == 0 {
         return "pp".to_string();
@@ -121,9 +123,15 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if crate::globs18::eq_ansi_str(&kcode::UP_ARROW, Key.as_str()) == 0 {
         return "np".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
+    unsafe {shift_cursor_of_prnt(-1, None, func_id).shift};
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
-       // achtung(Key.as_str());
-        unsafe {shift_cursor_of_prnt(1, func_id).shift};
+       unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F5, Key.as_str()) == 0 {
@@ -138,17 +146,26 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
        swtch_tam_konsole();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::PgDown, Key.as_str()) == 0 {
+       PgDown();
+        return "dontPass".to_string();
+    }
+    if crate::globs18::eq_ansi_str(&kcode::PgUp, Key.as_str()) == 0 {
+       PgUp();
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(i64::MIN, func_id).shift};
-    return "dontPass".to_string();}
+    unsafe {shift_cursor_of_prnt(i64::MIN, None, func_id).shift};
+       let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(i64::MAX, func_id).shift};
-    return "dontPass".to_string();}
-    if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(-1, func_id).shift};
-    //io::stdout().lock().flush().unwrap();
-    achtung("left arrow");
-    return "dontPass".to_string();}
+    unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
+       let pos = read_prnt().len();
+       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::INSERT, Key.as_str()) == 0 {
         let cmd = format!("{}>::insert",crate::Ins_key());
         return cmd;
@@ -171,7 +188,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0{
         key_f12(func_id); return "dontPass".to_string();} 
     if crate::globs18::eq_ansi_str(&kcode::DELETE, Key.as_str()) == 0{
-        let shift = unsafe {shift_cursor_of_prnt(1, func_id).shift};
+        let shift = unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
         let mut indx = get_prnt(func_id).chars().count();
         if shift <= indx {indx -= shift;}
         let prnt = rm_char_from_string(indx, &get_prnt(func_id));
@@ -183,7 +200,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     };
     if ansiKey == 0{if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}} return crate::get_prnt(func_id);}
     if crate::dirty!(){println!("ansi {}, Key {:?}", ansiKey, Key);}
-    if kcode::ENTER == ansiKey{crate::globs18::Enter(); let decoded_prnt = crate::globs18::decode_sub_cmds(& crate::get_prnt(func_id)); return decoded_prnt;} 
+    if kcode::ENTER == ansiKey{crate::Enter(); let decoded_prnt = crate::globs18::decode_sub_cmds(& crate::get_prnt(func_id)); return decoded_prnt;} 
     if kcode::BACKSPACE == ansiKey{crate::press_BKSP(); return "dontPass".to_string();} 
     if kcode::ESCAPE == ansiKey{println!("esc pressed");}
     if kcode::TAB == ansiKey{println!("tab pressed");}  
@@ -237,7 +254,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String){
 }
 pub(crate) fn form_cmd_newline_default(){
     let func_id = crate::func_id18::form_cmd_line_default_;
-    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, None, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
     let full_path = read_user_written_path();
@@ -262,7 +279,7 @@ pub(crate) fn form_cmd_newline_default(){
 
 pub(crate) fn form_cmd_line_default(){
     let func_id = crate::func_id18::form_cmd_line_default_;
-    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, func_id)};
+    let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, None, func_id)};
     let shift = ret.str__;
     let mut prnt = get_prnt(func_id);
     let full_path = read_user_written_path();
@@ -282,6 +299,8 @@ pub(crate) fn form_cmd_line_default(){
     let whole_line_len = prompt.len() + prnt.len() + 2;
     prnt.push_str(shift.as_str());
     wipe_cmd_line(whole_line_len);
+    //let prompt = format!("\033[1m{}\033[0m", prompt);
+    let prompt = format!("{}", prompt.bold());
     form_cmd_line(prompt, prnt)
 }
 pub(crate) fn custom_input(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
@@ -339,6 +358,10 @@ pub(crate) fn exec_cmd(cmd: String){
         renFile();
         return;
     }
+    if cmd.as_str().substring(0, 3) == "lst"{
+        manage_lst(&cmd);
+        return;
+    }
     if cmd.as_str().substring(0, 2) == "cd"{
         if sub_cmd != "insert"{change_dir(cmd, true); return;}
         crate::C!(swtch_fn(-1, cmd));
@@ -381,8 +404,12 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
-    #[cfg(feature="in_dbg")]
+#[cfg(feature="in_dbg")]
     if cmd.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&cmd); return;}
+#[cfg(feature="mae")]
+    if cmd.as_str().substring(0, "encrypt copy".len()) == "encrypt copy"{crate::encrypt_n_keep_orig_file(&cmd); return;}
+#[cfg(feature="mae")]
+    if cmd.as_str().substring(0, "encrypt copy".len()) == "decrypt copy"{crate::decrypt_copy(&cmd); return;}
     crate::C!(swtch_fn(-1, cmd));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String{
