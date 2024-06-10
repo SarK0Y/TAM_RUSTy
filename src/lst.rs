@@ -59,6 +59,9 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     }
 ret
 }
+pub(crate) fn clear_patch(){
+    __patch(Some("::clear patch::".strn()), None);
+}
 pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
     static mut no_esc: Lazy<no_esc_t> = Lazy::new(||{HashSet::new()});
     if insert{

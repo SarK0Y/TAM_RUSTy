@@ -39,7 +39,6 @@ pub(crate) fn Enter(){
     crate::C!(crate::swtch::check_mode(&mut mode));
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH{mode = crate::swtch::SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
-    add_cmd_in_history();
 }
 pub(crate) fn Ins_key() -> String{
     stop_term_msg();
