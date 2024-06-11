@@ -1,4 +1,4 @@
-use chrono::format;
+use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
 use crate::cached_ln_of_found_files;
 use crate::custom_traits::{STRN, helpful_math_ops};
@@ -27,6 +27,19 @@ pub fn rm_char_from_string(indx: usize, origString: &String) -> String{
         }
     }
     ret
+}
+pub(crate) fn check_strn_in_lst(list: &str, str1: &str) -> bool{
+    let func_name = "check_strn_in_lst";
+    let adr_of_lst = take_list_adr_env(list);
+    let mut file = match std::fs::File::options().read(true).open(adr_of_lst){
+        Ok(f) => f, Err(e) => {println!("{func_name} failed {e:?}"); return false}
+    };
+    let mut read_file = crate::BufReader::new(file);
+    for line in read_file.lines(){
+        let line0 = line.unwrap_or("".strn() ).trim_end().strn();
+        if line0 == str1{return true}
+    }
+    false
 }
 pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     let list_tmp = format!("{}/{}.tmp", get_tmp_dir(18551), list);
