@@ -1,6 +1,6 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::cached_ln_of_found_files;
+use crate::{add_cmd_in_history, cached_ln_of_found_files};
 use crate::custom_traits::{STRN, helpful_math_ops};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
@@ -88,6 +88,7 @@ pub(crate) fn sieve_list(data: String){
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
     set_full_path(&data, -19784542001);
+    add_cmd_in_history(&format!("sieve {data}") );
 }
 pub(crate) fn sieve_list0(data: String){
     clean_cache("filter");
@@ -118,6 +119,8 @@ pub(crate) fn sieve_list0(data: String){
     mark_front_lst("filter");
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
+
+    add_cmd_in_history(&format!("sieve {data}") );
 }
 pub(crate) fn merge(data: String){
     drop_ls_mode();

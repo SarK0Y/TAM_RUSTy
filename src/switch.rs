@@ -161,7 +161,7 @@ fn viewer_n_adr(app: String, file: String) -> bool{
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
-    add_cmd_in_history(&cmd);
+    add_cmd_in_history(&format!("term {cmd}") );
     if tui_or_not(cpy_str(&cmd), &mut file){cmd = format!("{} {}", viewer, file);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
@@ -203,7 +203,7 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
     }else{filename = full_escape(&filename);}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
-    add_cmd_in_history(&cmd);
+    add_cmd_in_history(&format!("term {cmd}") );
     if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
