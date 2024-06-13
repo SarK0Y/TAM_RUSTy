@@ -327,6 +327,15 @@ pub(crate) fn exec_cmd(cmd: String){
         crate::set_num_page(num_page, func_id);
         return;
     }
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 2), "0p") == 0{
+        crate::set_num_page(0, func_id);
+        return;
+    }
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 2), "lp") == 0{
+        let mut num_page =where_is_last_pg();
+        crate::set_num_page(num_page, func_id);
+        return;
+    }
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0{
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {set_ask_user("wrong use of go2: go2 <indx of page>", func_id); return;}
