@@ -265,8 +265,4 @@ pub(crate) fn ending(sav: &str) -> String{
 pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
     run_cmd_out_sync(format!("kill {sig} {pid}"));
 }
-pub(crate) fn add_cmd_in_history(prnt: &String){
-    if check_strn_in_lst("history", prnt){return}
-    save_file_append_newline(prnt.strn(), "history".strn());
-}
 //fn

@@ -52,6 +52,6 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  <b>YouTube:</b> https://www.youtube.com/@evgeneyknyazhev968 <br>
  <b>Twitter_X:</b> https://x.com/SarK0Y8 <br>
  Donations: https://boosty.to/alg0z/donate <br>
- # <center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b></center>
+ # <p align=center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b> </p>
  
 # my the Best Wishes to You 🙃

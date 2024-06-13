@@ -5,7 +5,7 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0, swtch_esc, no_esc_lst, custom_traits::STRN};
+use crate::{cached_ln_of_found_files, custom_traits::STRN, get_arg_in_cmd, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{background_fixing, background_fixing_count, fix_screen, update_dir_list}};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -158,7 +158,21 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
     crate::run_cmd0(mk_cache_dir);
     mk_dummy_lnks();
+    let key = "-history";
+    if checkArg(key){
+        let link = __get_arg_in_cmd(key);
+        link_lst_to(&key.substring(1, key.len()).strn(), &link);
+    }
     return true;
+}
+pub(crate) fn __get_arg_in_cmd(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
 }
 pub(crate) fn mk_dummy_lnks(){
     mk_dummy_lnk("cp"); mk_dummy_lnk("mv");

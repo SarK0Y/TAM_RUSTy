@@ -313,4 +313,22 @@ pub(crate) fn manage_lst(cmd: &String){
     let head = read_tail(&item, "/");
     mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
 }
+pub(crate) fn add_cmd_in_history(prnt: &String){
+    if crate::globs18::check_strn_in_lst("history", prnt){return}
+    crate::save_file_append_newline(prnt.strn(), "history".strn());
+}
+pub(crate) fn link_lst_to(lst: &String, adr: &String){
+    let func_name = "link_lst_to";
+    let full_adr_to_lst = take_list_adr_env(lst);
+    if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
+    match std::os::unix::fs::symlink(adr, full_adr_to_lst){Ok(j) => j,
+                                        Err(e) => return println!("{func_name} got {e:?}")};
+}
+pub(crate) fn __link_lst_to(lst: &String, adr: &String){
+    let func_name = "link_lst_to";
+    let full_adr_to_lst = take_list_adr_env(lst);
+    if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
+    let cmd = format!("ln -sf {adr} {}", full_adr_to_lst);
+    run_cmd0(cmd);
+}
 //fn
