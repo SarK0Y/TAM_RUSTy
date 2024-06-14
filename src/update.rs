@@ -1,6 +1,7 @@
-use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{set_main0_as_front, MAIN0_}, popup_msg, read_file, read_front_list, read_midway_data, read_prnt, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists};
+use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{set_main0_as_front, MAIN0_}, popup_msg, read_file, read_front_list, read_midway_data, read_prnt, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
+use std::time::Instant;
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
     let mut no_path =true;
@@ -192,4 +193,15 @@ pub(crate) fn fix_screen_count(num: usize){
            std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
-} //fn
+}
+pub(crate) fn alive_session(){
+spawn(||{
+    loop {
+        let timestamp = std::time::SystemTime::now();
+        let secs: u64 = match timestamp.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
+        save_file(secs.strn(), "alive".strn());
+        std::thread::sleep(std::time::Duration::from_secs(15));        
+    }
+});
+} 
+//fn
