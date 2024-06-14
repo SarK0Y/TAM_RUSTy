@@ -289,9 +289,12 @@ pub(crate) fn list_the_lists(){
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    let full_adr_lst = take_list_adr_env(&cmd);
+    if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
-        if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+        if match std::fs::metadata
+                       (&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
