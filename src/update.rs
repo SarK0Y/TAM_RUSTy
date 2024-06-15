@@ -209,24 +209,28 @@ pub(crate) fn clean_dead_tams(){
     let nowtime = std::time::SystemTime::now();
     let nowtime: u64 = match nowtime.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
     let shm_adr = path_to_shm(None);
-    let find_tams = format!("du {shm_adr}|grep -Eo 'TAM_[0-9]{{4}}_.*[0-9]*/|uniq'");
+    let find_tams = format!("du {shm_adr}|grep -Eo 'TAM_[0-9]{{4}}.*_[0-9]*/'|uniq");
     let run_cmd = match Command::new("bash").arg("-c").arg(&find_tams).output(){
         Ok(cmd) => cmd, _ => return errMsg0("Failed to get list of dead tams")
     };
-    dbg!(&run_cmd.stdout);
-    for ln in run_cmd.stdout.lines(){
-        let ln0 = match ln {Ok(ln) => ln.clone(), _ => "".strn()};
-        let read_alive = format!("{shm_adr}/{ln0}/alive" );
-        let ln = ln0.clone();
+    let build_stdout = String::from_utf8_lossy(&run_cmd.stdout);
+    dbg!(&build_stdout);
+    for ln in build_stdout.lines(){
+        let ln0 = ln;
+        let read_alive = format!("{shm_adr}/{ln0}alive" );
         if crate::Path::new(&read_alive).exists(){
             let read_alive = read_file_abs_adr(&read_alive);
             let alive_time = strn_2_u64(read_alive).unwrap_or(0);
-            if  nowtime - alive_time > limit && alive_time > 0{
-                let ln0 = ln.clone();
+            let ret = nowtime.overflowing_sub(alive_time);
+            if  ret.0 > limit && !ret.1{
+                let ln0 = ln;
                 if ln0 == ""{continue;}
-                let mut dead_tam = format!("{shm_adr}/{}/", ln0);
+                let mut dead_tam = format!("{shm_adr}/{}", ln0);
                 crate::forced_rm_dir(&mut dead_tam);
-            }
+            } 
+        }else {
+                let mut dead_tam = format!("{shm_adr}/{}", ln);
+                crate::forced_rm_dir(&mut dead_tam);
         }
     }
 }

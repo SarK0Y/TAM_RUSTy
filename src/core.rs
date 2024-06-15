@@ -105,6 +105,7 @@ if !Path::new(&mainpath).exists(){
 crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
 let mut path_2_shm = "";
 while true{
+    
     if Path::new("/dev/shm").exists(){path_2_shm = "/dev/shm"; break;}
     if Path::new("/run/shm").exists(){path_2_shm = "/run/shm"; break;}
     if Path::new("/sys/shm").exists(){path_2_shm = "/sys/shm"; break;}
@@ -119,7 +120,8 @@ Command::new("mkdir").arg("-p").arg(&globalTAM).output().expect(&"Sorry, Failed 
 let globalTAMdot = format!("{path_2_shm}/TAM/.");
 Command::new("chmod").arg("700").arg(&globalTAMdot).output().expect(&"Sorry, Failed to gain full access to shared TAM dir.".bold().red());
 shm_tam_dir(Some(globalTAM));
-let path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
+let mut path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
+if take_list_adr("found_files") != ""{path_2_found_files_list = take_list_adr("found_files")}
 let err_msg = format!("{} wasn't created", path_2_found_files_list);
 let run_shell1 = Command::new("mkdir").arg("-p").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell1)};
@@ -481,10 +483,16 @@ pub(crate) fn rm_file(file: &String) -> bool{
 }
 pub(crate) fn forced_rm_dir(dir: &mut String) -> bool{
     let err_msg = format!("forced_rm_dir can't remove {}", dir);
-    dir.push('*'); dir.replace("//", "/");
-    let rm_cmd = Command::new("rmdir").arg("-fr").arg(dir)
+    dir.replace("//", "/");
+    /*let rm_cmd = Command::new("rm").arg("-fr").arg(dir)
     .output()
-    .expect(&err_msg);
+    .expect(&err_msg);*/
+    let rm_cmd = format!("rm -fr {dir}");
+    let output = run_cmd_out_sync(rm_cmd);
+     let rm_cmd = format!("rmdir {dir}");
+    let output = run_cmd_out_sync(rm_cmd);
+    //let output = String::from_utf8_lossy(&rm_cmd.stderr);// errMsg0(&output);
+    println!("{output}");
     true
 }
 pub(crate) fn read_midway_data_4_ls() -> bool{
