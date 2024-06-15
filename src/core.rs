@@ -5,18 +5,19 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd, run_cmd0, swtch_esc, no_esc_lst, custom_traits::STRN};
+use crate::{cached_ln_of_found_files, custom_traits::STRN, get_arg_in_cmd, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
-pub(crate) fn bkp_tmp_dir() -> String{
+pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String{
     static mut bkp: OnceCell<String> = OnceCell::new();
-  if crate::C!(bkp.get()) == None{
-    let fst: String = unsafe{crate::page_struct("", crate::TMP_DIR_, -75811245).str_};
+  if crate::C!(bkp.get()) == None && set{
+    let fst: String = sav.unwrap_or(unsafe{crate::page_struct("", crate::TMP_DIR_, -75811245).str_});
     let ret = fst.clone();
     crate::C!(bkp.set(fst));
     return ret;
   }
+  if unsafe { bkp.get() == None } {return "".strn()}
   crate::C!(bkp.get().expect("bkp_tmp_dir failed").to_string())
 }
 pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
@@ -72,6 +73,12 @@ pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
     else {save_file(name.to_string(), "ls.mode".to_string());}
 }
+pub(crate) fn __proper_timestamp(sav: Option<String>) -> String{
+    static mut timestamp: Lazy<String> = Lazy::new(||{String::new()});
+    static mut fst: bool = true;
+    if unsafe { fst } && sav.is_some() {unsafe {*timestamp = sav.expect("Not proper timestamp"); fst = false}; return "".strn()}
+    unsafe{ timestamp.clone() }
+}
 pub(crate) fn initSession() -> bool{
     let func_id = 1;
     let run_command = Command::new("bash").arg("-c").arg("cd ~;pwd")
@@ -88,7 +95,9 @@ let last: usize = proper_output.len() - 1;
 let _ =proper_output.pop();
 errMsg_dbg(from_utf8(&proper_output).unwrap(), func_id, -1.0);  
 let timestamp = Local::now();
-let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+let mut proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+if __proper_timestamp(None) != ""{proper_timestamp = __proper_timestamp(None)}
+else { __proper_timestamp(Some(proper_timestamp.clone() ) ); }
 let mainpath: String = format!("{}/.TAM_SESSIONS/{proper_timestamp}/", from_utf8(&proper_output).unwrap().to_string());
 //let mainpath = escape_symbs(&mainpath);
 errMsg_dbg(&mainpath, func_id, -1.0);
@@ -105,6 +114,7 @@ if !Path::new(&mainpath).exists(){
 crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
 let mut path_2_shm = "";
 while true{
+    
     if Path::new("/dev/shm").exists(){path_2_shm = "/dev/shm"; break;}
     if Path::new("/run/shm").exists(){path_2_shm = "/run/shm"; break;}
     if Path::new("/sys/shm").exists(){path_2_shm = "/sys/shm"; break;}
@@ -113,12 +123,14 @@ while true{
     if Path::new("/var/shm").exists(){path_2_shm = "/var/shm"; break;}
     panic!("no way for shared memory: device /dev/shm and its analogs don't exist or maybe Your system ain't common Linux");
 }
+crate::globs18::path_to_shm(Some(&path_2_shm.strn() ) );
 let globalTAM = format!("{path_2_shm}/TAM");
 Command::new("mkdir").arg("-p").arg(&globalTAM).output().expect(&"Sorry, Failed to create shared TAM dir.".bold().red());
 let globalTAMdot = format!("{path_2_shm}/TAM/.");
 Command::new("chmod").arg("700").arg(&globalTAMdot).output().expect(&"Sorry, Failed to gain full access to shared TAM dir.".bold().red());
 shm_tam_dir(Some(globalTAM));
-let path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
+let mut path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
+if bkp_tmp_dir(None, false) != ""{path_2_found_files_list = bkp_tmp_dir(None, false)}
 let err_msg = format!("{} wasn't created", path_2_found_files_list);
 let run_shell1 = Command::new("mkdir").arg("-p").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell1)};
@@ -127,7 +139,7 @@ let run_shell2 = Command::new("chmod").arg("700").arg(&path_2_found_files_list).
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell2)};
 crate::C!(crate::page_struct(&path_2_found_files_list, set(crate::TMP_DIR_), func_id));
 let tmp_dir = path_2_found_files_list;
-bkp_tmp_dir();
+bkp_tmp_dir(Some(tmp_dir.clone() ), true);
 let path_2_found_files_list_dot = format!("{}/TAM_{}/.", path_2_shm, proper_timestamp);
 let err_msg = format!("{} permission denied", path_2_found_files_list_dot);
 let run_shell3 = Command::new("chmod").arg("700").arg(&path_2_found_files_list_dot).output().expect(&err_msg.bold().red());
@@ -157,8 +169,25 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/msgs/basic/cache");
+    crate::run_cmd0(mk_cache_dir);
     mk_dummy_lnks();
+    let key = "-history";
+    if checkArg(key){
+        let link = __get_arg_in_cmd(key);
+        link_lst_to(&key.substring(1, key.len()).strn(), &link);
+    }
+    alive_session();
     return true;
+}
+pub(crate) fn __get_arg_in_cmd(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
 }
 pub(crate) fn mk_dummy_lnks(){
     mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
@@ -287,6 +316,8 @@ pub(crate) fn escape_backslash(str0: &String) -> String{
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
+    let front_list = read_front_list();
+    if front_list == "history"{return str0.strn()}
     let str0 = escape_backslash(str0);
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)
@@ -459,6 +490,20 @@ pub(crate) fn rm_file(file: &String) -> bool{
     let rm_cmd = Command::new("rm").arg("-f").arg(file)
     .output()
     .expect(&err_msg);
+    true
+}
+pub(crate) fn forced_rm_dir(dir: &mut String) -> bool{
+    let err_msg = format!("forced_rm_dir can't remove {}", dir);
+    dir.replace("//", "/");
+    /*let rm_cmd = Command::new("rm").arg("-fr").arg(dir)
+    .output()
+    .expect(&err_msg);*/
+    let rm_cmd = format!("rm -fr {dir}");
+    let output = run_cmd_out_sync(rm_cmd);
+     let rm_cmd = format!("rmdir {dir}");
+    let output = run_cmd_out_sync(rm_cmd);
+    //let output = String::from_utf8_lossy(&rm_cmd.stderr);// errMsg0(&output);
+    println!("{output}");
     true
 }
 pub(crate) fn read_midway_data_4_ls() -> bool{

@@ -73,7 +73,8 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         if indx == get_indx{let ret = String::from(&line.unwrap()); let ret = crate::rec_from_patch(&ret).unwrap_or(ret); return (ret, indx + base_indx);}
         len = indx;
     }
-    return ("no str gotten".to_string(), len);
+    let mut ret = ln_of_found_files_cacheless(get_indx); ret.0 = crate::rec_from_patch(&ret.0).unwrap_or(ret.0); len = ret.1;
+    return (ret.0, len);
 }
 pub(crate) fn cache_pg(get_indx: usize, cached_list: String, found_files: String, cols: i64, rows: i64) {
      //save_file_append(format!("{}\n", cached_list.to_string()), "cached_list.dbg".to_string());
@@ -122,7 +123,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         }
 }
 pub(crate) fn clean_cache(msg: &str){
-    let tmp_dir = bkp_tmp_dir();
+    let tmp_dir = bkp_tmp_dir(None, false);
     let mk_msg_dir = format!("{tmp_dir}/msgs/basic/cache");
     let clean_cache = format!("{tmp_dir}/cache/{msg}*");
     let msg_of_clean_cache = format!("{mk_msg_dir}/clean");

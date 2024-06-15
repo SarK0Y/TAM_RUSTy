@@ -4,17 +4,48 @@ pub(crate) trait STRN {
     fn strn(&self) -> String;
 }
 pub(crate) trait STRN_strip {
-    fn strip(&self, ch: &str) -> String;
+    fn del_ch(&self, ch: &str) -> String;
+    fn strip_symbs(&mut self) -> String;
+    fn strip_apostrophe(&mut self) -> String;
+    fn strip_backslash(&mut self) -> String;
+    fn strip_all_symbs(&mut self) -> String;
 }
 impl STRN_strip for str {
-    fn strip(&self, ch_strip: &str) -> String{
+    fn del_ch(&self, del_ch: &str) -> String{
         let mut ret = "".strn();
-        let ch_strip = ch_strip.chars().nth(0);
+        let del_ch = del_ch.chars().nth(0);
         for ch in self.chars(){
-            if let Some(ch) = ch_strip{continue;}
+            if let Some(ch) = del_ch{continue;}
             ret.push(ch);
         } ret
     }
+fn strip_symbs(&mut self) -> String{
+    let  strr: String = self.to_string();
+    let strr = strr.replace(r"\-", "-");
+    let strr = strr.replace(r"\ ", " ");
+    let strr = strr.replace(r"\$", "$");
+    let strr = strr.replace(r"\`", "`");
+    let strr = strr.replace(r"\(", "(");
+    let strr = strr.replace(r"\}", "}");
+    let strr = strr.replace(r"\{", "{");
+    let strr = strr.replace(r"\)", ")");
+    let strr = strr.replace(r"\]", "]");
+    let strr = strr.replace(r"\[", "[");
+    let strr = strr.replace(r"\&", "&");
+    //*self.replace(r"\'", "'");
+    return strr
+}
+fn strip_apostrophe(&mut self) -> String{
+    self.replace(r"\'", r"'")
+}
+fn strip_backslash(&mut self) -> String{
+    self.replace(r"\\", "\\")
+}
+fn strip_all_symbs(&mut self) -> String{
+    self.strip_backslash();
+    self.strip_apostrophe();
+    self.strip_symbs()
+}
 }
 impl STRN for str {
     fn strn(&self) -> String{

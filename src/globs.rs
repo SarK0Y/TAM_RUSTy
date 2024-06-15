@@ -1,8 +1,10 @@
-use chrono::format;
+use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
+use crate::{add_cmd_in_history, cached_ln_of_found_files};
 use crate::custom_traits::{STRN, helpful_math_ops};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
+use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
 pub const FILTERED_: i64 =  3;
@@ -26,6 +28,19 @@ pub fn rm_char_from_string(indx: usize, origString: &String) -> String{
         }
     }
     ret
+}
+pub(crate) fn check_strn_in_lst(list: &str, str1: &str) -> bool{
+    let func_name = "check_strn_in_lst";
+    let adr_of_lst = take_list_adr_env(list);
+    let mut file = match std::fs::File::options().read(true).open(adr_of_lst){
+        Ok(f) => f, Err(e) => {println!("{func_name} failed {e:?}"); return false}
+    };
+    let mut read_file = crate::BufReader::new(file);
+    for line in read_file.lines(){
+        let line0 = line.unwrap_or("".strn() ).trim_end().strn();
+        if line0 == str1{return true}
+    }
+    false
 }
 pub(crate) fn exclude_strn_from_list(strn: String, list: &str){
     let list_tmp = format!("{}/{}.tmp", get_tmp_dir(18551), list);
@@ -74,6 +89,7 @@ pub(crate) fn sieve_list(data: String){
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
     set_full_path(&data, -19784542001);
+    add_cmd_in_history(&format!("sieve {data}") );
 }
 pub(crate) fn sieve_list0(data: String){
     clean_cache("filter");
@@ -104,6 +120,8 @@ pub(crate) fn sieve_list0(data: String){
     mark_front_lst("filter");
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
+
+    add_cmd_in_history(&format!("sieve {data}") );
 }
 pub(crate) fn merge(data: String){
     drop_ls_mode();
@@ -466,7 +484,8 @@ if front_list == "ls"{list = LS_;}
 if list == MAIN0_ {
     if op_code == GET{
         if MAIN0.len() <= indx{return "".to_string();}
-        let ret = crate::cpy_str(&MAIN0[indx]);
+        let mut ret = crate::cpy_str(&MAIN0[indx]);
+        ret = crate::rec_from_patch(&ret).unwrap_or(ret);
         return ret.to_string()
     }
     if op_code == ADD{
@@ -509,8 +528,11 @@ if list == LS_ {
 if list == FRONT_ {
     if op_code == GET{
         let mut ret = String::new();
-        if FRONT.len() > indx && list == MAIN0_{ret = cpy_str(&FRONT[indx])}
-        else{ret = ln_of_found_files(indx).0;}
+        if FRONT.len() > indx && list == MAIN0_{
+        ret = cpy_str(&FRONT[indx]);
+        ret = crate::rec_from_patch(&ret).unwrap_or(ret);
+    }
+        else{ret = cached_ln_of_found_files(indx).0;}
         return ret.to_string()}//return FRONT.get().unwrap()[indx].to_string()}
     if op_code == LEN{return ln_of_found_files(usize::MAX).1.to_string()}//return FRONT.get().unwrap().len().to_string()}
 }
@@ -744,5 +766,16 @@ pub(crate) fn enum_not_escaped_spaces_in_strn_up_to(strn: &String, bar: usize) -
     }
     vec
 }
-
+pub(crate) fn path_to_shm(path: Option<&String>) -> &'static String{
+    static mut shm_adr: Lazy< String > = Lazy::new(||{String::new()});    
+    static mut fst_run: bool = true;
+    if unsafe {fst_run} {
+        if path.is_some(){
+            unsafe{*shm_adr = path.unwrap().strn(); fst_run = false}
+            return Box::leak( Box::new("".strn() ) )
+        }
+    }
+    
+    return unsafe {Box::leak(Box::new(shm_adr.clone() ) ) }
+}
 //fn

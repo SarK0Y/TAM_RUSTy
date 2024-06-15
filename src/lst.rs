@@ -59,6 +59,9 @@ pub(crate) fn __patch(old: Option<String>, new: Option<String>) -> (String, Stri
     }
 ret
 }
+pub(crate) fn clear_patch(){
+    __patch(Some("::clear patch::".strn()), None);
+}
 pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
     static mut no_esc: Lazy<no_esc_t> = Lazy::new(||{HashSet::new()});
     if insert{
@@ -72,7 +75,6 @@ pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
     }}
 }
 pub(crate) fn rec_from_patch(key: &String) -> Option<String>{
-    let key = full_escape(&key);
     let ret = __patch(Some(key.strn()), None);
     //if ret.2 {return Some(format!("{}::patch",ret.1));}
     if ret.2 {return Some(format!("{}",ret.1));}
@@ -175,7 +177,7 @@ fn parse_paths(cmd: &String) -> (String, String, String){
     ret
 }
 fn all_to_patch(from_to: &(Vec<String>, String)){
-    let path = from_to.1.clone();
+    let mut path = from_to.1.clone();
     //let err_msg =format!("{dir} isn't directory");
     //let mode_2_parse_paths = patch_msg(None);
     //if !is_dir2(&dir){errMsg0(&err_msg); return}
@@ -184,10 +186,10 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
     let len = from_to.0.len();
     for v in 0..len{
         let mut old = from_to.0[v].clone();
-        if crate::Path::new(&path.strip("\\")).is_dir(){ new = format!("{path}/{}", read_tail(&old, "/")).replace("//", "/"); }
+        if crate::Path::new(&path.strip_all_symbs()).is_dir(){ new = format!("{path}/{}", read_tail(&old, "/")).replace("//", "/"); }
         else{ new = format!("{path}")}
-        old = old.replace(r"\\", r"\"); new = new.replace(r"\\", r"\");
-        __patch(Some(old), Some(new));
+       // old = old.replace(r"\\", r"\"); new = new.replace(r"\\", r"\");
+        __patch(Some(old.strip_all_symbs()), Some( new.strip_all_symbs() ) );
     }
 }
 fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{
@@ -287,9 +289,12 @@ pub(crate) fn list_the_lists(){
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    let full_adr_lst = take_list_adr_env(&cmd);
+    if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
-        if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+        if match std::fs::metadata
+                       (&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -310,5 +315,23 @@ pub(crate) fn manage_lst(cmd: &String){
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     let head = read_tail(&item, "/");
     mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
+}
+pub(crate) fn add_cmd_in_history(prnt: &String){
+    if crate::globs18::check_strn_in_lst("history", prnt){return}
+    crate::save_file_append_newline(prnt.strn(), "history".strn());
+}
+pub(crate) fn link_lst_to(lst: &String, adr: &String){
+    let func_name = "link_lst_to";
+    let full_adr_to_lst = take_list_adr_env(lst);
+    if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
+    match std::os::unix::fs::symlink(adr, full_adr_to_lst){Ok(j) => j,
+                                        Err(e) => return println!("{func_name} got {e:?}")};
+}
+pub(crate) fn __link_lst_to(lst: &String, adr: &String){
+    let func_name = "link_lst_to";
+    let full_adr_to_lst = take_list_adr_env(lst);
+    if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
+    let cmd = format!("ln -sf {adr} {}", full_adr_to_lst);
+    run_cmd0(cmd);
 }
 //fn

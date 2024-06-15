@@ -1,15 +1,6 @@
 use cli_table::TableStruct;
 
-use crate::{exts::pg_uses, ps18::{set_prnt, get_cur_cur_pos, set_prompt, get_prnt, shift_cursor_of_prnt, set_full_path, set_ask_user, get_col_width, where_is_last_pg, get_num_files, child2run},
- core18::{achtung, errMsg_dbg, ins_newlines, checkArg, popup_msg, calc_num_files_up2_cur_pg}, 
-globs18::{ins_last_char_to_string1_from_string1, 
-    rm_char_from_string, ins_last_char_to_string1_from_string1_ptr, 
-    len_of_front_list, show_ls, sieve_list, get_proper_indx, merge, clear_merge, decode_sub_cmds}, 
-    split_once, swtch::{run_viewer, swtch_fn, local_indx, read_user_written_path, user_writing_path, renFile}, 
-    custom_traits::STRN,
-    update18::lets_write_path, ln_of_found_files, size_of_found_files, key_f12, get_path_from_prnt, get_path_from_strn, read_prnt, 
-    read_file, get_num_page, run_term_app, set_front_list, clean_cache, wait_4_empty_cache, change_dir, shol_on, process_tag, getkey, switch_cmd_keys, 
-    main_update, swtch_tam_konsole, info1, manage_lst, PgDown, set_cur_cur_pos, usize_2_i64, PgUp};
+use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg}, custom_traits::STRN, exts::pg_uses, get_num_page, get_path_from_prnt, get_path_from_strn, getkey, globs18::{clear_merge, decode_sub_cmds, get_proper_indx, ins_last_char_to_string1_from_string1, ins_last_char_to_string1_from_string1_ptr, len_of_front_list, merge, rm_char_from_string, show_ls, sieve_list, take_list_adr_env}, info1, key_f12, ln_of_found_files, main_update, manage_lst, process_tag, ps18::{child2run, get_col_width, get_cur_cur_pos, get_num_files, get_prnt, set_ask_user, set_full_path, set_prnt, set_prompt, shift_cursor_of_prnt, where_is_last_pg}, read_file, read_prnt, rm_file, run_term_app, set_cur_cur_pos, set_front_list, shol_on, size_of_found_files, split_once, switch_cmd_keys, swtch::{local_indx, read_user_written_path, renFile, run_viewer, swtch_fn, user_writing_path}, swtch_tam_konsole, update18::{clean_dead_tams, lets_write_path}, usize_2_i64, wait_4_empty_cache, PgDown, PgUp};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct>{
@@ -336,6 +327,15 @@ pub(crate) fn exec_cmd(cmd: String){
         crate::set_num_page(num_page, func_id);
         return;
     }
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 2), "0p") == 0{
+        crate::set_num_page(0, func_id);
+        return;
+    }
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 2), "lp") == 0{
+        let mut num_page =where_is_last_pg();
+        crate::set_num_page(num_page, func_id);
+        return;
+    }
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0{
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {set_ask_user("wrong use of go2: go2 <indx of page>", func_id); return;}
@@ -398,9 +398,12 @@ pub(crate) fn exec_cmd(cmd: String){
     }
     if cmd.as_str().substring(0, 4) == "term"{
         let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
+        add_cmd_in_history(&cmd);
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    let cmd0 = "clean dead tams";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0{clean_dead_tams(); return;}
     if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}

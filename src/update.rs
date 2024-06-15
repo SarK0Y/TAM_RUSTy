@@ -1,6 +1,7 @@
-use crate::{exts::update_uses, globs18::{set_main0_as_front, MAIN0_}, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, read_midway_data, complete_path, save_file, get_path_from_prnt, drop_ls_mode, from_ls_2_front, popup_msg, read_file, clear_screen, checkArg, read_front_list, split_once, read_prnt, set_prnt, ManageLists, dont_scrn_fix, KonsoleTitle, swtch_ls};
+use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
+use std::time::Instant;
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
     let mut no_path =true;
@@ -30,7 +31,7 @@ pub(crate) fn main_update(){
             if crate::dirty!(){println!("exit midway data");}
         });
     }
-
+clear_patch();
 }
 pub(crate) fn prime(){
     crate::initSession();
@@ -192,4 +193,45 @@ pub(crate) fn fix_screen_count(num: usize){
            std::thread::sleep(std::time::Duration::from_millis(615));        
         }
     });
-} //fn
+}
+pub(crate) fn alive_session(){
+spawn(||{
+    loop {
+        let timestamp = std::time::SystemTime::now();
+        let secs: u64 = match timestamp.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
+        save_file(secs.strn(), "alive".strn());
+        std::thread::sleep(std::time::Duration::from_secs(15));        
+    }
+});
+} 
+pub(crate) fn clean_dead_tams(){
+    let limit = 240u64;
+    let nowtime = std::time::SystemTime::now();
+    let nowtime: u64 = match nowtime.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
+    let shm_adr = path_to_shm(None);
+    let find_tams = format!("du {shm_adr}|grep -Eo 'TAM_[0-9]{{4}}.*_[0-9]*/'|uniq");
+    let run_cmd = match Command::new("bash").arg("-c").arg(&find_tams).output(){
+        Ok(cmd) => cmd, _ => return errMsg0("Failed to get list of dead tams")
+    };
+    let build_stdout = String::from_utf8_lossy(&run_cmd.stdout);
+    dbg!(&build_stdout);
+    for ln in build_stdout.lines(){
+        let ln0 = ln;
+        let read_alive = format!("{shm_adr}/{ln0}alive" );
+        if crate::Path::new(&read_alive).exists(){
+            let read_alive = read_file_abs_adr(&read_alive);
+            let alive_time = strn_2_u64(read_alive).unwrap_or(0);
+            let ret = nowtime.overflowing_sub(alive_time);
+            if  ret.0 > limit && !ret.1{
+                let ln0 = ln;
+                if ln0 == ""{continue;}
+                let mut dead_tam = format!("{shm_adr}/{}", ln0);
+                crate::forced_rm_dir(&mut dead_tam);
+            } 
+        }else {
+                let mut dead_tam = format!("{shm_adr}/{}", ln);
+                crate::forced_rm_dir(&mut dead_tam);
+        }
+    }
+}
+//fn
