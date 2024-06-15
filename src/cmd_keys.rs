@@ -61,4 +61,16 @@ pub(crate) fn be_silent(set: bool, new_state: bool) -> bool{
     crate::C!(state)
 }
 pub(crate) fn silent() -> bool{be_silent(false, false)}
+pub(crate) fn swtch_esc(set: bool, new_state: bool) -> bool{
+    static mut state: bool = true;
+    static mut fst_run: bool = false;
+    if set{crate::C!(state = new_state);}
+    crate::C!(state)
+}
+pub(crate) fn swtch_ls(set: bool, new_state: bool) -> bool{
+    static mut state: bool = true;
+    static mut fst_run: bool = false;
+    if set{crate::C!(state = new_state);}
+    crate::C!(state)
+}
 //fn

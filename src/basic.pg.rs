@@ -4,8 +4,10 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr, checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize, getkey, get_num_page, update18::fix_screen_count, read_file, rm_file, rec_from_patch, patch_len};
-//use crate::extctrl;
+use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr,
+     checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize,
+      getkey, get_num_page, update18::fix_screen_count, read_file, rm_file, rec_from_patch, patch_len, swtch::check_symlink, read_front_list};
+use crate::custom_traits::STRN;
 //use super::extctrl::*;
 impl super::basic{
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
@@ -52,12 +54,15 @@ impl super::basic{
             let mut err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
-            macro_rules! filename_str0{
-                () => {String::from(match filename.file_name(){
+            let filename_str0 = || -> String{
+                    let front_list = read_front_list();
+                 if front_list != "history"{
+                   return String::from(match filename.file_name(){
                     Some(f) => f,
                     None => err_path(),
-                }.to_str().unwrap()).as_str()};
-            }
+                }.to_str().unwrap()).as_str().strn();
+            } else {return filename.as_os_str().to_str().unwrap().strn()};
+            };
             if filename.as_os_str().to_str() == None{filename = crate::Path::new("")}
             if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
              time_to_stop = true; break;}
@@ -66,7 +71,7 @@ impl super::basic{
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }
-            let mut fixed_filename: String = filename_str0!().to_string();
+            let mut fixed_filename: String = filename_str0().to_string();
             crate::ins_newlines(crate::get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
             if filename.is_dir(){filename_str =format!("{}: {}/", display_indx, fixed_filename);}
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
@@ -119,7 +124,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
-    let front_lst = self.read_file("front_list");
+    let front_lst = read_front_list();
      let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
 #[cfg(feature="in_dbg")]
      if read_file("break").trim_end().to_string() == "001"{

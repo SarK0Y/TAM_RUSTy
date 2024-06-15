@@ -49,6 +49,9 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  <b>FORUM:</b> https://www.neowin.net/forum/topic/1430114-tam/ <br>
  <b>E-MAIL:</b> sark0y@protonmail.com <br>
  <b>GITHUB:</b> https://github.com/SarK0Y/TAM_RUSTy.git <br>
+ <b>YouTube:</b> https://www.youtube.com/@evgeneyknyazhev968 <br>
+ <b>Twitter_X:</b> https://x.com/SarK0Y8 <br>
  Donations: https://boosty.to/alg0z/donate <br>
+ # <p align=center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b> </p>
  
 # my the Best Wishes to You 🙃

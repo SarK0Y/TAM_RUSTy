@@ -5,10 +5,11 @@ use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
+use crate::custom_traits::{STRN, helpful_math_ops};
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode};
+use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
+use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode, save_file_append_newline};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -251,7 +252,7 @@ pub(crate) fn mk_dummy_file() -> String{
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();
-    let cmd = format!("ps -eo pid,args|grep '{dummy}'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
+    let cmd = format!("ps -eo pid,args|grep -Ei 'tam.*dummy'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
 #[cfg(feature="in_dbg")]
 { crate::report(&cmd, "pid of dummy"); println!("pid of dummy {}", cmd); }
     run_cmd_out_sync(cmd)

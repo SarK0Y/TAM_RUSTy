@@ -26,6 +26,9 @@ use std::path::Path;
 use num_traits::cast::ToPrimitive;
 use std::io::{BufRead, BufReader};
 use std::os::unix::io::{AsRawFd, RawFd};
+#[path = "mae.rs"]
+#[cfg(feature="mae")] mod mae;
+#[cfg(feature="mae")] use mae::*;
 #[path = "keycodes.rs"]
 mod kcode01;
 #[path = "switch.rs"]
@@ -36,6 +39,9 @@ use func_id18::*;
 #[path = "info.rs"]
 mod info;
 use info::*;
+#[path = "custom.traits.rs"]
+mod custom_traits;
+use custom_traits::*;
 #[path = "cmd_keys.rs"]
 mod cmd_keys;
 use cmd_keys::*;

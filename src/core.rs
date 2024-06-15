@@ -5,7 +5,7 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{swtch::{user_wrote_path, user_wrote_path_prnt, read_user_written_path, path_completed}, update18::{update_dir_list, fix_screen, background_fixing, background_fixing_count}, shift_cursor_of_prnt, run_cmd_str, split_once, run_cmd_out, cached_ln_of_found_files, run_cmd_out_sync, get_arg_in_cmd};
+use crate::{cached_ln_of_found_files, custom_traits::STRN, get_arg_in_cmd, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -113,6 +113,7 @@ while true{
     if Path::new("/var/shm").exists(){path_2_shm = "/var/shm"; break;}
     panic!("no way for shared memory: device /dev/shm and its analogs don't exist or maybe Your system ain't common Linux");
 }
+crate::globs18::path_to_shm(Some(&path_2_shm.strn() ) );
 let globalTAM = format!("{path_2_shm}/TAM");
 Command::new("mkdir").arg("-p").arg(&globalTAM).output().expect(&"Sorry, Failed to create shared TAM dir.".bold().red());
 let globalTAMdot = format!("{path_2_shm}/TAM/.");
@@ -153,9 +154,39 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
     crate::run_cmd0(mk_cache_dir);
-     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
+    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
+    crate::run_cmd0(mk_cache_dir);
+    mk_dummy_lnks();
+    let key = "-history";
+    if checkArg(key){
+        let link = __get_arg_in_cmd(key);
+        link_lst_to(&key.substring(1, key.len()).strn(), &link);
+    }
+    alive_session();
     return true;
+}
+pub(crate) fn __get_arg_in_cmd(key: &str) -> String{
+let mut ret = "".to_string();
+let args: Vec<_> = env::args().collect();
+//let args_2_str = args.as_slice();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == key { return args[i + 1].clone();}
+}
+return ret;
+}
+pub(crate) fn mk_dummy_lnks(){
+    mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
+}
+pub(crate) fn mk_dummy_lnk(head: &str){
+    let cmd = "whereis ".to_string() + head;
+    let ret = run_cmd_out(cmd).replace(&format!("{head}:"), "").trim_start().to_string();
+    let (ret, _) = split_once(&ret, head);
+    if ret != "none"{
+        let cmd = format!("ln -sf {ret}/{head} {}", format!("{}/{head}", take_list_adr("env/dummy_lnks")));
+        run_cmd0(cmd);
+    }
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {return}
@@ -243,7 +274,8 @@ pub(crate) struct ret0 {
    pub res: bool
 }
 pub(crate) fn escape_symbs(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     let  strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -261,22 +293,21 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace(r"'", r"\'");
 }
 pub(crate) fn escape_backslash(str0: &String) -> String{
-    if check_patch_mark(str0){return str0.to_string();}
+    if no_esc_lst(str0, false).is_some(){return str0.strn()}
+    if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
+    let front_list = read_front_list();
+    if front_list == "history"{return str0.strn()}
     let str0 = escape_backslash(str0);
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)
-}
-pub(crate) fn key_f12(func_id: i64){
-    unsafe {crate::shift_cursor_of_prnt(0, func_id)};
-    crate::set_prnt("", func_id);
-    rm_user_written_path(func_id)
 }
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;
@@ -448,6 +479,14 @@ pub(crate) fn rm_file(file: &String) -> bool{
     .expect(&err_msg);
     true
 }
+pub(crate) fn forced_rm_dir(dir: &mut String) -> bool{
+    let err_msg = format!("forced_rm_dir can't remove {}", dir);
+    dir.push('*'); dir.replace("//", "/");
+    let rm_cmd = Command::new("rmdir").arg("-fr").arg(dir)
+    .output()
+    .expect(&err_msg);
+    true
+}
 pub(crate) fn read_midway_data_4_ls() -> bool{
    // return true;
     let func_id = crate::func_id18::read_midway_data_;
@@ -597,12 +636,12 @@ pub(crate) fn save_file(content: String, fname: String) -> bool{
 pub(crate) fn rewrite_file_abs_adr(content: String, fname: String) -> bool{
     logs(&fname, "rewrite_file_abs_adr");
     let anew_file = || -> File{rm_file(&fname); return match File::options().create_new(true).write(true).open(&fname){
-        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return Box::new(Box::new(File::options().create_new(true).write(true).open(&fname)))
+        Ok(f) => f, _ => {errMsg0(&format!("Failed to create {fname}... Sorry")); return File::options().create_new(true).write(true).open(&fname)
             .expect(&format!("Failed again to create {fname}... Sorry"))}
     }};
     let mut file: File = match File::options().create(false).read(true).truncate(true).write(true).open(&fname){
         Ok(f) => f,
-        _ => anew_file()
+        _ => return false
     };
     file.write(content.as_bytes()).expect("rewrite_file_abs_adr failed");
     true
