@@ -156,7 +156,7 @@ pub(crate) fn get_tmp_dir(func_id: i64) -> String{
   } 
   if bkp0 == ""{
     let fst: String = unsafe{page_struct("", TMP_DIR_, func_id).str_};
-    if fst == ""{panic!("Can't get TMP_DIR #1")}
+    //if fst == ""{panic!("Can't get TMP_DIR #1")}
     return fst;
   }
 

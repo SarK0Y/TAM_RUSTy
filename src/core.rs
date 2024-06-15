@@ -72,6 +72,12 @@ pub(crate) fn mark_front_lst(name: &str){
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
     else {save_file(name.to_string(), "ls.mode".to_string());}
 }
+pub(crate) fn __proper_timestamp(sav: Option<String>) -> String{
+    static mut timestamp: Lazy<String> = Lazy::new(||{String::new()});
+    static mut fst: bool = true;
+    if unsafe { fst } && sav.is_some() {unsafe {*timestamp = sav.expect("Not proper timestamp"); fst = false}; return "".strn()}
+    unsafe{ timestamp.clone() }
+}
 pub(crate) fn initSession() -> bool{
     let func_id = 1;
     let run_command = Command::new("bash").arg("-c").arg("cd ~;pwd")
@@ -88,7 +94,9 @@ let last: usize = proper_output.len() - 1;
 let _ =proper_output.pop();
 errMsg_dbg(from_utf8(&proper_output).unwrap(), func_id, -1.0);  
 let timestamp = Local::now();
-let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+let mut proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+if __proper_timestamp(None) != ""{proper_timestamp = __proper_timestamp(None)}
+else { __proper_timestamp(Some(proper_timestamp.clone() ) ); }
 let mainpath: String = format!("{}/.TAM_SESSIONS/{proper_timestamp}/", from_utf8(&proper_output).unwrap().to_string());
 //let mainpath = escape_symbs(&mainpath);
 errMsg_dbg(&mainpath, func_id, -1.0);
@@ -121,7 +129,7 @@ let globalTAMdot = format!("{path_2_shm}/TAM/.");
 Command::new("chmod").arg("700").arg(&globalTAMdot).output().expect(&"Sorry, Failed to gain full access to shared TAM dir.".bold().red());
 shm_tam_dir(Some(globalTAM));
 let mut path_2_found_files_list = format!("{}/TAM_{}", path_2_shm, proper_timestamp);
-if take_list_adr("found_files") != ""{path_2_found_files_list = take_list_adr("found_files")}
+if bkp_tmp_dir() != ""{path_2_found_files_list = bkp_tmp_dir()}
 let err_msg = format!("{} wasn't created", path_2_found_files_list);
 let run_shell1 = Command::new("mkdir").arg("-p").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell1)};
