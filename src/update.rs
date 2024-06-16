@@ -96,7 +96,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
 }
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
-    crate::find_files_ls(cmd);
+    crate::find_files_ls_no_stop_code(cmd);
     background_fixing_count(2);
 }
 pub(crate) fn lets_write_path(key: String){
