@@ -20,18 +20,37 @@ pub(crate) fn main_update(){
         ); ps0::set_num_cols(val, func_id);}
         let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
         let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
-        thr_find_files.spawn(move||{
-            println!("spawn find files");
-            crate::find_files(path.as_str(), "");
-            if crate::dirty!(){println!("exit find files")};
-        });
-        thr_midway.spawn(||{
-            println!("spawn midway data");
-            crate::read_midway_data();
-            if crate::dirty!(){println!("exit midway data");}
-        });
+        if !checkArg("-slow-load"){
+            thr_find_files.spawn(move||{
+                println!("spawn find files");
+                crate::find_files(path.as_str(), "");
+                if crate::dirty!(){println!("exit find files")};
+            });
+            thr_midway.spawn(||{
+                println!("spawn midway data");
+                crate::read_midway_data();
+                if crate::dirty!(){println!("exit midway data");}
+            });
+    }else{
+            thr_find_files.spawn(move||{
+                println!("spawn find files");
+                crate::find_files(path.as_str(), "");
+                if crate::dirty!(){println!("exit find files")};
+            }).unwrap().join();
+            thr_midway.spawn(||{
+                println!("spawn midway data");
+                crate::read_midway_data();
+                if crate::dirty!(){println!("exit midway data");}
+            });
+    }
     }
 clear_patch();
+}
+pub(crate) fn delay_ms(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_millis(sleep));
+}
+pub(crate) fn delay_secs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_secs(sleep));
 }
 pub(crate) fn prime(){
     crate::initSession();
@@ -49,6 +68,7 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
+delay_secs(10);
 background_fixing_count(2);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
@@ -86,7 +106,8 @@ pub(crate) fn lets_write_path(key: String){
     C!(swtch_fn(mode, key));
 
 }
-pub(crate) fn background_fixing(){        
+pub(crate) fn background_fixing(){ 
+    if checkArg("-no-shadow-fix"){return;}       
     let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
     if subcmd == "no_upd_scrn"{
         set_prnt(&prnt, -164547841);
@@ -101,6 +122,7 @@ pub(crate) fn background_fixing(){
 });
 }
 pub(crate) fn background_fixing_count(num: usize){        
+    if checkArg("-no-shadow-fix"){return;}
     let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
     if subcmd == "no_upd_scrn"{
         set_prnt(&prnt, -164547841);
@@ -159,6 +181,7 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
         for i in 0..1{
@@ -177,6 +200,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
         for i in 0..num{

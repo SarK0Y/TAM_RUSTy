@@ -32,6 +32,7 @@ terminal_size = "0.3.0"
 crossterm="0.27.0"
 regex = "=1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.1", optional = true}
+syn = "2.0.66"
 #rustix = "0.38.28"
 #cached = "0.48.0"
 [features]

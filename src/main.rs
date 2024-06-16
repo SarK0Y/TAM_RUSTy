@@ -236,17 +236,21 @@ fn read_midway_data() -> bool{
         let ret = globs18::add_2_front_list(&line, -1); // todo => add_2_front_list
        // let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
         ps18::set_num_files0(func_id, indx); 
-        if dirty!(){println!("line {}", line)}
+        if dirty!(){println!("line {indx} {}", line)}
         if line == stopCode{ps18::fix_num_files(func_id); return true}
-    }  if dirty!(){println!("midway ended")}}
+    }  }
+    if dirty!(){println!("midway ended")}
     false
 }
 //#[inline(always)]
 fn find_files(path: &str, path_2_tmp_file: &str) -> bool{
 let func_id: i64 = 2;
+let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+/*let mut perms = std::fs::metadata(&output).unwrap().permissions();
+perms.set_readonly(true);
+std::fs::set_permissions(output, perms); return true; */
 let mut in_name = String::new();
 let mut list_of_found_files: Vec<String> = vec![]; 
-let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
 if in_name.len() == 0{in_name = core18::put_in_name();}
 else{in_name = format!("|{}", form_grep_cmd(&in_name));}
 let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
@@ -314,12 +318,13 @@ fn main (){
  SYS();
     }
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
-   initSession();
-   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); SYS();}
-   if checkArg("-rilocan"){rilocan(); return;}
+   //initSession();
+   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){initSession(); info(); SYS();}
+   if checkArg("-rilocan"){initSession(); rilocan(); return;}
    let key = "-encrypt-copy".strn();
    if checkArg(&key){
-    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", ); SYS()}
+    initSession();
     let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     #[cfg(feature="mae")] encrypt_n_keep_orig_file(&name);
     SYS();
@@ -327,6 +332,7 @@ fn main (){
    let key = "-decrypt-copy".strn();
    if checkArg(&key){
     if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    initSession();
     let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     #[cfg(feature="mae")] decrypt_copy(&name);
     SYS();
@@ -334,6 +340,7 @@ fn main (){
    let key = "-count-ch".strn();
 #[cfg(feature="mae")] 
    if checkArg(&key){
+    initSession();
      use Mademoiselle_Entropia::help_funcs;
     let ch = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     let name = String::from_iter(get_arg_in_cmd("-file").s).trim().trim_matches('\0').strn();
