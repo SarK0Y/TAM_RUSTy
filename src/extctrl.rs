@@ -36,7 +36,7 @@ impl basic{
         shol_state: false,
         swtch_shols: false,
         mk_shol_state: 0,
-        tmp_dir: bkp_tmp_dir(),
+        tmp_dir: bkp_tmp_dir(None, false),
         shols: Vec::new(),
         rec_shol: (String::new(), String::new()),
         ext_old_modes: _ext_msgs::new(),

@@ -9,7 +9,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let rows = crate::get_num_rows(27786521);
      let front_list = read_front_list();
      let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
-        let found_files = format!("{tmp_dir}/found_files");
+        let found_files = format!("{tmp_dir}/front_lst");
         let cached_list = format!("cache/{front_list}.{num_pg}");
         let is_cached = take_list_adr(&cached_list);
     let num_pg0 = if num_pg == 0{0}else{num_pg -1};
@@ -123,7 +123,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         }
 }
 pub(crate) fn clean_cache(msg: &str){
-    let tmp_dir = bkp_tmp_dir();
+    let tmp_dir = bkp_tmp_dir(None, false);
     let mk_msg_dir = format!("{tmp_dir}/msgs/basic/cache");
     let clean_cache = format!("{tmp_dir}/cache/{msg}*");
     let msg_of_clean_cache = format!("{mk_msg_dir}/clean");

@@ -151,12 +151,12 @@ pub(crate) fn get_tmp_dir(func_id: i64) -> String{
   for i in 0..1000{
     bkp0 = crate::C!(bkp.get().expect("Can't get TMP_DIR #0"));
     if bkp0 != ""{return bkp0.to_string();}
-    let bkp1 = cpy_str(&bkp_tmp_dir());
+    let bkp1 = cpy_str(&bkp_tmp_dir(None, false) );
     if bkp1 != ""{return bkp1;}
   } 
   if bkp0 == ""{
     let fst: String = unsafe{page_struct("", TMP_DIR_, func_id).str_};
-    if fst == ""{panic!("Can't get TMP_DIR #1")}
+    //if fst == ""{panic!("Can't get TMP_DIR #1")}
     return fst;
   }
 

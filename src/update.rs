@@ -1,4 +1,4 @@
-use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{set_main0_as_front, MAIN0_}, popup_msg, read_file, read_front_list, read_midway_data, read_prnt, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
+use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 use std::time::Instant;
@@ -20,18 +20,37 @@ pub(crate) fn main_update(){
         ); ps0::set_num_cols(val, func_id);}
         let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
         let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
-        thr_find_files.spawn(move||{
-            println!("spawn find files");
-            crate::find_files(path.as_str(), "");
-            if crate::dirty!(){println!("exit find files")};
-        });
-        thr_midway.spawn(||{
-            println!("spawn midway data");
-            crate::read_midway_data();
-            if crate::dirty!(){println!("exit midway data");}
-        });
+        if !checkArg("-slow-load"){
+            thr_find_files.spawn(move||{
+                println!("spawn find files");
+                crate::find_files(path.as_str(), "");
+                if crate::dirty!(){println!("exit find files")};
+            });
+            thr_midway.spawn(||{
+                println!("spawn midway data");
+                crate::read_midway_data();
+                if crate::dirty!(){println!("exit midway data");}
+            });
+    }else{
+            thr_find_files.spawn(move||{
+                println!("spawn find files");
+                crate::find_files(path.as_str(), "");
+                if crate::dirty!(){println!("exit find files")};
+            }).unwrap().join();
+            thr_midway.spawn(||{
+                println!("spawn midway data");
+                crate::read_midway_data();
+                if crate::dirty!(){println!("exit midway data");}
+            });
+    }
     }
 clear_patch();
+}
+pub(crate) fn delay_ms(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_millis(sleep));
+}
+pub(crate) fn delay_secs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_secs(sleep));
 }
 pub(crate) fn prime(){
     crate::initSession();
@@ -49,6 +68,7 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
+delay_secs(10);
 background_fixing_count(2);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
@@ -76,7 +96,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
 }
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
-    crate::find_files_ls(cmd);
+    crate::find_files_ls_no_stop_code(cmd);
     background_fixing_count(2);
 }
 pub(crate) fn lets_write_path(key: String){
@@ -86,7 +106,8 @@ pub(crate) fn lets_write_path(key: String){
     C!(swtch_fn(mode, key));
 
 }
-pub(crate) fn background_fixing(){        
+pub(crate) fn background_fixing(){ 
+    if checkArg("-no-shadow-fix"){return;}       
     let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
     if subcmd == "no_upd_scrn"{
         set_prnt(&prnt, -164547841);
@@ -101,6 +122,7 @@ pub(crate) fn background_fixing(){
 });
 }
 pub(crate) fn background_fixing_count(num: usize){        
+    if checkArg("-no-shadow-fix"){return;}
     let (prnt, subcmd) = split_once(&read_prnt(), ":>:");
     if subcmd == "no_upd_scrn"{
         set_prnt(&prnt, -164547841);
@@ -159,6 +181,7 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
         for i in 0..1{
@@ -177,6 +200,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
         for i in 0..num{
@@ -204,4 +228,34 @@ spawn(||{
     }
 });
 } 
+pub(crate) fn clean_dead_tams(){
+    let limit = 240u64;
+    let nowtime = std::time::SystemTime::now();
+    let nowtime: u64 = match nowtime.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
+    let shm_adr = path_to_shm(None);
+    let find_tams = format!("du {shm_adr}|grep -Eo 'TAM_[0-9]{{4}}.*_[0-9]*/'|uniq");
+    let run_cmd = match Command::new("bash").arg("-c").arg(&find_tams).output(){
+        Ok(cmd) => cmd, _ => return errMsg0("Failed to get list of dead tams")
+    };
+    let build_stdout = String::from_utf8_lossy(&run_cmd.stdout);
+    dbg!(&build_stdout);
+    for ln in build_stdout.lines(){
+        let ln0 = ln;
+        let read_alive = format!("{shm_adr}/{ln0}alive" );
+        if crate::Path::new(&read_alive).exists(){
+            let read_alive = read_file_abs_adr(&read_alive);
+            let alive_time = strn_2_u64(read_alive).unwrap_or(0);
+            let ret = nowtime.overflowing_sub(alive_time);
+            if  ret.0 > limit && !ret.1{
+                let ln0 = ln;
+                if ln0 == ""{continue;}
+                let mut dead_tam = format!("{shm_adr}/{}", ln0);
+                crate::forced_rm_dir(&mut dead_tam);
+            } 
+        }else {
+                let mut dead_tam = format!("{shm_adr}/{}", ln);
+                crate::forced_rm_dir(&mut dead_tam);
+        }
+    }
+}
 //fn

@@ -4,6 +4,7 @@ use crate::{add_cmd_in_history, cached_ln_of_found_files};
 use crate::custom_traits::{STRN, helpful_math_ops};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
 self::globs_uses!();
+use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 =  1;
 pub const FRONT_: i64 =  2;
 pub const FILTERED_: i64 =  3;
@@ -538,7 +539,7 @@ if list == FRONT_ {
 "wrong".to_string()
 }
 pub(crate) fn take_list_adr(name: &str) -> String{
-    return format!("{}/{name}", get_tmp_dir(6774154783));
+    return format!("{}/{name}", crate::bkp_tmp_dir(None, false));
 }
 pub(crate) fn renew_lists(new_item: String){
     let front_lst = take_list_adr(&read_front_list());
@@ -765,5 +766,16 @@ pub(crate) fn enum_not_escaped_spaces_in_strn_up_to(strn: &String, bar: usize) -
     }
     vec
 }
-
+pub(crate) fn path_to_shm(path: Option<&String>) -> &'static String{
+    static mut shm_adr: Lazy< String > = Lazy::new(||{String::new()});    
+    static mut fst_run: bool = true;
+    if unsafe {fst_run} {
+        if path.is_some(){
+            unsafe{*shm_adr = path.unwrap().strn(); fst_run = false}
+            return Box::leak( Box::new("".strn() ) )
+        }
+    }
+    
+    return unsafe {Box::leak(Box::new(shm_adr.clone() ) ) }
+}
 //fn

@@ -16,7 +16,7 @@ pub(crate) fn pre_Enter(){
     if front_list != "ls" && behind_found_files != "ls" {return}
     let mut prev_list = read_file("prev_list");
     if prev_list == ""{
-        let alt_prev_list = format!("{}/prev_list", crate::bkp_tmp_dir()).replace("//", "/");
+        let alt_prev_list = format!("{}/prev_list", crate::bkp_tmp_dir(None, false)).replace("//", "/");
         prev_list = read_file_abs_adr(&alt_prev_list);
         if prev_list == ""{
             errMsg0("Operation failed.. Sorry :((");
