@@ -44,7 +44,7 @@ impl super::basic{
             let mut res: String ="".to_string();
             while res == "" {res = self.rec_from_front_list(indx, true);}
               num_files = crate::get_num_files(func_id);
-             if num_files == indx || "front list is empty" == res{time_to_stop = true;}
+             if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){time_to_stop = true;}
             // println!("build_page - probe 0");
             let full_path = res;
             //no_dup_indx = indx;

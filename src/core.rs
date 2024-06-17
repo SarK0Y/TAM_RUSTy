@@ -452,9 +452,9 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
     //}
     let mut prnt = "".to_string();
     if prnt.len() == 0{set_ask_user("prnt is empty", -5);}
-    if num_of_ln_in_dir_lst == 1{
+    if num_of_ln_in_dir_lst < 2{
         let mut full_path = ln_of_found_files(0).0;
-        let is_dir = Path::new(&full_path).is_dir();
+        let is_dir = Path::new(&full_path.strip_all_symbs() ).is_dir();
         if is_dir{full_path.push('/');}
         prnt = prnt.replace(&not_full_path, &full_path);
         let msg = format!("prnt: {}", prnt);
