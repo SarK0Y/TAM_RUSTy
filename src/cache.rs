@@ -9,7 +9,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let rows = crate::get_num_rows(27786521);
      let front_list = read_front_list();
      let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
-        let found_files = format!("{tmp_dir}/front_lst");
+        let found_files = format!("{tmp_dir}/found_files");
         let cached_list = format!("cache/{front_list}.{num_pg}");
         let is_cached = take_list_adr(&cached_list);
     let num_pg0 = if num_pg == 0{0}else{num_pg -1};
