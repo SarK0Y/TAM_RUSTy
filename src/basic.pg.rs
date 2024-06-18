@@ -26,7 +26,7 @@ impl super::basic{
     }
     let mut count_down = num_files;
     if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
-    let mut num_page; num_page = crate::get_num_page(func_id); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
+    let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
     let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
@@ -43,7 +43,7 @@ impl super::basic{
             while res == "" {res = self.rec_from_front_list(indx, true);}
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
-                time_to_stop = true; { set_num_page( num_page.dec(), func_id); crate::update18::fix_screen(); return;}
+                time_to_stop = true;
             }
             // println!("build_page - probe 0");
             let full_path = res;

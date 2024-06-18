@@ -412,6 +412,5 @@ pub(crate) fn where_is_last_pg() -> i64{
   let mut last_pg: i64 = len / (num_cols * num_rows);
   let mut residue = last_pg * num_cols * num_rows;
   if residue < len {last_pg.inc();}
-  else {last_pg.dec();}
   last_pg
 }

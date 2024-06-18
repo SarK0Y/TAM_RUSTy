@@ -1,5 +1,6 @@
 use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
 
+use crate::errMsg0;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
  exts::pg_uses, get_num_page, get_path_from_prnt, get_path_from_strn, getkey, 
  globs18::{clear_merge, decode_sub_cmds, get_proper_indx, ins_last_char_to_string1_from_string1, 
@@ -346,6 +347,9 @@ pub(crate) fn exec_cmd(cmd: String){
         crate::set_num_page(num_page, func_id);
         return;
     }
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 2), "p ") == 0{
+        go2pg(&cmd); return;
+    }
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0{
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {set_ask_user("wrong use of go2: go2 <indx of page>", func_id); return;}
@@ -450,3 +454,17 @@ fn extract_sub_cmd_by_mark(cmd: &String, mark: String) -> String{
     }
     sub_cmd
 }
+pub(crate) fn go2pg(cmd: &String){
+    let cmd = cmd.replace("p ", "");
+        let pg_num: i64 = match i64::from_str_radix(&cmd, 10){
+            Ok(val) => val,
+            _ => {errMsg0("wrong use of p command: p <indx of page>"); return}
+        };
+        let global_indx_or_not = crate::C!(local_indx(false));
+        if !global_indx_or_not {crate::C!(local_indx(true));}
+        let pg_num = get_proper_indx(pg_num, true);
+        crate::set_num_page(pg_num.1, 4159207);
+        if !global_indx_or_not {crate::C!(local_indx(true));}
+        return;
+}
+//fn

@@ -68,7 +68,6 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
-delay_secs(10);
 background_fixing_count(2);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
