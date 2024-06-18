@@ -4,10 +4,8 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{read_file_abs_adr, cached_data, get_num_files, ln_of_found_files_cacheless, cache_state, cache, popup_msg, save_file_abs_adr,
-     checkArg, get_arg_in_cmd, globs18::{strn_2_u64, strn_2_usize, seg_size, get_item_from_front_list}, cache_t, entry_cache_t, i64_2_usize,
-      getkey, get_num_page, update18::fix_screen_count, read_file, rm_file, rec_from_patch, patch_len, swtch::check_symlink, read_front_list};
-use crate::custom_traits::STRN;
+use crate::{cache, cache_state, cache_t, cached_data, checkArg, entry_cache_t, get_arg_in_cmd, get_num_files, get_num_page, getkey, globs18::{get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize}, i64_2_usize, ln_of_found_files_cacheless, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, set_num_page, swtch::check_symlink, update18::fix_screen_count};
+use crate::custom_traits::{STRN, helpful_math_ops};
 //use super::extctrl::*;
 impl super::basic{
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
@@ -33,7 +31,7 @@ impl super::basic{
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
-    num_page = crate::calc_num_files_up2_cur_pg(); let mut filename_str: String; let mut time_to_stop = false;
+    let mut filename_str: String; let mut time_to_stop = false;
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
     println!("{}", crate::get_full_path(func_id));
     let mut display_indx = 0i64;
@@ -44,7 +42,9 @@ impl super::basic{
             let mut res: String ="".to_string();
             while res == "" {res = self.rec_from_front_list(indx, true);}
               num_files = crate::get_num_files(func_id);
-             if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){time_to_stop = true;}
+             if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
+                time_to_stop = true; { set_num_page( num_page.dec(), func_id); crate::update18::fix_screen(); return;}
+            }
             // println!("build_page - probe 0");
             let full_path = res;
             //no_dup_indx = indx;
