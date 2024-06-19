@@ -251,7 +251,7 @@ pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, just_set_shift: Option<usi
   static mut num_of_shifts: usize = 0;                                          // i64::MIN/MAX to set num_of_shifts = 0/END, 2 to ret num_of_shifts w/ no string /
   let mut str__ = String::from("");                                             // 3 to ret str of shifts
   if just_set_shift.is_some(){
-    num_of_shifts = just_set_shift.unwrap(); return shift_cur_struct{
+    { num_of_shifts = just_set_shift.unwrap() }; return shift_cur_struct{
       str__: "".to_string(),
       shift: num_of_shifts
     };
