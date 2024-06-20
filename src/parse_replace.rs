@@ -1,5 +1,5 @@
 use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0, full_escape, no_esc_lst};
-
+use substring::Substring;
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
     fn mk_shol(&mut self, inc_id: usize);
@@ -11,7 +11,6 @@ pub trait parse_replace{
 }
 impl parse_replace for crate::basic{
     fn prevalidate_tag(&mut self) -> Option<String>{
-        use substring::Substring;
     let mut prnt = crate::read_prnt();
     if prnt.substring(0, 10) == "term mv %a"{return Some("dontPass".to_string())}
     if prnt.substring(0, 10) == "term cp %a"{return Some("dontPass".to_string())}
@@ -25,10 +24,12 @@ impl parse_replace for crate::basic{
     let tag0 = tag.clone();
     let mut tag_hash =tag.clone();
     let mut tag_at = false;
+    let mut w_tag = false;
     tag_hash = tag.replace("##", "");
     if tag_hash.len() != tag.len(){tag_at = true}
     tag = tag.replace("##", "");
     tag = tag.replace("@@", "");
+    if tag.substring(0, 1) == "w"{w_tag = true; tag = tag.replace("w", ""); }
     let tag = match i64::from_str_radix(&tag, 10){
         Ok(i) => i,
         _ => i64::MIN
@@ -40,7 +41,8 @@ impl parse_replace for crate::basic{
        // crate::update18::fix_screen_count(1);
         return None;
     }
-    let tag = crate::get_item_from_front_list(tag, true);
+    let mut tag = crate::get_item_from_front_list(tag, true);
+    if w_tag {tag = format!("{}:s:{}", tag, &tag);}
     let tag = self.mk_shol_from_strn(&tag, tag_at);
     prnt = prnt.replace(&tag0, &tag);
     crate::set_prnt(&prnt, -48721112507);

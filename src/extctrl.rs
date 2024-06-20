@@ -118,7 +118,7 @@ impl ManageLists for basic{
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
-        if num_pg < num_pgs || num_pgs ==0 {self.build_page( &mut ps);}
+        if num_pg < num_pgs {self.build_page( &mut ps);}
         println!("{}", crate::get_prnt(-1));
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));

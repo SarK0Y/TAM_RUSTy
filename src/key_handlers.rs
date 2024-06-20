@@ -1,4 +1,8 @@
-use crate::{read_front_list, save_file0, read_file, set_front_list, globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg, drop_ls_mode, add_cmd_in_history};
+use crate::{read_front_list, save_file0, read_file, set_front_list, 
+    globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, 
+    read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg, drop_ls_mode,
+     add_cmd_in_history, custom_traits::STRN};
+use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
     let front_list = read_front_list();
@@ -95,14 +99,20 @@ pub(crate) fn key_f12(func_id: i64){
     crate::rm_user_written_path(func_id)
 }
 pub(crate) fn PgDown(){
-    let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
+    let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
     let len = read_prnt().chars().count();
-     let mut som = Some(len - cur_cur_pos);
+     let mut som = Some( delta(len,cur_cur_pos) );
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
     if cur_cur_pos == 0{ return;}
     let enum_spaces = enum_not_escaped_spaces_in_strn_up_to(&read_prnt(), cur_cur_pos);
-    if enum_spaces.len() == 0{return;}
+    if enum_spaces.len() == 0{
+        popup_msg(&cur_cur_pos.strn());
+        let cur_cur_pos0 = delta(cur_cur_pos, 10);
+        cur_cur_pos = delta(cur_cur_pos, len);
+        som = Some(cur_cur_pos );
+        set_cur_cur_pos(crate::usize_2_i64(cur_cur_pos0 ),74444418691); 
+        unsafe {shift_cursor_of_prnt(0, som, 74444418691).shift }; return;}
     let mut dt = usize::MAX;
     //popup_msg(&cur_cur_pos.to_string());
     let mut i = enum_spaces.len() - 1;
@@ -119,14 +129,21 @@ pub(crate) fn PgDown(){
     }
 }
 pub(crate) fn PgUp(){
-    let cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
+    let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
     let len = read_prnt().chars().count();
-     let mut som = Some(len - cur_cur_pos);
+     let mut som = Some( delta(cur_cur_pos, len) );
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
     if cur_cur_pos == 0{ return;}
     let enum_spaces = crate::globs18::enum_not_escaped_spaces_in_strn_down_to(&read_prnt(), cur_cur_pos);
-    if enum_spaces.len() == 0{return;}
+    if enum_spaces.len() == 0{
+        popup_msg(&cur_cur_pos.strn());
+        let cur_cur_pos0 =cur_cur_pos + 10;
+        if cur_cur_pos > len {return}
+        cur_cur_pos = delta(cur_cur_pos, len);
+        som = Some(cur_cur_pos );
+        set_cur_cur_pos(crate::usize_2_i64(cur_cur_pos0 ),74444418691);
+        unsafe {shift_cursor_of_prnt(0, som, 74444418691).shift }; return;}
     let mut dt = usize::MAX;
     //popup_msg(&cur_cur_pos.to_string());
     let loops = enum_spaces.len();
@@ -134,7 +151,7 @@ pub(crate) fn PgUp(){
     let mut pass = false;
     loop {
         let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, 74444418691).shift};
-        if cur_cur_pos == enum_spaces[0]{ return;}
+        if cur_cur_pos == enum_spaces[0]{ return; }
         pass = false;
         set_cur_cur_pos(crate::usize_2_i64(enum_spaces[i]),74444418691);
         {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[i]), 74444418691).shift}; return

@@ -59,7 +59,7 @@ pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
-    let found_files = format!("{tmp_dir}/front_lst");
+    let found_files = format!("{tmp_dir}/found_files");
     let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
@@ -96,8 +96,8 @@ let _ =proper_output.pop();
 errMsg_dbg(from_utf8(&proper_output).unwrap(), func_id, -1.0);  
 let timestamp = Local::now();
 let mut proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
-if __proper_timestamp(None) != ""{proper_timestamp = __proper_timestamp(None)}
-else { __proper_timestamp(Some(proper_timestamp.clone() ) ); }
+/*if __proper_timestamp(None) != ""{proper_timestamp = __proper_timestamp(None)}
+else { __proper_timestamp(Some(proper_timestamp.clone() ) ); } */
 let mainpath: String = format!("{}/.TAM_SESSIONS/{proper_timestamp}/", from_utf8(&proper_output).unwrap().to_string());
 //let mainpath = escape_symbs(&mainpath);
 errMsg_dbg(&mainpath, func_id, -1.0);
@@ -144,10 +144,10 @@ let path_2_found_files_list_dot = format!("{}/TAM_{}/.", path_2_shm, proper_time
 let err_msg = format!("{} permission denied", path_2_found_files_list_dot);
 let run_shell3 = Command::new("chmod").arg("700").arg(&path_2_found_files_list_dot).output().expect(&err_msg.bold().red());
 if checkArg("-dbg"){println!("shell out = {:?}", run_shell3)};
-let path_2_found_files_list = format!("{}/TAM_{}/front_lst", path_2_shm, proper_timestamp);
-let err_msg = format!("{} can't be created", path_2_found_files_list);
-let run_shell4 = Command::new("touch").arg("-f").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());
-if checkArg("-dbg"){println!("shell out = {:?}", run_shell4)};
+let path_2_found_files_list = format!("{}/TAM_{}/found_files0", path_2_shm, proper_timestamp);
+/*let err_msg = format!("{} can't be created", path_2_found_files_list);
+let run_shell4 = Command::new("touch").arg("-f").arg(&path_2_found_files_list).output().expect(&err_msg.bold().red());*/
+//if checkArg("-dbg"){println!("shell out = {:?}", run_shell4)};
 unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), func_id);
        crate::page_struct("empty", set(crate::KONSOLE_TITLE_), func_id);}
     crate::globs18::set_main0_as_front();
@@ -303,6 +303,7 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
     let strr = strr.replace(r"\\'", r"\'");
+    let strr = str::replace(&strr, ":s:", " ");
     return strr.to_string();
 }
 pub(crate) fn escape_apostrophe(str0: &String) -> String{
@@ -317,7 +318,7 @@ pub(crate) fn escape_backslash(str0: &String) -> String{
 }
 pub(crate) fn full_escape(str0: &String) -> String{
     let front_list = read_front_list();
-    if front_list == "history"{return str0.strn()}
+    if check_substrn(&front_list, "history"){return str0.strn()}
     let str0 = escape_backslash(str0);
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)
@@ -346,7 +347,7 @@ fn end_termios(termios: &Termios){
 pub(crate) fn custom_cmd_4_find_files(custom_cmd: String) -> bool{
 let func_id: i64 = 2;
 let mut list_of_found_files: Vec<String> = vec![]; 
-let output = format!("{}/front_lst", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+let output = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
 let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
 let mut cmd: String =  format!("#!/bin/bash\n{} > {};echo '{stopCode}' >> {}", custom_cmd, output, output);
 crate::run_cmd0(cmd);
@@ -452,9 +453,9 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
     //}
     let mut prnt = "".to_string();
     if prnt.len() == 0{set_ask_user("prnt is empty", -5);}
-    if num_of_ln_in_dir_lst == 1{
+    if num_of_ln_in_dir_lst < 2{
         let mut full_path = ln_of_found_files(0).0;
-        let is_dir = Path::new(&full_path).is_dir();
+        let is_dir = Path::new(&full_path.strip_all_symbs() ).is_dir();
         if is_dir{full_path.push('/');}
         prnt = prnt.replace(&not_full_path, &full_path);
         let msg = format!("prnt: {}", prnt);
@@ -521,7 +522,7 @@ pub(crate) fn read_midway_data_4_ls() -> bool{
     let mut added_indx = 0usize;
     loop {
         let stopCode = getStop_code__!();
-        let filename = format!("{}/front_lst", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {
