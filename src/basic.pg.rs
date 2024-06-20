@@ -4,7 +4,7 @@ use num_traits::ToPrimitive;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{cache, cache_state, cache_t, cached_data, checkArg, entry_cache_t, get_arg_in_cmd, get_num_files, get_num_page, getkey, globs18::{get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize}, i64_2_usize, ln_of_found_files_cacheless, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, set_num_page, swtch::check_symlink, update18::fix_screen_count};
+use crate::{cache, cache_state, cache_t, cached_data, checkArg, entry_cache_t, get_arg_in_cmd, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize}, i64_2_usize, ln_of_found_files_cacheless, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, set_num_page, swtch::check_symlink, update18::fix_screen_count};
 use crate::custom_traits::{STRN, helpful_math_ops};
 //use super::extctrl::*;
 impl super::basic{
@@ -56,7 +56,7 @@ impl super::basic{
             let mut filename = crate::Path::new(&full_path);
             let filename_str0 = || -> String{
                     let front_list = read_front_list();
-                 if front_list != "history"{
+                 if !check_substrn(&front_list, "history"){
                    return String::from(match filename.file_name(){
                     Some(f) => f,
                     None => err_path(),

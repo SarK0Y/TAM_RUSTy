@@ -1,8 +1,15 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::{add_cmd_in_history, cached_ln_of_found_files};
-use crate::custom_traits::{STRN, helpful_math_ops};
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
+use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, run_cmd_out_sync};
+use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
+swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
+     set_user_written_path_from_strn, user_wrote_path}, 
+     core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt,
+      get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, 
+      save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg,
+       set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, 
+       save_file_abs_adr0, errMsg0};
 self::globs_uses!();
 use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 =  1;
@@ -61,21 +68,21 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     clean_cache("filter");
-    let data = data.replace("sieve ", "");
-    let (mut opts, mut data) = split_once(&data, " ");
-    if opts == "none".to_string() || data == "none".to_string(){
+    let data0 = data.replace("sieve ", "");
+    let (mut opts, mut data0) = split_once(&data0, " ");
+    if opts == "none".to_string() || data0 == "none".to_string(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
     if opts == "none"{return}
-    if data == "none"{
-        data = opts;
+    if data0 == "none"{
+        data0 = opts;
         opts = "-Ei".to_string()}
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -107,7 +114,7 @@ pub(crate) fn sieve_list0(data: String){
     let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -777,5 +784,28 @@ pub(crate) fn path_to_shm(path: Option<&String>) -> &'static String{
     }
     
     return unsafe {Box::leak(Box::new(shm_adr.clone() ) ) }
+}
+pub(crate) fn Users_home_dir() -> String{
+    let home = run_cmd_out_sync("cd ~;pwd".strn());
+    if home.substring(0, 1) != "/"{errMsg0("Can't get User's home direcrory"); return "".strn()}
+    home
+}
+pub(crate) fn load_bash_history(){
+    let home_dir = Users_home_dir().trim_end().strn();
+    let orig_bash = format!("{home_dir}/.bash_history");
+    let cpy_to = format!("{home_dir}/bash_history_cpy");
+    let bkp_bash = format!("cat {orig_bash} > {cpy_to}");
+    run_cmd_out_sync(bkp_bash);
+    let cmd_lst = format!("lst {home_dir}/bash_history_cpy");
+    manage_lst(&cmd_lst);
+}
+pub(crate) fn load_fish_history(){
+    let home_dir = Users_home_dir().trim_end().strn();
+    let orig_fish = format!("{home_dir}/.local/share/fish/fish_history");
+    let cpy_to = format!("{home_dir}/.local/share/fish/fish_history_cpy");
+    let bkp_fish = format!("cat {orig_fish} > {cpy_to}");
+    run_cmd_out_sync(bkp_fish);
+    let cmd_lst = format!("lst {home_dir}/.local/share/fish/fish_history_cpy");
+    manage_lst(&cmd_lst);
 }
 //fn

@@ -318,7 +318,7 @@ pub(crate) fn escape_backslash(str0: &String) -> String{
 }
 pub(crate) fn full_escape(str0: &String) -> String{
     let front_list = read_front_list();
-    if front_list == "history"{return str0.strn()}
+    if check_substrn(&front_list, "history"){return str0.strn()}
     let str0 = escape_backslash(str0);
     let str0 = escape_apostrophe(&str0);
     escape_symbs(&str0)

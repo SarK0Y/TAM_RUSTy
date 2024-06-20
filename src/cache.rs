@@ -1,6 +1,8 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, globs18::{take_list_adr, seg_size}, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out, popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir};
+use crate::{get_num_page, get_num_cols, read_front_list, 
+    globs18::{take_list_adr, seg_size}, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out,
+     popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir, custom_traits::STRN};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -42,7 +44,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         let mut ret0 = (String::new(), 0usize);
         let get_indx_offset = get_indx % recs_on_pg1;
         for (indx, line) in reader.lines().enumerate() {
-            let line0 = line.unwrap().as_mut().to_string();
+            let line0 = line.unwrap_or("".strn() ).as_mut().strn();
             if indx >= get_indx && recs_on_pg2 > 0{
                 if indx == get_indx_offset{
                 ret = (crate::cpy_str(&line0), indx);}
@@ -114,7 +116,7 @@ pub(crate) fn cache_pg_prev(get_indx: usize, cached_list: String, found_files: S
         let mut ret = (String::new(), 0usize);
         let mut ret0 = (String::new(), 0usize);
         for (indx, line) in reader.lines().enumerate() {
-            let line0 = line.unwrap().as_mut().to_string();
+            let line0 = line.unwrap_or("no str".strn() ).as_mut().to_string();
             if align_indx > indx &&  align_indx - indx == recs_on_pg && recs_on_pg > 0{
                 let proper_line = format!("{}\n", line0.clone());
             save_file_append_abs_adr(proper_line, cached_list.clone());
