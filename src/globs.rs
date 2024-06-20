@@ -803,7 +803,7 @@ pub(crate) fn load_fish_history(){
     let home_dir = Users_home_dir().trim_end().strn();
     let orig_fish = format!("{home_dir}/.local/share/fish/fish_history");
     let cpy_to = format!("{home_dir}/.local/share/fish/fish_history_cpy");
-    let bkp_fish = format!("cat {orig_fish} > {cpy_to}");
+    let bkp_fish = format!("cat {orig_fish}|grep -Ei '\\s*-\\s*cmd:'|sed 's/\\s*-\\s*cmd:/term /g'|uniq > {cpy_to}");
     run_cmd_out_sync(bkp_fish);
     let cmd_lst = format!("lst {home_dir}/.local/share/fish/fish_history_cpy");
     manage_lst(&cmd_lst);
