@@ -61,14 +61,14 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     clean_cache("filter");
-    let data = data.replace("sieve ", "");
-    let (mut opts, mut data) = split_once(&data, " ");
-    if opts == "none".to_string() || data == "none".to_string(){
+    let data0 = data.replace("sieve ", "");
+    let (mut opts, mut data0) = split_once(&data0, " ");
+    if opts == "none".to_string() || data0 == "none".to_string(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
     if opts == "none"{return}
-    if data == "none"{
-        data = opts;
+    if data0 == "none"{
+        data0 = opts;
         opts = "-Ei".to_string()}
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
@@ -76,7 +76,7 @@ pub(crate) fn sieve_list(data: String){
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     //let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
-    let cmd = format!("cat '{found_files_path}'|grep {} {} > {}", opts, data, filter_file_path_tmp);
+    let cmd = format!("cat '{found_files_path}'|grep {} {} > {}", opts, data0, filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -786,7 +786,11 @@ pub(crate) fn Users_home_dir() -> String{
 }
 pub(crate) fn load_bash_history(){
     let home_dir = Users_home_dir().trim_end().strn();
-    let cmd_lst = format!("lst {home_dir}/.bash_history");
+    let orig_bash = format!("{home_dir}/.bash_history");
+    let cpy_to = format!("{home_dir}/bash_history_cpy");
+    let bkp_bash = format!("cat {orig_bash} > {cpy_to}");
+    run_cmd_out_sync(bkp_bash);
+    let cmd_lst = format!("lst {home_dir}/bash_history_cpy");
     manage_lst(&cmd_lst);
 }
 pub(crate) fn load_fish_history(){

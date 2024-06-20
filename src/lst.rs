@@ -299,7 +299,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
         let item = full_escape(&item);
-        let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head));
+        let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head) );
         let cmd = format!("ln -sf {item} {link_2_item}");
         run_cmd0(cmd);
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
