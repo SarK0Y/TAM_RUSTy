@@ -1,4 +1,4 @@
-use crate::{checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
+use crate::{basic, checkArg, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 use std::time::Instant;
@@ -191,7 +191,8 @@ pub(crate) fn fix_screen(){
             let num_pgs = crate::where_is_last_pg();
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
-            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
+            let mut base = basic::new();
+            if num_pg < num_pgs || num_pgs ==0 {base.build_page_(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
@@ -210,7 +211,8 @@ pub(crate) fn fix_screen_count(num: usize){
             let num_pgs = crate::where_is_last_pg();
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
-            if num_pg < num_pgs || num_pgs ==0 {crate::pg18::build_page(&mut ps);}
+            let mut base = basic::new();
+            if num_pg < num_pgs || num_pgs ==0 {base.build_page_(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(615));        

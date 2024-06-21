@@ -73,6 +73,8 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
+    if check_substrn(&name.strn(), "history"){swtch_esc(true, false);}
+    else { swtch_esc(true, true); }
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
     else {save_file(name.to_string(), "ls.mode".to_string());}
 }
@@ -325,7 +327,7 @@ pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
 pub(crate) fn full_escape(str0: &String) -> String{
     let func_id = crate::func_id18::full_escape_;
     let front_list = take_list_adr("found_files").unreel_link_to_file();
-    if check_substrn(&front_list, "history"){return str0.strn()}
+    if check_substrn(&front_list, "history") || check_substrn(&read_front_list(), "history"){return str0.strn()}
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)

@@ -96,6 +96,7 @@ pub(crate) fn sieve_list(data: String){
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
     mark_front_lst(&format!("filter{history_mode}") );
+    set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
     set_full_path(&data, -19784542001);
@@ -129,6 +130,7 @@ pub(crate) fn sieve_list0(data: String){
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
     mark_front_lst(&format!("filter{history_mode}") );
+    set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 
@@ -411,7 +413,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
-        if last_pg < indx{
+        if last_pg < indx && last_pg > 0{
             indx = last_pg - (indx/last_pg) * last_pg;
             return (i64_2_usize(indx), indx); 
         }
