@@ -186,3 +186,18 @@ impl content_stat for std::fs::File{
         println!("File contains {count} of {ch}");        
     }
 }
+pub trait fs_tools {
+    fn unreel_link_to_file(&mut self) -> Self;
+}
+impl fs_tools for String{
+    fn unreel_link_to_file(&mut self) -> Self{
+        let mut run = true;
+        while run{
+            match std::fs::read_link(& self){
+                Ok(ln) => {*self = ln.to_str().unwrap().strn();},
+                _ => {run = false;}
+            }
+        }
+        self.strn()
+    }
+}

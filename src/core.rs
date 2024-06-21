@@ -5,7 +5,10 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{cached_ln_of_found_files, custom_traits::STRN, get_arg_in_cmd, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
+use crate::{cached_ln_of_found_files, custom_traits::{STRN, fs_tools}, get_arg_in_cmd, link_lst_to, no_esc_lst, 
+    run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, 
+    swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, 
+    update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -42,7 +45,7 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = take_list_adr_env(&list);
+    let active_list = take_list_adr_env(&list).unreel_link_to_file();
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -54,13 +57,14 @@ pub(crate) fn set_front_list(list: &str){
 pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
     static mut name0: Lazy<String> = Lazy::new(||{String::new()});
     if set {unsafe { *name0 = name.to_string();}}
+    //popup_msg(&unsafe{name0.to_string()} );
     unsafe{name0.to_string()}
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = take_list_adr_env(&list);
+    let active_list = take_list_adr_env(&list).unreel_link_to_file();
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -70,6 +74,8 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
+    if check_substrn(&name.strn(), "history"){swtch_esc(true, false);}
+    else { swtch_esc(true, true); }
     if name != "ls"{save_file(name.to_string(), "front_list".to_string());}
     else {save_file(name.to_string(), "ls.mode".to_string());}
 }
@@ -248,8 +254,8 @@ pub(crate) fn rgx_from_file(rgx: String, src: &str, out: &str){
     let prime_path = format!("{}", get_tmp_dir(84411254));
     if prime_path == ""{set_ask_user("Sorry, No access to tmp directory.. Sorry", -5611115); return;}
     let (opts, rgx) = split_once(&rgx, " ");
-    let src = format!("{prime_path}/{}", escape_symbs(&src.to_string()));
-    let out = format!("{prime_path}/{}", escape_symbs(&out.to_string()));
+    let src = format!("{prime_path}/{}", full_escape(&src.to_string()));
+    let out = format!("{prime_path}/{}", full_escape(&out.to_string()));
     let cmd = format!("grep {opts} '{rgx}' {src} > {out}");
     run_cmd_str(cmd.as_str());
 }
@@ -286,7 +292,8 @@ pub(crate) struct ret0 {
    pub s: [char; 512],
    pub res: bool
 }
-pub(crate) fn escape_symbs(str0: &String) -> String{
+pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String{
+    if func_id != crate::func_id18::full_escape_{return str0.strn()}
     if no_esc_lst(str0, false).is_some(){return str0.strn()}
     if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     let  strr = str0.as_str();
@@ -306,22 +313,25 @@ pub(crate) fn escape_symbs(str0: &String) -> String{
     let strr = str::replace(&strr, ":s:", " ");
     return strr.to_string();
 }
-pub(crate) fn escape_apostrophe(str0: &String) -> String{
+pub(crate) fn escape_apostrophe(str0: &String, func_id: i64) -> String{
+    if func_id != crate::func_id18::full_escape_{return str0.strn()}
     if no_esc_lst(str0, false).is_some(){return str0.strn()}
     if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace(r"'", r"\'");
 }
-pub(crate) fn escape_backslash(str0: &String) -> String{
+pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
+    if func_id != crate::func_id18::full_escape_{return str0.strn()}
     if no_esc_lst(str0, false).is_some(){return str0.strn()}
     if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
-    let front_list = read_front_list();
-    if check_substrn(&front_list, "history"){return str0.strn()}
-    let str0 = escape_backslash(str0);
-    let str0 = escape_apostrophe(&str0);
-    escape_symbs(&str0)
+    let func_id = crate::func_id18::full_escape_;
+    let front_list = name_of_front_list("", false).unreel_link_to_file();
+    if check_substrn(&front_list, "history") || check_substrn(&read_front_list(), "history"){return str0.strn()}
+    let str0 = escape_backslash(str0, func_id);
+    let str0 = escape_apostrophe(&str0, func_id);
+    escape_symbs(&str0, func_id)
 }
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;
@@ -441,7 +451,7 @@ pub(crate) fn cpy_str(in_str: &String) -> String{
     in_str.to_string()
 }
 pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
-    let proper_dir = crate::escape_symbs(&dir.to_string());
+    let proper_dir = crate::full_escape(&dir.to_string());
     update_dir_list(&proper_dir, opts, no_grep);
     let not_full_path = get_path_from_prnt();//read_user_written_path();
     let num_of_ln_in_dir_lst = ln_of_found_files(usize::MAX).1;
@@ -465,7 +475,7 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
         set_ask_user(&prnt, -5);
         rewrite_user_written_path(&full_path);
         //unsafe{crate::swtch::path_completed(true, false);}
-        let proper_dir = crate::escape_symbs(&full_path.to_string());
+        let proper_dir = crate::full_escape(&full_path.to_string());
         update_dir_list(&proper_dir, opts, no_grep);
     }
 }
@@ -1010,9 +1020,7 @@ pub(crate) fn raw_ren_file(src: String, dst: String){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn mkdir(name: String){
-    let name = escape_backslash(&name);
-    let name = escape_apostrophe(&name);
-    let name = escape_symbs(&name);
+    let name = full_escape(&name);
     let cmd = format!("mkdir -p {name}");
     run_cmd_str(cmd.as_str());
 }
@@ -1122,7 +1130,7 @@ pub(crate) fn dbg_is_dir3(path: &String) -> bool{
 }
 pub(crate) fn dbg_is_dir2(path: &String) -> bool{
     popup_msg("mjj");
-    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let maybe_dir = full_escape(&format!("{path}/."));
     let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -io {maybe_dir}|uniq");
     let ret = run_cmd_out(cmd);
     println!("dbg_is_dir2 ==>> {}", ret);
@@ -1132,7 +1140,7 @@ pub(crate) fn dbg_is_dir2(path: &String) -> bool{
     true
 }
 pub(crate) fn is_dir2(path: &String) -> bool{
-    let maybe_dir = escape_symbs(&format!("{path}/."));
+    let maybe_dir = full_escape(&format!("{path}/."));
     let cmd =format!("find -L {maybe_dir} -maxdepth 1|grep -Eio '/\\.'|uniq");
     //let cmd = cmd.replace(r"\'/.", r"\'/\\.");
     let ret = run_cmd_out_sync(cmd).trim_end().trim_start().to_string();

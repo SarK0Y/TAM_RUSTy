@@ -1,8 +1,15 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
 use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, run_cmd_out_sync};
-use crate::custom_traits::{STRN, helpful_math_ops};
-use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt, set_user_written_path_from_strn, user_wrote_path}, core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt, get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg, set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, save_file_abs_adr0, errMsg0};
+use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
+use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
+swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
+     set_user_written_path_from_strn, user_wrote_path}, 
+     core18::calc_num_files_up2_cur_pg, func_id18, ln_of_found_files, read_prnt, get_path_from_strn, repeat_char, set_prnt, rm_file, file_prnt,
+      get_mainpath, run_cmd_str, get_tmp_dir, read_file, mark_front_lst, split_once, fix_num_files, i64_2_usize, cpy_str, set_front_list, read_front_list, 
+      save_file, TMP_DIR_, where_is_last_pg, run_cmd_out, tailOFF, get_path_from_prnt, from_ls_2_front, set_num_files, clean_cache, drop_ls_mode, popup_msg,
+       set_full_path, update18::background_fixing, save_file_append_abs_adr, checkArg, get_arg_in_cmd, shm_tam_dir, read_file_abs_adr, u64_from_strn, 
+       save_file_abs_adr0, errMsg0};
 self::globs_uses!();
 use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 =  1;
@@ -59,24 +66,26 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
     false
 }
 pub(crate) fn sieve_list(data: String){
-    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     clean_cache("filter");
+    clean_cache("filter_history");
+    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
-    if opts == "none".to_string() || data0 == "none".to_string(){
+    if opts == "none".strn() || data0 == "none".strn(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
+    let mut history_mode = "".strn();
+    if check_substrn(&read_front_list(), "history"){history_mode = "_history".strn();}
     if opts == "none"{return}
     if data0 == "none"{
         data0 = opts;
         opts = "-Ei".to_string()}
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
-    let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
-    let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    //let cmd = format!("grep {} {} {} > {}", opts, data, found_files_path, filter_file_path_tmp);
-    let cmd = format!("cat '{found_files_path}'|grep {} {} > {}", opts, data0, filter_file_path_tmp);
+    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -86,29 +95,31 @@ pub(crate) fn sieve_list(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    mark_front_lst("filter");
+    mark_front_lst(&format!("filter{history_mode}") );
+    set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
     set_full_path(&data, -19784542001);
     add_cmd_in_history(&format!("sieve {data}") );
 }
 pub(crate) fn sieve_list0(data: String){
-    clean_cache("filter");
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
+    let mut history_mode = "".strn();
+    if check_substrn(&read_front_list(), "history"){history_mode = "_history".strn();}
     if opts == "none"{return}
     if data == "none"{
         data = opts;
         opts = "-Ei".to_string()}
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
-    let filter_file_path_tmp = format!("{}/filter.tmp", get_tmp_dir(18441));
-    let filter_file_path = format!("{}/filter", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path, filter_file_path_tmp);
+    let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -118,7 +129,8 @@ pub(crate) fn sieve_list0(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    mark_front_lst("filter");
+    mark_front_lst(&format!("filter{history_mode}") );
+    set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 
@@ -401,7 +413,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64){
     let mut indx = indx;
     if indx < 0{
         let mut indx = indx * -1;
-        if last_pg < indx{
+        if last_pg < indx && last_pg > 0{
             indx = last_pg - (indx/last_pg) * last_pg;
             return (i64_2_usize(indx), indx); 
         }
@@ -638,6 +650,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
     match name {
         "main0" => return take_list_adr("main0"),
         "filter" => return take_list_adr("filter"),
+        "filter_history" => return take_list_adr("filter_history"),
         "cd" => return take_list_adr("cd"),
         "ls" => return take_list_adr("ls"),
         "merge" => return take_list_adr("merge"),
@@ -652,6 +665,7 @@ pub(crate) fn take_list_adr_len(name: &str) -> String{
     match name {
         "main0" => return take_list_adr("main0.len"),
         "filter" => return take_list_adr("filter.len"),
+        "filter_history" => return take_list_adr("filter_history.len"),
         "cd" => return take_list_adr("cd.len"),
         "ls" => return take_list_adr("ls.len"),
         "merge" => return take_list_adr("merge.len"),
@@ -666,6 +680,7 @@ pub(crate) fn take_list_adr_pg(name: &str) -> String{
     match name {
         "main0" => return take_list_adr("main0.pg"),
         "filter" => return take_list_adr("filter.pg"),
+        "filter_history" => return take_list_adr("filter_history.pg"),
         "cd" => return take_list_adr("cd.pg"),
         "ls" => return take_list_adr("ls.pg"),
         "merge" => return take_list_adr("merge.pg"),
@@ -776,7 +791,6 @@ pub(crate) fn path_to_shm(path: Option<&String>) -> &'static String{
             return Box::leak( Box::new("".strn() ) )
         }
     }
-    
     return unsafe {Box::leak(Box::new(shm_adr.clone() ) ) }
 }
 pub(crate) fn Users_home_dir() -> String{
@@ -797,7 +811,7 @@ pub(crate) fn load_fish_history(){
     let home_dir = Users_home_dir().trim_end().strn();
     let orig_fish = format!("{home_dir}/.local/share/fish/fish_history");
     let cpy_to = format!("{home_dir}/.local/share/fish/fish_history_cpy");
-    let bkp_fish = format!("cat {orig_fish} > {cpy_to}");
+    let bkp_fish = format!("cat {orig_fish}|grep -Ei '\\s*-\\s*cmd:'|sed 's/\\s*-\\s*cmd:/term /g'|uniq > {cpy_to}");
     run_cmd_out_sync(bkp_fish);
     let cmd_lst = format!("lst {home_dir}/.local/share/fish/fish_history_cpy");
     manage_lst(&cmd_lst);

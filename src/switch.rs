@@ -88,12 +88,12 @@ pub(crate) fn renFile() -> bool{
         Ok(n) => n,
         _ => 0i64
     };
-    let old_name = escape_symbs(&get_item_from_front_list(file_indx, true));
+    let old_name = full_escape(&get_item_from_front_list(file_indx, true));
     if old_name.len() == 0 || Path::new(&old_name).is_dir(){
         set_ask_user(&"file has wrong type".bold().red().to_string(), 12154487);
         return false;
     }
-    let mut new_name = escape_symbs(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
+    let mut new_name = full_escape(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
     let is_last_ch_slash = new_name.chars().count() - 1;
     let is_last_ch_slash = new_name.chars().nth(is_last_ch_slash).unwrap().to_string();
     let mut slash = "".to_string();
@@ -338,7 +338,7 @@ pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool{
     file_2_write_path.set_len(0);
     file_2_write_path.write_all(strn.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
-    let written_path = escape_symbs(&read_user_written_path());
+    let written_path = full_escape(&read_user_written_path());
    // save_file(written_path.to_string(), "written_path.dbg".to_string());
     update_dir_list(&written_path, "-maxdepth 1", false);
     true
@@ -360,7 +360,7 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
     if written_path == "" {drop_ls_mode(); F3_key();}
     else{set_ls_as_front();}
     save_file(written_path.to_string(), "written_path_prnt.dbg".to_string());
-    update_dir_list(&escape_symbs(&written_path), "-maxdepth 1", false);
+    update_dir_list(&full_escape(&written_path), "-maxdepth 1", false);
     written_path
 }
 
