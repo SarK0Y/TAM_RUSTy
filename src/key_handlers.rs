@@ -1,7 +1,4 @@
-use crate::{read_front_list, save_file0, read_file, set_front_list, 
-    globs18::{take_list_adr, id_suffix, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to}, 
-    read_file_abs_adr, errMsg0, stop_term_msg, run_cmd0, read_prnt, shift_cursor_of_prnt, set_cur_cur_pos, get_cur_cur_pos, popup_msg, drop_ls_mode,
-     add_cmd_in_history, custom_traits::STRN};
+use crate::{add_cmd_in_history, custom_traits::STRN, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, id_suffix, take_list_adr}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, set_cur_cur_pos, set_front_list, shift_cursor_of_prnt, stop_term_msg};
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
@@ -65,6 +62,10 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 3) == "br:"{crate::manage_breaks(&file_indx); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 4) == "::br"{crate::just_break(); return empty;}
+    #[cfg(feature="in_dbg")]
+    if file_indx.as_str().substring(0, 7) == "::front"
+    {let fp = crate::core18::name_of_front_list(&"".strn(), false); println!("{} {}", fp, crate::globs18::check_substrn(&fp, "history") ); getkey(); 
+                                                                                                                                          return empty;}
     let file_indx = file_indx.as_str().substring(0, file_indx.len() -1);
     let mut err_msg = "".to_string();
     let mut handle_err =|e: std::num::ParseIntError| -> i64 {err_msg = format!("{:?}", e); -1i64};

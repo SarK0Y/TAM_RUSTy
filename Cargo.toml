@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.138"
+version = "1.9.139"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -36,6 +36,8 @@ syn = "2.0.66"
 #rustix = "0.38.28"
 #cached = "0.48.0"
 [features]
+default = ["tam"]
+tam = []
 in_dbg =[]
 dbg0=[]
 mae =["Mademoiselle_Entropia"]

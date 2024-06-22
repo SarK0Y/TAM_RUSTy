@@ -1,6 +1,6 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, run_cmd_out_sync};
+use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
 swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
@@ -75,7 +75,7 @@ pub(crate) fn sieve_list(data: String){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
     let mut history_mode = "".strn();
-    if check_substrn(&read_front_list(), "history"){history_mode = "_history".strn();}
+    if check_substrn(&name_of_front_list("", false), "history"){history_mode = "_history".strn();}
     if opts == "none"{return}
     if data0 == "none"{
         data0 = opts;
@@ -85,7 +85,7 @@ pub(crate) fn sieve_list(data: String){
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
+    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -95,7 +95,6 @@ pub(crate) fn sieve_list(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    mark_front_lst(&format!("filter{history_mode}") );
     set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
@@ -109,7 +108,7 @@ pub(crate) fn sieve_list0(data: String){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
     }
     let mut history_mode = "".strn();
-    if check_substrn(&read_front_list(), "history"){history_mode = "_history".strn();}
+    if check_substrn(&name_of_front_list("", false), "history"){history_mode = "_history".strn();}
     if opts == "none"{return}
     if data == "none"{
         data = opts;
@@ -129,7 +128,6 @@ pub(crate) fn sieve_list0(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    mark_front_lst(&format!("filter{history_mode}") );
     set_front_list(&format!("filter{history_mode}") );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
@@ -613,6 +611,7 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
             }
         }
     }
+    if maybe == *delim {return true}
     false
 }
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
