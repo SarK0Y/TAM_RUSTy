@@ -37,7 +37,7 @@ pub(crate) fn up_front_list(){
     let tmp_dir = get_tmp_dir(-1595741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = format!("{tmp_dir}/{}", list);
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#up_front_list\nln -sf {active_list} {found_files}");
     run_cmd_str(&cmd);
 }
@@ -45,7 +45,7 @@ pub(crate) fn set_front_list(list: &str){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = take_list_adr_env(&list).unreel_link_to_file();
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -64,7 +64,7 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     let tmp_dir = get_tmp_dir(-155741);
     if tmp_dir == ""{return;}
     let found_files = format!("{tmp_dir}/found_files");
-    let active_list = take_list_adr_env(&list).unreel_link_to_file();
+    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(list);
@@ -327,7 +327,7 @@ pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
 }
 pub(crate) fn full_escape(str0: &String) -> String{
     let func_id = crate::func_id18::full_escape_;
-    let front_list = name_of_front_list("", false).unreel_link_to_file();
+    let front_list = name_of_front_list("", false);
     if check_substrn(&front_list, "history") {return str0.strn()}
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
@@ -1046,7 +1046,7 @@ false
 }
 pub(crate) fn link_list_2_front(name: &str){
     let front = take_list_adr("found_files");
-    let list = take_list_adr(name);
+    let list = take_list_adr_env(name);
     let cmd = format!("ln -sf {list} {front}");
     run_cmd_str(cmd.as_str());
 }
