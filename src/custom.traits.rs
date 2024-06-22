@@ -198,6 +198,7 @@ impl fs_tools for String{
                 _ => {run = false;}
             }
         }
+      //std::process::Command::new("notify-send").arg(self.clone() ).output().expect("");
         self.strn()
     }
 }
