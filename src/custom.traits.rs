@@ -188,8 +188,9 @@ impl content_stat for std::fs::File{
     }
 }
 pub trait fs_tools {
-    fn unreel_link_to_file(&mut self) -> Self;
     fn unreel_link_to_file__(&mut self) -> Self;
+#[cfg(feature="tam")]
+    fn unreel_link_to_file(&mut self) -> Self;
 #[cfg(feature="tam")]
     fn unreel_link_to_file0(&mut self) -> Self;
 }
@@ -205,7 +206,9 @@ impl fs_tools for String{
       //std::process::Command::new("notify-send").arg(self.clone() ).output().expect("");
         self.strn()
     }
+#[cfg(feature="tam")]
     fn unreel_link_to_file(&mut self) -> Self{
+        if *self == ""{return "".strn() }
         let mut run = true;
         while run{
             match std::fs::read_link(& self){
@@ -213,14 +216,16 @@ impl fs_tools for String{
                 _ => {run = false;}
             }
         }
-      if !std::path::Path::new(self).exists(){
+      if !std::path::Path::new(self).exists() && *self != ""{
         let mut prime_path = self.clone();
         crate::core18::tailOFF(&mut prime_path, "/");
+        prime_path = crate::globs18::take_list_adr_env(&prime_path);
         return prime_path.unreel_link_to_file__();}
         self.strn()
     }
 #[cfg(feature="tam")]
     fn unreel_link_to_file0(&mut self) -> Self {
+        if *self == ""{return "".strn() }
         let mut prime_path = self.clone();
         loop{
             let cmd = format!("readlink {}", prime_path.clone() );

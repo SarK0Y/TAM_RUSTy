@@ -192,7 +192,7 @@ pub(crate) fn fix_screen(){
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
             let mut base = basic::new();
-            if num_pg < num_pgs || num_pgs ==0 {base.build_page_(&mut ps);}
+            if num_pg < num_pgs || num_pgs ==0 {base.cache_state = false; base.build_page_(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(1115));        
@@ -212,7 +212,7 @@ pub(crate) fn fix_screen_count(num: usize){
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
             let mut base = basic::new();
-            if num_pg < num_pgs || num_pgs ==0 {base.build_page_(&mut ps);}
+            if num_pg < num_pgs || num_pgs ==0 {base.cache_state = false; base.build_page_(&mut ps);}
             println!("{}", crate::get_prnt(-1));
             crate::pg18::form_cmd_newline_default();
            std::thread::sleep(std::time::Duration::from_millis(615));        
