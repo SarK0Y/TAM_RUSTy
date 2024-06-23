@@ -1,4 +1,6 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data, checkArg, get_arg_in_cmd, stop_term_msg, free_term_msg};
+use num_traits::bounds;
+
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, free_term_msg, get_arg_in_cmd, getkey, globs18::drop_key, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -11,6 +13,7 @@ pub(crate) struct basic{
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
     pub cache: HashMap<String, HashMap<usize, Vec<String>>>,
+    pub cache_active: bool,
     pub cache_window: usize,
     pub seg_size: usize,
 }
@@ -41,6 +44,7 @@ impl basic{
         rec_shol: (String::new(), String::new()),
         ext_old_modes: _ext_msgs::new(),
         cache: HashMap::with_capacity(new_cache_window),
+        cache_active: true,
         cache_window: new_cache_window,
         seg_size: seg_size_new,
     }
@@ -50,7 +54,14 @@ pub fn default() -> Self{
 }
 pub fn build_page(&mut self, ps: &mut crate::_page_struct){basic::build_page_(self, ps)}
 /*cache */
-pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){basic::pg_rec_from_cache(&mut self.cache, key, indx)}
+pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){
+  
+  if clean_fast_cache(None){self.cache = HashMap::new(); 
+    unsafe 
+    {crate::basic::mk_fast_cache(&"".strn(), 0, &"".strn(), crate::cache_state::taken);}; return ("".strn(), cached_data::no_list)}
+  let ret = basic::pg_rec_from_cache(&mut self.cache, key, indx);
+   let corrupted = ("cache was corrupted".to_string(), cached_data::corrupted);
+   if ret == corrupted {self.cache.clear();} ret}
 pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
 pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}
 pub fn rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{basic::pg_rec_from_front_list(self, indx, fixed_indx)}

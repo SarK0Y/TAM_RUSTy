@@ -34,17 +34,17 @@ pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
 }
 pub(crate) fn up_front_list(){
     let list = read_front_list();
-    let tmp_dir = get_tmp_dir(-1595741);
-    if tmp_dir == ""{return;}
-    let found_files = format!("{tmp_dir}/found_files");
+    if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
+    else {swtch_esc(true, true); }
+    let found_files = take_list_adr_env(&"found_files".strn() );
     let active_list = take_list_adr_env(&list);
     let cmd = format!("#up_front_list\nln -sf {active_list} {found_files}");
     run_cmd_str(&cmd);
 }
 pub(crate) fn set_front_list(list: &str){
-    let tmp_dir = get_tmp_dir(-155741);
-    if tmp_dir == ""{return;}
-    let found_files = format!("{tmp_dir}/found_files");
+    if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
+    else {swtch_esc(true, true); }
+    let found_files = take_list_adr_env(&"found_files".strn() );
     let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
@@ -61,9 +61,9 @@ pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
     unsafe{name0.to_string()}
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
-    let tmp_dir = get_tmp_dir(-155741);
-    if tmp_dir == ""{return;}
-    let found_files = format!("{tmp_dir}/found_files");
+    if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
+    else {swtch_esc(true, true); }
+    let found_files = take_list_adr_env(&"found_files".strn() );
     let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
@@ -71,7 +71,7 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     crate::wait_4_empty_cache();
     //if list == "merge"
     name_of_front_list(list, true);
-    background_fixing_count(num_upds_scrn);
+    //background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
     if check_substrn(&name.strn(), "history"){swtch_esc(true, false);}
@@ -328,7 +328,7 @@ pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
 pub(crate) fn full_escape(str0: &String) -> String{
     let func_id = crate::func_id18::full_escape_;
     let front_list = name_of_front_list("", false);
-    if check_substrn(&front_list, "history") {return str0.strn()}
+    if check_substrn(&front_list, "history") {swtch_esc(true, false); return str0.strn()}
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)
