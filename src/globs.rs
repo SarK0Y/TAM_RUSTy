@@ -68,6 +68,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 pub(crate) fn sieve_list(data: String){
     clean_cache("filter");
     clean_cache("filter_history");
+    crate::clean_fast_cache(true);
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
@@ -95,7 +96,7 @@ pub(crate) fn sieve_list(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    set_front_list(&format!("filter{history_mode}") );
+    crate::set_front_list2(&format!("filter{history_mode}"), 2 );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
     set_full_path(&data, -19784542001);
@@ -128,7 +129,7 @@ pub(crate) fn sieve_list0(data: String){
     run_cmd_str(cmd.as_str());
     let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
     run_cmd_str(cmd.as_str());
-    set_front_list(&format!("filter{history_mode}") );
+    crate::set_front_list2(&format!("filter{history_mode}"), 2 );
     let dbg = crate::fix_num_files0(5977871);
     let dbg1 = dbg;
 

@@ -1,8 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{get_num_page, get_num_cols, read_front_list, 
-    globs18::{take_list_adr, seg_size}, save_file_append, i64_2_usize, save_file, where_is_last_pg, save_file_append_abs_adr, run_cmd_out,
-     popup_msg, ln_of_found_files, ln_of_found_files_cacheless, errMsg0, bkp_tmp_dir, custom_traits::STRN};
+use crate::{bkp_tmp_dir, cache_t, custom_traits::STRN, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, where_is_last_pg};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -152,3 +150,7 @@ pub(crate) fn wait_4_empty_cache() -> bool{
         //if !dir_arr0[0]{return true;}
     }
 }
+pub(crate) fn upd_fast_cache(cache: &mut cache_t){
+    *cache = std::collections::HashMap::new();
+}
+//fn

@@ -14,7 +14,7 @@ pub(crate) struct basic{
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
     pub cache: HashMap<String, HashMap<usize, Vec<String>>>,
-    pub cache_state: bool,
+    pub cache_active: bool,
     pub cache_window: usize,
     pub seg_size: usize,
 }
@@ -45,7 +45,7 @@ impl basic{
         rec_shol: (String::new(), String::new()),
         ext_old_modes: _ext_msgs::new(),
         cache: HashMap::with_capacity(new_cache_window),
-        cache_state: true,
+        cache_active: true,
         cache_window: new_cache_window,
         seg_size: seg_size_new,
     }
@@ -56,7 +56,6 @@ pub fn default() -> Self{
 pub fn build_page(&mut self, ps: &mut crate::_page_struct){basic::build_page_(self, ps)}
 /*cache */
 pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){
-  if self.cache_state == false{return ("".strn(), cached_data::no_list) }
   basic::pg_rec_from_cache(&mut self.cache, key, indx)}
 pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
 pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}

@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use syn::token::Unsafe;
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::Entry;
 use substring::Substring;
@@ -333,5 +334,13 @@ pub(crate) fn __link_lst_to(lst: &String, adr: &String){
     if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
     let cmd = format!("ln -sf {adr} {}", full_adr_to_lst);
     run_cmd0(cmd);
+}
+pub(crate) fn clean_fast_cache(yes: bool) -> bool{
+    static mut state: bool = false;
+    if yes {unsafe{ state =  true; return state; }}
+    let taken = unsafe { state };
+    unsafe { state = false; }
+    taken
+
 }
 //fn
