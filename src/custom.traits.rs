@@ -242,3 +242,37 @@ impl fs_tools for String{
         self.clone()
     }
 }
+#[cfg(feature="tam")]
+pub(crate) trait find_substrn {
+    fn enum_entry_points_of_substrn_in(&self, delim: &String) -> Vec<usize>;
+}
+#[cfg(feature="tam")]
+impl find_substrn for String{
+    fn enum_entry_points_of_substrn_in(&self, delim: &String) -> Vec<usize> {
+    let mut EPs: Vec<usize> = Vec::new();
+    let mut count: usize = 0;
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let strn_len = self.chars().count();
+    let mut count_delim_chars = 0usize;
+    for i in self.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if maybe == *delim {EPs.push(count - delim_len );}
+            count_delim_chars = 0;
+            maybe = String::new();
+            if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            }
+        }
+        count.inc();
+    }
+    if maybe == *delim {EPs.push(strn_len - delim_len );}
+    EPs
+}
+}
+//fn

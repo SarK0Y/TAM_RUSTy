@@ -71,7 +71,7 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     crate::wait_4_empty_cache();
     //if list == "merge"
     name_of_front_list(list, true);
-    background_fixing_count(num_upds_scrn);
+    //background_fixing_count(num_upds_scrn);
 }
 pub(crate) fn mark_front_lst(name: &str){
     if check_substrn(&name.strn(), "history"){swtch_esc(true, false);}

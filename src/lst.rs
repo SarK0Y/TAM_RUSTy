@@ -335,12 +335,10 @@ pub(crate) fn __link_lst_to(lst: &String, adr: &String){
     let cmd = format!("ln -sf {adr} {}", full_adr_to_lst);
     run_cmd0(cmd);
 }
-pub(crate) fn clean_fast_cache(yes: bool) -> bool{
+pub(crate) fn clean_fast_cache(yes: Option<bool>) -> bool{
     static mut state: bool = false;
-    if yes {unsafe{ state =  true; return state; }}
-    let taken = unsafe { state };
-    unsafe { state = false; }
-    taken
+    if let Some(yes) = yes {unsafe{ state =  yes; return state; }}
+    unsafe { state }
 
 }
 //fn

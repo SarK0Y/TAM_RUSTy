@@ -68,7 +68,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 pub(crate) fn sieve_list(data: String){
     clean_cache("filter");
     clean_cache("filter_history");
-    crate::clean_fast_cache(true);
+    crate::clean_fast_cache(Some(true) );
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
