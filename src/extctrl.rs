@@ -133,7 +133,6 @@ impl ManageLists for basic{
         println!("{}", crate::get_prnt(-1));
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));
-        crate::clear_screen();
     }
 }
  fn custom_input(&mut self, Key: &mut String, ext: bool) -> String{
