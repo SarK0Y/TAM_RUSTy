@@ -244,11 +244,11 @@ impl fs_tools for String{
 }
 #[cfg(feature="tam")]
 pub(crate) trait find_substrn {
-    fn enum_entry_points_of_substrn_in(&self, delim: &String) -> Vec<usize>;
+    fn enum_entry_points_of_substrn(&self, delim: &String) -> Vec<usize>;
 }
 #[cfg(feature="tam")]
 impl find_substrn for String{
-    fn enum_entry_points_of_substrn_in(&self, delim: &String) -> Vec<usize> {
+    fn enum_entry_points_of_substrn(&self, delim: &String) -> Vec<usize> {
     let mut EPs: Vec<usize> = Vec::new();
     let mut count: usize = 0;
     let mut maybe = String::new();
@@ -274,5 +274,26 @@ impl find_substrn for String{
     if maybe == *delim {EPs.push(strn_len - delim_len );}
     EPs
 }
+}
+pub(crate) trait vec_tools <T>{
+    fn up2 (&self, bar: usize) -> Vec<T>;
+    fn down2 (&self, bar: usize) -> Vec<T>;
+}
+impl <T: ?Sized > vec_tools <T> for Vec<T> where T: Clone {
+    fn up2 (&self, bar: usize) -> Vec<T> {
+        let mut vecc: Vec<T> = Vec::new();
+        for i in 0..bar{
+            vecc.push(self[i].clone());
+        }
+        vecc
+    }
+    fn down2 (&self, bar: usize) -> Vec<T> {
+        let mut vecc: Vec<T> = Vec::new();
+        let len = self.len();
+        for i in bar.clone().inc()..len{
+            vecc.push(self[i].clone());
+        }
+        vecc
+    }
 }
 //fn

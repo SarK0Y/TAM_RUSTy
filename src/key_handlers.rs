@@ -1,4 +1,4 @@
-use crate::{add_cmd_in_history, custom_traits::STRN, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, id_suffix, take_list_adr}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, set_cur_cur_pos, set_front_list, shift_cursor_of_prnt, stop_term_msg};
+use crate::{add_cmd_in_history, custom_traits::{find_substrn, vec_tools, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, id_suffix, take_list_adr}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, shift_cursor_of_prnt, stop_term_msg};
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
@@ -56,6 +56,7 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 6) == "en esc"{crate::swtch_esc(true, true); return empty;}
     if file_indx.as_str().substring(0, 5) == "en ls"{crate::swtch_ls(true, true); return empty;}
     if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
+    if file_indx.as_str().substring(0, 7) == "delim::"{crate::delim(Some(file_indx) ); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
@@ -106,9 +107,11 @@ pub(crate) fn PgDown(){
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
     if cur_cur_pos == 0{ return;}
-    let enum_spaces = enum_not_escaped_spaces_in_strn_up_to(&read_prnt(), cur_cur_pos);
+    let delim0 = delim(None);
+    let enum_spaces = if delim0 == ""{enum_not_escaped_spaces_in_strn_up_to(&read_prnt(), cur_cur_pos) }
+                             else {read_prnt().enum_entry_points_of_substrn( &delim0 )};
     if enum_spaces.len() == 0{
-        popup_msg(&cur_cur_pos.strn());
+        //popup_msg(&cur_cur_pos.strn());
         let cur_cur_pos0 = delta(cur_cur_pos, 10);
         cur_cur_pos = delta(cur_cur_pos, len);
         som = Some(cur_cur_pos );
@@ -118,16 +121,16 @@ pub(crate) fn PgDown(){
     //popup_msg(&cur_cur_pos.to_string());
     let mut i = enum_spaces.len() - 1;
     let mut pass = false;
-    loop {
+    //loop {
         let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, 74444418691).shift};
         if cur_cur_pos == enum_spaces[0]{ return;}
         pass = false;
         set_cur_cur_pos(crate::usize_2_i64(enum_spaces[i]),74444418691);
         {unsafe {shift_cursor_of_prnt(0, Some(len - enum_spaces[i]), 74444418691).shift}; return
         } 
-        if i == 0{break;}
+    //    if i == 0{break;}
         i -= 1;
-    }
+  //  }
 }
 pub(crate) fn PgUp(){
     let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
@@ -171,5 +174,15 @@ pub(crate) fn mm <T>(val: T, m: T) -> T where T: std::ops::Sub<Output=T> + std::
 }
 fn ret_type_of<T>(_: &T) -> &str {
    std::any::type_name::<T>()
+}
+pub(crate) fn delim(cmd: Option<String> ) -> String{
+        let delim = take_list_adr("delim");
+    if cmd == None{
+       let delim = read_file_abs_adr(&delim);
+        return delim
+    }
+    let cmd = cmd.unwrap().replace("delim::", "").trim_end().strn();
+    save_file_abs_adr(cmd.clone(), delim);
+    cmd
 }
 //fn
