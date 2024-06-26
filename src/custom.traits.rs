@@ -242,3 +242,64 @@ impl fs_tools for String{
         self.clone()
     }
 }
+#[cfg(feature="tam")]
+pub(crate) trait find_substrn {
+    fn enum_entry_points_of_substrn(&self, delim: &String) -> Vec<usize>;
+}
+#[cfg(feature="tam")]
+impl find_substrn for String{
+    fn enum_entry_points_of_substrn(&self, delim: &String) -> Vec<usize> {
+    let mut EPs: Vec<usize> = Vec::new();
+    let mut count: usize = 0;
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let strn_len = self.chars().count();
+    let mut count_delim_chars = 0usize;
+    for i in self.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if maybe == *delim {EPs.push(count - delim_len );}
+            count_delim_chars = 0;
+            maybe = String::new();
+            if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            }
+        }
+        count.inc();
+    }
+    if maybe == *delim {EPs.push(strn_len - delim_len );}
+    EPs
+}
+}
+pub(crate) trait vec_tools <T>{
+    fn up2 (&self, bar: T) -> Vec<T>;
+    fn down2 (&self, bar: T) -> Vec<T>;
+}
+impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::PartialOrd + helpful_math_ops + std::ops::Sub<Output = T>  {
+    fn up2 (&self, bar: T ) -> Vec<T> {
+        let mut vecc: Vec<T> = Vec::new();
+        if self.len() == 0{return vecc}
+        let zero = self[0].clone() - self[0].clone();
+        for i in 0..self.len(){
+            if self[i] >= bar {break;}
+            vecc.push(self[i].clone());
+        }
+        vecc
+    }
+    fn down2 (&self, bar: T) -> Vec<T> {
+        let mut vecc: Vec<T> = Vec::new();
+        if self.len() == 0{return vecc}
+        let zero = self[0].clone() - self[0].clone();
+        for i in 0..self.len(){
+            if self[i] == zero{ continue;}
+            if self[i] < bar {continue;}
+            vecc.push(self[i].clone().inc());
+        }
+        vecc
+    }
+}
+//fn
