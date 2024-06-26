@@ -109,7 +109,7 @@ pub(crate) fn PgDown(){
     if cur_cur_pos == 0{ return;}
     let delim0 = delim(None);
     let enum_spaces = if delim0 == ""{enum_not_escaped_spaces_in_strn_up_to(&read_prnt(), cur_cur_pos) }
-                             else {read_prnt().enum_entry_points_of_substrn( &delim0 )};
+                             else {read_prnt().enum_entry_points_of_substrn( &delim0 ).up2(cur_cur_pos)};
     if enum_spaces.len() == 0{
         //popup_msg(&cur_cur_pos.strn());
         let cur_cur_pos0 = delta(cur_cur_pos, 10);
@@ -139,7 +139,9 @@ pub(crate) fn PgUp(){
     if som == Some(0){som = Some(len)}
     unsafe {shift_cursor_of_prnt(0, som, 74444418691)};
     if cur_cur_pos == 0{ return;}
-    let enum_spaces = crate::globs18::enum_not_escaped_spaces_in_strn_down_to(&read_prnt(), cur_cur_pos);
+    let delim0 = delim(None);
+    let enum_spaces = if delim0 == ""{crate::globs18::enum_not_escaped_spaces_in_strn_down_to(&read_prnt(), cur_cur_pos) }
+                             else {read_prnt().enum_entry_points_of_substrn( &delim0 ).down2(cur_cur_pos)};
     if enum_spaces.len() == 0{
         popup_msg(&cur_cur_pos.strn());
         let cur_cur_pos0 =cur_cur_pos + 10;

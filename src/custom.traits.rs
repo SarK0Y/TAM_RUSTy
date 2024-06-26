@@ -276,22 +276,26 @@ impl find_substrn for String{
 }
 }
 pub(crate) trait vec_tools <T>{
-    fn up2 (&self, bar: usize) -> Vec<T>;
-    fn down2 (&self, bar: usize) -> Vec<T>;
+    fn up2 (&self, bar: T) -> Vec<T>;
+    fn down2 (&self, bar: T) -> Vec<T>;
 }
-impl <T: ?Sized > vec_tools <T> for Vec<T> where T: Clone {
-    fn up2 (&self, bar: usize) -> Vec<T> {
+impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::PartialOrd + helpful_math_ops + std::ops::Sub<Output = T>  {
+    fn up2 (&self, bar: T ) -> Vec<T> {
         let mut vecc: Vec<T> = Vec::new();
-        for i in 0..bar{
+        //let mut bar = if self.len() > bar{ bar } else { self.len() };
+        for i in 0..self.len(){
+            if self[i] >= bar {break;}
             vecc.push(self[i].clone());
         }
         vecc
     }
-    fn down2 (&self, bar: usize) -> Vec<T> {
+    fn down2 (&self, bar: T) -> Vec<T> {
         let mut vecc: Vec<T> = Vec::new();
-        let len = self.len();
-        for i in bar.clone().inc()..len{
-            vecc.push(self[i].clone());
+        if self.len() == 0{return vecc}
+        let zero = self[0].clone() - self[0].clone();
+        for i in 0..self.len(){
+            if self[i] < bar && self[i] != zero {continue;}
+            vecc.push(self[i].clone().inc());
         }
         vecc
     }
