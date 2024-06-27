@@ -1,4 +1,5 @@
-use crate::{add_cmd_in_history, custom_traits::{find_substrn, vec_tools, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, id_suffix, take_list_adr}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, shift_cursor_of_prnt, stop_term_msg};
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
+    take_list_adr}, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
@@ -98,7 +99,8 @@ pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
     crate::set_prnt("", func_id);
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
-    crate::rm_user_written_path(func_id)
+    crate::rm_user_written_path(func_id);
+    count_ln(false, false);
 }
 pub(crate) fn PgDown(){
     let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
@@ -165,6 +167,24 @@ pub(crate) fn PgUp(){
         if i == loops{break;}
         i += 1;
     }
+}
+pub(crate) fn F9_key() {
+    let ln_indx = count_ln(true, true);
+    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx );
+    let mut indx: usize = ln_indx.0;
+    if ln_indx.1{count_ln(false, false); indx = 0}
+    let ln = ln_of_found_files(indx).0;
+    set_prnt(&ln, 999714);
+
+}
+pub(crate) fn F8_key() {
+    let ln_indx = count_ln(true, false);
+    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx );
+    let mut indx: usize = ln_indx.0;
+    if ln_indx.1{count_ln(false, false); indx = 0}
+    let ln = ln_of_found_files(indx).0;
+    set_prnt(&ln, 999714);
+
 }
 pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::Sub<Output=T> + std::cmp::PartialOrd{
     if fst > nd{return fst - nd;}

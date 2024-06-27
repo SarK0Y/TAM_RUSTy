@@ -1,8 +1,28 @@
 use num_traits::Bounded; use core::mem::size_of;
 use std::io::Read;
+#[cfg(feature="tam")] 
+use crate::{globs18::strn_2_usize, usize_2_i64};
 #[cfg(feature="tam")] use crate::run_cmd_out_sync;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
+}
+pub(crate) trait STRN_usize {
+    fn usize0(&self) -> usize;
+}
+#[cfg(feature="tam")] 
+impl STRN_usize for String{
+    fn usize0(&self) -> usize {
+        strn_2_usize(self.strn() ).unwrap_or(0)
+    }
+}
+pub(crate) trait turn_2_i64 {
+    fn i640(&self) -> i64;
+}
+#[cfg(feature="tam")] 
+impl turn_2_i64 for usize{
+    fn i640(&self) -> i64 {
+        usize_2_i64(*self )
+    }
 }
 pub(crate) trait STRN_strip {
     fn del_ch(&self, ch: &str) -> String;
