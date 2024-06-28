@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.142"
+version = "1.9.145"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -35,6 +35,7 @@ Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.1", optional = true}
 syn = "2.0.66"
 #rustix = "0.38.28"
 #cached = "0.48.0"
+ringbuffer = "0.15.0"
 [features]
 default = ["tam"]
 tam = []

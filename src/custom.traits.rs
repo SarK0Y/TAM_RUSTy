@@ -1,8 +1,28 @@
 use num_traits::Bounded; use core::mem::size_of;
 use std::io::Read;
+#[cfg(feature="tam")] 
+use crate::{globs18::strn_2_usize, usize_2_i64};
 #[cfg(feature="tam")] use crate::run_cmd_out_sync;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
+}
+pub(crate) trait STRN_usize {
+    fn usize0(&self) -> usize;
+}
+#[cfg(feature="tam")] 
+impl STRN_usize for String{
+    fn usize0(&self) -> usize {
+        strn_2_usize(self.strn() ).unwrap_or(0)
+    }
+}
+pub(crate) trait turn_2_i64 {
+    fn i640(&self) -> i64;
+}
+#[cfg(feature="tam")] 
+impl turn_2_i64 for usize{
+    fn i640(&self) -> i64 {
+        usize_2_i64(*self )
+    }
 }
 pub(crate) trait STRN_strip {
     fn del_ch(&self, ch: &str) -> String;
@@ -282,7 +302,8 @@ pub(crate) trait vec_tools <T>{
 impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::PartialOrd + helpful_math_ops + std::ops::Sub<Output = T>  {
     fn up2 (&self, bar: T ) -> Vec<T> {
         let mut vecc: Vec<T> = Vec::new();
-        //let mut bar = if self.len() > bar{ bar } else { self.len() };
+        if self.len() == 0{return vecc}
+        let zero = self[0].clone() - self[0].clone();
         for i in 0..self.len(){
             if self[i] >= bar {break;}
             vecc.push(self[i].clone());
@@ -294,7 +315,8 @@ impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::Parti
         if self.len() == 0{return vecc}
         let zero = self[0].clone() - self[0].clone();
         for i in 0..self.len(){
-            if self[i] < bar && self[i] != zero {continue;}
+            if self[i] == zero{ continue;}
+            if self[i] < bar {continue;}
             vecc.push(self[i].clone().inc());
         }
         vecc

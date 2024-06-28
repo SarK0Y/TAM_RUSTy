@@ -140,6 +140,14 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
        crate::update18::main_update();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::F9, Key.as_str()) == 0 {
+       crate::F9_key();
+        return "dontPass".to_string();
+    }
+    if crate::globs18::eq_ansi_str(&kcode::F8, Key.as_str()) == 0 {
+       crate::F8_key();
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::Alt_l, Key.as_str()) == 0 {
        show_ls();
         return "dontPass".to_string();

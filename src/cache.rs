@@ -1,6 +1,10 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, custom_traits::STRN, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, where_is_last_pg};
+use crate::{bkp_tmp_dir, cache_t, custom_traits::STRN, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize,
+ ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
+ where_is_last_pg};
+ use once_cell::sync::Lazy;
+use ringbuffer::{AllocRingBuffer, RingBuffer};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -152,5 +156,18 @@ pub(crate) fn wait_4_empty_cache() -> bool{
 }
 pub(crate) fn upd_fast_cache(cache: &mut cache_t){
     *cache = std::collections::HashMap::new();
+}
+pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < String >{
+    static mut buf: Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
+    static mut order: Lazy< Vec <usize> > = Lazy::new(||{Vec::with_capacity(20)});
+    if item == None && unsafe{ buf.len() } > indx {
+        let ret = unsafe{ buf[indx].clone()  };
+        unsafe{ buf.remove(indx)  };}
+    let item0 = item.clone();
+    let item1 = item.clone().unwrap_or("".strn() );
+    for i in 0..unsafe { buf.len() }{
+        if unsafe { buf[i].strn() } == item1 {return None}
+    }
+    unsafe { buf.push(item.unwrap() ) }; item0
 }
 //fn
