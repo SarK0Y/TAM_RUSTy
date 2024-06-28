@@ -177,7 +177,20 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
     let item0 = item.clone();
     let item1 = item.clone().unwrap_or("".strn() );
     for i in 0..unsafe { buf.len() }{
-        if unsafe { buf[i].strn() } == item1 {return None}
+        if unsafe { buf[i].strn() } == item1 {
+         if unsafe{ buf.len() } > 1 {
+            let indx = i;
+            let mut vecc: Vec<usize> = Vec::with_capacity(20);
+            vecc.push(0); 
+            for j in 1..unsafe{ buf.len() } {
+                if j != indx{
+                    vecc.push(unsafe{ order[j] });
+                }
+            }
+            vecc[0] =unsafe { order[indx]};
+            unsafe { *order = vecc.clone()};
+        }
+            return None}
     }
     unsafe { buf.push(item.unwrap() ) }; item0
 }
