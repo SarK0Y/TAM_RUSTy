@@ -162,7 +162,18 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
     static mut order: Lazy< Vec <usize> > = Lazy::new(||{Vec::with_capacity(20)});
     if item == None && unsafe{ buf.len() } > indx {
         let ret = unsafe{ buf[indx].clone()  };
-        unsafe{ buf.remove(indx)  };}
+        let indx0 = unsafe { order[indx]};
+        if unsafe{ buf.len() } > 1 {
+            let mut vecc: Vec<usize> = Vec::with_capacity(20);
+            vecc.push(0);
+            for j in 1..unsafe{ buf.len() } {
+                if j != indx{
+                    vecc.push(unsafe{ order[j] });
+                }
+            }
+            vecc[0] =unsafe { order[indx]};
+            unsafe { *order = vecc.clone()};
+        }return Some(ret);}
     let item0 = item.clone();
     let item1 = item.clone().unwrap_or("".strn() );
     for i in 0..unsafe { buf.len() }{
