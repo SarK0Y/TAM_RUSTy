@@ -1,6 +1,7 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, custom_traits::STRN, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize,
+use crate::{bkp_tmp_dir, cache_t, custom_traits::{STRN, helpful_math_ops}, errMsg0, get_num_cols, get_num_page, 
+globs18::{seg_size, take_list_adr}, i64_2_usize,
  ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
  where_is_last_pg};
  use once_cell::sync::Lazy;
@@ -161,8 +162,8 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
     static mut buf: Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
     static mut order: Lazy< Vec <usize> > = Lazy::new(||{Vec::with_capacity(20)});
     if item == None && unsafe{ buf.len() } > indx {
-        let ret = unsafe{ buf[indx].clone()  };
         let indx0 = unsafe { order[indx]};
+        let ret = unsafe{ buf[indx0].clone()  };
         if unsafe{ buf.len() } > 1 {
             let mut vecc: Vec<usize> = Vec::with_capacity(20);
             vecc.push(0);
@@ -174,7 +175,7 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
             vecc[0] =unsafe { order[indx]};
             unsafe { *order = vecc.clone()};
         }return Some(ret);}
-    let item0 = item.clone();
+    let item0 = item.clone(); let item2 = item.clone();
     let item1 = item.clone().unwrap_or("".strn() );
     for i in 0..unsafe { buf.len() }{
         if unsafe { buf[i].strn() } == item1 {
@@ -190,8 +191,18 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
             vecc[0] =unsafe { order[indx]};
             unsafe { *order = vecc.clone()};
         }
-            return None}
+            return None }
     }
+    let mut start = 0usize;
+    let mut vecc: Vec<usize> = Vec::with_capacity(20);
+    if unsafe { buf.len() } == 20{start = 1; vecc.push(0)} 
+    unsafe { buf.push(item2.unwrap() ) } 
+    for i in 0..unsafe { buf.len() }{
+         if i + start == 20{break;}
+            let ord = unsafe { order[i].inc() };
+            vecc.push(ord);
+    }
+    unsafe { *order = vecc.clone()};
     unsafe { buf.push(item.unwrap() ) }; item0
 }
 //fn
