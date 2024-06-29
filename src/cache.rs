@@ -161,6 +161,7 @@ pub(crate) fn upd_fast_cache(cache: &mut cache_t){
 pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < String >{
     static mut buf: Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
     static mut order: Lazy< Vec <usize> > = Lazy::new(||{Vec::with_capacity(20)});
+    if unsafe{ buf.len() } == indx { return None }
     if item == None && unsafe{ buf.len() } > indx {
         let indx0 = unsafe { order[indx]};
         let ret = unsafe{ buf[indx0].clone()  };
@@ -191,12 +192,11 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
             vecc[0] =unsafe { order[indx]};
             unsafe { *order = vecc.clone()};
         }
-            return None }
+            return item2 }
     }
     let mut start = 0usize;
     let mut vecc: Vec<usize> = Vec::with_capacity(20);
     if unsafe { buf.len() } == 20{start = 1; vecc.push(0)} 
-    unsafe { buf.push(item2.unwrap() ) } 
     for i in 0..unsafe { buf.len() }{
          if i + start == 20{break;}
             let ord = unsafe { order[i].inc() };
