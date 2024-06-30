@@ -170,24 +170,24 @@ pub(crate) fn PgUp(){
     }
 }
 pub(crate) fn F9_key() {
-    let ln_indx = count_ln(true, true);
-    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx );
+    let ln_indx0 = count_ln(true, true);
+    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx0 );
     let mut indx: usize = ln_indx.0;
     if ln_indx.1{count_ln(false, false); indx = 0}
     let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, indx){
+    if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
     } else {ln = ln_of_found_files(indx).0;}
     set_prnt(&ln, 999714);
 
 }
 pub(crate) fn F8_key() {
-    let ln_indx = count_ln(true, false);
-    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx );
+    let ln_indx0 = count_ln(true, false);
+    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx0 );
     let mut indx: usize = ln_indx.0;
     if ln_indx.1{count_ln(false, false); indx = 0}
      let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, indx){
+    if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
     } else {ln = ln_of_found_files(indx).0;}
     set_prnt(&ln, 999714);
