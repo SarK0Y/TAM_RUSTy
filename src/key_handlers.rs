@@ -175,7 +175,7 @@ pub(crate) fn F9_key() {
     let mut indx: usize = ln_indx.0;
     if ln_indx.1{count_ln(false, false); indx = 0}
     let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, 0){
+    if let Some(ln0) = history_buffer(None, indx){
         ln = ln0;
     } else {ln = ln_of_found_files(indx).0;}
     set_prnt(&ln, 999714);
@@ -187,7 +187,7 @@ pub(crate) fn F8_key() {
     let mut indx: usize = ln_indx.0;
     if ln_indx.1{count_ln(false, false); indx = 0}
      let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, 0){
+    if let Some(ln0) = history_buffer(None, indx){
         ln = ln0;
     } else {ln = ln_of_found_files(indx).0;}
     set_prnt(&ln, 999714);
