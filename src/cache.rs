@@ -165,17 +165,7 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
     if item == None && unsafe{ buf.len() } > indx {
         let indx0 = unsafe { order[indx]};
         let ret = unsafe{ buf[indx0].clone()  };
-        if unsafe{ buf.len() } > 1 {
-            let mut vecc: Vec<usize> = Vec::with_capacity(20);
-            vecc.push(0);
-            for j in 1..unsafe{ buf.len() } {
-                if j != indx{
-                    vecc.push(unsafe{ order[j] });
-                }
-            }
-            vecc[0] =unsafe { order[indx]};
-            unsafe { *order = vecc.clone()};
-        }return Some(ret);}
+        return Some(ret);}
     let item0 = item.clone(); let item2 = item.clone();
     let item1 = item.clone().unwrap_or("".strn() );
     for i in 0..unsafe { buf.len() }{
