@@ -189,19 +189,15 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
     
     let mut vecc: Vec<usize> = Vec::with_capacity(20);
     let mut len: usize = unsafe { buf.len() }; let len_ord = unsafe { order.len() };
-    if len == 20{ vecc.push(0);
+    if len == 20{ unsafe { order.clear(); order.push(0);}
         let mut ringbuf: Vec<String> = Vec::with_capacity(20);
         unsafe { ringbuf.push(match item {Some(it) => it, _ => return None} ); buf.pop();
          };
          len = unsafe { buf.len() };
          for y in 0..len{
-            unsafe{ ringbuf.push(buf [y].clone() )}
+            unsafe{ ringbuf.push(buf [y].clone() ); order.push(y.clone().inc() );}
          }unsafe{ *buf = ringbuf};
-        for j in 0..len{
-            if len_ord > j && unsafe { order[j] } != 0{
-                unsafe { vecc.push(order[j] ) };
-            }else { vecc.push(j);}
-        } unsafe { *order = vecc.clone()}; return Some(unsafe { buf[0].clone() });
+         return Some(unsafe { buf[0].clone() });
     }
     unsafe { buf.push(match item {Some(it) => it, _ => return None} ) }; 
     for i in 0..len{
