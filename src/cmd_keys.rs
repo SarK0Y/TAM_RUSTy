@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use crate::{checkArg, getkey};
+use crate::{checkArg, getkey, link_lst_to, split_once};
 pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;
@@ -73,4 +73,15 @@ pub(crate) fn swtch_ls(set: bool, new_state: bool) -> bool{
     if set{crate::C!(state = new_state);}
     crate::C!(state)
 }
+pub(crate) fn link_ext_lsts(){
+    let args: Vec<_> = std::env::args().collect();
+for i in 1..args.len(){
+    if /*args_2_str[i]*/args[i] == "-link-lst-to" { link_ext_lst(&args[i + 1] );}
+}
+}
+pub(crate) fn link_ext_lst(cmd: &String){
+    let (lst, adr) = split_once(cmd, " ");
+    link_lst_to(&lst, &adr);
+}
+
 //fn

@@ -5,7 +5,6 @@ globs18::{seg_size, take_list_adr}, i64_2_usize,
  ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
  where_is_last_pg};
  use once_cell::sync::Lazy;
-use ringbuffer::{AllocRingBuffer, RingBuffer};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
