@@ -615,6 +615,30 @@ pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
     if maybe == *delim {return true}
     false
 }
+pub(crate) fn check_substrn01(strn: &String, delim: &str) -> bool{
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count_delim_chars = 0usize;
+    for i in strn.chars(){
+        if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            //println!("{}", maybe);
+        } else {
+            if maybe == *delim {return true}
+            count_delim_chars = 0;
+            maybe = String::new();
+            if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
+            maybe.push(i);
+            count_delim_chars += 1;
+            }
+        }
+    }
+    if maybe == *delim {return true}
+    false
+}
+
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     let sub_cmd0 = sub_cmd.to_string();
     let mut full_sub_cmd = String::new(); let mut val = String::new();
@@ -806,6 +830,7 @@ pub(crate) fn load_bash_history(){
     let bkp_bash = format!("cat {orig_bash} > {cpy_to}");
     run_cmd_out_sync(bkp_bash);
     let cmd_lst = format!("lst {home_dir}/bash_history_cpy");
+    set_front_list("bash_history_cpy");
     manage_lst(&cmd_lst);
 }
 pub(crate) fn load_fish_history(){
@@ -815,6 +840,7 @@ pub(crate) fn load_fish_history(){
     let bkp_fish = format!("cat {orig_fish}|grep -Ei '\\s*-\\s*cmd:'|sed 's/\\s*-\\s*cmd:/term /g'|uniq > {cpy_to}");
     run_cmd_out_sync(bkp_fish);
     let cmd_lst = format!("lst {home_dir}/.local/share/fish/fish_history_cpy");
+    set_front_list("fish_history_cpy");
     manage_lst(&cmd_lst);
 }
 //fn

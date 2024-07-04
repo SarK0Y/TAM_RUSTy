@@ -56,8 +56,8 @@ impl super::basic{
             //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
             let filename_str0 = || -> String{
-                    let front_list = name_of_front_list("", false).unreel_link_to_file();
-                 if !check_substrn(&front_list, "history"){
+                    let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
+                 if !crate::globs18::check_substrn01(&front_list, "history"){
                    return String::from(match filename.file_name(){
                     Some(f) => f,
                     None => err_path(),
