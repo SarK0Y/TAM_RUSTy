@@ -1,5 +1,6 @@
-use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
-    take_list_adr}, history_buffer, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
+    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
+use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
 pub(crate) fn key_slash(){
@@ -101,7 +102,7 @@ pub(crate) fn key_f12(func_id: i64){
     crate::set_prnt("", func_id);
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
     crate::rm_user_written_path(func_id);
-    count_ln(false, false);
+    count_ln(false, false, false);
 }
 pub(crate) fn PgDown(){
     let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
@@ -170,26 +171,50 @@ pub(crate) fn PgUp(){
     }
 }
 pub(crate) fn F9_key() {
-    let ln_indx0 = count_ln(true, true);
-    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx0 );
-    let mut indx: usize = ln_indx.0;
-    if ln_indx.1{count_ln(false, false); indx = 0}
+    let ringbuf_size = history_buffer_size(None);
+    let ln_indx0 = count_ln(true, true, false);
+    let ln_indx = len_of_front_list().usize0().dec().dec().dec();
+   // popup_msg(&ln_indx0.strn() );
+    let mut indx: usize = delta(ln_indx, ln_indx0);
+    //if ln_indx.1{count_ln(false, false, false); indx = 0}
     let mut ln = "".strn();
     if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
-    } else {ln = ln_of_found_files(indx).0;}
+    } else {
+        while  true {
+            ln = crate::ln_of_found_files01(indx + ringbuf_size).0;
+            if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!() )  {indx.dec(); }
+            else { break;}
+        }
+        let mut ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
+        while ln0.1 < indx + ringbuf_size {
+            indx = indx.dec();
+            ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
+        } 
+        ln = crate::ln_of_found_files01(indx + ringbuf_size ).0;
+        //popup_msg("ring"); popup_msg(&ringbuf_size.strn() ); popup_msg(&indx.strn() );
+        }
     set_prnt(&ln, 999714);
 
 }
 pub(crate) fn F8_key() {
-    let ln_indx0 = count_ln(true, false);
-    let ln_indx = len_of_front_list().usize0().overflowing_sub( ln_indx0 );
+    let ringbuf_size = history_buffer_size(None);
+    let ln_indx0 = count_ln(true, false, false);
+    let lst_size = len_of_front_list().usize0();
+    let ln_indx = lst_size.overflowing_sub( ln_indx0 );
     let mut indx: usize = ln_indx.0;
-    if ln_indx.1{count_ln(false, false); indx = 0}
+    if ln_indx.1{count_ln(false, false, false); indx = 0}
      let mut ln = "".strn();
     if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
-    } else {ln = ln_of_found_files(indx).0;}
+    } else {
+        while  true {
+            let ln = crate::ln_of_found_files01(indx + ringbuf_size);
+            if ln.0 == "no str gotten" {indx.inc(); break;}
+            if ln.0 == "" || ln.0 == crate::getStop_code__!() {indx.inc(); continue;}
+        }
+        ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; 
+    }
     set_prnt(&ln, 999714);
 
 }

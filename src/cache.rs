@@ -5,7 +5,6 @@ globs18::{seg_size, take_list_adr}, i64_2_usize,
  ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
  where_is_last_pg};
  use once_cell::sync::Lazy;
-use ringbuffer::{AllocRingBuffer, RingBuffer};
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -158,9 +157,16 @@ pub(crate) fn wait_4_empty_cache() -> bool{
 pub(crate) fn upd_fast_cache(cache: &mut cache_t){
     *cache = std::collections::HashMap::new();
 }
+pub(crate) fn history_buffer_size(new_buf_size: Option < usize >) -> usize {
+    static mut buf_sz: usize = 0;
+    if new_buf_size == None {history_buffer(None, usize::MAX); return unsafe { buf_sz } }
+    unsafe { buf_sz  = new_buf_size.unwrap(); buf_sz}
+
+}
 pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < String >{
-    static mut buf: Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
+    static mut buf: Lazy<Vec <String> > = Lazy::new(||{Vec::with_capacity(20) });//Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
     static mut order: Lazy< Vec <usize> > = Lazy::new(||{vec!(0) });
+    if indx == usize::MAX {history_buffer_size(Some(unsafe { buf.len() } ) ); return None }
     if unsafe{ buf.len() } == indx && item.is_none() { return None }
     if item == None && unsafe{ buf.len() } > indx {
         let indx0: usize = if indx < unsafe {order.len() }{unsafe { order[indx]} } else {
@@ -176,26 +182,40 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < Stri
             let mut vecc: Vec<usize> = Vec::with_capacity(20);
             vecc.push(0); 
             for j in 1..unsafe{ buf.len() } {
-                if j != indx{
+                if unsafe{ order.len() > j } && j != indx{
                     vecc.push(unsafe{ order[j] });
                 }
             }
-            vecc[0] =unsafe { order[indx]};
+            if indx < unsafe { order.len() } { vecc[0] =unsafe { order[indx]}; }
+            else {vecc[0] = indx}
             unsafe { *order = vecc.clone()};
         }
             return item2 }
     }
-    unsafe { buf.push(match item {Some(it) => it, _ => return None} ) };
-    let mut start = 0usize;
+    
     let mut vecc: Vec<usize> = Vec::with_capacity(20);
-    if unsafe { buf.len() } == 20{start = 1; vecc.push(0)} 
-    for i in 0..unsafe { buf.len() }{
-         if i + start == 20 || i + start == unsafe { buf.len() }{break;}
-         let indx = start + i;
-            let ord = unsafe { order[indx].inc() };
-            vecc.push(ord);
+    let mut len: usize = unsafe { buf.len() }; let len_ord = unsafe { order.len() };
+    if len == 20{ unsafe { order.clear(); order.push(0);}
+        let mut ringbuf: Vec<String> = Vec::with_capacity(20);
+        unsafe { ringbuf.push(match item {Some(it) => it, _ => return None} ); buf.pop();
+         };
+         len = unsafe { buf.len() };
+         for y in 0..len{
+            unsafe{ ringbuf.push(buf [y].clone() ); order.push(y.clone().inc() );}
+         }unsafe{ *buf = ringbuf};
+         return Some(unsafe { buf[0].clone() });
     }
-    unsafe { *order = vecc.clone()};
+    unsafe { buf.push(match item {Some(it) => it, _ => return None} ) }; 
+    for i in 0..len{
+         if unsafe { order.len() <= i} &&  unsafe { order.len() > 0} {
+            let ord = unsafe { order[i].inc() };
+            vecc.push(ord);
+         } else {
+            unsafe { order.push(i) };
+            vecc.push(i);
+         }
+    }
+    unsafe { *order = vecc};
     item0
 }
 //fn

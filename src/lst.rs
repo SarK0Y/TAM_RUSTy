@@ -342,8 +342,9 @@ pub(crate) fn clean_fast_cache(yes: Option<bool>) -> bool{
     unsafe { state }
 
 }
-pub(crate) fn count_ln(yes: bool, inc: bool) -> usize{
+pub(crate) fn count_ln(yes: bool, inc: bool, get_size: bool) -> usize{
     static mut count: usize = 0;
+    if get_size {return unsafe { count } }
     if !yes {unsafe { count = 0 }; return 0;}
     let ret = unsafe { count };
     if yes && inc{unsafe { count.inc() };}
