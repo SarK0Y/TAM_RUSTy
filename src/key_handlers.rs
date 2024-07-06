@@ -205,6 +205,7 @@ pub(crate) fn F8_key() {
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
+    let mut count_out = 15usize;
     if ln_indx.1{count_ln(false, false, false); indx = 0}
      let mut ln = "".strn();
      let nl = char::from_u32(0x0a);
@@ -213,15 +214,17 @@ pub(crate) fn F8_key() {
     } else {
         while  true {
             let ln1 = crate::ln_of_found_files01(indx + ringbuf_size);
-            if ln1.0 == "" || ln1.0 == crate::getStop_code__!() || ln1.0 == "no str gotten" ||
-             nl == ln1.0.chars().nth(0) {indx.inc(); }
-            if prev_indx == ln1.1{
+            if ln1.0 == "" || ln1.0 == crate::getStop_code__!() || nl == ln1.0.chars().nth(0) 
+            {indx.inc(); count_out.dec(); if count_out == 0 {break;} continue;}
+            if prev_indx == ln1.1 || ln1.0 == "no str gotten" {
                 let indxx = count_ln(true, false, false);
                 if let Some(ln0) = history_buffer(None, indxx){ 
                     ln = ln0; in_history = true; count_ln(false, false, false);
                 }
-                break;}
+                break;
+            }
             else {prev_indx = ln1.1}
+            break;
         }
         if !in_history { ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; }
     }
