@@ -157,9 +157,16 @@ pub(crate) fn wait_4_empty_cache() -> bool{
 pub(crate) fn upd_fast_cache(cache: &mut cache_t){
     *cache = std::collections::HashMap::new();
 }
+pub(crate) fn history_buffer_size(new_buf_size: Option < usize >) -> usize {
+    static mut buf_sz: usize = 0;
+    if new_buf_size == None {history_buffer(None, usize::MAX); return unsafe { buf_sz } }
+    unsafe { buf_sz  = new_buf_size.unwrap(); buf_sz}
+
+}
 pub(crate) fn history_buffer(item: Option<String>, indx: usize) -> Option < String >{
     static mut buf: Lazy<Vec <String> > = Lazy::new(||{Vec::with_capacity(20) });//Lazy< AllocRingBuffer <String> > = Lazy::new(||{AllocRingBuffer::new(20)});
     static mut order: Lazy< Vec <usize> > = Lazy::new(||{vec!(0) });
+    if indx == usize::MAX {history_buffer_size(Some(unsafe { buf.len() } ) ); return None }
     if unsafe{ buf.len() } == indx && item.is_none() { return None }
     if item == None && unsafe{ buf.len() } > indx {
         let indx0: usize = if indx < unsafe {order.len() }{unsafe { order[indx]} } else {

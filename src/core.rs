@@ -567,6 +567,22 @@ pub(crate) fn ln_of_found_files(get_indx: usize) -> (String, usize){
     }
     return ("no str gotten".to_string(), len);
 }
+pub(crate) fn ln_of_found_files01(get_indx: usize) -> (String, usize){
+    let ls_mode = read_front_list();
+     let stopCode = getStop_code__!();
+        let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let file = match File::open(filename){
+            Ok(f) => f,
+            _ => return ("no str gotten".to_string(), 0)
+        };
+        let reader = BufReader::new(file);
+        let mut len = 0usize;
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{return (line.unwrap(), indx);}
+        len = indx;
+    }
+    return ("no str gotten".to_string(), len);
+}
 pub(crate) fn ln_of_found_files_cacheless(get_indx: usize) -> (String, usize){
      let stopCode = getStop_code__!();
         let found_files = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
