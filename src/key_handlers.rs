@@ -226,7 +226,7 @@ pub(crate) fn F8_key() {
             else {prev_indx = ln1.1}
             break;
         }
-        if !in_history { ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; }
+        if !in_history { ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; if ln == "no str gotten" {ln = "You got in ring-buffer.".strn()} }
     }
     set_prnt(&ln, 999714);
 
