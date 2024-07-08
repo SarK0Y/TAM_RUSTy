@@ -54,6 +54,17 @@ pub(crate) fn no_view(set: bool, new_state: bool) -> bool{
     if set{crate::C!(state = new_state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!(state)
 }
+pub(crate) fn scroll_ln_in_pg(roll: bool ) -> bool{
+    static mut state: bool = false;
+    static mut fst_run: bool = false;
+    if !crate::C!(fst_run){
+        crate::C!(fst_run = true);
+        if checkArg("-scroll-ln-in-pg"){crate::C!(state = true)}
+        println!("dbg status: {}", crate::C!(state))
+    }
+    if roll{crate::C!(state = !state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
+    crate::C!(state)
+}
 pub(crate) fn be_silent(set: bool, new_state: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;

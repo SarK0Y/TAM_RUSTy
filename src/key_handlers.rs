@@ -1,4 +1,5 @@
-use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN, turn_2_usize}, 
+drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
     take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
@@ -60,6 +61,7 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 5) == "en ls"{crate::swtch_ls(true, true); return empty;}
     if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
     if file_indx.as_str().substring(0, 7) == "delim::"{crate::delim(Some(file_indx) ); return empty;}
+    if file_indx.trim_end() == "scroll ln in pg"{crate::scroll_ln_in_pg( true ); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
@@ -173,7 +175,8 @@ pub(crate) fn PgUp(){
 pub(crate) fn F9_key() {
     let ringbuf_size = history_buffer_size(None);
     let ln_indx0 = count_ln(true, true, false);
-    let ln_indx = len_of_front_list().usize0().dec().dec();
+    let mut ln_indx = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0().dec().dec()  }
+    else {crate::calc_num_files_up2_cur_pg01().usize0() };
    // popup_msg(&ln_indx0.strn() );
     let mut indx: usize = delta(ln_indx, ln_indx0);
     //if ln_indx.1{count_ln(false, false, false); indx = 0}
@@ -201,8 +204,9 @@ pub(crate) fn F9_key() {
 pub(crate) fn F8_key() {
     let ringbuf_size = history_buffer_size(None);
     let ln_indx0 = count_ln(true, false, false);
-    let lst_size = len_of_front_list().usize0();
-    let ln_indx = lst_size.overflowing_sub( ln_indx0 );
+    let lst_size = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0() }
+    else {crate::calc_num_files_up2_cur_pg01().usize0() + ln_indx0 };
+    let ln_indx =if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 1 )};
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;

@@ -969,6 +969,17 @@ pub(crate) fn calc_num_files_up2_cur_pg() -> i64{
     let counted_files = num_page * num_cols * num_rows;
     return counted_files;
 }
+pub(crate) fn calc_num_files_up2_cur_pg01() -> i64{
+    let func_id= crate::func_id18::calc_num_files_up2_cur_pg_;
+    let ps = unsafe {crate::swtch::swtch_ps(-1, None)};
+     let mut num_page; if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
+    let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
+    let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
+    if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
+    //let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
+    let counted_files = num_page * num_cols * num_rows;
+    return counted_files;
+}
 pub(crate)
 fn check_substring(orig: String, probe: String, start_from: usize) -> bool{
     let substr: &str= &orig.as_str();
