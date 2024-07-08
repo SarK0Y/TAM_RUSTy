@@ -1,5 +1,5 @@
 use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
-    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
+    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -191,6 +191,7 @@ pub(crate) fn F9_key() {
             indx = indx.dec();
             ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
         } 
+        set_ask_user("Now, Dear User, You're scrolling list.", 999714);
         ln = crate::ln_of_found_files01(indx + ringbuf_size ).0;
         //popup_msg("ring"); popup_msg(&ringbuf_size.strn() ); popup_msg(&indx.strn() );
         }
