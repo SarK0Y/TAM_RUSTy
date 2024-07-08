@@ -1,7 +1,7 @@
 pub const MARKER_OF_ACCESS: &str = "70059341913";
 use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
-use num_traits::ToPrimitive;
+use num_traits::{ops::overflowing::OverflowingAdd, ToPrimitive};
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
@@ -238,7 +238,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
   //  let msg = format!("seg# {seg_num}"); popup_msg(&msg);
     let mut indx = indx;
     let offset = indx % seg_size; indx -= offset; 
-    let upto = seg_size + indx;
+    let upto = seg_size.overflowing_add( indx ).0;
     if state == cache_state::forming {return (None, cache_state::forming);}
     let prev_state = state.clone();
     state = cache_state::forming;
