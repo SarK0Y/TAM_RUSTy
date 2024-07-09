@@ -173,10 +173,10 @@ pub(crate) fn PgUp(){
     }
 }
 pub(crate) fn F9_key() {
-    let ringbuf_size = history_buffer_size(None);
-    let ln_indx0 = count_ln(true, true, false);
+    let mut ringbuf_size = history_buffer_size(None);
+    let mut ln_indx0 = count_ln(true, true, false);
     let mut ln_indx = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0().dec().dec()  }
-    else {crate::calc_num_files_up2_cur_pg01().usize0() };
+    else {ln_indx0 = usize::MAX; crate::calc_num_files_up2_cur_pg01().usize0() };
    // popup_msg(&ln_indx0.strn() );
     let mut indx: usize = delta(ln_indx, ln_indx0);
     //if ln_indx.1{count_ln(false, false, false); indx = 0}
@@ -184,6 +184,7 @@ pub(crate) fn F9_key() {
     if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
     } else {
+        if ln_indx0 == usize::MAX{ln_indx0 = count_ln(true, true, true); ringbuf_size = 0; indx = delta(ln_indx, ln_indx0);}
         while  true {
             ln = crate::ln_of_found_files01(indx + ringbuf_size).0;
             if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!() )  {indx.dec(); }
@@ -203,10 +204,11 @@ pub(crate) fn F9_key() {
 }
 pub(crate) fn F8_key() {
     let ringbuf_size = history_buffer_size(None);
-    let ln_indx0 = count_ln(true, false, false);
+    let mut ln_indx0 = count_ln(true, false, false);
     let lst_size = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0() }
-    else {crate::calc_num_files_up2_cur_pg01().usize0() + ln_indx0 };
+    else {crate::calc_num_files_up2_cur_pg().usize0() + ln_indx0 };
     let ln_indx =if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 1 )};
+    if crate::scroll_ln_in_pg(false){ln_indx0 = usize::MAX;}
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
@@ -214,8 +216,8 @@ pub(crate) fn F8_key() {
     if ln_indx.1{count_ln(false, false, false); indx = 0}
      let mut ln = "".strn();
      let nl = char::from_u32(0x0a);
-    if let Some(ln0) = history_buffer(None, ln_indx0){
-        ln = ln0;
+    if  let Some(ln0) = history_buffer(None, ln_indx0) {
+        ln = ln0; 
     } else {
         while  true {
             let ln1 = crate::ln_of_found_files01(indx + ringbuf_size);
