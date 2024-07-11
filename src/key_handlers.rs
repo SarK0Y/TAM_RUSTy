@@ -206,8 +206,8 @@ pub(crate) fn F8_key() {
     let ringbuf_size = history_buffer_size(None);
     let mut ln_indx0 = count_ln(true, false, false);
     let lst_size = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0() }
-    else {crate::calc_num_files_up2_cur_pg().usize0() + ln_indx0 };
-    let ln_indx =if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 1 )};
+    else {crate::calc_num_files_up2_cur_pg01().usize0() };// + ln_indx0 };
+    let ln_indx = lst_size.overflowing_sub( ln_indx0 ); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
     if crate::scroll_ln_in_pg(false){ln_indx0 = usize::MAX;}
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
