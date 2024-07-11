@@ -1,6 +1,6 @@
-use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN, turn_2_usize}, 
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, 
 drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
-    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
+    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -185,18 +185,24 @@ pub(crate) fn F9_key() {
         ln = ln0;
     } else {
         if ln_indx0 == usize::MAX{ln_indx0 = count_ln(true, true, true); ringbuf_size = 0; indx = delta(ln_indx, ln_indx0);}
-        while  true {
+        let mut count_out = 93usize;
+        while  count_out > 0 {
             ln = crate::ln_of_found_files01(indx + ringbuf_size).0;
             if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!() )  {indx.dec(); }
             else { break;}
+            count_out.dec();
         }
         let mut ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
-        while ln0.1 < indx + ringbuf_size {
+        let mut count_out = 93usize;
+        while ln0.1 < indx + ringbuf_size && count_out > 0 {
             indx = indx.dec();
             ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
+            count_out.dec();
         } 
         set_ask_user("Now, Dear User, You're scrolling list.", 999714);
         ln = crate::ln_of_found_files01(indx + ringbuf_size ).0;
+        if ln == "no str gotten"{ln = crate::ln_of_found_files01(count_ln(true, true, true) ).0;}
+        if ln == "no str gotten"{count_ln(false, false, false); ln = crate::ln_of_found_files01(0 ).0;}
         //popup_msg("ring"); popup_msg(&ringbuf_size.strn() ); popup_msg(&indx.strn() );
         }
     set_prnt(&ln, 999714);
