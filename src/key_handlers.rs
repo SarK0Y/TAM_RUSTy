@@ -43,7 +43,7 @@ pub(crate) fn Enter(){
     crate::C!(crate::swtch::check_mode(&mut mode));
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH{mode = crate::swtch::SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
-    history_buffer(Some(prnt), 0);
+    history_buffer(Some(prnt), 0, false);
 }
 pub(crate) fn Ins_key() -> String{
     stop_term_msg();
@@ -173,15 +173,16 @@ pub(crate) fn PgUp(){
     }
 }
 pub(crate) fn F9_key() {
+    let mut block_ring_buffer = false;
     let mut ringbuf_size = history_buffer_size(None);
     let mut ln_indx0 = count_ln(true, true, false);
     let mut ln_indx = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0().dec().dec()  }
-    else {ln_indx0 = usize::MAX; crate::calc_num_files_up2_cur_pg01().usize0() };
+    else {block_ring_buffer = true; crate::calc_num_files_up2_cur_pg01().usize0() };
    // popup_msg(&ln_indx0.strn() );
     let mut indx: usize = delta(ln_indx, ln_indx0);
     //if ln_indx.1{count_ln(false, false, false); indx = 0}
     let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, ln_indx0){
+    if let Some(ln0) = history_buffer(None, ln_indx0, block_ring_buffer){
         ln = ln0;
     } else {
         if ln_indx0 == usize::MAX{ln_indx0 = count_ln(true, true, true); ringbuf_size = 0; indx = delta(ln_indx, ln_indx0);}
@@ -213,9 +214,8 @@ pub(crate) fn F8_key() {
     let ringbuf_size = if !crate::scroll_ln_in_pg(false) {history_buffer_size(None)} else {0};
     let mut ln_indx0 = count_ln(true, false, false);
     let lst_size = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0() }
-    else {crate::calc_num_files_up2_cur_pg01().usize0() };// + ln_indx0 };
+    else {block_ring_buffer = true; crate::calc_num_files_up2_cur_pg01().usize0() };// + ln_indx0 };
     let ln_indx = lst_size.overflowing_sub( ln_indx0 ); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
-    if crate::scroll_ln_in_pg(false){ln_indx0 = usize::MAX;}
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
