@@ -6,7 +6,7 @@ use substring::Substring;
 use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
-use crate::custom_traits::{STRN, STRN_strip};
+use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 use crate::helpful_math_ops;
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
@@ -350,5 +350,11 @@ pub(crate) fn count_ln(yes: bool, inc: bool, get_size: bool) -> usize{
     if yes && inc{unsafe { count.inc() };}
     if yes && !inc{unsafe { count.dec() };}
     ret
+}
+pub(crate) fn mk_lst(cmd: &String){
+    let dst = cmd.replace("mk lst", "").trim_start().trim_end().strn();
+    let dst = take_list_adr_env(&dst);
+    let src = take_list_adr_env("found_files").unreel_link_to_file();
+    match std::fs::copy(src, dst){Ok(done) => done, Err(e) => return println!("{e:?}")};
 }
 //fn

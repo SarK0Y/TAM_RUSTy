@@ -1,5 +1,6 @@
-use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
-    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg};
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, 
+drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
+    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -60,6 +61,7 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 5) == "en ls"{crate::swtch_ls(true, true); return empty;}
     if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
     if file_indx.as_str().substring(0, 7) == "delim::"{crate::delim(Some(file_indx) ); return empty;}
+    if file_indx.trim_end() == "scroll ln in pg"{crate::scroll_ln_in_pg( true ); return empty;}
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
@@ -171,9 +173,10 @@ pub(crate) fn PgUp(){
     }
 }
 pub(crate) fn F9_key() {
-    let ringbuf_size = history_buffer_size(None);
-    let ln_indx0 = count_ln(true, true, false);
-    let ln_indx = len_of_front_list().usize0().dec().dec().dec();
+    let mut ringbuf_size = history_buffer_size(None);
+    let mut ln_indx0 = count_ln(true, true, false);
+    let mut ln_indx = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0().dec().dec()  }
+    else {ln_indx0 = usize::MAX; crate::calc_num_files_up2_cur_pg01().usize0() };
    // popup_msg(&ln_indx0.strn() );
     let mut indx: usize = delta(ln_indx, ln_indx0);
     //if ln_indx.1{count_ln(false, false, false); indx = 0}
@@ -181,39 +184,63 @@ pub(crate) fn F9_key() {
     if let Some(ln0) = history_buffer(None, ln_indx0){
         ln = ln0;
     } else {
-        while  true {
+        if ln_indx0 == usize::MAX{ln_indx0 = count_ln(true, true, true); ringbuf_size = 0; indx = delta(ln_indx, ln_indx0);}
+        let mut count_out = 93usize;
+        while  count_out > 0 {
             ln = crate::ln_of_found_files01(indx + ringbuf_size).0;
             if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!() )  {indx.dec(); }
             else { break;}
+            count_out.dec();
         }
         let mut ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
-        while ln0.1 < indx + ringbuf_size {
+        let mut count_out = 93usize;
+        while ln0.1 < indx + ringbuf_size && count_out > 0 {
             indx = indx.dec();
             ln0 = crate::ln_of_found_files01(indx + ringbuf_size );
+            count_out.dec();
         } 
+        set_ask_user("Now, Dear User, You're scrolling list.", 999714);
         ln = crate::ln_of_found_files01(indx + ringbuf_size ).0;
+        if ln == "no str gotten"{ln = crate::ln_of_found_files01(count_ln(true, true, true) ).0;}
+        if ln == "no str gotten"{count_ln(false, false, false); ln = crate::ln_of_found_files01(0 ).0;}
         //popup_msg("ring"); popup_msg(&ringbuf_size.strn() ); popup_msg(&indx.strn() );
         }
     set_prnt(&ln, 999714);
 
 }
 pub(crate) fn F8_key() {
-    let ringbuf_size = history_buffer_size(None);
-    let ln_indx0 = count_ln(true, false, false);
-    let lst_size = len_of_front_list().usize0();
-    let ln_indx = lst_size.overflowing_sub( ln_indx0 );
+    let mut block_ring_buffer = false;
+    let ringbuf_size = if !crate::scroll_ln_in_pg(false) {history_buffer_size(None)} else {0};
+    let mut ln_indx0 = count_ln(true, false, false);
+    let lst_size = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0() }
+    else {crate::calc_num_files_up2_cur_pg01().usize0() };// + ln_indx0 };
+    let ln_indx = lst_size.overflowing_sub( ln_indx0 ); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
+    if crate::scroll_ln_in_pg(false){ln_indx0 = usize::MAX;}
+    let mut in_history = false;
+    let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
+    let mut count_out = 15usize;
     if ln_indx.1{count_ln(false, false, false); indx = 0}
      let mut ln = "".strn();
-    if let Some(ln0) = history_buffer(None, ln_indx0){
-        ln = ln0;
+     let nl = char::from_u32(0x0a);
+    if  let Some(ln0) = history_buffer(None, ln_indx0, block_ring_buffer) {
+        ln = ln0; 
     } else {
         while  true {
-            let ln = crate::ln_of_found_files01(indx + ringbuf_size);
-            if ln.0 == "no str gotten" {indx.inc(); break;}
-            if ln.0 == "" || ln.0 == crate::getStop_code__!() {indx.inc(); continue;}
+            let ln1 = crate::ln_of_found_files01(indx + ringbuf_size);
+            if ln1.0 == "" || ln1.0 == crate::getStop_code__!() || nl == ln1.0.chars().nth(0) 
+            {indx.inc(); count_out.dec(); if count_out == 0 {break;} continue;}
+            if prev_indx == ln1.1 || ln1.0 == "no str gotten" {
+                let indxx = count_ln(true, false, false);
+                if let Some(ln0) = history_buffer(None, indxx, block_ring_buffer){ 
+                    ln = ln0; in_history = true; count_ln(false, false, false);
+                }
+                break;
+            }
+            else {prev_indx = ln1.1}
+            break;
         }
-        ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; 
+        if !in_history { ln = crate::ln_of_found_files01(indx + ringbuf_size ).0; if ln == "no str gotten" {ln = "You got in ring-buffer.".strn()} }
     }
     set_prnt(&ln, 999714);
 
