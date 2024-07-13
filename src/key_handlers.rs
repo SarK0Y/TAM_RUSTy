@@ -174,7 +174,7 @@ pub(crate) fn PgUp(){
 }
 pub(crate) fn F9_key() {
     let mut block_ring_buffer = false;
-    let mut ringbuf_size = history_buffer_size(None);
+    let ringbuf_size = if !crate::scroll_ln_in_pg(false) {history_buffer_size(None)} else {0};
     let mut ln_indx0 = count_ln(true, true, false);
     let mut ln_indx = if !crate::scroll_ln_in_pg(false){len_of_front_list().usize0().dec().dec()  }
     else {block_ring_buffer = true; crate::calc_num_files_up2_cur_pg01().usize0() };
@@ -185,7 +185,6 @@ pub(crate) fn F9_key() {
     if let Some(ln0) = history_buffer(None, ln_indx0, block_ring_buffer){
         ln = ln0;
     } else {
-        if ln_indx0 == usize::MAX{ln_indx0 = count_ln(true, true, true); ringbuf_size = 0; indx = delta(ln_indx, ln_indx0);}
         let mut count_out = 93usize;
         while  count_out > 0 {
             ln = crate::ln_of_found_files01(indx + ringbuf_size).0;

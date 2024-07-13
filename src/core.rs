@@ -5,7 +5,7 @@ use exts::*;
 use once_cell::sync::Lazy;
 //use gag::RedirectError;
 
-use crate::{cached_ln_of_found_files, custom_traits::{fs_tools, STRN}, get_arg_in_cmd, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
+use crate::{cached_ln_of_found_files, custom_traits::{fs_tools, STRN}, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -194,7 +194,7 @@ for i in 1..args.len(){
 return ret;
 }
 pub(crate) fn mk_dummy_lnks(){
-    mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
+    mk_dummy_lnk("cp"); mk_dummy_lnk("mv"); mk_dummy_lnk("rm");
 }
 pub(crate) fn mk_dummy_lnk(head: &str){
     let cmd = "whereis ".to_string() + head;
@@ -978,7 +978,7 @@ pub(crate) fn calc_num_files_up2_cur_pg01() -> i64{
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
     //let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     let counted_files = (num_page + 1 ) * num_cols * num_rows;
-    return counted_files;
+    return counted_files.clone().dec();
 }
 pub(crate)
 fn check_substring(orig: String, probe: String, start_from: usize) -> bool{

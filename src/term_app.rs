@@ -182,6 +182,7 @@ pub(crate) fn term(cmd: &String){
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
     run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
