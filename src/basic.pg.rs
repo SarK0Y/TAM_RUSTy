@@ -41,7 +41,8 @@ impl super::basic{
             let mut indx = i + num_cols * j + num_page;
             //indx = num_files - count_down_files;
             let mut res: String ="".to_string();
-            while res == "" {res = self.rec_from_front_list(indx, true);}
+            let mut count_out = 77usize;
+            while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
                 time_to_stop = true;
