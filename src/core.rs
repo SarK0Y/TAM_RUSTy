@@ -194,7 +194,7 @@ for i in 1..args.len(){
 return ret;
 }
 pub(crate) fn mk_dummy_lnks(){
-    mk_dummy_lnk("cp"); mk_dummy_lnk("mv");
+    mk_dummy_lnk("cp"); mk_dummy_lnk("mv"); mk_dummy_lnk("rm");
 }
 pub(crate) fn mk_dummy_lnk(head: &str){
     let cmd = "whereis ".to_string() + head;

@@ -116,6 +116,23 @@ pub(crate) fn term_cp(cmd: &String){
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
 }
+pub(crate) fn term_rm(cmd: &String){
+    let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
+    let (add_opts, mut all_files, to) = parse_paths(&cmd);
+    all_files = if all_files == ""{ to} else { format! ("{} {}", all_files, to) };
+    let to = "".strn();
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    all_files = all_files.replace(r"//", r"/").strip_all_symbs().strip_all_symbs(); ending("rm");
+    all_to_patch(&(vec_files, to.clone() ));
+    let dummy_file = mk_dummy_file();
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/rm");
+    if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
+    else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    crate::run_term_app_ren(cmd);
+}
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
     if if_shol_a.len() == 0{return false;}
@@ -191,8 +208,11 @@ fn all_to_patch(from_to: &(Vec<String>, String)){
         if crate::Path::new(&path.strip_all_symbs()).is_dir(){ new = format!("{path}/{}", read_tail(&old, "/")).replace("//", "/"); }
         else{ new = format!("{path}")}
        // old = old.replace(r"\\", r"\"); new = new.replace(r"\\", r"\");
+       if ending("" ) == "rm"{new = format!("{old}::D")}
+       new = new.replace("//", "/"); old = old.replace("//", "/"); 
         __patch(Some(old.strip_all_symbs()), Some( new.strip_all_symbs() ) );
     }
+    ending("none");
 }
 fn patch_msg(msg: Option<crate::parse_paths>) -> crate::parse_paths{
     static mut mode: crate::parse_paths = parse_paths::default;
