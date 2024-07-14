@@ -134,6 +134,12 @@ pub(crate) fn clean_cache(msg: &str){
     let cmd = format!("mkdir -p {mk_msg_dir};rm -f {clean_cache};echo '{msg}' > {msg_of_clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});
 }
+pub(crate) fn clean_all_cache(){
+    let tmp_dir = bkp_tmp_dir(None, false);
+    let clean_cache = format!("{tmp_dir}/cache/*");
+    let cmd = format!("rm -f {clean_cache}");
+    std::thread::spawn(||{run_cmd_out(cmd);});
+}
 pub(crate) fn wait_4_empty_cache() -> bool{
     let cache_dir = take_list_adr("cache/");
     let files = format!("{}*", cache_dir);

@@ -433,6 +433,8 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::globs18::load_fish_history(); return;}
     let cmd0 = "mk lst";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::mk_lst(&cmd); return;}
+    let cmd0 = "del ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::del_ln_from_lst(&cmd); return;}
     if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
