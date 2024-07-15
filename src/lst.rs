@@ -91,7 +91,7 @@ pub(crate) fn term_mv(cmd: &String){
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined(&vec_files, 1);
+    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -106,7 +106,7 @@ pub(crate) fn term_cp(cmd: &String){
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -122,8 +122,8 @@ pub(crate) fn term_rm(cmd: &String){
     all_files = if all_files == ""{ to} else { format! ("{} {}", all_files, to) };
     let to = "".strn();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
-    all_files = all_files.replace(r"//", r"/").strip_all_symbs().strip_all_symbs(); ending("rm");
+    let mut all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    all_files = all_files.replace(r"//", r"/").strn(); ending("rm");
     all_to_patch(&(vec_files, to.clone() ));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -273,7 +273,18 @@ pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> S
         if len == 0 {break;}
         let ln = full_escape(&ln.strn());
         ret.push_str(format!("\\{nl} {ln}").as_str());
-        len -= 1;
+        len.dec();
+    } ret
+}
+pub(crate) fn vec_2_strn_multilined_no_esc(vec_strn: &Vec<String>, cut_off: usize) -> String{
+    let mut ret = String::new();
+    let nl = char::from_u32(0x0a).unwrap().to_string();
+    let mut len = vec_strn.len(); len = if len > cut_off{len - cut_off}else{len};
+    for ln in vec_strn{
+        let ln = ln.trim_end().trim_start().trim_end_matches('\\');
+        if len == 0 {break;}
+        ret.push_str(format!("\\{nl} {ln}").as_str());
+        len.dec();
     } ret
 }
 pub(crate) fn list_the_lists(){
