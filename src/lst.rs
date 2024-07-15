@@ -107,7 +107,6 @@ pub(crate) fn term_cp(cmd: &String){
     let finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
     let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
-    all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
