@@ -1,3 +1,4 @@
+use ansi_term::unstyle;
 use once_cell::sync::Lazy;
 use syn::token::Unsafe;
 use std::collections::{HashMap, HashSet};
@@ -7,7 +8,8 @@ use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
 use crate::custom_traits::{STRN, STRN_strip, fs_tools};
-use crate::{helpful_math_ops, run_cmd_out_sync, tailOFF, turn_2_i64};
+use crate::update18::delay_ms;
+use crate::{helpful_math_ops, run_cmd_out_sync, save_file0, set_prnt, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -397,5 +399,34 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
     crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
+pub(crate) fn edit_ln_in_lst(cmd: &String){
+    let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
+    let ln = get_item_from_front_list(ln_num, true);
+    save_file0(ln.strn(), "edit.tmp".strn());
+    let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
+    set_prnt(&ln, 984419357);
+    edit_mode_lst(Some (true) );
+}
+pub(crate) fn edit_ln_in_lst_fin_op(){
+    let old_ln = read_file("edit.tmp");
+    let mut front_lst = take_list_adr_env("found_files");
+    delay_ms(112);
+    front_lst = front_lst.unreel_link_to_file();
+    let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
+    edit_mode_lst(Some (false) );
+    let new_ln = crate::read_prnt();
+    let cmd = format!("cat {}|sed 's${}${}$g' > {tmp}", &front_lst, &old_ln, &new_ln);
+    run_cmd_out_sync(cmd.clone());
+   // errMsg0(&cmd);
+    match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("cmd\n {cmd}\n{e:?}") )};
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
+pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
+    static mut state: bool = false;
+    if let Some(x) = active{
+        unsafe {state = x}
+    }
+    unsafe {state}
 }
 //fn
