@@ -1,7 +1,7 @@
 use num_traits::Bounded; use core::mem::size_of;
 use std::io::Read;
 #[cfg(feature="tam")] 
-use crate::{globs18::strn_2_usize, usize_2_i64, core18::i64_2_usize};
+use crate::{globs18::strn_2_usize, usize_2_i64, core18::i64_2_usize, errMsg0};
 #[cfg(feature="tam")] use crate::run_cmd_out_sync;
 pub(crate) trait STRN {
     fn strn(&self) -> String;
@@ -22,6 +22,33 @@ pub(crate) trait turn_2_i64 {
 impl turn_2_i64 for usize{
     fn i640(&self) -> i64 {
         usize_2_i64(*self )
+    }
+}
+#[cfg(feature="tam")] 
+impl turn_2_i64 for &str{
+    fn i640(&self) -> i64 {
+        match i64::from_str_radix(self, 10){ 
+            Ok(i) => i,
+            _ => {errMsg0("i640: no number was gotten."); i64::MIN }
+        }
+    }
+}
+#[cfg(feature="tam")] 
+impl turn_2_i64 for String{
+    fn i640(&self) -> i64 {
+        match i64::from_str_radix(self, 10){ 
+            Ok(i) => i,
+            _ => {errMsg0("i640: no number was gotten."); i64::MIN }
+        }
+    }
+}
+#[cfg(feature="tam")] 
+impl turn_2_i64 for &String{
+    fn i640(&self) -> i64 {
+        match i64::from_str_radix(self, 10){ 
+            Ok(i) => i,
+            _ => {errMsg0("i640: no number was gotten."); i64::MIN }
+        }
     }
 }
 pub(crate) trait turn_2_usize {
