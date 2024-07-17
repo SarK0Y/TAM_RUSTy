@@ -131,7 +131,10 @@ pub(crate) fn term_rm(cmd: &String){
     all_files = if all_files == ""{ to} else { format! ("{} {}", all_files, to) };
     let to = "".strn();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    let mut all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    if vec_files.len() > 1{
+        all_files = vec_2_strn_multilined(&vec_files, 0);
+    }
     all_files = all_files.replace(r"//", r"/").strn(); ending("rm");
     all_to_patch(&(vec_files, to.clone() ));
     let dummy_file = mk_dummy_file();
