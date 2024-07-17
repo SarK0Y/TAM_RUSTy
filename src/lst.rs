@@ -9,7 +9,7 @@ use std::borrow::Borrow;
 use std::panic;
 use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 use crate::update18::delay_ms;
-use crate::{helpful_math_ops, run_cmd_out_sync, save_file0, set_prnt, tailOFF, turn_2_i64};
+use crate::{helpful_math_ops, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -88,12 +88,15 @@ pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), N
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
-    let finally_to =to.clone();
+    let mut finally_to =to.clone();
    /*/ let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    }
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -106,9 +109,13 @@ pub(crate) fn term_mv(cmd: &String){
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
-    let finally_to =to.clone();
+    let mut from = all_files.clone();
+    let mut finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    }
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
@@ -116,6 +123,7 @@ pub(crate) fn term_cp(cmd: &String){
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
+    lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
 }
 pub(crate) fn term_rm(cmd: &String){
     let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
@@ -123,7 +131,7 @@ pub(crate) fn term_rm(cmd: &String){
     all_files = if all_files == ""{ to} else { format! ("{} {}", all_files, to) };
     let to = "".strn();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let mut all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
     all_files = all_files.replace(r"//", r"/").strn(); ending("rm");
     all_to_patch(&(vec_files, to.clone() ));
     let dummy_file = mk_dummy_file();
@@ -251,6 +259,16 @@ pub(crate) fn lines_2_vec(strn: &String) -> Vec<String>{
         ret.push(line.trim_end().trim_start().to_string())
     }
     ret
+}
+pub(crate) fn lst_copied(all: String, to: String){
+    let lines = all.lines();
+    if crate::Path::new(&to).is_dir(){
+        for line in lines{
+            let mut line0 = line.strn(); line0.strip_all_symbs();
+            tailOFF(&mut line0, "/");
+            save_file_append_newline(format!("{to}/{line0}").replace("//", "/").strn(), "copied".strn());
+        } return;
+    } save_file_append_newline(to, "copied".strn());
 }
 pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
     let mut ret = Vec::<String>::new();

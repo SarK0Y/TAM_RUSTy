@@ -683,6 +683,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "history" => return take_list_adr("history"),
         "mae" => return take_list_adr("mae"),
         "decrypted" => return take_list_adr("decrypted"),
+        "copied" => return take_list_adr("copied"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
     }
 }
@@ -698,6 +699,7 @@ pub(crate) fn take_list_adr_len(name: &str) -> String{
         "history" => return take_list_adr("history.len"),
         "mae" => return take_list_adr("mae.len"),
         "decrypted" => return take_list_adr("decrypted.len"),
+        "copied" => return take_list_adr("copied.len"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.len"))),
     }
 }
@@ -713,6 +715,7 @@ pub(crate) fn take_list_adr_pg(name: &str) -> String{
         "history" => return take_list_adr("history.pg"),
         "mae" => return take_list_adr("mae.pg"),
         "decrypted" => return take_list_adr("decrypted.pg"),
+        "copied" => return take_list_adr("copied.pg"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.pg"))),
     }
 }
