@@ -20,6 +20,17 @@ pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String{
   if unsafe { bkp.get() == None } {return "".strn()}
   crate::C!(bkp.get().expect("bkp_tmp_dir failed").to_string())
 }
+pub(crate) fn bkp_main_path(sav: Option<String>, set: bool) -> String{
+    static mut bkp: OnceCell<String> = OnceCell::new();
+  if crate::C!(bkp.get()) == None && set{
+    let fst: String = sav.unwrap_or(unsafe{crate::page_struct("", crate::MAINPATH_, -75811245).str_});
+    let ret = fst.clone();
+    crate::C!(bkp.set(fst));
+    return ret;
+  }
+  if unsafe { bkp.get() == None } {return "".strn()}
+  crate::C!(bkp.get().expect("bkp_main_path failed").to_string())
+}
 pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
     static mut tam: OnceCell<String> = OnceCell::new();
   if crate::C!(tam.get()) == None && set_dir.is_some(){
@@ -115,6 +126,7 @@ if !Path::new(&mainpath).exists(){
     return false;
 }
 crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
+bkp_main_path(Some(mainpath), true);
 let mut path_2_shm = "";
 while true{
     

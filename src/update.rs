@@ -1,4 +1,6 @@
-use crate::{basic, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
+use ps0::get_mainpath;
+
+use crate::{basic, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 use std::time::Instant;
@@ -257,6 +259,10 @@ pub(crate) fn fix_screen_count_n_delay(num: usize, delay: u64){
     });
 }
 pub(crate) fn alive_session(){
+    let main_path_alive = format!("{}/alive", crate::core18::bkp_main_path(None, false) );
+    let shm_alive = take_list_adr("alive");
+    mk_empty_file(&shm_alive);
+    std::os::unix::fs::symlink(shm_alive, main_path_alive);
 spawn(||{
     loop {
         let timestamp = std::time::SystemTime::now();
