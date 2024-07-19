@@ -249,6 +249,8 @@ pub trait fs_tools {
     fn unreel_link_to_file(&mut self) -> Self;
 #[cfg(feature="tam")]
     fn unreel_link_to_file0(&mut self) -> Self;
+#[cfg(feature="tam")]
+    fn __unreel_link_to_file(&mut self) -> Self;
 }
 impl fs_tools for String{
     fn unreel_link_to_file__(&mut self) -> Self{
@@ -264,6 +266,7 @@ impl fs_tools for String{
     }
 #[cfg(feature="tam")]
     fn unreel_link_to_file(&mut self) -> Self{
+        let mut prime_path = self.clone();
         if *self == ""{return "".strn() }
         let mut run = true;
         while run{
@@ -272,11 +275,27 @@ impl fs_tools for String{
                 _ => {run = false;}
             }
         }
-      if !std::path::Path::new(self).exists() && *self != ""{
-        let mut prime_path = self.clone();
+     /* if !std::path::Path::new(self).exists() && *self != ""{
         crate::core18::tailOFF(&mut prime_path, "/");
         prime_path = crate::globs18::take_list_adr_env(&prime_path);
-        return prime_path.unreel_link_to_file__();}
+        return prime_path.unreel_link_to_file__();}*/
+        self.strn()
+    }
+#[cfg(feature="tam")]
+    fn __unreel_link_to_file(&mut self) -> Self{
+        let mut prime_path = self.clone();
+        if *self == ""{return "".strn() }
+        let mut run = true;
+        while run{
+            match std::fs::read_link(& self){
+                Ok(ln) => {*self = ln.to_str().unwrap().strn();},
+                _ => {run = false;}
+            }
+        }
+     /* if !std::path::Path::new(self).exists() && *self != ""{
+        crate::core18::tailOFF(&mut prime_path, "/");
+        prime_path = crate::globs18::take_list_adr_env(&prime_path);
+        return prime_path.unreel_link_to_file__();}*/
         self.strn()
     }
 #[cfg(feature="tam")]

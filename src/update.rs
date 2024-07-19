@@ -1,6 +1,10 @@
 use ps0::get_mainpath;
 
-use crate::{basic, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, KonsoleTitle, ManageLists, STRN};
+use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, 
+    exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, 
+    popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, 
+    swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists,
+custom_traits::{STRN, fs_tools}}; 
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 use std::time::Instant;
@@ -282,7 +286,6 @@ pub(crate) fn clean_dead_tams(){
         Ok(cmd) => cmd, _ => return errMsg0("Failed to get list of dead tams")
     };
     let build_stdout = String::from_utf8_lossy(&run_cmd.stdout);
-    dbg!(&build_stdout);
     for ln in build_stdout.lines(){
         let ln0 = ln;
         let read_alive = format!("{shm_adr}/{ln0}alive" );
@@ -300,6 +303,32 @@ pub(crate) fn clean_dead_tams(){
                 let mut dead_tam = format!("{shm_adr}/{}", ln);
                 crate::forced_rm_dir(&mut dead_tam);
         }
+    } //std::thread::spawn(||{clean_main_path()} );
+   clean_main_path();
+}
+pub(crate) fn clean_main_path(){
+    let mut main_path = bkp_main_path(None, false);
+    tailOFF(&mut main_path, "_"); tailOFF(&mut main_path, "/");
+    let find_tams = format!("du {main_path}");
+    let run_cmd = match Command::new("bash").arg("-c").arg(&find_tams).output(){
+        Ok(cmd) => cmd, _ => return errMsg0("Failed to get list of dead tams")
+    };
+    let mut read_alive = "".strn();
+    let build_stdout = String::from_utf8_lossy(&run_cmd.stdout);
+    for ln in build_stdout.lines(){
+        let ln0 = ln.replace("4\t", "").replace("8\t", "");
+        //for x in 0..10{
+         read_alive = read_file_abs_adr(&format!("{ln0}/alive" ).__unreel_link_to_file() );
+        /* if read_alive == ""{delay_ms(1); continue;}
+         break;
+        }*/
+        if read_alive == "" {
+            //errMsg0(&format!("{ln0}/alive" ).__unreel_link_to_file() );
+            let mut dead_tam = crate::get_path_from_strn(format!("{}", ln0));
+            if dead_tam == main_path {return;}
+                crate::forced_rm_dir(&mut dead_tam);
+            } 
+
     }
 }
 //fn
