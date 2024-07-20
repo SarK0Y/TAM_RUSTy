@@ -60,10 +60,16 @@ pub(crate) fn delay_secs(sleep: u64){
 }
 pub(crate) fn prime(){
     crate::initSession();
-    C!(front_list_indx(MAIN0_));
-    C!(set_main0_as_front());
+     let key = "-front-lst";
+    if checkArg(key){
+        let cmd = crate::__get_arg_in_cmd(key);
+        crate::front_lst(&cmd)
+    }else {
+        C!(front_list_indx(MAIN0_));
+        C!(set_main0_as_front());
+        main_update();
+    }
     let mut base = crate::basic::new();
-    main_update();
 println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
 let handler = builder.spawn(move || {
