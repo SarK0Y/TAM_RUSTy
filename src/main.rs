@@ -219,6 +219,7 @@ return match from_utf8(&run_command.stdout){
 }.to_string()
 }
 fn read_midway_data() -> bool{
+    if checkArg("-front-lst"){return read_midway_data_not_main0() }
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
@@ -239,13 +240,47 @@ fn read_midway_data() -> bool{
     if dirty!(){println!("midway ended")}
     false
 }
+fn read_midway_data_not_main0() -> bool{
+    let func_id = func_id18::read_midway_data_;
+    let mut added_indx = 0usize;
+    loop {
+        let stopCode = getStop_code__!();
+        let filename = format!("{}/main0", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let file = File::open(filename).unwrap();
+        let reader = BufReader::new(file);
+    for (indx, line) in reader.lines().enumerate() {
+        if indx <= added_indx && added_indx > 0{continue;}
+        added_indx = indx;
+        let line = line.unwrap();
+        let ret = globs18::add_2_main0_list(&line ); 
+       // let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
+        ps18::set_num_files0(func_id, indx); 
+        if dirty!(){println!("line {indx} {}", line)}
+        if line == stopCode{ps18::fix_num_files(func_id); return true}
+    }  }
+    if dirty!(){println!("midway ended")}
+    false
+}
 //#[inline(always)]
 fn find_files(path: &str, path_2_tmp_file: &str) -> bool{
+    if checkArg("-front-lst"){return find_files_not_main0(path, path_2_tmp_file) }
 let func_id: i64 = 2;
 let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
 /*let mut perms = std::fs::metadata(&output).unwrap().permissions();
 perms.set_readonly(true);
 std::fs::set_permissions(output, perms); return true; */
+let mut in_name = String::new();
+let mut list_of_found_files: Vec<String> = vec![]; 
+if in_name.len() == 0{in_name = core18::put_in_name();}
+else{in_name = format!("|{}", form_grep_cmd(&in_name));}
+let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
+let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f{in_name} >> {};echo '{stopCode}' >> {}", output, output);
+run_cmd0(cmd);
+return true;
+}
+fn find_files_not_main0(path: &str, path_2_tmp_file: &str) -> bool{
+let func_id: i64 = 2;
+let output = format!("{}/main0", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
 let mut in_name = String::new();
 let mut list_of_found_files: Vec<String> = vec![]; 
 if in_name.len() == 0{in_name = core18::put_in_name();}
@@ -264,6 +299,7 @@ for i in 1..args.len(){
 }
 return ret;
 }
+
 fn get_arg_in_cmd(key: &str) -> core18::ret0{
 let mut s: [char; 512] = ['\0'; 512];
 let mut ret: core18::ret0 = core18::ret0{s, res: false};

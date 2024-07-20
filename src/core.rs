@@ -192,11 +192,6 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
         let link = __get_arg_in_cmd(key);
         link_lst_to(&key.substring(1, key.len()).strn(), &link);
     }
-    let key = "-front-lst";
-    if checkArg(key){
-        let cmd = __get_arg_in_cmd(key);
-        front_lst(&cmd)
-    }
     link_ext_lsts();
     alive_session();
     return true;

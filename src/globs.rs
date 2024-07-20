@@ -1,6 +1,6 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync};
+use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync, save_file_append_newline};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
 swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
@@ -350,7 +350,9 @@ pub fn add_2_front_list(val: &str, func_id: i64) -> String{
     return unsafe{lists(val, list_id.0, 0, ADD)}
 }
 pub fn add_2_main0_list(val: &str) -> String{
-    return unsafe{lists(val, MAIN0_, 0, ADD)}
+   return unsafe{lists(val, MAIN0_, 0, ADD)}
+   // save_file_append_newline(val.strn(), "main0".strn());
+   // val.strn()
 }
 pub fn len_of_main0_list() -> String{
     let fst_var = unsafe{lists("", MAIN0_, 0, LEN)};
