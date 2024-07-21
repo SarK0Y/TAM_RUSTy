@@ -832,6 +832,30 @@ pub(crate) fn save_file_append_newline_abs_adr(content: String, fname: String) -
     file.write(content.as_bytes()).expect("save_file failed");
     true
 }
+pub(crate) fn save_file_append_newline_abs_adr_fast(content: &String, fname: &String) -> bool{
+    let cmd = format!("touch -f {fname}");
+    let content = format!("{}\n", content);
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => File::options().create_new(true).write(true).open(&fname).unwrap()
+    }}};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
 pub(crate) fn read_file(fname: &str) -> String{
     let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
     //let err = format!("failed to read {}", fname);
