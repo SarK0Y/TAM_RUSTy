@@ -445,11 +445,14 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
     let ln = get_item_from_front_list(ln_num, true);
-    save_file0(ln.strn(), "edit.tmp".strn());
-    let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
+    #[cfg(not(feature = "mae"))] save_file0(ln.strn(), "edit.tmp".strn());
+    #[cfg(feature = "mae" )] let ln_num = crate::globs18::get_proper_indx(ln_num, true).0;
+    #[cfg(feature = "mae" )] save_file0(ln_num.strn(), "edit.ln.tmp".strn());
+    //let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
     set_prnt(&ln, 984419357);
     edit_mode_lst(Some (true) );
 }
+#[cfg(not(feature = "mae"))]
 pub(crate) fn edit_ln_in_lst_fin_op(){
     let old_ln = read_file("edit.tmp");
     let mut front_lst = take_list_adr_env("found_files");
@@ -462,6 +465,27 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
     run_cmd_out_sync(cmd.clone());
    // errMsg0(&cmd);
     match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("cmd\n {cmd}\n{e:?}") )};
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
+#[cfg(feature = "mae")]
+pub(crate) fn edit_ln_in_lst_fin_op(){
+    use crate::save_file_append_newline_abs_adr_fast; use crate::custom_traits::STRN_usize;
+    let ln_num = read_file("edit.ln.tmp").usize0();
+    let mut front_lst = take_list_adr_env("found_files");
+    delay_ms(112);
+    front_lst = front_lst.unreel_link_to_file();
+    let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
+    edit_mode_lst(Some (false) );
+    let new_ln = crate::read_prnt();
+    let mut front_lst_tmp = front_lst.clone(); front_lst_tmp.push_str(".tmp");
+    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); return}};
+    let mut reader = crate::BufReader::new(open_front_lst);
+    for (indx, ln) in reader.lines().enumerate(){
+        if indx == ln_num {save_file_append_newline_abs_adr_fast(&new_ln, &front_lst_tmp); continue;}
+        save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
+    }
+   // errMsg0(&cmd);
+    match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
     crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{

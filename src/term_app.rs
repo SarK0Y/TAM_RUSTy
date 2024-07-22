@@ -9,7 +9,7 @@ use crate::custom_traits::{STRN, helpful_math_ops};
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, get_arg_in_cmd, getkey, is_dir, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
+use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -174,6 +174,7 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     false
 }
 pub(crate) fn term(cmd: &String){
+    if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
     let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();

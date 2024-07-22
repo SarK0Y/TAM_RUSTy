@@ -8,7 +8,7 @@ pub(crate) fn SYS(){
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";
 const Project: &str = "Project: Tiny Automation Manager.";
-pub const Ver: &str = "Ver: 1.9.178";
+pub const Ver: &str = "Ver: 1.9.179";
 const Telega: &str = "TELEGRAM: https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z)";
 const Ru_blog: &str = "ALG0Z RU: https://dzen.ru/alg0z";
 const En_blog: &str = "ALG0Z EN: https://alg0z.blogspot.com";
@@ -148,3 +148,10 @@ pub(crate) fn KonsoleTitle(title: &String){
     .output();
     std::io::stdout().write_all(&writeTermTitle.unwrap().stdout);
 }
+pub fn ver(){
+    use crate::custom_traits::STRN;
+    let mae = if cfg!(feature = "mae"){ "mae".strn() } else { "".strn() };
+    let val: String = format!("{} {}", crate::info::Ver, mae);
+    crate::set_ask_user(&val, 30050017);
+}
+//fn

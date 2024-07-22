@@ -44,7 +44,7 @@ pub(crate) fn Enter(){
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH{mode = crate::swtch::SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
     history_buffer(Some(prnt), 0, false);
-    if crate::lst::edit_mode_lst(None){crate::lst::edit_ln_in_lst_fin_op()}
+    if crate::lst::edit_mode_lst(None){stop_term_msg(); crate::lst::edit_ln_in_lst_fin_op();}
 }
 pub(crate) fn Ins_key() -> String{
     stop_term_msg();

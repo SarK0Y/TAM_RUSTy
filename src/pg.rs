@@ -437,7 +437,7 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::del_ln_from_lst(&cmd); return;}
     let cmd0 = "edit ";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::edit_ln_in_lst(&cmd); return;} 
-    if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
+    if cmd.as_str().substring(0, 3) == "ver"{crate::ver(); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
 #[cfg(feature="in_dbg")]
