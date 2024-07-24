@@ -186,7 +186,8 @@ pub(crate) fn term(cmd: &String){
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-    run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
+    let (_, cmd) = split_once(&cmd, " ");
+    run_term_app(cmd.trim_start().trim_end().strn());
 }
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){
