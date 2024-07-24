@@ -245,6 +245,20 @@ pub(crate) fn F8_key() {
     set_prnt(&ln, 999714);
 
 }
+pub fn shift_f3_cut_off_tail_of_prnt(){
+    let func_id = 78444418691;
+     let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+     let prnt = read_prnt();
+     let prnt = prnt.substring(0, cur_cur_pos ).strn();
+     set_prnt(&prnt, func_id);
+     END_KEY();
+}
+pub fn END_KEY(){
+    let func_id = 319715461;
+     unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
+       let pos = read_prnt().len();
+       set_cur_cur_pos(crate::usize_2_i64(pos), func_id);
+}
 pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::Sub<Output=T> + std::cmp::PartialOrd{
     if fst > nd{return fst - nd;}
     return nd - fst

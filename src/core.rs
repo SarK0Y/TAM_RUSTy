@@ -3,6 +3,7 @@
 mod exts;
 use exts::*;
 use once_cell::sync::Lazy;
+use termios::ISIG;
 //use gag::RedirectError;
 
 use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
@@ -416,13 +417,15 @@ return true;
 pub(crate) fn getkey() -> String{
 let mut Key: String ="".to_string();
 let xccnt = unsafe{exec_cmd_cnt(false)};
- let mut stdin = io::stdin();
+ let mut stdin = io::stdin().lock();
     let stdin_fd = 0;
     let mut stdout = io::stdout(); 
-    let mut stdin_buf: [u8; 6] =[0;6];
+    let mut stdin_buf: [u8; 16] =[0;16];
+    let mut stdin_buf0: [u8; 1] =[1;1];
     let termios = match Termios::from_fd(stdin_fd){Ok(t) => t, _ => return "".to_string()};
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap(); 
+    //new_termios.c_lflag &= !(ICANON | ECHO | ISIG); 
     new_termios.c_lflag &= !(ICANON | ECHO); 
     let enter = ||
 {
@@ -436,16 +439,31 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
         Err(e) => {format!("{}", e)},
         Ok(len) => {format!("kkkkkkkkkkk {:#?}", len)}
     };
-    let red_stdin = stdin.read(&mut stdin_buf);
+    let red_stdin = match stdin.read(&mut stdin_buf) {Ok(red) => red, Err(e) => {errMsg0(&format!("{e:?}")); return "".strn()} };
     //stdout.lock().flush().unwrap();
+    let mut j = 1usize;
+   /* stdin.read(&mut stdin_buf0);
+    if stdin_buf0[0] == b'\x1b'{
+    stdin_buf[0] = stdin_buf0[0];
+        while stdin_buf0[0] != 0 && j < 8 {
+            stdin.read(&mut stdin_buf0);
+            stdin_buf[j] = stdin_buf0[0];
+            j.inc();
+        }
+        dbg!(stdin_buf);
+} else {
+    popup_msg("jj");
+    stdin.read(&mut stdin_buf[1..]);
+    stdin_buf[0] = stdin_buf0[0];
+}*/
     end_termios(&termios);
-    if crate::dirty!() {println!("len of red {:?}", red_stdin.unwrap());}
+    //if crate::dirty!() {println!("len of red {:?}", red_stdin);}
     let str0 = match str::from_utf8(&stdin_buf){
         Ok(s) => s,
         _ => ""
     };
     let msg = format!("getch {} {:?}", str0, stdin_buf);
-    if stdin_buf != [0; 6]{
+    if stdin_buf != [0; 16]{
         let mut i = 0;
         loop{
             let ch = match str0.chars().nth(i){
