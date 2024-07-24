@@ -263,6 +263,18 @@ pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) ->
     ////println!("ret {}", ret);
     ret
 }
+pub fn ins_patch_to_string(indx: usize, origString: String, patch: &String) -> String{
+    let mut len = origString.chars().count(); 
+    //if len == 0 || len == 1 || indx == len -1 {return origString.to_string();}
+     let mut ret = String::new();    
+    if crate::dirty!(){
+    let msg = format!("'ins_patch_to_string indx {} orig{} char0 {} orig len {}'", indx, origString, patch, len);
+    //run_cmd0(&msg);
+    println!("{}", &msg);
+    }
+    ret  = format!("{}{}{}", origString.substring(0, indx), patch, origString.substring(indx, len));
+    ret
+}
 pub fn ins_last_char_to_string1_from_string1_ptr(indx: usize, origString: &mut String) {
     let mut len = origString.chars().count(); if len == 0 || len == 1 || indx == len -1 {return}
      let mut ret = String::new();
