@@ -1,4 +1,4 @@
-use crate::{run_cmd_out_sync, getkey, swtch::print_pg_info};
+use crate::{__get_arg_in_cmd, bkp_main_path, checkArg, getkey, run_cmd_out_sync, save_file_append_newline_abs_adr, swtch::print_pg_info};
 
 /*Run it Later or Cancel Now */
 pub(crate) fn rilocan(){
@@ -34,11 +34,19 @@ pub(crate) fn rilocan(){
     }
         let msg = format!("You have run task «{cmd}» for each {sleep0}\nPlease, hit any key to cancel Your task.");
         println!("{}", msg);
+        let main_path = bkp_main_path(None, false);
+        let main_path0 = main_path.clone();
         if now {
             std::thread::spawn(move||{
                 loop {
+                    
+                    let msg = format!("Executed at {}", crate::Local::now() );
+                    println!("{msg}");
                     crate::run_cmd_out(cmd.clone());
-                    println!("Executed at {}", crate::Local::now());
+                    if checkArg("-log"){
+                        let log_adr = __get_arg_in_cmd("-log" );
+                        save_file_append_newline_abs_adr(msg, log_adr); 
+                    }
                     std::thread::sleep(std::time::Duration::from_secs(sleep_val));
                 }
             });
@@ -46,8 +54,13 @@ pub(crate) fn rilocan(){
                std::thread::spawn(move||{
                 loop {
                     std::thread::sleep(std::time::Duration::from_secs(sleep_val));
+                    let msg = format!("Executed at {}", crate::Local::now() );
+                    println!("{msg}");
                     crate::run_cmd_out(cmd.clone());
-                    println!("Executed at {}", crate::Local::now())
+                    if checkArg("-log"){
+                        let log_adr = __get_arg_in_cmd("-log" );
+                        save_file_append_newline_abs_adr(msg, log_adr); 
+                    }
                 }
             });
     }
