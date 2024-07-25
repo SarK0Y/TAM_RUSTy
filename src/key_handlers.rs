@@ -106,6 +106,7 @@ pub(crate) fn key_f12(func_id: i64){
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
     crate::rm_user_written_path(func_id);
     count_ln(false, false, false);
+    END_KEY();
 }
 pub(crate) fn PgDown(){
     let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
