@@ -1,6 +1,6 @@
 use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
 
-use crate::{errMsg0, shift_f3_cut_off_tail_of_prnt};
+use crate::{errMsg0, full_clean_cache, shift_f3_cut_off_tail_of_prnt};
 use crate::globs18::load_bash_history;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
  exts::pg_uses, get_num_page, get_path_from_prnt, get_path_from_strn, getkey, 
@@ -431,6 +431,8 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    let cmd0 = "cl all cache";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0{full_clean_cache(); return;}
     let cmd0 = "clean dead tams";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{clean_dead_tams(); return;}
     let cmd0 = "load bash history";

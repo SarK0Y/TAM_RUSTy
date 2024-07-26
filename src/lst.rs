@@ -497,4 +497,7 @@ pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
     }
     unsafe {state}
 }
+pub fn full_clean_cache(){
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
 //fn
