@@ -86,7 +86,7 @@ pub(crate) fn sieve_list(data: String){
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
+    let cmd = format!("grep {} {} {} > {}", opts, crate::full_escape(&data0), found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
