@@ -8,7 +8,10 @@ use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
 use crate::custom_traits::{STRN, STRN_strip, fs_tools};
-use crate::{helpful_math_ops, run_cmd_out_sync, save_file0, set_prnt, tailOFF, turn_2_i64};
+#[cfg(feature = "mae")]
+use Mademoiselle_Entropia::help_funcs::get_file;
+use crate::update18::delay_ms;
+use crate::{helpful_math_ops, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -87,12 +90,15 @@ pub(crate) fn patch_len() -> usize{ __patch(Some("::patch len::".to_string()), N
 pub(crate) fn term_mv(cmd: &String){
     let cmd = cmd.replace("term mv", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
-    let finally_to =to.clone();
+    let mut finally_to =to.clone();
    /*/ let alt_nl = char::from_u32(0x0a).unwrap();
     let nl = String::from(alt_nl);
     let nl = if crate::globs18::check_char_in_strn(&cmd, alt_nl) == nl{nl}else{"\n".to_string()};*/
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    }
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -105,9 +111,13 @@ pub(crate) fn term_mv(cmd: &String){
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
-    let finally_to =to.clone();
+    let mut from = all_files.clone();
+    let mut finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+    }
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
@@ -115,6 +125,7 @@ pub(crate) fn term_cp(cmd: &String){
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_ren(cmd);
+    lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
 }
 pub(crate) fn term_rm(cmd: &String){
     let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
@@ -123,6 +134,9 @@ pub(crate) fn term_rm(cmd: &String){
     let to = "".strn();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
     let mut all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    if vec_files.len() > 1{
+        all_files = vec_2_strn_multilined(&vec_files, 0);
+    }
     all_files = all_files.replace(r"//", r"/").strn(); ending("rm");
     all_to_patch(&(vec_files, to.clone() ));
     let dummy_file = mk_dummy_file();
@@ -251,6 +265,16 @@ pub(crate) fn lines_2_vec(strn: &String) -> Vec<String>{
     }
     ret
 }
+pub(crate) fn lst_copied(all: String, to: String){
+    let lines = all.lines();
+    if crate::Path::new(&to).is_dir(){
+        for line in lines{
+            let mut line0 = line.strn(); line0.strip_all_symbs();
+            tailOFF(&mut line0, "/");
+            save_file_append_newline(format!("{to}/{line0}").replace("//", "/").strn(), "copied".strn());
+        } return;
+    } save_file_append_newline(to, "copied".strn());
+}
 pub(crate) fn lines_2_vec_no_dirs(strn: &String) -> Vec<String>{
     let mut ret = Vec::<String>::new();
     let mut paths = strn.to_string();
@@ -333,8 +357,10 @@ pub(crate) fn manage_lst(cmd: &String){
         let head = read_tail(&item, "/");
         let item = full_escape(&item);
         let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head) );
-        let cmd = format!("ln -sf {item} {link_2_item}");
-        run_cmd0(cmd);
+        if link_2_item != item{
+            let cmd = format!("ln -sf {item} {link_2_item}");
+            run_cmd0(cmd);
+        }
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
@@ -388,6 +414,7 @@ pub(crate) fn mk_lst(cmd: &String){
     let src = take_list_adr_env("found_files").unreel_link_to_file();
     match std::fs::copy(src, dst){Ok(done) => done, Err(e) => return println!("{e:?}")};
 }
+#[cfg(not(feature = "mae"))]
 pub(crate) fn del_ln_from_lst(cmd: &String){
     let ln_num = cmd.replace("del ", "").trim_end().trim_start().i640();
     let ln = get_item_from_front_list(ln_num, true);
@@ -399,24 +426,69 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
     crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
+#[cfg(feature = "mae" )]
+pub(crate) fn del_ln_from_lst(cmd: &String){
+    use crate::{globs18::get_proper_indx, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast};
+
+    let ln_num = cmd.replace("del ", "").trim_end().trim_start().i640();
+    let ln_num = get_proper_indx(ln_num, true);
+    let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
+    let mut front_lst_tmp = front_lst.clone(); front_lst_tmp.push_str(".tmp");
+    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); return}};
+    let mut reader = crate::BufReader::new(open_front_lst);
+    for (indx, ln) in reader.lines().enumerate(){
+        if indx == ln_num.0 {continue;}
+        save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
+    }
+    let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
+    run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
     let ln = get_item_from_front_list(ln_num, true);
-    save_file0(ln.strn(), "edit.tmp".strn());
-    let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
+    #[cfg(not(feature = "mae"))] save_file0(ln.strn(), "edit.tmp".strn());
+    #[cfg(feature = "mae" )] let ln_num = crate::globs18::get_proper_indx(ln_num, true).0;
+    #[cfg(feature = "mae" )] save_file0(ln_num.strn(), "edit.ln.tmp".strn());
+    //let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
     set_prnt(&ln, 984419357);
     edit_mode_lst(Some (true) );
-    crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
+#[cfg(not(feature = "mae"))]
 pub(crate) fn edit_ln_in_lst_fin_op(){
-    let new_ln = crate::read_prnt();
     let old_ln = read_file("edit.tmp");
-    let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
+    let mut front_lst = take_list_adr_env("found_files");
+    delay_ms(112);
+    front_lst = front_lst.unreel_link_to_file();
     let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
     edit_mode_lst(Some (false) );
-    let cmd = format!("cat '{front_lst}'|sed 's/{old_ln}/{new_ln}/g' > {tmp}");
-    run_cmd_out_sync(cmd);
+    let new_ln = crate::read_prnt();
+    let cmd = format!("cat {}|sed 's${}${}$g' > {tmp}", &front_lst, &old_ln, &new_ln);
+    run_cmd_out_sync(cmd.clone());
+   // errMsg0(&cmd);
+    match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("cmd\n {cmd}\n{e:?}") )};
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
+#[cfg(feature = "mae")]
+pub(crate) fn edit_ln_in_lst_fin_op(){
+    use crate::save_file_append_newline_abs_adr_fast; use crate::custom_traits::STRN_usize;
+    let ln_num = read_file("edit.ln.tmp").usize0();
+    let mut front_lst = take_list_adr_env("found_files");
+    delay_ms(112);
+    front_lst = front_lst.unreel_link_to_file();
+    let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
+    edit_mode_lst(Some (false) );
+    let new_ln = crate::read_prnt();
+    let mut front_lst_tmp = front_lst.clone(); front_lst_tmp.push_str(".tmp");
+    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); return}};
+    let mut reader = crate::BufReader::new(open_front_lst);
+    for (indx, ln) in reader.lines().enumerate(){
+        if indx == ln_num {save_file_append_newline_abs_adr_fast(&new_ln, &front_lst_tmp); continue;}
+        save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
+    }
+   // errMsg0(&cmd);
     match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
     static mut state: bool = false;
@@ -424,5 +496,8 @@ pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
         unsafe {state = x}
     }
     unsafe {state}
+}
+pub fn full_clean_cache(){
+    crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 //fn

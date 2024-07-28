@@ -44,7 +44,7 @@ pub(crate) fn Enter(){
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH{mode = crate::swtch::SWTCH_RUN_VIEWER}
     crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
     history_buffer(Some(prnt), 0, false);
-    if crate::lst::edit_mode_lst(None){crate::lst::edit_ln_in_lst_fin_op()}
+    if crate::lst::edit_mode_lst(None){stop_term_msg(); crate::lst::edit_ln_in_lst_fin_op();}
 }
 pub(crate) fn Ins_key() -> String{
     stop_term_msg();
@@ -106,6 +106,7 @@ pub(crate) fn key_f12(func_id: i64){
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
     crate::rm_user_written_path(func_id);
     count_ln(false, false, false);
+    END_KEY();
 }
 pub(crate) fn PgDown(){
     let mut cur_cur_pos = crate::i64_2_usize(get_cur_cur_pos(74444418691));
@@ -244,6 +245,20 @@ pub(crate) fn F8_key() {
     }
     set_prnt(&ln, 999714);
 
+}
+pub fn shift_f3_cut_off_tail_of_prnt(){
+    let func_id = 78444418691;
+     let cur_cur_pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+     let prnt = read_prnt();
+     let prnt = prnt.substring(0, cur_cur_pos ).strn();
+     set_prnt(&prnt, func_id);
+     END_KEY();
+}
+pub fn END_KEY(){
+    let func_id = 319715461;
+     unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
+       let pos = read_prnt().len();
+       set_cur_cur_pos(crate::usize_2_i64(pos), func_id);
 }
 pub(crate) fn delta <T>(fst: T, nd: T) -> T where T: PartialEq + Eq + std::ops::Sub<Output=T> + std::cmp::PartialOrd{
     if fst > nd{return fst - nd;}

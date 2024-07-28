@@ -1,7 +1,10 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{bkp_tmp_dir, complete_path, cpy_str, file_prnt, func_id18, get_path_from_strn, globs18::{len_of_front_list, take_list_adr}, helpful_math_ops, i64_2_usize, read_front_list, read_front_list_but_ls, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
+use crate::{bkp_tmp_dir, complete_path, cpy_str, file_prnt, func_id18, get_path_from_strn, 
+  globs18::{ins_patch_to_string, len_of_front_list, take_list_adr}, helpful_math_ops, i64_2_usize, read_front_list, read_front_list_but_ls, 
+  read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, 
+  swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, custom_traits::STRN};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -117,8 +120,9 @@ pub(crate) fn INS(val: &str) -> bool{
         if prnt0 != "none"{break 'ret prnt0.as_str()}
       } };
       string1.push_str(prnt);
-      string1.push_str(val);
-      let new_string = crate::globs18::ins_last_char_to_string1_from_string1(cur_cur_pos, string1);
+      let new_string = if val.len() > 1{ ins_patch_to_string(cur_cur_pos, string1, &val.strn()) }
+      else {string1.push_str(val);
+      crate::globs18::ins_last_char_to_string1_from_string1(cur_cur_pos, string1)};
       //loop {
           set_prnt(&new_string, func_id);
           //set_ask_user(&new_string, func_id);

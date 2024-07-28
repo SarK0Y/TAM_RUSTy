@@ -1,6 +1,6 @@
 use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
 
-use crate::errMsg0;
+use crate::{errMsg0, full_clean_cache, shift_f3_cut_off_tail_of_prnt};
 use crate::globs18::load_bash_history;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
  exts::pg_uses, get_num_page, get_path_from_prnt, get_path_from_strn, getkey, 
@@ -144,6 +144,14 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
        crate::F9_key();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::Alt_F12, Key.as_str()) == 0 {
+       popup_msg("Alt_F12");
+        return "dontPass".to_string();
+    }
+    if crate::globs18::eq_ansi_str(&kcode::Shift_F3, Key.as_str()) == 0 {
+       shift_f3_cut_off_tail_of_prnt();
+        return "dontPass".to_string();
+    }
     if crate::globs18::eq_ansi_str(&kcode::F8, Key.as_str()) == 0 {
        crate::F8_key();
         return "dontPass".to_string();
@@ -171,9 +179,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
-    unsafe {shift_cursor_of_prnt(i64::MAX, None, func_id).shift};
-       let pos = read_prnt().len();
-       set_cur_cur_pos(usize_2_i64(pos), func_id);
+        crate::END_KEY();
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::INSERT, Key.as_str()) == 0 {
@@ -425,6 +431,8 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+    let cmd0 = "cl all cache";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0{full_clean_cache(); return;}
     let cmd0 = "clean dead tams";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{clean_dead_tams(); return;}
     let cmd0 = "load bash history";
@@ -437,7 +445,7 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::del_ln_from_lst(&cmd); return;}
     let cmd0 = "edit ";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::edit_ln_in_lst(&cmd); return;} 
-    if cmd.as_str().substring(0, 3) == "ver"{set_ask_user(crate::info::Ver, 30050017); return;}
+    if cmd.as_str().substring(0, 3) == "ver"{crate::ver(); return;}
     if cmd.as_str().substring(0, 4) == "info"{info1(); return;}
     if cmd.as_str().substring(0, 5) == "key::"{switch_cmd_keys(&cmd); return;}
 #[cfg(feature="in_dbg")]

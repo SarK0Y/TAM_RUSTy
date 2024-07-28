@@ -9,7 +9,7 @@ use crate::custom_traits::{STRN, helpful_math_ops};
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode, save_file_append_newline};
+use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -174,6 +174,7 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     false
 }
 pub(crate) fn term(cmd: &String){
+    if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
     let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
@@ -185,7 +186,8 @@ pub(crate) fn term(cmd: &String){
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-    run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
+    let (_, cmd) = split_once(&cmd, " ");
+    run_term_app(cmd.trim_start().trim_end().strn());
 }
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){
@@ -252,6 +254,9 @@ pub(crate) fn adr_term_msg() -> String{
 pub(crate) fn mk_dummy_file() -> String{
     save_file0("".to_string(), "msgs/term/dummy_file_4_id".to_string());
     take_list_adr("msgs/term/dummy_file_4_id")
+}
+pub(crate) fn mk_empty_file(name: &String){
+    save_file_abs_adr0("".strn(), name.strn());
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();

@@ -1,6 +1,6 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync};
+use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync, save_file_append_newline};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
 swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
@@ -86,7 +86,7 @@ pub(crate) fn sieve_list(data: String){
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
-    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
+    let cmd = format!("grep {} {} {} > {}", opts, crate::full_escape(&data0), found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
@@ -263,6 +263,18 @@ pub fn ins_last_char_to_string1_from_string1(indx: usize, origString: String) ->
     ////println!("ret {}", ret);
     ret
 }
+pub fn ins_patch_to_string(indx: usize, origString: String, patch: &String) -> String{
+    let mut len = origString.chars().count(); 
+    //if len == 0 || len == 1 || indx == len -1 {return origString.to_string();}
+     let mut ret = String::new();    
+    if crate::dirty!(){
+    let msg = format!("'ins_patch_to_string indx {} orig{} char0 {} orig len {}'", indx, origString, patch, len);
+    //run_cmd0(&msg);
+    println!("{}", &msg);
+    }
+    ret  = format!("{}{}{}", origString.substring(0, indx), patch, origString.substring(indx, len));
+    ret
+}
 pub fn ins_last_char_to_string1_from_string1_ptr(indx: usize, origString: &mut String) {
     let mut len = origString.chars().count(); if len == 0 || len == 1 || indx == len -1 {return}
      let mut ret = String::new();
@@ -350,7 +362,9 @@ pub fn add_2_front_list(val: &str, func_id: i64) -> String{
     return unsafe{lists(val, list_id.0, 0, ADD)}
 }
 pub fn add_2_main0_list(val: &str) -> String{
-    return unsafe{lists(val, MAIN0_, 0, ADD)}
+   return unsafe{lists(val, MAIN0_, 0, ADD)}
+   // save_file_append_newline(val.strn(), "main0".strn());
+   // val.strn()
 }
 pub fn len_of_main0_list() -> String{
     let fst_var = unsafe{lists("", MAIN0_, 0, LEN)};
@@ -683,6 +697,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "history" => return take_list_adr("history"),
         "mae" => return take_list_adr("mae"),
         "decrypted" => return take_list_adr("decrypted"),
+        "copied" => return take_list_adr("copied"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
     }
 }
@@ -698,6 +713,7 @@ pub(crate) fn take_list_adr_len(name: &str) -> String{
         "history" => return take_list_adr("history.len"),
         "mae" => return take_list_adr("mae.len"),
         "decrypted" => return take_list_adr("decrypted.len"),
+        "copied" => return take_list_adr("copied.len"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.len"))),
     }
 }
@@ -713,6 +729,7 @@ pub(crate) fn take_list_adr_pg(name: &str) -> String{
         "history" => return take_list_adr("history.pg"),
         "mae" => return take_list_adr("mae.pg"),
         "decrypted" => return take_list_adr("decrypted.pg"),
+        "copied" => return take_list_adr("copied.pg"),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst_opts/{name}.pg"))),
     }
 }

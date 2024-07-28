@@ -3,9 +3,10 @@
 mod exts;
 use exts::*;
 use once_cell::sync::Lazy;
+use termios::ISIG;
 //use gag::RedirectError;
 
-use crate::{cached_ln_of_found_files, custom_traits::{fs_tools, STRN}, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
+use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -19,6 +20,17 @@ pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String{
   }
   if unsafe { bkp.get() == None } {return "".strn()}
   crate::C!(bkp.get().expect("bkp_tmp_dir failed").to_string())
+}
+pub(crate) fn bkp_main_path(sav: Option<String>, set: bool) -> String{
+    static mut bkp: OnceCell<String> = OnceCell::new();
+  if crate::C!(bkp.get()) == None && set{
+    let fst: String = sav.unwrap_or(unsafe{crate::page_struct("", crate::MAINPATH_, -75811245).str_});
+    let ret = fst.clone();
+    crate::C!(bkp.set(fst));
+    return ret;
+  }
+  if unsafe { bkp.get() == None } {return "".strn()}
+  crate::C!(bkp.get().expect("bkp_main_path failed").to_string())
 }
 pub(crate) fn shm_tam_dir(set_dir: Option<String>) -> String{
     static mut tam: OnceCell<String> = OnceCell::new();
@@ -115,6 +127,7 @@ if !Path::new(&mainpath).exists(){
     return false;
 }
 crate::C!(crate::page_struct(&mainpath, set(ps21::MAINPATH_), func_id));
+bkp_main_path(Some(mainpath), true);
 let mut path_2_shm = "";
 while true{
     
@@ -170,6 +183,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
+     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_id");
+    crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/msgs/basic/cache");
@@ -182,6 +197,7 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     }
     link_ext_lsts();
     alive_session();
+    change_dir0();
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String{
@@ -403,13 +419,15 @@ return true;
 pub(crate) fn getkey() -> String{
 let mut Key: String ="".to_string();
 let xccnt = unsafe{exec_cmd_cnt(false)};
- let mut stdin = io::stdin();
+ let mut stdin = io::stdin().lock();
     let stdin_fd = 0;
     let mut stdout = io::stdout(); 
-    let mut stdin_buf: [u8; 6] =[0;6];
+    let mut stdin_buf: [u8; 16] =[0;16];
+    let mut stdin_buf0: [u8; 1] =[1;1];
     let termios = match Termios::from_fd(stdin_fd){Ok(t) => t, _ => return "".to_string()};
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap(); 
+    //new_termios.c_lflag &= !(ICANON | ECHO | ISIG); 
     new_termios.c_lflag &= !(ICANON | ECHO); 
     let enter = ||
 {
@@ -423,16 +441,31 @@ let xccnt = unsafe{exec_cmd_cnt(false)};
         Err(e) => {format!("{}", e)},
         Ok(len) => {format!("kkkkkkkkkkk {:#?}", len)}
     };
-    let red_stdin = stdin.read(&mut stdin_buf);
+    let red_stdin = match stdin.read(&mut stdin_buf) {Ok(red) => red, Err(e) => {errMsg0(&format!("{e:?}")); return "".strn()} };
     //stdout.lock().flush().unwrap();
+    let mut j = 1usize;
+   /* stdin.read(&mut stdin_buf0);
+    if stdin_buf0[0] == b'\x1b'{
+    stdin_buf[0] = stdin_buf0[0];
+        while stdin_buf0[0] != 0 && j < 8 {
+            stdin.read(&mut stdin_buf0);
+            stdin_buf[j] = stdin_buf0[0];
+            j.inc();
+        }
+        dbg!(stdin_buf);
+} else {
+    popup_msg("jj");
+    stdin.read(&mut stdin_buf[1..]);
+    stdin_buf[0] = stdin_buf0[0];
+}*/
     end_termios(&termios);
-    if crate::dirty!() {println!("len of red {:?}", red_stdin.unwrap());}
+    //if crate::dirty!() {println!("len of red {:?}", red_stdin);}
     let str0 = match str::from_utf8(&stdin_buf){
         Ok(s) => s,
         _ => ""
     };
     let msg = format!("getch {} {:?}", str0, stdin_buf);
-    if stdin_buf != [0; 6]{
+    if stdin_buf != [0; 16]{
         let mut i = 0;
         loop{
             let ch = match str0.chars().nth(i){
@@ -797,6 +830,30 @@ pub(crate) fn save_file_append_abs_adr(content: String, fname: String) -> bool{
     true
 }
 pub(crate) fn save_file_append_newline_abs_adr(content: String, fname: String) -> bool{
+    let cmd = format!("touch -f {fname}");
+    let content = format!("{}\n", content);
+    //run_cmd_str(cmd.as_str());
+    let anew_file = || -> File{return match File::options().create_new(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => File::options().create_new(true).write(true).open(&fname).unwrap()
+    }}};
+    let existing_file = || -> File{
+        let timestamp = Local::now();
+        let fname = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f")); return File::options().create_new(true).write(true).open(&fname).expect(&fname)};
+    let mut file: File = match File::options().create(false).read(true).append(true).write(true).open(&fname){
+        Ok(f) => f,
+        Err(e) => match e.kind(){
+            std::io::ErrorKind::NotFound => anew_file(),
+            std::io::ErrorKind::AlreadyExists => File::options().read(true).append(true).write(true).open(&fname).unwrap(),
+            _ => existing_file()
+        }
+    };
+    file.write(content.as_bytes()).expect("save_file failed");
+    true
+}
+pub(crate) fn save_file_append_newline_abs_adr_fast(content: &String, fname: &String) -> bool{
     let cmd = format!("touch -f {fname}");
     let content = format!("{}\n", content);
     //run_cmd_str(cmd.as_str());
