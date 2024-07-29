@@ -91,7 +91,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let front_list = read_front_list();
      let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
         let found_files = format!("{tmp_dir}/found_files");
-        let uid = get_uid_cache(&found_files);
+        let mut uid = get_uid_cache(&front_list);
         let cached_list = format!("cache/{uid}.{num_pg}");
         let is_cached = take_list_adr(&cached_list);
     let num_pg0 = if num_pg == 0{0}else{num_pg -1};
@@ -314,22 +314,22 @@ pub fn set_uid_cache(lst_name: &String){
 pub fn get_uid_cache(lst_name: &String) -> String {
     use crate::read_file_abs_adr;
     let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
-    let uid = read_file_abs_adr(&uid_adr); uid
+    let uid = read_file_abs_adr(&uid_adr); if uid == "" {return lst_name.strn() } uid
 }
 #[cfg(feature = "mae")]
 pub fn upd_uids_for_lsts(){
     use crate::{get_path_from_strn, globs18::take_list_adr_env, read_tail, split_once};
-
     let decoded_prnt = crate::read_file("decoded_prnt");
     let mut cont = true;
     while cont {
-       let (cmd, decoded_prnt) = split_once(decoded_prnt, ";");
-       if decoded_prnt == "" { cont = false }
-       let (_, cmd) = split_once(cmd, ">");
+       let (cmd, decoded_prnt) = split_once( &decoded_prnt, ";");
+       if decoded_prnt == "none" { cont = false }
+       let (_, cmd) = split_once(&cmd, ">");
        let adr = get_path_from_strn(cmd);
-       let check_adr = take_list_adr_env( read_tail(adr, "/") );
+       let lst = read_tail(&adr, "/");
+       let check_adr = take_list_adr_env( &lst );
        if check_adr != adr {continue;}
-       
+       set_uid_cache(&lst);
     }
 }
 //fn

@@ -442,7 +442,7 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     }
     let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
-    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+    //crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
@@ -488,7 +488,7 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
     }
    // errMsg0(&cmd);
     match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
-    crate::clean_all_cache(); clean_fast_cache(Some(true) );
+    //crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
     static mut state: bool = false;

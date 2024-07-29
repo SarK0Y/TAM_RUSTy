@@ -673,15 +673,13 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
 }
 pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
     let mut ret0 = cmd.to_string();
-    let mut count_out = 2;
     loop {
         let ret = decode_sub_cmd(&ret0, "lst::");
-        if ret.1{ret0 = ret.0; continue;}
+        if ret.1{ ret0 = ret.0; continue; }
         {break;}
-        if count_out == 0{break;}
-        count_out.dec();
-    } 
+    }
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
+#[cfg(feature = "mae")] crate::cache::upd_uids_for_lsts();
     ret0    
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
@@ -698,6 +696,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "mae" => return take_list_adr("mae"),
         "decrypted" => return take_list_adr("decrypted"),
         "copied" => return take_list_adr("copied"),
+        "none" => return "/not_existed_at_All".strn(),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
     }
 }
