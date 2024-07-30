@@ -5,6 +5,7 @@ globs18::{seg_size, take_list_adr}, i64_2_usize,
  ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
  where_is_last_pg};
  use once_cell::sync::Lazy;
+ #[cfg(not(feature = "mae"))]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
      let last_pg = where_is_last_pg();
@@ -15,6 +16,83 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
         let found_files = format!("{tmp_dir}/found_files");
         let cached_list = format!("cache/{front_list}.{num_pg}");
+        let is_cached = take_list_adr(&cached_list);
+    let num_pg0 = if num_pg == 0{0}else{num_pg -1};
+    let prev_pg =format!(".{}", num_pg0);
+    let nxt_pg =format!(".{}", num_pg +1);
+    let cur_pg =format!(".{}", num_pg);
+    let nxt_cache = is_cached.replace(&cur_pg, &nxt_pg);
+    let cur_cache = crate::cpy_str(&is_cached);
+    let prev_cache = is_cached.replace(&cur_pg, &prev_pg);
+    if !crate::Path::new(&prev_cache).exists(){
+        //let num_pg = num_pg0;
+        //let cols = cols;
+        //let rows = rows;
+        let found_files = found_files.clone();
+        std::thread::spawn(move||{
+            cache_pg_prev(get_indx, prev_cache, found_files, cols, rows);
+        }).join();
+    }
+    
+        if !crate::Path::new(&is_cached).exists(){
+        let mut recs_on_pg1 = seg_size();
+        let mut recs_on_pg2 = recs_on_pg1*2;
+        let file = match crate::File::open(&found_files){
+            Ok(f) => f,
+            _ => return ln_of_found_files_cacheless(get_indx)
+        };
+        let reader = crate::BufReader::new(file);
+        let mut len = 0usize;
+        let mut ret = (String::new(), 0usize);
+        let mut ret0 = (String::new(), 0usize);
+        let get_indx_offset = get_indx % recs_on_pg1;
+        for (indx, line) in reader.lines().enumerate() {
+            let line0 = line.unwrap_or("".strn() ).as_mut().strn();
+            if indx >= get_indx && recs_on_pg2 > 0{
+                if indx == get_indx_offset{
+                ret = (crate::cpy_str(&line0), indx);}
+                let proper_line = format!("{}\n", line0.clone());
+                if recs_on_pg2 > recs_on_pg1{
+                    save_file_append_abs_adr(proper_line, cur_cache.clone());
+                }else {save_file_append_abs_adr(proper_line, nxt_cache.clone());}
+            recs_on_pg2 -= 1;
+        }   
+         len = indx;
+        }
+        if ret == ret0 {return ("no str gotten".to_string(), len);}
+    }
+        let get_indx_offset = get_indx % seg_size();
+        let base_indx: usize = get_indx - get_indx_offset;
+        let mut get_indx = get_indx;
+        let mut len = 0usize;
+        if get_indx < base_indx {return ("no str gotten".to_string(), len);}
+        get_indx -= base_indx;
+        let dbg = |e: std::io::Error| -> String{save_file(format!("{}\n{:?}", is_cached, e), "dbg_cached".to_string()); return String::new()};
+        let cached_list = is_cached.clone();
+        let file = match crate::File::open(cached_list){
+            Ok(f) => f,
+            Err(e) => return (dbg(e), 0)
+        };
+        let reader = crate::BufReader::new(file);
+    for (indx, line) in reader.lines().enumerate() {
+        if indx == get_indx{let ret = String::from(&line.unwrap()); let ret = crate::rec_from_patch(&ret).unwrap_or(ret); return (ret, indx + base_indx);}
+        len = indx;
+    }
+    let mut ret = ln_of_found_files_cacheless(get_indx); ret.0 = crate::rec_from_patch(&ret.0).unwrap_or(ret.0); len = ret.1;
+    return (ret.0, len);
+}
+#[cfg(feature = "mae")]
+pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
+     let stopCode = crate::getStop_code__!();
+     let last_pg = where_is_last_pg();
+     let num_pg = get_indx / seg_size();//get_num_page(27786521);
+     let cols = get_num_cols(27786521);
+     let rows = crate::get_num_rows(27786521);
+     let front_list = read_front_list();
+     let tmp_dir = crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_);
+        let found_files = format!("{tmp_dir}/found_files");
+        let mut uid = get_uid_cache(&front_list);
+        let cached_list = format!("cache/{uid}.{num_pg}");
         let is_cached = take_list_adr(&cached_list);
     let num_pg0 = if num_pg == 0{0}else{num_pg -1};
     let prev_pg =format!(".{}", num_pg0);
@@ -141,6 +219,7 @@ pub(crate) fn clean_all_cache(){
     std::thread::spawn(||{run_cmd_out(cmd);});
 }
 pub(crate) fn wait_4_empty_cache() -> bool{
+#[cfg(feature = "mae")] return false;
     let cache_dir = take_list_adr("cache/");
     let files = format!("{}*", cache_dir);
     let cmd = format!("rm -f {files}");
@@ -224,5 +303,35 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize, no_ret: bool) ->
     }
     unsafe { *order = vecc};
     item0
+}
+#[cfg(feature = "mae")]
+pub fn set_uid_cache(lst_name: &String){
+    use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid; use crate::save_file_abs_adr;
+    let mut uid = format!("{}_{}", mk_uid(15), lst_name);
+    let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
+    save_file_abs_adr(uid, uid_adr);
+}
+#[cfg(feature = "mae")]
+pub fn get_uid_cache(lst_name: &String) -> String {
+    use crate::read_file_abs_adr;
+    let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
+    let uid = read_file_abs_adr(&uid_adr); if uid == "" {return lst_name.strn() } uid
+}
+#[cfg(feature = "mae")]
+pub fn upd_uids_for_lsts(){
+    use crate::{get_path_from_strn, globs18::take_list_adr_env, read_tail, split_once};
+    let mut decoded_prnt = crate::read_file("decoded_prnt");
+    let mut cont = true;
+    while cont {
+       let (cmd, decoded_prnt0) = split_once( &decoded_prnt, ";");
+       decoded_prnt = decoded_prnt0;
+       if decoded_prnt == "none" { cont = false }
+       let (_, cmd) = split_once(&cmd, ">");
+       let adr = get_path_from_strn(cmd);
+       let lst = read_tail(&adr, "/");
+       let check_adr = take_list_adr_env( &lst );
+       if check_adr != adr {continue;}
+       set_uid_cache(&lst);
+    }
 }
 //fn

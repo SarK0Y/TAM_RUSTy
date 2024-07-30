@@ -55,7 +55,7 @@ pub fn default() -> Self{
 pub fn build_page(&mut self, ps: &mut crate::_page_struct){basic::build_page_(self, ps)}
 /*cache */
 pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){
-  
+ #[cfg(not(feature = "mae"))] 
   if clean_fast_cache(None){self.cache = HashMap::new(); 
     unsafe 
     {crate::basic::mk_fast_cache(&"".strn(), 0, &"".strn(), crate::cache_state::taken);}; return ("".strn(), cached_data::no_list)}

@@ -66,9 +66,9 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
     false
 }
 pub(crate) fn sieve_list(data: String){
-    clean_cache("filter");
-    clean_cache("filter_history");
-    crate::clean_fast_cache(Some(true) );
+    //clean_cache("filter");
+    //clean_cache("filter_history");
+    //crate::clean_fast_cache(Some(true) );
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
@@ -84,6 +84,7 @@ pub(crate) fn sieve_list(data: String){
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
+   #[cfg(feature = "mae")] {let filter_name = format!("filter{history_mode}" ); crate::cache::set_uid_cache(&filter_name);}
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} {} {} > {}", opts, crate::full_escape(&data0), found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
@@ -117,6 +118,7 @@ pub(crate) fn sieve_list0(data: String){
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
+    #[cfg(feature = "mae")] {let filter_name = format!("filter{history_mode}" ); crate::cache::set_uid_cache(&filter_name);}
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);
@@ -673,15 +675,13 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
 }
 pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
     let mut ret0 = cmd.to_string();
-    let mut count_out = 2;
     loop {
         let ret = decode_sub_cmd(&ret0, "lst::");
-        if ret.1{ret0 = ret.0; continue;}
+        if ret.1{ ret0 = ret.0; continue; }
         {break;}
-        if count_out == 0{break;}
-        count_out.dec();
-    } 
+    }
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
+#[cfg(feature = "mae")] crate::cache::upd_uids_for_lsts();
     ret0    
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
@@ -698,6 +698,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String{
         "mae" => return take_list_adr("mae"),
         "decrypted" => return take_list_adr("decrypted"),
         "copied" => return take_list_adr("copied"),
+        "none" => return "/not_existed_at_All".strn(),
         _ => return take_list_adr(&crate::full_escape(&format!("env/lst/{name}"))),
     }
 }

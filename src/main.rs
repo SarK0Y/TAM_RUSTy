@@ -11,8 +11,11 @@
 mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize, take_list_adr};
+use syn::token::Return;
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
+#[cfg(feature ="mae")]
+use Mademoiselle_Entropia::true_rnd::UID_UTF8;
 use_all!();
 
 pub(crate) fn split_once(in_string: &str, delim: &str) -> (String, String) {
@@ -339,6 +342,9 @@ fn main (){
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
     // let mut x = 0u64;
  //   loop{ x += 1;}
+ /*#[cfg(feature ="mae")] let tst = UID_UTF8(15);
+ #[cfg(feature ="mae")]
+ println!("{} {}", tst, tst.chars().count() ); return;*/
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if checkArg("-mk-dummy-file"){

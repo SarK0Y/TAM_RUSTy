@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "1.9.188"
+version = "2.1.17"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -10,6 +10,8 @@ description = "Automation tool to make Console/Terminal more comfy. Have a great
 crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities"]
+[profile.release]
+debug = true
 [dependencies]
 cli-table = "0.4.7"
 once_cell = "1.18.0"

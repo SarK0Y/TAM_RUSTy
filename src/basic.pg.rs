@@ -108,6 +108,7 @@ pub(crate) fn pg_0_cache(cache: &mut crate::cache_t, key: &String){
 pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) -> (String, cached_data){
     let offset = indx % seg_size();
     let seg_num = indx / seg_size();
+#[cfg(feature = "mae")] let key = crate::cache::get_uid_cache(&key);
     let failed = ("no such segment was cached".to_string(), cached_data::no_list);
     let corrupted = ("cache was corrupted".to_string(), cached_data::corrupted);
     match cache.entry(key.to_string()){
@@ -165,6 +166,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
            // popup_msg("basic.pg:161");
             let mut vecc = ret.0.unwrap().clone(); vecc.push(MARKER_OF_ACCESS.strn()); let vecc1 = vecc.clone();
             cache_entry.insert(indx / self.seg_size, vecc);
+#[cfg(feature = "mae")] let front_lst2 = crate::cache::get_uid_cache(&front_lst2);
             match self.cache.entry(front_lst2){
             Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc1); },
             Entry::Vacant(en) => {en.insert(cache_entry);}

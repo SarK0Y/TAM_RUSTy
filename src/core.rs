@@ -183,6 +183,8 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
+     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_id");
+    crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/dummy_lnks");
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/msgs/basic/cache");

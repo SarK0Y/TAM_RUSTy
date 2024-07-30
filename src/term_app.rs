@@ -30,7 +30,8 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //errMsg_dbg(&in_name, func_id, -1.0);
 taken_term_msg();
 let adr_of_term_msg = adr_term_msg();
-let cmd = format!("clear;reset;{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+let pwd = read_file("env/cd");
+let cmd = format!("clear;reset;{cmd} 2>&1;cd {pwd}; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -39,6 +40,7 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
 //let run_command = Command::new(cmd)
     .env("LC_ALL", &lc)
     .env("LANG", lc)
+    .current_dir(pwd)
     .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
