@@ -1,6 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, custom_traits::{helpful_math_ops, STRN}, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
+use crate::{bkp_tmp_dir, cache_t, clean_fast_cache, custom_traits::{helpful_math_ops, STRN}, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
  use once_cell::sync::Lazy;
  #[cfg(not(feature = "mae"))]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
@@ -214,6 +214,7 @@ pub(crate) fn clean_all_cache(){
     let clean_cache = format!("{tmp_dir}/cache/*");
     let cmd = format!("rm -f {clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});
+    clean_fast_cache(Some(true));
 }
 pub(crate) fn wait_4_empty_cache() -> bool{
 #[cfg(feature = "mae")] return false;
@@ -304,7 +305,7 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize, no_ret: bool) ->
 #[cfg(feature = "mae")]
 pub fn set_uid_cache(lst_name: &String){
     use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid; use crate::save_file_abs_adr;
-    let mut uid = format!("{}_{}", mk_uid(15), lst_name);
+    let mut uid = format!("{}_{}", mk_uid(9), lst_name);
     let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
     save_file_abs_adr(uid, uid_adr);
 }

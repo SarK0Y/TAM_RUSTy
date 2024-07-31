@@ -94,7 +94,7 @@ pub(crate) fn swtch_tam_konsole(){
 }
 pub(crate) fn F1_key() -> String{
     let mut prnt: String = read_prnt();
-   crate::globs18::set_main0_as_front();
+   crate::set_front_list2("main0", 1);
    crate::ps18::fix_num_files(-13971);
    crate::clean_cache("main0");
    crate::core18::rm_file(&take_list_adr("msgs/term/state"));
