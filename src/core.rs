@@ -198,6 +198,7 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     link_ext_lsts();
     alive_session();
     change_dir0();
+#[cfg(feature = "mae")] crate::cache::lazy_cache_cleaning(None);
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String{

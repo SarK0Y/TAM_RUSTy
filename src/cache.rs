@@ -1,9 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, custom_traits::{STRN, helpful_math_ops}, errMsg0, get_num_cols, get_num_page, 
-globs18::{seg_size, take_list_adr}, i64_2_usize,
- ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
- where_is_last_pg};
+use crate::{bkp_tmp_dir, cache_t, custom_traits::{helpful_math_ops, STRN}, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
  use once_cell::sync::Lazy;
  #[cfg(not(feature = "mae"))]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
@@ -333,5 +330,17 @@ pub fn upd_uids_for_lsts(){
        if check_adr != adr {continue;}
        set_uid_cache(&lst);
     }
+}
+pub fn lazy_cache_cleaning( delay: Option <u64> ){
+    let mut sleep: u64;
+    if let Some (x) = delay{
+        sleep = x;
+    } else { sleep = 3600 * 15 }
+    std::thread::spawn(move|| {
+        loop {
+            delay_secs(sleep);
+            clean_all_cache();
+        }
+    });
 }
 //fn

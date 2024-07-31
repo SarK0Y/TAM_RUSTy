@@ -140,7 +140,8 @@ pub(crate) fn INS(val: &str) -> bool{
       true
 }
 pub(crate) fn press_DEL(val: &str) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __DEL)}}
-pub(crate) fn press_BKSP() -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __BKSP)}}
+pub(crate) fn press_BKSP() -> page_struct_ret{
+return unsafe{page_struct("prnt", 0, __BKSP)}}
 /*------------------------------------------------------------------------------------------------------------------------ */
 pub(crate) fn get_mainpath(func_id: i64) -> String{return unsafe{page_struct("", MAINPATH_, func_id).str_}}
 pub(crate) fn get_tmp_dir(func_id: i64) -> String{
