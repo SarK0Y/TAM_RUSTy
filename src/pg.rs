@@ -431,6 +431,8 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+   #[cfg(feature = "mae")] let cmd0 = "mk uid";
+   #[cfg(feature = "mae")] if cmd == cmd0{crate::lst::mk_uid(); return;}
     let cmd0 = "cl all cache";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{full_clean_cache(); return;}
     let cmd0 = "clean dead tams";
