@@ -76,3 +76,10 @@ pub(crate) fn mk_dummy_filo(name: &str, content: &str, len: usize){
     file.populate_w_strn(content, len, 40*1024);
     println!("{name} created with length {len}");
 }
+pub(crate) fn mk_empty_fil0(name: &str ){
+    let func_name = "mk_empty_fil0".strn();
+    let name = name.trim_end().trim_end_matches('\0');
+    match std::fs::File::options().write(true).read(true).create_new(true).open(&name){Ok(f) => f,
+                                                         Err(e) => return println!("{func_name} got {e:?}")};
+    let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
+}
