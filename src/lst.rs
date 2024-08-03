@@ -493,6 +493,15 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
     //crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
 #[cfg(feature = "mae")]
+pub fn mrg_as <T> (cmd: T) where T: STRN {
+    let (none0, lst) = split_once(&cmd.strn(), "mrg as ");
+    //errMsg0(&none0);
+   // if none0.trim_end().trim_start() != "" {errMsg0("Correct variant is 'mrg as >> Name of list <<' ")}
+    let lst = take_list_adr_env(&lst.strn() ).trim_end().trim_start().strn();
+    __link_lst_to(&"merge".strn(), &lst );
+
+}
+#[cfg(feature = "mae")]
 pub fn mk_uid(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
     let front_list = read_tail(&front_list, "/");
