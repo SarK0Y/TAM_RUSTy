@@ -109,6 +109,21 @@ impl STRN for str {
         String::from(self)
     }
 }
+impl STRN for &str {
+    fn strn(&self) -> String{
+        String::from(*self) 
+    }
+}
+impl STRN for &String {
+    fn strn(&self) -> String{
+        self.to_string()
+    }
+}
+impl STRN for String {
+    fn strn(&self) -> String{
+        self.to_string()
+    }
+}
 impl STRN for usize {
     fn strn(&self) -> String{
         self.to_string()

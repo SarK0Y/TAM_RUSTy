@@ -697,7 +697,7 @@ for i in 1..args.len(){
         if eq_str(typelog.as_str(), logname) != 0 /*typelog != logname*/{return}
     }
     let logname = format!("logs/{logname}");
-    save_file_append_newline(data.to_string(), logname);
+    save_file_append_newline(data, &logname);
 }}
 }
 pub(crate) fn save_file0(content: String, fname: String) -> bool{
@@ -764,9 +764,9 @@ pub(crate) fn save_file_abs_adr(content: String, fname: String) -> bool{
     file.write(content.as_bytes()).expect("save_file failed");
     true
 }
-pub(crate) fn save_file_append_newline(content: String, fname: String) -> bool{
-    let content = format!("{}\n", content);
-    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname);
+pub(crate) fn save_file_append_newline <T, T1> (content: T, fname: T1) -> bool where T: STRN + ToString, T1: STRN {
+    let content = format!("{}\n", content.strn());
+    let fname = format!("{}/{}", crate::get_tmp_dir(-157), fname.strn());
     let mut dir = fname.clone(); tailOFF(&mut dir, "/");
     let mk_dir = format!("mkdir -p {}", dir);
     run_cmd_str(mk_dir.as_str());
