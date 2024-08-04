@@ -11,7 +11,7 @@ use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::delay_ms;
-use crate::{helpful_math_ops, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
+use crate::{helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -351,7 +351,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
         if match std::fs::metadata
-                       (&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+                       (&item){Ok(it) => it, _ => return empty_lst(&item)}.len() < 2 {empty_lst(&item); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -499,6 +499,17 @@ pub fn mrg_as <T> (cmd: T) where T: STRN {
    // if none0.trim_end().trim_start() != "" {errMsg0("Correct variant is 'mrg as >> Name of list <<' ")}
     let lst = take_list_adr_env(&lst.strn() ).trim_end().trim_start().strn();
     __link_lst_to(&"merge".strn(), &lst );
+}
+pub fn empty_lst <T> (lst: T) where T: STRN {
+#[cfg(feature = "mae")]
+   { mk_empty_file(&lst.strn());
+    if !crate::Path::new(&lst.strn() ).exists(){errMsg0(&format!("Failed to create {}", lst.strn() ) )}
+    let lst0 = read_tail(&lst.strn(), "/");
+    link_lst_to(&lst0, &lst.strn() );
+    __link_lst_to(&"merge".strn(), &lst.strn() );
+    return
+   }
+    errMsg0(&format!("{} is empty", lst.strn() ) );
 
 }
 #[cfg(feature = "mae")]
