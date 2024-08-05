@@ -24,26 +24,33 @@ let fstdout: String;
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
 crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
-let fstderr = crate::File::create(stderr_path).unwrap();
+#[cfg(not(feature = "mae" ))] let fstderr = crate::File::create(stderr_path).unwrap();
+#[cfg(feature = "mae")] crate::mae::mk_empty_fil0(&stderr_path);
+#[cfg(feature = "mae")] use Mademoiselle_Entropia::help_funcs::get_file;
+#[cfg(feature = "mae")] let fstderr = match get_file(&stderr_path){Ok(f) => f, Err(e) => {crate::errMsg0(&format!("{e:?}") ); return false}};
+
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
 taken_term_msg();
 let adr_of_term_msg = adr_term_msg();
-let cmd = format!("clear;reset;{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+let pwd = read_file("env/cd");
+let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
+let err_msg = format!("run_term_app_ren cmd path {path_2_cmd}, fstderr {fstderr:#?}");
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .env("LC_ALL", &lc)
     .env("LANG", lc)
-    .stderr(fstderr)
+   // .current_dir(pwd)
+   // .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
     .spawn()
-    .expect("can't run command in run_term_app_ren");
+    .expect(&err_msg);
 
 let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];

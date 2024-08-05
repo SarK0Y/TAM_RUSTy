@@ -109,6 +109,21 @@ impl STRN for str {
         String::from(self)
     }
 }
+impl STRN for &str {
+    fn strn(&self) -> String{
+        String::from(*self) 
+    }
+}
+impl STRN for &String {
+    fn strn(&self) -> String{
+        self.to_string()
+    }
+}
+impl STRN for String {
+    fn strn(&self) -> String{
+        self.to_string()
+    }
+}
 impl STRN for usize {
     fn strn(&self) -> String{
         self.to_string()
@@ -261,6 +276,8 @@ pub trait fs_tools {
     fn unreel_link_to_file0(&mut self) -> Self;
 #[cfg(feature="tam")]
     fn __unreel_link_to_file(&mut self) -> Self;
+#[cfg(feature="tam")]
+    fn unreel_link_to_depth(&mut self, count_down: u64) -> Self;
 }
 impl fs_tools for String{
     fn unreel_link_to_file__(&mut self) -> Self{
@@ -285,10 +302,6 @@ impl fs_tools for String{
                 _ => {run = false;}
             }
         }
-     /* if !std::path::Path::new(self).exists() && *self != ""{
-        crate::core18::tailOFF(&mut prime_path, "/");
-        prime_path = crate::globs18::take_list_adr_env(&prime_path);
-        return prime_path.unreel_link_to_file__();}*/
         self.strn()
     }
 #[cfg(feature="tam")]
@@ -325,6 +338,20 @@ impl fs_tools for String{
             if std::path::Path::new(&prime_path).exists(){return prime_path.unreel_link_to_file__();}
         }
         self.clone()
+    }
+#[cfg(feature="tam")]
+    fn unreel_link_to_depth(&mut self, count_down: u64) -> Self {
+        if *self == ""{return "".strn() }
+        let mut count_down = count_down;
+        let mut run = true;
+        while run && count_down > 0{
+            match std::fs::read_link(& self){
+                Ok(ln) => {*self = ln.to_str().unwrap().strn();},
+                _ => {run = false;}
+            }
+            count_down.dec();
+        }
+        self.strn()
     }
 }
 #[cfg(feature="tam")]

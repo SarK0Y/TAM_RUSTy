@@ -140,7 +140,8 @@ pub(crate) fn INS(val: &str) -> bool{
       true
 }
 pub(crate) fn press_DEL(val: &str) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __DEL)}}
-pub(crate) fn press_BKSP() -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __BKSP)}}
+pub(crate) fn press_BKSP() -> page_struct_ret{
+return unsafe{page_struct("prnt", 0, __BKSP)}}
 /*------------------------------------------------------------------------------------------------------------------------ */
 pub(crate) fn get_mainpath(func_id: i64) -> String{return unsafe{page_struct("", MAINPATH_, func_id).str_}}
 pub(crate) fn get_tmp_dir(func_id: i64) -> String{
@@ -344,7 +345,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
         let mut new_prnt = crate::globs18::bksp();
         let new_path = get_path_from_strn(crate::cpy_str(&new_prnt));
         rewrite_user_written_path(&new_path);
-        crate::set_prnt_!(&new_prnt);
+        crate::set_prnt(&new_prnt, func_id);
       set_cur_cur_pos(len as i64, func_id);
       set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
       ps_ret.str_= "ok".to_string(); return ps_ret;

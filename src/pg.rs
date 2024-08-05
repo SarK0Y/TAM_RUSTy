@@ -414,6 +414,8 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, 1) == "."{
         crate::dir_down(cmd); return
     }
+#[cfg(feature = "mae")] let cmd0 = "mrg as ";
+#[cfg(feature = "mae")] if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::mrg_as(cmd); return;}
     if cmd.as_str().substring(0, 3) == "mrg"{
         if sub_cmd != "insert"{merge(cmd); return;}
         crate::C!(swtch_fn(-1, cmd));
@@ -431,6 +433,8 @@ pub(crate) fn exec_cmd(cmd: String){
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
+   #[cfg(feature = "mae")] let cmd0 = "mk uid";
+   #[cfg(feature = "mae")] if cmd == cmd0{crate::lst::mk_uid(); return;}
     let cmd0 = "cl all cache";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{full_clean_cache(); return;}
     let cmd0 = "clean dead tams";

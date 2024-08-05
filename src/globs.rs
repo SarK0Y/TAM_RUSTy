@@ -66,9 +66,9 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
     false
 }
 pub(crate) fn sieve_list(data: String){
-    clean_cache("filter");
-    clean_cache("filter_history");
-    crate::clean_fast_cache(Some(true) );
+    //clean_cache("filter");
+    //clean_cache("filter_history");
+    //crate::clean_fast_cache(Some(true) );
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
@@ -84,6 +84,7 @@ pub(crate) fn sieve_list(data: String){
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
+   #[cfg(feature = "mae")] {let filter_name = format!("filter{history_mode}" ); crate::cache::set_uid_cache(&filter_name);}
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} {} {} > {}", opts, crate::full_escape(&data0), found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
@@ -117,6 +118,7 @@ pub(crate) fn sieve_list0(data: String){
     let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
     let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
     let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
+    #[cfg(feature = "mae")] {let filter_name = format!("filter{history_mode}" ); crate::cache::set_uid_cache(&filter_name);}
     let cmd = format!("echo '' > {}", filter_file_path_tmp);
     run_cmd_str(cmd.as_str());
     let cmd = format!("grep {} '{}' {} > {}", opts, data, found_files_path.clone().unreel_link_to_file(), filter_file_path_tmp);

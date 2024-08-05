@@ -11,7 +11,7 @@ use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::delay_ms;
-use crate::{helpful_math_ops, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
+use crate::{helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -351,7 +351,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
         if match std::fs::metadata
-                       (&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+                       (&item){Ok(it) => it, _ => return empty_lst(&item)}.len() < 2 {empty_lst(&item); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -442,7 +442,8 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     }
     let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
-    //crate::clean_all_cache(); clean_fast_cache(Some(true) );
+    let front_lst = read_tail( &take_list_adr("found_files").unreel_link_to_depth(1), "/" );
+    crate::cache::set_uid_cache(&front_lst);
 }
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
@@ -471,7 +472,7 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
 }
 #[cfg(feature = "mae")]
 pub(crate) fn edit_ln_in_lst_fin_op(){
-    use crate::save_file_append_newline_abs_adr_fast; use crate::custom_traits::STRN_usize;
+    use crate::{front_lst, read_front_list, save_file_append_newline_abs_adr_fast}; use crate::custom_traits::STRN_usize;
     let ln_num = read_file("edit.ln.tmp").usize0();
     let mut front_lst = take_list_adr_env("found_files");
     delay_ms(112);
@@ -487,8 +488,35 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
         save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
     }
    // errMsg0(&cmd);
+   crate::cache::set_uid_cache(&name_of_front_list("", false) );
     match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
     //crate::clean_all_cache(); clean_fast_cache(Some(true) );
+}
+#[cfg(feature = "mae")]
+pub fn mrg_as <T> (cmd: T) where T: STRN {
+    let (none0, lst) = split_once(&cmd.strn(), "mrg as ");
+    //errMsg0(&none0);
+   // if none0.trim_end().trim_start() != "" {errMsg0("Correct variant is 'mrg as >> Name of list <<' ")}
+    let lst = take_list_adr_env(&lst.strn() ).trim_end().trim_start().strn();
+    __link_lst_to(&"merge".strn(), &lst );
+}
+pub fn empty_lst <T> (lst: T) where T: STRN {
+#[cfg(feature = "mae")]
+   { mk_empty_file(&lst.strn());
+    if !crate::Path::new(&lst.strn() ).exists(){errMsg0(&format!("Failed to create {}", lst.strn() ) )}
+    let lst0 = read_tail(&lst.strn(), "/");
+    link_lst_to(&lst0, &lst.strn() );
+    __link_lst_to(&"merge".strn(), &lst.strn() );
+    return
+   }
+    errMsg0(&format!("{} is empty", lst.strn() ) );
+
+}
+#[cfg(feature = "mae")]
+pub fn mk_uid(){
+    let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
+    let front_list = read_tail(&front_list, "/");
+    crate::cache::set_uid_cache(&front_list);
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
     static mut state: bool = false;

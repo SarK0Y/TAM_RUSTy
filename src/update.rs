@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 use ps0::get_mainpath;
 
 use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, 
@@ -54,6 +55,12 @@ clear_patch();
 }
 pub(crate) fn delay_ms(sleep: u64){
     std::thread::sleep(std::time::Duration::from_millis(sleep));
+}
+pub(crate) fn delay_mcs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_micros(sleep));
+}
+pub(crate) fn delay_ns(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_nanos(sleep));
 }
 pub(crate) fn delay_secs(sleep: u64){
     std::thread::sleep(std::time::Duration::from_secs(sleep));
@@ -335,5 +342,11 @@ pub(crate) fn clean_main_path(){
             } 
 
     }
+}
+pub fn upd_screen_or_not(anchor: (usize, String) ) -> bool{
+    static mut state: (usize, String) = (0, String::new());
+    unsafe {if state != anchor { state = anchor; return true; }}
+
+    false
 }
 //fn

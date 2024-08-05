@@ -1,9 +1,6 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, custom_traits::{STRN, helpful_math_ops}, errMsg0, get_num_cols, get_num_page, 
-globs18::{seg_size, take_list_adr}, i64_2_usize,
- ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, 
- where_is_last_pg};
+use crate::{bkp_tmp_dir, cache_t, clean_fast_cache, custom_traits::{helpful_math_ops, STRN}, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
  use once_cell::sync::Lazy;
  #[cfg(not(feature = "mae"))]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
@@ -217,8 +214,10 @@ pub(crate) fn clean_all_cache(){
     let clean_cache = format!("{tmp_dir}/cache/*");
     let cmd = format!("rm -f {clean_cache}");
     std::thread::spawn(||{run_cmd_out(cmd);});
+    clean_fast_cache(Some(true));
 }
 pub(crate) fn wait_4_empty_cache() -> bool{
+#[cfg(feature = "mae")] return false;
     let cache_dir = take_list_adr("cache/");
     let files = format!("{}*", cache_dir);
     let cmd = format!("rm -f {files}");
@@ -306,7 +305,7 @@ pub(crate) fn history_buffer(item: Option<String>, indx: usize, no_ret: bool) ->
 #[cfg(feature = "mae")]
 pub fn set_uid_cache(lst_name: &String){
     use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid; use crate::save_file_abs_adr;
-    let mut uid = format!("{}_{}", mk_uid(15), lst_name);
+    let mut uid = format!("{}_{}", mk_uid(9), lst_name);
     let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
     save_file_abs_adr(uid, uid_adr);
 }
@@ -319,10 +318,11 @@ pub fn get_uid_cache(lst_name: &String) -> String {
 #[cfg(feature = "mae")]
 pub fn upd_uids_for_lsts(){
     use crate::{get_path_from_strn, globs18::take_list_adr_env, read_tail, split_once};
-    let decoded_prnt = crate::read_file("decoded_prnt");
+    let mut decoded_prnt = crate::read_file("decoded_prnt");
     let mut cont = true;
     while cont {
-       let (cmd, decoded_prnt) = split_once( &decoded_prnt, ";");
+       let (cmd, decoded_prnt0) = split_once( &decoded_prnt, ";");
+       decoded_prnt = decoded_prnt0;
        if decoded_prnt == "none" { cont = false }
        let (_, cmd) = split_once(&cmd, ">");
        let adr = get_path_from_strn(cmd);
@@ -331,5 +331,17 @@ pub fn upd_uids_for_lsts(){
        if check_adr != adr {continue;}
        set_uid_cache(&lst);
     }
+}
+pub fn lazy_cache_cleaning( delay: Option <u64> ){
+    let mut sleep: u64;
+    if let Some (x) = delay{
+        sleep = x;
+    } else { sleep = 3600 * 15 }
+    std::thread::spawn(move|| {
+        loop {
+            delay_secs(sleep);
+            clean_all_cache();
+        }
+    });
 }
 //fn
