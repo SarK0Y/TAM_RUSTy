@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 use ps0::get_mainpath;
 
 use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, 
@@ -55,6 +56,12 @@ clear_patch();
 pub(crate) fn delay_ms(sleep: u64){
     std::thread::sleep(std::time::Duration::from_millis(sleep));
 }
+pub(crate) fn delay_mcs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_micros(sleep));
+}
+pub(crate) fn delay_ns(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_nanos(sleep));
+}
 pub(crate) fn delay_secs(sleep: u64){
     std::thread::sleep(std::time::Duration::from_secs(sleep));
 }
@@ -79,7 +86,8 @@ if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{base.manage_pages()}
 println!("stop manage_page");
 }).unwrap();
-background_fixing_count(2);
+//background_fixing_count(2);
+delay_ms(37);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
@@ -335,5 +343,13 @@ pub(crate) fn clean_main_path(){
             } 
 
     }
+}
+pub fn upd_screen_or_not(anchor: (i64, String) ) -> bool{
+    static mut state: (i64, String) = (0, String::new());
+    unsafe {
+       // dbg!(&state);
+        if state != anchor { state = anchor; return true; }}
+
+    false
 }
 //fn

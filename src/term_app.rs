@@ -263,7 +263,8 @@ pub(crate) fn mk_dummy_file() -> String{
     take_list_adr("msgs/term/dummy_file_4_id")
 }
 pub(crate) fn mk_empty_file(name: &String){
-    save_file_abs_adr0("".strn(), name.strn());
+    match std::fs::remove_file(name){Ok (f) => {}, _ => {} }; 
+    crate::save_file_abs_adr("".strn(), name.strn());
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();

@@ -2,11 +2,14 @@ pub const MARKER_OF_ACCESS: &str = "70059341913";
 use cli_table::{CellStruct, print_stdout, Table, Style};
 use colored::Colorize;
 use num_traits::{ops::overflowing::OverflowingAdd, ToPrimitive};
+use Mademoiselle_Entropia::help_funcs::get_file;
 use std::collections::{HashMap, hash_map::Entry};
 use once_cell::sync::{Lazy, OnceCell};
 use std::ptr::addr_of_mut;
-use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache, entry_cache_t, get_arg_in_cmd, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize, take_list_adr, take_list_adr_env}, i64_2_usize, ln_of_found_files_cacheless, name_of_front_list, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, save_file_append_newline, set_num_page, swtch::check_symlink, upd_fast_cache, update18::fix_screen_count};
+use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache, entry_cache_t, get_arg_in_cmd, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize, take_list_adr, take_list_adr_env}, i64_2_usize, ln_of_found_files_cacheless, mk_empty_file, name_of_front_list, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, save_file_append_newline, set_num_page, swtch::check_symlink, upd_fast_cache, update18::{delay_ms, fix_screen_count, upd_screen_or_not}};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
+use gag::Redirect;
+
 //use super::extctrl::*;
 impl super::basic{
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
@@ -25,6 +28,15 @@ impl super::basic{
         if num_files == 0i64{continue;}
         try_entry += 1; 
     }
+    println!("{}", crate::get_full_path(func_id));
+    let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
+    if !upd_screen_or_not(pg_info) && name_of_front_list("", false) != "ls" {
+        let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(func_id) ); return;
+    }
+    let save_screen: String = take_list_adr("screen");
+    mk_empty_file(&save_screen);
+    let mut save_screen = get_file(&save_screen).unwrap();
+    let redirect_out = Redirect::stdout(save_screen);
     let mut count_down = num_files;
     if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
@@ -34,7 +46,6 @@ impl super::basic{
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     let mut filename_str: String; let mut time_to_stop = false;
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
-    println!("{}", crate::get_full_path(func_id));
     let mut display_indx = 0i64;
     for j in 0..num_rows{
         for i in 0..num_cols{
@@ -89,7 +100,9 @@ impl super::basic{
         if time_to_stop {break;}
     }
     //println!("{}", pg.table().display().unwrap());
-    println!("{}", crate::get_ask_user(func_id));
+    drop(redirect_out);
+    let screen = read_file("screen");
+    println!("{}\n{}", screen, crate::get_ask_user(func_id) );
 }
 pub(crate) fn pg_rec_to_cache(cache: &mut cache_t, key: &String, val: &String){
     let mut entry_cache: entry_cache_t = HashMap::new();
