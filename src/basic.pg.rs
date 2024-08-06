@@ -30,8 +30,10 @@ impl super::basic{
     }
     println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
-    if !upd_screen_or_not(pg_info) && name_of_front_list("", false) != "ls" {
-        let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(func_id) ); return;
+    if !upd_screen_or_not(pg_info) {
+        if name_of_front_list("", false) != "ls" {
+          let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(func_id) ); return;
+        }
     }
     let save_screen: String = take_list_adr("screen");
     mk_empty_file(&save_screen);

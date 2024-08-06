@@ -1,11 +1,7 @@
 use once_cell::sync::Lazy;
 use ps0::get_mainpath;
 
-use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, 
-    exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, 
-    popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, 
-    swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists,
-custom_traits::{STRN, fs_tools}}; 
+use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists}; 
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
 use std::time::Instant;
@@ -116,12 +112,16 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls_no_stop_code(cmd);
     clear_screen();
-    background_fixing_count_n_delay(2, 40);
+    name_of_front_list("ls", true);
+    delay_ms(12);
+    crate::mk_uid();
+    //background_fixing_count_n_delay(2, 40);
 }
 pub(crate) fn lets_write_path(key: String){
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
     if mode < 0{return;}
+    name_of_front_list("ls", true);
     C!(swtch_fn(mode, key));
 
 }

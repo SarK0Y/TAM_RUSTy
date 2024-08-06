@@ -386,11 +386,11 @@ pub fn raw_len_of_front_list() -> String{
 }
 pub fn len_of_front_list() -> String{
       let mut list_id: (i64, bool) = (1i64, false);
-    for i in 0..1000{
+   /* for i in 0..1000{
         list_id = unsafe {front_list_indx(i64::MAX)};
         if list_id.1{break;}
-    }
-    if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
+    }*/
+  //  if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     let name_front_list = read_front_list();
     let mut front_list = take_list_adr_len(&name_front_list);
     //if front_list != "main0.len"{return len_of_list_wc(&front_list);}

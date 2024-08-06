@@ -1,5 +1,6 @@
 use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
 
+use crate::update18::upd_screen_or_not;
 use crate::{errMsg0, full_clean_cache, shift_f3_cut_off_tail_of_prnt};
 use crate::globs18::load_bash_history;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
@@ -350,6 +351,7 @@ pub(crate) fn exec_cmd(cmd: String){
        // unsafe{exec_cmd_cnt(true)};
         let mut num_page = crate::get_num_page(func_id);
         if num_page > 0{num_page -= 1;}
+        else {upd_screen_or_not( (-1, "".strn() ) );}
         crate::set_num_page(num_page, func_id);
         return;
     }
