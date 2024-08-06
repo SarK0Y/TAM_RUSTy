@@ -309,6 +309,14 @@ pub fn set_uid_cache(lst_name: &String){
     let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
     save_file_abs_adr(uid, uid_adr);
 }
+pub fn set_cnt_cache(lst_name: &String){
+    static mut cnt: u64 = 0;
+     use crate::save_file_abs_adr;
+    let mut uid = format!("{}_{}", unsafe { cnt }, lst_name);
+    let uid_adr = take_list_adr(&format!("env/lst_id/{}", &lst_name));
+    save_file_abs_adr(uid, uid_adr);
+    unsafe { cnt.inc() };
+}
 #[cfg(feature = "mae")]
 pub fn get_uid_cache(lst_name: &String) -> String {
     use crate::read_file_abs_adr;

@@ -444,6 +444,7 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
     let front_lst = read_tail( &take_list_adr("found_files").unreel_link_to_depth(1), "/" );
     crate::cache::set_uid_cache(&front_lst);
+    crate::update18::upd_screen_or_not((-1, "".strn() ) );
 }
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
@@ -472,6 +473,7 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
 }
 #[cfg(feature = "mae")]
 pub(crate) fn edit_ln_in_lst_fin_op(){
+    use crate::update18::upd_screen_or_not;
     use crate::{front_lst, read_front_list, save_file_append_newline_abs_adr_fast}; use crate::custom_traits::STRN_usize;
     let ln_num = read_file("edit.ln.tmp").usize0();
     let mut front_lst = take_list_adr_env("found_files");
@@ -490,7 +492,7 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
    // errMsg0(&cmd);
    crate::cache::set_uid_cache(&name_of_front_list("", false) );
     match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
-    //crate::clean_all_cache(); clean_fast_cache(Some(true) );
+    upd_screen_or_not((-1, "".strn() ) );
 }
 #[cfg(feature = "mae")]
 pub fn mrg_as <T> (cmd: T) where T: STRN {
@@ -517,6 +519,12 @@ pub fn mk_uid(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
     let front_list = read_tail(&front_list, "/");
     crate::cache::set_uid_cache(&front_list);
+    crate::update18::upd_screen_or_not( (-1, "".strn() ) );
+}
+pub fn mk_cnt(){
+    let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
+    let front_list = read_tail(&front_list, "/");
+    crate::cache::set_cnt_cache(&front_list);
     crate::update18::upd_screen_or_not( (-1, "".strn() ) );
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{

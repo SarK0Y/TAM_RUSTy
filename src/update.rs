@@ -114,7 +114,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     clear_screen();
     name_of_front_list("ls", true);
     delay_ms(12);
-    crate::mk_uid();
+    crate::mk_cnt();
     //background_fixing_count_n_delay(2, 40);
 }
 pub(crate) fn lets_write_path(key: String){
