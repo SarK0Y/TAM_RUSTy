@@ -188,7 +188,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         return cmd;
     }
     if crate::globs18::eq_ansi_str(&kcode::F3, Key.as_str()) == 0 {
-        crate::globs18::F3_key();
+        crate::F3_key();
         return "dontPass".to_string();
     }
     if "/" == Key.as_str() {

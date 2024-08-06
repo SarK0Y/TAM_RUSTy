@@ -20,7 +20,13 @@ use std::{
 };
 pub const SWTCH_RUN_VIEWER: i64 = 0;
 pub const SWTCH_USER_WRITING_PATH: i64 = 1;
-use crate::{add_cmd_in_history, complete_path, core18::{errMsg, get_path_from_prnt, update_user_written_path}, cpy_str, drop_ls_mode, edit_mode_lst, escape_symbs, full_escape, func_id18::{mk_cmd_file_, viewer_, where_is_last_pg_}, get_prnt, globs18::{get_item_from_front_list, set_ls_as_front, take_list_adr, F3_key, FRONT_}, mark_front_lst, no_view, path_exists, pg18::form_cmd_line_default, position_of_slash_in_prnt, ps18::{child2run, get_full_path, get_num_files, get_num_page, init_page_struct, page_struct_ret, set_ask_user}, raw_ren_file, read_file, read_front_list_but_ls, read_rgx_from_prnt, run_term_app, save_file, set_front_list, set_full_path, split_once, tui_or_not, update18::update_dir_list, usize_2_i64};
+use crate::{add_cmd_in_history, complete_path, core18::{errMsg, get_path_from_prnt, update_user_written_path}, cpy_str, drop_ls_mode, edit_mode_lst, 
+escape_symbs, full_escape, func_id18::{mk_cmd_file_, viewer_, where_is_last_pg_}, get_prnt,
+ globs18::{get_item_from_front_list, set_ls_as_front, take_list_adr, FRONT_}, mark_front_lst, no_view, path_exists, 
+ pg18::form_cmd_line_default, position_of_slash_in_prnt, 
+ ps18::{child2run, get_full_path, get_num_files, get_num_page, init_page_struct, page_struct_ret, set_ask_user}, raw_ren_file, read_file, 
+ read_front_list_but_ls, read_rgx_from_prnt, run_term_app, save_file, set_front_list, set_full_path, split_once, tui_or_not, 
+ update18::update_dir_list, usize_2_i64};
 pub(crate) unsafe fn check_mode(mode: &mut i64){
     static mut state: i64 = 0;
     if *mode == -1 {*mode = state;}
@@ -358,7 +364,7 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
     file_2_write_path.write_all(path_from_prnt.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
     let written_path = read_user_written_path();
-    if written_path == "" {drop_ls_mode(); F3_key();}
+    if written_path == "" {drop_ls_mode(); crate::F3_key();}
     else{set_ls_as_front();}
     save_file(written_path.to_string(), "written_path_prnt.dbg".to_string());
     update_dir_list(&full_escape(&written_path), "-maxdepth 1", false);

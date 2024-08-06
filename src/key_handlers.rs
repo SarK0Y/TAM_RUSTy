@@ -1,6 +1,5 @@
 use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, 
-drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, 
-    take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg, COUNT_PAGES_};
+drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, shift_cursor_of_prnt, stop_term_msg, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -97,7 +96,7 @@ pub(crate) fn F1_key() -> String{
    crate::set_front_list("main0" );
    crate::ps18::fix_num_files(-13971);
    crate::clean_cache("main0");
-   crate::mk_uid();
+   crate::mk_uid(); drop_ls_mode();
    crate::core18::rm_file(&take_list_adr("msgs/term/state"));
 format!("go2 {}", read_file("main0.pg"))
 }
@@ -282,4 +281,32 @@ pub(crate) fn delim(cmd: Option<String> ) -> String{
     save_file_abs_adr(cmd.clone(), delim);
     cmd
 }
+pub(crate) fn F3_key() -> String{
+    let mut prnt: String = read_prnt();
+    let orig_path = crate::get_path_from_strn(crate::cpy_str(&prnt));
+    if orig_path.len() == 0 {
+        drop_ls_mode();
+        if crate::tailOFF(&mut prnt, " "){
+        crate::set_prnt(&prnt, -1);
+    return prnt    
+    }
+}
+    crate::C_!(crate::globs18::set_ls_as_front(); /*front_list_indx(crate::globs18::LS_);*/);
+       let ls_mode = take_list_adr("ls.mode");
+    let mut ret_2_Front = || ->String{prnt = prnt.replace("/", ""); set_prnt(&prnt, -2317712);
+     crate::C!(crate::swtch::swtch_fn(0, "".to_string())); crate::from_ls_2_front(ls_mode); 
+    "".to_string()};
+    let mut path = format!("{}/", match crate::Path::new(&orig_path).parent(){
+        Some(path) => path,
+        _ => return ret_2_Front()
+    }.to_str().unwrap());
+    path = path.replace("//", "/");
+    prnt = prnt.replace(&orig_path, &path);
+    set_prnt(&prnt, -1405);
+    /*let user_wrote_path = user_wrote_path();
+    rm_file(&user_wrote_path);*/
+    crate::swtch::set_user_written_path_from_strn(path.to_string());
+    prnt
+}
+
 //fn

@@ -197,29 +197,6 @@ pub(crate) fn set_valid_list_as_front(){
     let cmd = format!("#valid list as front\nln -sf {} {}", active_lst, front_list_link);
     run_cmd_str(&cmd);
 }
-pub(crate) fn F3_key() -> String{
-    let mut prnt: String = read_prnt();
-    let orig_path = get_path_from_strn(crate::cpy_str(&prnt));
-    if orig_path.len() == 0 {if tailOFF(&mut prnt, " "){
-        crate::set_prnt(&prnt, -1);
-    return prnt    
-    }}
-    crate::C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
-       let ls_mode = take_list_adr("ls.mode");
-    let mut ret_2_Front = || ->String{prnt = prnt.replace("/", ""); set_prnt(&prnt, -2317712); crate::C!(swtch_fn(0, "".to_string()));from_ls_2_front(ls_mode); 
-    "".to_string()};
-    let mut path = format!("{}/", match Path::new(&orig_path).parent(){
-        Some(path) => path,
-        _ => return ret_2_Front()
-    }.to_str().unwrap());
-    path = path.replace("//", "/");
-    prnt = prnt.replace(&orig_path, &path);
-    set_prnt(&prnt, -1405);
-    /*let user_wrote_path = user_wrote_path();
-    rm_file(&user_wrote_path);*/
-    set_user_written_path_from_strn(path.to_string());
-    prnt
-}
 pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     let flags = unsafe { fcntl(fd, F_GETFL, 0) };
     if flags < 0 {return Err(io::Error::last_os_error());}
