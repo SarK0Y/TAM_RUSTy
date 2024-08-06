@@ -343,9 +343,11 @@ pub(crate) fn clean_main_path(){
 
     }
 }
-pub fn upd_screen_or_not(anchor: (usize, String) ) -> bool{
-    static mut state: (usize, String) = (0, String::new());
-    unsafe {if state != anchor { state = anchor; return true; }}
+pub fn upd_screen_or_not(anchor: (i64, String) ) -> bool{
+    static mut state: (i64, String) = (0, String::new());
+    unsafe {
+       // dbg!(&state);
+        if state != anchor { state = anchor; return true; }}
 
     false
 }

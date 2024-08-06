@@ -517,6 +517,7 @@ pub fn mk_uid(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
     let front_list = read_tail(&front_list, "/");
     crate::cache::set_uid_cache(&front_list);
+    crate::update18::upd_screen_or_not( (-1, "".strn() ) );
 }
 pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
     static mut state: bool = false;
