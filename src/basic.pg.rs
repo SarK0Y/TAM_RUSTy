@@ -28,9 +28,10 @@ impl super::basic{
         if num_files == 0i64{continue;}
         try_entry += 1; 
     }
+    println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
     if !upd_screen_or_not(pg_info) && name_of_front_list("", false) != "ls" {
-        let screen = read_file("screen"); println!("{}", screen); return;
+        let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(func_id) ); return;
     }
     let save_screen: String = take_list_adr("screen");
     mk_empty_file(&save_screen);
@@ -46,7 +47,6 @@ impl super::basic{
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     let mut filename_str: String; let mut time_to_stop = false;
     let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
-    println!("{}", crate::get_full_path(func_id));
     let mut display_indx = 0i64;
     for j in 0..num_rows{
         for i in 0..num_cols{
