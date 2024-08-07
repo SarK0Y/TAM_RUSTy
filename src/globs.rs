@@ -67,9 +67,6 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
     false
 }
 pub(crate) fn sieve_list(data: String){
-    //clean_cache("filter");
-    //clean_cache("filter_history");
-    //crate::clean_fast_cache(Some(true) );
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
     let data0 = data.replace("sieve ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
@@ -92,6 +89,41 @@ pub(crate) fn sieve_list(data: String){
     run_cmd_str(cmd.as_str());
     if match std::fs::metadata(&filter_file_path_tmp){
         Ok(g) => g,
+        _=> return sieve_list1(data)
+    }.len() == 0{sieve_list1(data); return}
+    let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("#filter as front\nln -sf {} {}", filter_file_path, found_files_path);
+    run_cmd_str(cmd.as_str());
+    crate::set_front_list2(&format!("filter{history_mode}"), 2 );
+    let dbg = crate::fix_num_files0(5977871);
+    let dbg1 = dbg;
+    set_full_path(&data, -19784542001);
+    add_cmd_in_history(&format!("sieve {data}") );
+}
+pub(crate) fn sieve_list1(data: String){
+    if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
+    let data0 = data.replace("sieve ", "");
+    let (mut opts, mut data0) = split_once(&data0, " ");
+    if opts == "none".strn() || data0 == "none".strn(){
+        set_ask_user("example: sieve -Ei some\\shere", 5977871);
+    }
+    let mut history_mode = "".strn();
+    if check_substrn(&name_of_front_list("", false), "history"){history_mode = "_history".strn();}
+    if opts == "none"{return}
+    if data0 == "none"{
+        data0 = opts;
+        opts = "-Ei".to_string()}
+    let found_files_path = format!("{}/found_files", get_tmp_dir(18441));
+    let filter_file_path_tmp = format!("{}/filter{history_mode}.tmp", get_tmp_dir(18441));
+    let filter_file_path = format!("{}/filter{history_mode}", get_tmp_dir(18441));
+   #[cfg(feature = "mae")] {let filter_name = format!("filter{history_mode}" ); crate::cache::set_uid_cache(&filter_name);}
+    let cmd = format!("echo '' > {}", filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    let cmd = format!("grep {} {} {} > {}", opts, data0, found_files_path.clone().unreel_link_to_file0(), filter_file_path_tmp);
+    run_cmd_str(cmd.as_str());
+    if match std::fs::metadata(&filter_file_path_tmp){
+        Ok(g) => g,
         _=> return sieve_list0(data)
     }.len() == 0{sieve_list0(data); return}
     let cmd = format!("mv {} {}", filter_file_path_tmp, filter_file_path);
@@ -104,6 +136,7 @@ pub(crate) fn sieve_list(data: String){
     set_full_path(&data, -19784542001);
     add_cmd_in_history(&format!("sieve {data}") );
 }
+
 pub(crate) fn sieve_list0(data: String){
     let data = data.replace("sieve ", "");
     let (mut opts, mut data) = split_once(&data, " ");
