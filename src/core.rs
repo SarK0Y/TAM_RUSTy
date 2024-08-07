@@ -1138,7 +1138,7 @@ pub(crate) fn from_ls_2_front(ls_mode: String){
     let front = read_front_list_but_ls();
     //let ls_mode = take_list_adr("ls.mode");
     rm_file(&ls_mode);
-    link_list_2_front(front.as_str());
+    set_front_list(front.as_str());
     C!(crate::swtch::swtch_fn(0, "".to_string()));
 }
 pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool{

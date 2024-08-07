@@ -1,6 +1,6 @@
 use num_traits::bounds;
 
-use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, free_term_msg, get_arg_in_cmd, getkey, globs18::drop_key, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, fix_num_files, free_term_msg, get_arg_in_cmd, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -125,6 +125,7 @@ impl ManageLists for basic{
         crate::clear_screen();
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
+        if name_of_front_list("", false) == "ls"{fix_num_files(97481);}
         let num_pg = crate::get_num_page(-55541555121);
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();

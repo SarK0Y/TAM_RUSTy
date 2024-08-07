@@ -1,6 +1,7 @@
 use chrono::format; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, run_cmd_out_sync, save_file_append_newline};
+use crate::update18::upd_screen_or_not;
+use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, read_tail, run_cmd_out_sync, save_file_append_newline};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
 swtch::{local_indx, front_list_indx, check_mode, SWTCH_USER_WRITING_PATH, SWTCH_RUN_VIEWER, swtch_fn, set_user_written_path_from_prnt,
@@ -196,6 +197,12 @@ pub(crate) fn set_valid_list_as_front(){
     let front_list_link = format!("{}/found_files", &tmp_dir);
     let cmd = format!("#valid list as front\nln -sf {} {}", active_lst, front_list_link);
     run_cmd_str(&cmd);
+}
+pub(crate) fn set_valid_list_as_front0(){
+    let front_list = take_list_adr("found_files").unreel_link_to_depth(1);
+    let front_list = read_tail(&front_list, "/");
+    set_front_list(&front_list);
+    upd_screen_or_not((0, front_list) );
 }
 pub fn unblock_fd(fd: RawFd) -> io::Result<()> {
     let flags = unsafe { fcntl(fd, F_GETFL, 0) };

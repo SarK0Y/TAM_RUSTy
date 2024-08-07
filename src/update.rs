@@ -217,6 +217,7 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
@@ -237,6 +238,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
@@ -257,6 +259,7 @@ pub(crate) fn fix_screen_count(num: usize){
     });
 }
 pub(crate) fn fix_screen_count_n_delay(num: usize, delay: u64){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
