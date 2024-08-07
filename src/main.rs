@@ -12,6 +12,7 @@ mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize, take_list_adr};
 use syn::token::Return;
+use update18::delay_ms;
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 #[cfg(feature ="mae")]
@@ -222,12 +223,13 @@ return match from_utf8(&run_command.stdout){
 }.to_string()
 }
 fn read_midway_data() -> bool{
+    delay_ms(27);
     if checkArg("-front-lst"){return read_midway_data_not_main0() }
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
         let stopCode = getStop_code__!();
-        let filename = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let filename = take_list_adr("found_files").unreel_link_to_depth(1);
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {

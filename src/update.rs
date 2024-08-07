@@ -23,6 +23,11 @@ pub(crate) fn main_update(){
         ); ps0::set_num_cols(val, func_id);}
         let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
         let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
+        
+        let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
+        //logs(&orig_lst, "see");
+        std::fs::remove_file(&orig_lst);
+        upd_screen_or_not((-1, "".strn() ) );
         if !checkArg("-slow-load"){
             thr_find_files.spawn(move||{
                 println!("spawn find files");
