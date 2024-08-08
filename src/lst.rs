@@ -537,4 +537,18 @@ pub(crate) fn edit_mode_lst(active: Option < bool >) -> bool{
 pub fn full_clean_cache(){
     crate::clean_all_cache(); clean_fast_cache(Some(true) );
 }
+pub fn edit_lst(){
+    let editor = editor(None);
+    let front = take_list_adr_env(&name_of_front_list("", false) );
+    let cmd = format!("{editor} {front}");
+    run_term_app(cmd);
+
+}
+pub fn editor(name: Option < &String > ) -> String{
+    static mut my_editor: Lazy< String > = Lazy::new(|| {String::from( "nano" )} );
+    unsafe {
+    if let Some (x) = name {*my_editor = x.strn() }
+    my_editor.strn()
+    }
+}
 //fn
