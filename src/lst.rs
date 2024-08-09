@@ -342,7 +342,7 @@ pub(crate) fn list_the_lists(){
         run_cmd0(cmd);
     }
     mark_front_lst("lst"); set_front_list2("lst", 0);
-    fix_num_files(-79814395);
+    fix_num_files(-79814395); set_prnt("lst ", -7610027);
 }
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
