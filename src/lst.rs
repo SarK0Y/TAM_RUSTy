@@ -364,7 +364,7 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
-    if cmd0 == "lst"{list_the_lists(); mark_front_lst("lst"); set_front_list2("lst", 0); return;}
+    if cmd0 == "lst"{list_the_lists(); return;}
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
