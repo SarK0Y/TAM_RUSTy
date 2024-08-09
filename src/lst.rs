@@ -547,8 +547,12 @@ pub fn edit_lst(){
 pub fn editor(name: Option < &String > ) -> String{
     static mut my_editor: Lazy< String > = Lazy::new(|| {String::from( "nano" )} );
     unsafe {
-    if let Some (x) = name {*my_editor = x.strn() }
+    if let Some (x) = name {*my_editor = x.trim_start().trim_end().strn() }
     my_editor.strn()
     }
+}
+pub fn ched (cmd: String){
+    let (_, name) = split_once(&cmd, " ");
+    editor (Some (&name) );
 }
 //fn
