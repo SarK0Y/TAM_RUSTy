@@ -344,6 +344,38 @@ pub(crate) fn list_the_lists(){
     mark_front_lst("lst"); set_front_list2("lst", 0);
     fix_num_files(-79814395); set_prnt("lst ", -7610027);
 }
+pub(crate) fn session_lists(){
+    let lst = take_list_adr("lst");
+    let lst_dir = take_list_adr("env/lst");
+    let cmd = format!("find {lst_dir} > {lst}");
+    run_cmd0(cmd);
+    // check & add default lsts
+    if crate::Path::new(&take_list_adr("main0")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("main0"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("filter")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("filter"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("cd")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("cd"));
+        run_cmd0(cmd);
+    }
+    if crate::Path::new(&take_list_adr("merge")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+     if crate::Path::new(&take_list_adr("mae")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+     if crate::Path::new(&take_list_adr("decrypted")).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        run_cmd0(cmd);
+    }
+}
+
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();

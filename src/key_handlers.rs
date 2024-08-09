@@ -1,4 +1,4 @@
-use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr}, history_buffer, history_buffer_size, ln_of_found_files, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::upd_screen_or_not, COUNT_PAGES_};
+use crate::{add_cmd_in_history, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr, take_list_adr_env}, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::upd_screen_or_not, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -313,5 +313,26 @@ pub(crate) fn F3_key() -> String{
     crate::swtch::set_user_written_path_from_strn(path.to_string());
     prnt
 }
-
+pub fn tab_key (){
+    let cur_lst = crate::name_of_front_list("", false);
+    match cur_lst.as_str(){
+        "lst" => {return tab_4_lst_cmd(); },
+        _ => {}
+    }
+    let cmd = read_prnt();
+    if cmd.substring(0, 3) == "lst" {tab_4_lst_cmd(); return; }
+}
+pub fn tab_4_lst_cmd(){
+    static mut num_of_lst: usize = 0;
+    let lst_adr = take_list_adr_env("lst");
+    if !crate::Path::new(&lst_adr).exists() {session_lists();}
+    let mut ln = ln_of_list( unsafe { num_of_lst }, "lst").0;
+    if ln == "no str gotten" {
+        unsafe {num_of_lst = 0 };    
+        ln = ln_of_list( 0, "lst").0;
+    }
+    let prnt = format!("lst {ln}");
+    set_prnt(&prnt, 97);
+    unsafe {num_of_lst.inc(); }
+}
 //fn

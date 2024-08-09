@@ -633,14 +633,11 @@ pub(crate) fn ln_of_found_files_cacheless(get_indx: usize) -> (String, usize){
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn ln_of_list(get_indx: usize, list: &str) -> (String, usize){
-    let front = read_front_list();
    /* if ls_mode != "ls"{
     if !checkArg("-no-cache") {
         if get_indx < usize::MAX{return cached_ln_of_found_files(get_indx);}}
     }*/
-    set_front_list(list);
-     let stopCode = getStop_code__!();
-        let filename = format!("{}/found_files", unsafe{crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_});
+        let filename = take_list_adr_env(&list);
         let file = match File::open(filename){
             Ok(f) => f,
             _ => return ("no str gotten".to_string(), usize::MAX) 
@@ -648,10 +645,9 @@ pub(crate) fn ln_of_list(get_indx: usize, list: &str) -> (String, usize){
         let reader = BufReader::new(file);
         let mut len = 0usize;
     for (indx, line) in reader.lines().enumerate() {
-        if indx == get_indx{set_front_list(front.as_str()); return (line.unwrap(), indx);}
+        if indx == get_indx{ return (line.unwrap(), indx);}
         len = indx;
     }
-    set_front_list(front.as_str());
     return ("no str gotten".to_string(), len);
 }
 pub(crate) fn size_of_found_files() -> u64{
