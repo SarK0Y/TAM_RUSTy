@@ -1,4 +1,5 @@
-use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0, full_escape, no_esc_lst};
+use crate::{tailOFF, popup_msg, read_tail, repeat_char, read_prnt, getkey, escape_backslash, escape_apostrophe, escape_symbs, errMsg_dbg0, full_escape,
+     no_esc_lst, custom_traits::turn_2_i64};
 use substring::Substring;
 pub trait parse_replace{
     fn validate_tag(&mut self) -> Option<String>;
@@ -37,6 +38,7 @@ impl parse_replace for crate::basic{
     if tag == i64::MIN{
         let msg = format!("Short link {tag0} is wrong");
         prnt = prnt.replace(&tag0, "");
+        crate::ps18::set_cur_cur_pos(prnt.len().i640(), 17510086);
         crate::set_prnt(&prnt, -48721112507);
        // crate::update18::fix_screen_count(1);
         return None;
@@ -45,6 +47,7 @@ impl parse_replace for crate::basic{
     if w_tag {tag = format!("{}:s:{}", tag, &tag);}
     let tag = self.mk_shol_from_strn(&tag, tag_at);
     prnt = prnt.replace(&tag0, &tag);
+    crate::ps18::set_cur_cur_pos(prnt.len().i640(), 17510086);
     crate::set_prnt(&prnt, -48721112507);
     Some(tag)
 }
