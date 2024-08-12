@@ -451,6 +451,8 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::del_ln_from_lst(&cmd); return;}
     let cmd0 = "ched ";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::ched(cmd); return;} 
+    let cmd0 = "cmds";
+    if cmd == cmd0{crate::lst::lst_cmds(); return;} 
     let cmd0 = "edit lst";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::edit_lst(); return;} 
     let cmd0 = "edit ";

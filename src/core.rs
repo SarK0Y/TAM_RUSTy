@@ -343,7 +343,8 @@ pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
 pub(crate) fn full_escape(str0: &String) -> String{
     let func_id = crate::func_id18::full_escape_;
     let front_list = name_of_front_list("", false);
-    if check_substrn(&front_list, "history") {swtch_esc(true, false); return str0.strn()}
+    if check_substrn(&front_list, "history") || front_list == "cmds" || front_list == "cmds.fp"
+                                                        {swtch_esc(true, false); return str0.strn()}
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)

@@ -1,6 +1,7 @@
 use ansi_term::unstyle;
 use once_cell::sync::Lazy;
 use syn::token::Unsafe;
+use Mademoiselle_Entropia::help_funcs::get_file_append;
 use std::collections::{HashMap, HashSet};
 use std::collections::hash_map::Entry;
 use substring::Substring;
@@ -11,7 +12,7 @@ use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::delay_ms;
-use crate::{fix_num_files, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, tailOFF, turn_2_i64};
+use crate::{fix_num_files, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -587,5 +588,23 @@ pub fn editor(name: Option < &String > ) -> String{
 pub fn ched (cmd: String){
     let (_, name) = split_once(&cmd, " ");
     editor (Some (&name) );
+}
+pub fn lst_cmds(){
+    use std::io::Write;
+    let mut strn_of_cmds = run_cmd_out_sync("echo $PATH".strn() );
+    let cmds_adr = take_list_adr_env("cmds");
+    if !crate::Path::new(&cmds_adr).exists(){ mk_empty_file(&cmds_adr) }
+    let mut file = match get_file_append(&cmds_adr){Ok (f) => f, _ => 
+                                    {errMsg0(&format! ("Sorry, Dear User, failed to create {cmds_adr}")); return}};
+    loop {
+        let (dir, others) = split_once_or_ret_null_strs(&strn_of_cmds, ":");
+         if others == "" {break;}
+        strn_of_cmds = others;
+        let see = format!("find -L '{dir}' -executable");
+        let see = run_cmd_out_sync(see);
+        let see = see.replace(&format!("{dir}/"), "");
+        file.write_all(see.as_bytes() );
+    }
+    crate::set_front_list("cmds"); 
 }
 //fn
