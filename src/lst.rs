@@ -130,7 +130,7 @@ pub(crate) fn term_cp(cmd: &String){
 }
 pub(crate) fn term_rm(cmd: &String){
     let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
-    let (add_opts, mut all_files, to) = parse_paths(&cmd);
+    let (mut add_opts, mut all_files, to) = parse_paths(&cmd);
     all_files = if all_files == ""{ to} else { format! ("{} {}", all_files, to) };
     let to = "".strn();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
@@ -143,6 +143,7 @@ pub(crate) fn term_rm(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/rm");
+    if add_opts == "" {add_opts = "-v".strn() }
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
