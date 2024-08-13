@@ -598,7 +598,7 @@ pub fn upd_lst_cmds(){
     use std::io::Write;
     let mut strn_of_cmds = run_cmd_out_sync("echo $PATH".strn() );
     let cmds_adr = take_list_adr_env("cmds");
-    if !crate::Path::new(&cmds_adr).exists(){ mk_empty_file(&cmds_adr) }
+    crate::rm_file(&cmds_adr); crate::mk_empty_file(&cmds_adr);
     let mut file = match get_file_append(&cmds_adr){Ok (f) => f, _ => 
                                     {errMsg0(&format! ("Sorry, Dear User, failed to create {cmds_adr}")); return}};
     loop {
