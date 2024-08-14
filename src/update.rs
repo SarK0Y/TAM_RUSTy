@@ -124,6 +124,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     //background_fixing_count_n_delay(2, 40);
 }
 pub(crate) fn lets_write_path(key: String){
+    if !swtch_ls(false, false) {return;}
     C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
     if mode < 0{return;}
