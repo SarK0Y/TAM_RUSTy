@@ -12,7 +12,7 @@ use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{fix_num_files, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
+use crate::{fix_num_files, func_id18, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -490,7 +490,9 @@ pub(crate) fn edit_ln_in_lst(cmd: &String){
     #[cfg(feature = "mae" )] let ln_num = crate::globs18::get_proper_indx(ln_num, true).0;
     #[cfg(feature = "mae" )] save_file0(ln_num.strn(), "edit.ln.tmp".strn());
     //let mut front_lst = take_list_adr("found_files").unreel_link_to_file();
-    set_prnt(&ln, 984419357);
+    let func_id = 984419357;
+    set_prnt(&ln, func_id);
+    set_cur_cur_pos(ln.len().i640(), func_id);
     edit_mode_lst(Some (true) );
 }
 #[cfg(not(feature = "mae"))]
