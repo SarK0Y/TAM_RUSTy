@@ -116,23 +116,16 @@ pub(crate) fn INS(val: &str) -> bool{
         prnt0 = get_prnt(func_id);
         if prnt0 != "none"{break 'ret prnt0.as_str()}
       } };
+      if prnt == "" && val == "/"{set_prnt("/", func_id); 
+         cur_cur_pos.inc();
+         set_cur_cur_pos(cur_cur_pos as i64, func_id); return true}
       string1.push_str(prnt);
       let new_string = if val.len() > 1{ ins_patch_to_string(cur_cur_pos, string1, &val.strn()) }
       else {string1.push_str(val);
       crate::globs18::ins_last_char_to_string1_from_string1(cur_cur_pos, string1)};
-      //loop {
           set_prnt(&new_string, func_id);
-          //set_ask_user(&new_string, func_id);
-        //  if get_prnt(func_id) == new_string{break;}
-      //}
-      //set_prompt(&new_string, func_id);
-    //  io::stdout().flush().unwrap();
-    //  print!("{}", get_prnt(func_id));
-   /* let err_msg = format!("cur_cur_pos as i64 {} as usize {}", cur_cur_pos as i64, cur_cur_pos).blink().red().bold(); 
-     if cur_cur_pos > 1000{panic!("{}", err_msg);}*/
-      cur_cur_pos += 1;
+      cur_cur_pos.inc();
       set_cur_cur_pos(cur_cur_pos as i64, func_id);
-      crate::achtung("fn ins");
       //print!("{}]", get_cur_cur_pos(func_id));
       true
 }

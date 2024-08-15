@@ -309,6 +309,7 @@ pub(crate) fn form_cmd_line_default(){
         }
     }
     //else {prnt = format!("{} {}", prnt, full_path);}
+    prnt = prnt.trim_end_matches('\n').strn();
     if full_path.len() > 0{set_prnt(&prnt, func_id);}
     let len = prnt.chars().count();
     if ret.shift == len {prnt = format!("👉{}", prnt)}
@@ -320,7 +321,7 @@ pub(crate) fn form_cmd_line_default(){
     wipe_cmd_line(whole_line_len);
     //let prompt = format!("\033[1m{}\033[0m", prompt);
     let prompt = format!("{}", prompt.bold());
-    form_cmd_line(prompt, prnt)
+    form_cmd_line(prompt, prnt )
 }
 pub(crate) fn custom_input(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let mut Key = Key;

@@ -118,11 +118,13 @@ pub trait ManageLists{
 }
 impl ManageLists for basic{
   fn manage_pages(&mut self){
+    use termion::clear;
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
     loop{
         crate::clear_screen();
+        //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
         if name_of_front_list("", false) == "ls"{fix_num_files(97481);}
