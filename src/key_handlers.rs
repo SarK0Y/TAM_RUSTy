@@ -32,10 +32,10 @@ pub(crate) fn pre_Enter(){
 pub(crate) fn Enter(){
     let mut prnt = crate::get_prnt(-881454);
     let (term, _) = crate::split_once(&prnt, " ");
-    if term == "term"{
+   /* if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
-    }
+    }*/
     drop_ls_mode();
     let mut mode = 0i64;
     crate::C!(crate::swtch::check_mode(&mut mode));

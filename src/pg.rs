@@ -177,11 +177,11 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     unsafe {shift_cursor_of_prnt(i64::MIN, None, func_id).shift};
        let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
        set_cur_cur_pos(usize_2_i64(pos), func_id);
-        return "dontPass".to_string();
+        return "dontPass".strn();
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
         crate::END_KEY();
-        return "dontPass".to_string();
+        return "dontPass".strn();
     }
     if crate::globs18::eq_ansi_str(&kcode::INSERT, Key.as_str()) == 0 {
         let cmd = format!("{}>::insert",crate::Ins_key());
@@ -189,7 +189,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     }
     if crate::globs18::eq_ansi_str(&kcode::F3, Key.as_str()) == 0 {
         crate::F3_key();
-        return "dontPass".to_string();
+        return "dontPass".strn();
     }
     if "/" == Key.as_str() {
         let prev_list = crate::read_front_list();
@@ -432,7 +432,7 @@ pub(crate) fn exec_cmd(cmd: String){
     }
     if cmd.as_str().substring(0, 4) == "term"{
         let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
-        add_cmd_in_history(&cmd);
+        add_cmd_in_history(&cmd.replace(&format!(":>:{subcmd}"), "") );
         if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
         crate::term(&cmd);
     }
