@@ -195,7 +195,7 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         let prev_list = crate::read_front_list();
         let prev = read_file("prev_list");
         if prev == ""{crate::save_file(prev_list, "prev_list".to_string());}
-        let mut Key_cpy =String::from(Key.to_string()); let mut Key_ = String::from(Key.to_string()); lets_write_path(Key_cpy); crate::INS(&Key_);
+        let mut Key_cpy =String::from(Key.strn() ); let mut Key_ = String::from(Key.strn()); lets_write_path(Key_cpy); crate::INS(&Key_);
     return "dontPass".strn(); } //"/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
     crate::C!(local_indx(true));

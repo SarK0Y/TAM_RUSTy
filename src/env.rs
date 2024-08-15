@@ -1,4 +1,4 @@
-use crate::{__get_arg_in_cmd, fix_num_files};
+use crate::{__get_arg_in_cmd, fix_num_files, mk_cnt};
 use crate::update18::upd_screen_or_not;
 use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, 
     read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list,
@@ -23,7 +23,7 @@ pub(crate) fn change_dir(cmd: String, set: bool){
     crate::set_front_list2("cd", 0);
     let mut path_display = format!("Working directory: {path}");
     set_full_path(&path_display, 4051778415);
-    if !set {return;}
+    if !set {return;}  upd_screen_or_not((-1, "".strn() ) ); mk_cnt();
     save_file(path, "env/cd".to_string());
     crate::fix_num_files0(-179127);
 }
@@ -42,7 +42,7 @@ pub(crate) fn dir_up(){
     let mut pwd = read_file("env/cd");
     if pwd.chars().nth(pwd.chars().count().dec()) == Some('/'){pwd = pwd.substring(0, pwd.chars().count().dec().dec()).strn()}
     tailOFF( &mut pwd, "/");
-    if pwd == ""{return}; upd_screen_or_not((-1, "".strn() ) );
+    if pwd == ""{return};
     change_dir(pwd, true);
 }
 pub(crate) fn dir_down(cmd: String){
