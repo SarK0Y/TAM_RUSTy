@@ -149,6 +149,7 @@ let path_2_new0 = path_2_new.to_str().unwrap().to_string();
     true
 }
 fn viewer_n_adr(app: String, file: String) -> bool{
+    use crate::custom_traits::STRN_strip;
     let func_id = crate::func_id18::viewer_;
     if app == "none" {
         crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> /path/to/file'", func_id);
@@ -162,9 +163,9 @@ fn viewer_n_adr(app: String, file: String) -> bool{
     let filename_len = file.chars().count();
     let mut file = file;
     let patch_mark_len = "::patch".to_string().chars().count();
-    if filename_len > patch_mark_len && file.substring(filename_len - patch_mark_len, filename_len) == "::patch"{
-    file = file.replace("::patch", "");
-    }else{file = full_escape(&file);}
+    if crate::Path::new(&file).exists(){
+        file = full_escape(&file);
+    }else{file.strip_all_symbs();}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
