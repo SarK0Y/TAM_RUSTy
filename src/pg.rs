@@ -129,12 +129,14 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
     unsafe {shift_cursor_of_prnt(-1, None, func_id).shift};
        let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
+       cursor_direction(Some (true) );
        set_cur_cur_pos(usize_2_i64(pos), func_id);
         return "dontPass".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
        unsafe {shift_cursor_of_prnt(1, None, func_id).shift};
        let pos = unsafe {shift_cursor_of_prnt(0, None, func_id).shift};
        set_cur_cur_pos(usize_2_i64(pos), func_id);
+       cursor_direction(Some (false) );
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F5, Key.as_str()) == 0 {
@@ -295,7 +297,14 @@ pub(crate) fn form_cmd_newline_default(){
     wipe_cmd_line(whole_line_len);
     form_cmd_newline(prompt, prnt)
 }
-
+pub fn cursor_direction (left: Option <bool> ) -> bool{
+    static mut direct_left: bool = false;
+    unsafe {
+        if let Some (x) = left {
+            direct_left = x;
+        } direct_left
+    }
+}
 pub(crate) fn form_cmd_line_default(){
     let func_id = crate::func_id18::form_cmd_line_default_;
     let prompt = crate::get_prompt(func_id); let mut ret = unsafe {crate::shift_cursor_of_prnt(3, None, func_id)};
@@ -314,7 +323,7 @@ pub(crate) fn form_cmd_line_default(){
     let len = prnt.chars().count();
     if ret.shift == len {prnt = format!("👉{}", prnt)}
     else if ret.shift < len {ret.shift = len - ret.shift;
-    prnt.push('👈');
+    if cursor_direction(None) {prnt.push('👈')} else { prnt.push('👉') };
     prnt = ins_last_char_to_string1_from_string1(ret.shift, prnt);}
     let whole_line_len = prompt.len() + prnt.len() + 2;
     prnt.push_str(shift.as_str());
