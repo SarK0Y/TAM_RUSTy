@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use termios::ISIG;
 //use gag::RedirectError;
 
-use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
+use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();
@@ -187,8 +187,11 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     crate::run_cmd0(mk_cache_dir);
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/logs");
     crate::run_cmd0(mk_cache_dir);
-    let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
-    crate::run_cmd0(mk_cache_dir);
+    if !link_lst_dir_to() {
+        let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst");
+        crate::run_cmd0(mk_cache_dir);
+    }
+    session_lists();
     let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_opts");
     crate::run_cmd0(mk_cache_dir);
      let mk_cache_dir = format!("mkdir -p {tmp_dir}/env/lst_id");
@@ -336,16 +339,40 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String{
     let strr = str::replace(&strr, ":s:", " ");
     return strr.to_string();
 }
+pub(crate) fn escape_symbs_no_limits(str0: &String, func_id: i64) -> String{
+    let  strr = str0.as_str();
+    let strr = strr.replace("-", r"\-");
+    let strr = strr.replace(" ", r"\ ");
+    let strr = strr.replace("$", r"\$");
+    let strr = strr.replace("`", r"\`");
+    let strr = strr.replace("(", r"\(");
+    let strr = strr.replace("}", r"\}");
+    let strr = strr.replace("{", r"\{");
+    let strr = strr.replace(")", r"\)");
+    let strr = strr.replace("]", r"\]");
+    let strr = strr.replace("[", r"\[");
+    let strr = strr.replace("&", r"\&");
+    let strr = strr.replace("'", r"\'");
+    let strr = strr.replace(r"\\'", r"\'");
+    let strr = str::replace(&strr, ":s:", " ");
+    return strr.to_string();
+}
 pub(crate) fn escape_apostrophe(str0: &String, func_id: i64) -> String{
     if func_id != crate::func_id18::full_escape_{return str0.strn()}
     if no_esc_lst(str0, false).is_some(){return str0.strn()}
     if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
     return str0.as_str().replace(r"'", r"\'");
 }
+pub(crate) fn escape_apostrophe_no_limits(str0: &String, func_id: i64) -> String{
+    return str0.as_str().replace(r"'", r"\'");
+}
 pub(crate) fn escape_backslash(str0: &String, func_id: i64) -> String{
     if func_id != crate::func_id18::full_escape_{return str0.strn()}
     if no_esc_lst(str0, false).is_some(){return str0.strn()}
     if check_patch_mark(str0) || !swtch_esc(false, false){return str0.to_string();}
+    return str0.as_str().replace("\\", r"\\");;
+}
+pub(crate) fn escape_backslash_no_limits(str0: &String, func_id: i64) -> String{
     return str0.as_str().replace("\\", r"\\");;
 }
 pub(crate) fn full_escape(str0: &String) -> String{
@@ -356,6 +383,13 @@ pub(crate) fn full_escape(str0: &String) -> String{
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)
+}
+pub(crate) fn full_escape_no_limits(str0: &String) -> String{
+    let func_id = crate::func_id18::full_escape_;
+    let front_list = name_of_front_list("", false);
+    let str0 = escape_backslash_no_limits(str0, func_id);
+    let str0 = escape_apostrophe_no_limits(&str0, func_id);
+    escape_symbs_no_limits(&str0, func_id)
 }
 pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool{
     let func_id = 3;

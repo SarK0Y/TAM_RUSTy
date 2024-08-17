@@ -12,7 +12,7 @@ use crate::custom_traits::{STRN, STRN_strip, fs_tools};
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{fix_num_files, func_id18, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
+use crate::{checkArg, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -350,8 +350,8 @@ pub(crate) fn list_the_lists(){
 }
 pub(crate) fn session_lists(){
     let lst = take_list_adr("lst");
-    let lst_dir = take_list_adr("env/lst");
-    let cmd = format!("find {lst_dir} > {lst}");
+    let lst_dir = full_escape_no_limits (&take_list_adr("env/lst") );
+    let cmd = format!("find -L {lst_dir} > {lst}");
     run_cmd0(cmd);
     // check & add default lsts
     if crate::Path::new(&take_list_adr("main0")).exists(){
@@ -371,11 +371,11 @@ pub(crate) fn session_lists(){
         run_cmd0(cmd);
     }
      if crate::Path::new(&take_list_adr("mae")).exists(){
-        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("mae"));
         run_cmd0(cmd);
     }
      if crate::Path::new(&take_list_adr("decrypted")).exists(){
-        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr("decrypted"));
         run_cmd0(cmd);
     }
 }
@@ -401,7 +401,7 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
-    if cmd0 == "lst"{list_the_lists(); return;}
+    if cmd0 == "lst"{crate::set_front_list( "lst" ); return;}
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
@@ -422,6 +422,16 @@ pub(crate) fn link_lst_to(lst: &String, adr: &String){
     if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
     match std::os::unix::fs::symlink(adr, full_adr_to_lst){Ok(j) => j,
                                         Err(e) => return println!("{func_name} got {e:?}")};
+}
+pub(crate) fn link_lst_dir_to() -> bool{
+    let func_name = "link_lst_dir_to";
+    if !checkArg("-link-lst-dir"){ return false}
+    let adr = crate::get_arg_in_cmd0("-link-lst-dir");
+    let full_adr_to_lst = take_list_adr("env/lst" );
+    if !crate::Path::new(&adr).exists(){crate::File::create_new(&adr);}
+    match std::os::unix::fs::symlink(adr, full_adr_to_lst){Ok(j) => j,
+                                        Err(e) => { println!("{func_name} got {e:?}"); return false}};
+    true
 }
 pub(crate) fn __link_lst_to(lst: &String, adr: &String){
     let func_name = "link_lst_to";
