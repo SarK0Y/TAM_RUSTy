@@ -1,7 +1,7 @@
 use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
 
 use crate::update18::upd_screen_or_not;
-use crate::{errMsg0, full_clean_cache, shift_f3_cut_off_tail_of_prnt, tab_key};
+use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key};
 use crate::globs18::load_bash_history;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
  exts::pg_uses, get_num_page, get_path_from_prnt, get_path_from_strn, getkey, 
@@ -402,6 +402,10 @@ pub(crate) fn exec_cmd(cmd: String){
     }
     if cmd.as_str().substring(0, 3) == "lst"{
         manage_lst(&cmd);
+        return;
+    }
+    if cmd == "upd lst"{
+        session_lists();
         return;
     }
     if cmd.as_str().substring(0, 2) == "cd"{
