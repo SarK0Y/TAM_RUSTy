@@ -405,7 +405,7 @@ pub(crate) fn exec_cmd(cmd: String){
         return;
     }
     if cmd == "upd lst"{
-        session_lists();
+        crate::lst::upd_session_lists();
         return;
     }
     if cmd.as_str().substring(0, 2) == "cd"{

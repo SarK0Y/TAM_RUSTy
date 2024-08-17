@@ -379,7 +379,9 @@ pub(crate) fn session_lists(){
         run_cmd0(cmd);
     }
 }
-
+pub(crate) fn upd_session_lists(){
+    session_lists(); crate::set_front_list("lst"); mk_cnt();
+}
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
