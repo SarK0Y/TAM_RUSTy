@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{bkp_tmp_dir, complete_path, cpy_str, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, read_front_list, read_front_list_but_ls, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
+use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, read_front_list, read_front_list_but_ls, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -130,7 +130,7 @@ pub(crate) fn INS(val: &str) -> bool{
       true
 }
 pub(crate) fn press_DEL(val: &str) -> page_struct_ret{crate::globs18::set_valid_list_as_front(); return unsafe{page_struct("prnt", 0, __DEL)}}
-pub(crate) fn press_BKSP() -> page_struct_ret{
+pub(crate) fn press_BKSP() -> page_struct_ret{ cursor_direction(Some (true) );
 return unsafe{page_struct("prnt", 0, __BKSP)}}
 /*------------------------------------------------------------------------------------------------------------------------ */
 pub(crate) fn get_mainpath(func_id: i64) -> String{return unsafe{page_struct("", MAINPATH_, func_id).str_}}
