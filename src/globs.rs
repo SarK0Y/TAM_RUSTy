@@ -674,6 +674,7 @@ pub(crate) fn check_substrn01(strn: &String, delim: &str) -> bool{
 
 pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     let sub_cmd0 = sub_cmd.to_string();
+    let mut cmd = cmd.strn();
     let mut full_sub_cmd = String::new(); let mut val = String::new();
     if crate::globs18::check_substrn(&cmd, sub_cmd){
         let (_, sub_cmd) = split_once_alt(&cmd, &sub_cmd.to_string());
@@ -687,6 +688,7 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
             if full_sub_cmd ==""{return (cmd.to_string(), false)}
             return (cmd.replace(&full_sub_cmd, &lst_adr), true);
         }
+        "lun::" => {let state = sub_cmd_lun(&mut cmd, &full_sub_cmd, &val); return (cmd.strn(), state);},
         _ => return (cmd.to_string(), false)
     }
 }
@@ -697,9 +699,21 @@ pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
         if ret.1{ ret0 = ret.0; continue; }
         {break;}
     }
+    loop {
+        let ret = decode_sub_cmd(&ret0, "lun::");
+        if ret.1{ ret0 = ret.0; continue; }
+        {break;}
+    }
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
 #[cfg(feature = "mae")] crate::cache::upd_uids_for_lsts();
     ret0    
+}
+pub fn sub_cmd_lun(cmd: &mut String, full_sub_cmd: &String, val: &String) -> bool{
+    if *full_sub_cmd == "" { return false; }
+    let mut lst = take_list_adr_env( val );
+    let mut cnt = 0u64;
+    while crate::Path::new( &lst ).exists() { lst = take_list_adr_env( &format!( "{val}{cnt}" ) ); cnt.inc(); }
+    *cmd = cmd.replace( full_sub_cmd, &lst); true
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
     match name {
