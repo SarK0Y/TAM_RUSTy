@@ -456,6 +456,7 @@ let cmd = format!("find -L {path} -maxdepth 1");
 find_files_ls(cmd);
 let cd = format!("{}/cd", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
 let ls = format!("{}/ls", crate::C!(crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_));
+if read_file_abs_adr(&ls) == getStop_code__!() { return false;}
 let cmd: String =  format!("#!/bin/bash\n#ls cpy to cd\ncp -f {ls} {cd}");
 crate::run_cmd_out_sync(cmd);
 return true;

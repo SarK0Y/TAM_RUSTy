@@ -3,7 +3,7 @@ use crate::update18::upd_screen_or_not;
 use crate::{update18::update_dir_list, find_files_ls, TMP_DIR_, bkp_tmp_dir, run_cmd_out_sync, set_front_list, 
     read_file, drop_ls_mode, save_file, popup_msg, ln_of_found_files, ln_of_list, tailOFF, set_ask_user, globs18::get_item_from_front_list,
      set_full_path, is_dir, checkArg, clean_cache};
-     use crate::custom_traits::{helpful_math_ops, STRN}; use substring::Substring;
+     use crate::custom_traits::{helpful_math_ops, STRN, STRN_strip}; use substring::Substring;
 
 pub(crate) fn change_dir(cmd: String, set: bool){
     clean_cache("cd");
@@ -14,14 +14,15 @@ pub(crate) fn change_dir(cmd: String, set: bool){
         change_dir(pwd, false);   
     }
     let path = cmd.replace("cd", "").trim_start().to_string();
-    let path_escaped = crate::full_escape(&path);
-    if path == ""{return}
+    if path == ""{return};
+    let mut path_escaped = if crate::Path::new(&path).exists(){ path.clone() }else { crate::full_escape(&path) };
     //let (base_path, indx) = ln_of_list(0, "cd");
     //let check_base_str = base_path.replace(&path, "");
-    crate::find_files_cd_cpy_ls(&path_escaped);
+    if !crate::Path::new(&path_escaped).exists(){ path_escaped.strip_all_symbs(); }
+    if !crate::find_files_cd_cpy_ls(&path_escaped) {crate::errMsg0(&format!("{path_escaped} is empty") ); return};
     drop_ls_mode();
     crate::set_front_list2("cd", 0);
-    let mut path_display = format!("Working directory: {path}");
+    let mut path_display = format!("Working directory: {}", path);
     set_full_path(&path_display, 4051778415);
     if !set {return;}  upd_screen_or_not((-1, "".strn() ) ); mk_cnt();
     save_file(path, "env/cd".to_string());
