@@ -693,6 +693,7 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
     }
 }
 pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
+    if !cmd_decode_mode(None) {return cmd.strn();}
     let mut ret0 = cmd.to_string();
     loop {
         let ret = decode_sub_cmd(&ret0, "lst::");
@@ -714,6 +715,14 @@ pub fn sub_cmd_lun(cmd: &mut String, full_sub_cmd: &String, val: &String) -> boo
     let mut cnt = 0u64;
     while crate::Path::new( &lst ).exists() { lst = take_list_adr_env( &format!( "{val}{cnt}" ) ); cnt.inc(); }
     *cmd = cmd.replace( full_sub_cmd, &lst); true
+}
+pub fn cmd_decode_mode(set: Option <bool>) -> bool {
+    static mut state: bool = true;
+    unsafe {
+        if let Some (x) = set {
+            state = x;
+        } state
+    }
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
     match name {
