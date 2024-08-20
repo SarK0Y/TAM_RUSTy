@@ -690,6 +690,7 @@ pub(crate) fn decode_sub_cmd(cmd: &String, sub_cmd: &str) -> (String, bool){
         }
         "lun::" => {let state = sub_cmd_lst_uniq_num(&mut cmd, &full_sub_cmd, &val); return (cmd.strn(), state);},
         "lne::" => {return sub_cmd_lst_not_exists(&cmd, &full_sub_cmd, &val); },
+        "lab::" => {return sub_cmd_lst_always_blank(&cmd, &full_sub_cmd, &val); },
         _ => return (cmd.strn(), false)
     }
 }
@@ -712,6 +713,12 @@ pub(crate) fn decode_sub_cmds(cmd: &String) -> String{
         ret0 = ret.0; 
         {break;}
     }
+    loop {
+        let ret = decode_sub_cmd(&ret0, "lab::");
+        if ret.1{ ret0 = ret.0; continue; }
+        ret0 = ret.0; 
+        {break;}
+    }
 #[cfg(feature="in_dbg")] {save_file(ret0.clone(), "decoded_prnt".to_string()); crate::report(&ret0, "decoded_prnt");}
 #[cfg(feature = "mae")] crate::cache::upd_uids_for_lsts();
     ret0    
@@ -720,8 +727,20 @@ pub fn sub_cmd_lst_not_exists(cmd: &String, full_sub_cmd: &String, val: &String)
     if *full_sub_cmd == "" {return (cmd.strn(), false) }
     let lst = take_list_adr_env(val );
     if !crate::Path::new( &lst ).exists() {return (cmd.replace( full_sub_cmd, &lst), true);}
-    (cmd.replace( full_sub_cmd, "/@@$%!"), false)
+    (cmd.replace( full_sub_cmd, "/@@$%!/.~/hmm..here???" ), false)
 }
+pub fn sub_cmd_lst_always_blank(cmd: &String, full_sub_cmd: &String, val: &String) -> (String, bool){
+    if *full_sub_cmd == "" {return (cmd.strn(), false) }
+    use Mademoiselle_Entropia::help_funcs::get_file;
+    let lst = take_list_adr_env(val );
+    if crate::Path::new( &lst ).exists() {
+        let mut file = match get_file( &lst){
+            Ok (f) => f,
+            Err(e) => {errMsg0(&format!("{e:?}") ); return (cmd.strn(), false); }
+        }; file.set_len(0); return (cmd.replace( full_sub_cmd, &lst), true);}
+    (cmd.replace( full_sub_cmd, &lst), false)
+}
+
 pub fn sub_cmd_lst_uniq_num(cmd: &mut String, full_sub_cmd: &String, val: &String) -> bool{
     if *full_sub_cmd == "" { return false; }
     let mut lst = take_list_adr_env( val );
