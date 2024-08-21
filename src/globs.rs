@@ -752,8 +752,8 @@ pub fn cmd_decode_mode(set: Option <bool>) -> bool {
     static mut state: bool = true;
     unsafe {
         if let Some (x) = set {
-            state = x;
-        }/*errMsg0(&format!("cmd decode mode is {state}.. Please, press any key to continue."));*/ state
+            state = x; errMsg0(&format!("cmd decode mode is {state}.. Please, press any key to continue."));
+        } state
     }
 }
 pub(crate) fn take_list_adr_env(name: &str) -> String{
