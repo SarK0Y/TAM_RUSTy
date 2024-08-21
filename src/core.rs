@@ -54,7 +54,7 @@ pub(crate) fn set_front_list(list: &str){
     if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
     else {swtch_esc(true, true); }
     let prev = name_of_front_list("", false);
-    if prev != "" || prev != "ls" {
+    if prev != "" && prev != "ls" {
         save_file(prev, "prev_list".strn() );
     }
     let found_files = take_list_adr_env(&"found_files".strn() );
@@ -77,7 +77,7 @@ pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize){
     if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
     else {swtch_esc(true, true); }
     let prev = name_of_front_list("", false);
-    if prev != "" || prev != "ls" {
+    if prev != "" && prev != "ls" {
         save_file(prev, "prev_list".strn() );
     }
     let found_files = take_list_adr_env(&"found_files".strn() );

@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use crate::{checkArg, getkey, link_lst_to, set_front_list2, split_once};
+use crate::{checkArg, getkey, link_lst_to, set_front_list, set_front_list2, split_once};
 pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;
@@ -82,6 +82,10 @@ pub(crate) fn swtch_ls(set: bool, new_state: bool) -> bool{
     static mut state: bool = true;
     static mut fst_run: bool = false;
     if set{crate::C!(state = new_state);}
+    if !crate::C!(state) {
+        let prev = crate::read_file( "prev_list" );
+        set_front_list( &prev );
+    }
     crate::C!(state)
 }
 pub(crate) fn link_ext_lsts(){
