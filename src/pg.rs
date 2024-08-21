@@ -1,6 +1,7 @@
-use cli_table::TableStruct; use crate::custom_traits::{STRN, helpful_math_ops};
+use cli_table::TableStruct;
+use libc::uname; use crate::custom_traits::{STRN, helpful_math_ops};
 
-use crate::update18::upd_screen_or_not;
+use crate::update18::{delay_ms, upd_screen_or_not};
 use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key};
 use crate::globs18::load_bash_history;
 use crate::{add_cmd_in_history, change_dir, clean_cache, core18::{achtung, calc_num_files_up2_cur_pg, checkArg, errMsg_dbg, ins_newlines, popup_msg},
@@ -107,6 +108,30 @@ if run_command.status.success(){
     io::stderr().write_all(&run_command.stderr).unwrap();
 }
 }
+pub fn no_print(yes: Option <bool>, timeout: Option < u128 >) -> bool {
+use once_cell::sync::Lazy;
+   static mut state: bool = false;
+    static mut timestamp: Lazy <std::time::SystemTime > = Lazy::new(|| {std::time::SystemTime::now()} );
+   unsafe {
+        let ms: u128 = match timestamp.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return false}.as_micros();
+        let now0 = std::time::SystemTime::now();
+        let now0 = match now0.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return false}.as_micros();
+        if let Some (y) = timeout {
+            if y < now0 - ms {return false } *timestamp = std::time::SystemTime::now();
+        } else { if 40_000 < now0 - ms { return false } *timestamp = std::time::SystemTime::now(); }
+
+    if let Some( x ) = yes {
+       state = x;
+    } state
+   }
+}
+pub fn no_print0(trim: Option <String>, delay: u64 ) {
+    delay_ms(delay);
+    if let Some (x) = trim {
+        let prnt = get_prnt( -67511001 ).trim_end_matches(& x ).strn();
+        set_prnt(&prnt, -67511001);
+    }
+}
 pub(crate) 
 fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>) -> String{
     let func_id = crate::func_id18::hotKeys_;
@@ -121,9 +146,11 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
         return crate::key_handlers::F1_key();
     } 
     if crate::globs18::eq_ansi_str(&kcode::DOWN_ARROW, Key.as_str()) == 0 {
+        no_print0( Some ( kcode::DOWN_ARROW.strn() ), 0 );
         return "pp".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::UP_ARROW, Key.as_str()) == 0 {
+        no_print0( Some ( kcode::UP_ARROW.strn() ), 0 );
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {

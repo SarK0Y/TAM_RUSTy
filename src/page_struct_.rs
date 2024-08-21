@@ -105,6 +105,7 @@ pub(crate) fn init_page_struct() -> _page_struct{
    ps_new
 }
 pub(crate) fn INS(val: &str) -> bool{
+ // if !crate::pg18::no_print( None, Some ( 150_000_000 ) ){return false ;}
   if val == ""{return false}
   let func_id = crate::func_id18::INS_;
   let mut cur_cur_pos = get_prnt(func_id).chars().count();
