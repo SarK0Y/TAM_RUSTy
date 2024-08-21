@@ -311,7 +311,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     static mut TMP_DIR: OnceCell<String> = OnceCell::new(); //22
     //let mut tst: String = "5".to_string();
     if fst_run {
-      println!("fst func id {}", id_of_caller);
+      //println!("fst func id {}", id_of_caller);
       let _ = STOP_CODE.set("∇".to_string());
       FULL_PATH.set("".to_string());
       ASK_USER.set("".to_string());

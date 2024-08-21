@@ -9,10 +9,11 @@ use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
 use crate::custom_traits::{STRN, STRN_strip, fs_tools};
+use crate::globs18::cmd_decode_mode;
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{checkArg, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
+use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -628,5 +629,14 @@ pub fn upd_lst_cmds(){
         file.write_all(see.as_bytes() );
     }
     crate::set_front_list("cmds"); 
+}
+pub fn show_modes(){
+    clear_screen();
+    let ls = swtch_ls(false, false);
+    let cmd_decode = cmd_decode_mode(None);
+    let escape_special_symbs = swtch_esc(false, false);
+    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n");
+    print!("{see}", );
+    errMsg0("Please, press any key to continue.. Thanks.");
 }
 //fn
