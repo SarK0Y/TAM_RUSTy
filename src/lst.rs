@@ -71,6 +71,7 @@ pub(crate) fn clear_patch(){
     __patch(Some("::clear patch::".strn()), None);
 }
 pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
+    return None;
     static mut no_esc: Lazy<no_esc_t> = Lazy::new(||{HashSet::new()});
     if insert{
         unsafe{
@@ -404,7 +405,7 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
-    if cmd0 == "lst"{crate::set_front_list( "lst" ); return;}
+    if cmd0 == "lst"{set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
