@@ -1,4 +1,6 @@
-use crate::{bkp_tmp_dir, save_file, save_file_abs_adr, parse_replace, _ext_msgs, popup_msg, globs18::drop_key, getkey, cached_data, checkArg, get_arg_in_cmd, stop_term_msg, free_term_msg};
+use num_traits::bounds;
+
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, fix_num_files, free_term_msg, get_arg_in_cmd, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -11,6 +13,7 @@ pub(crate) struct basic{
     rec_shol: (String, String),
     ext_old_modes: crate::_ext_msgs,
     pub cache: HashMap<String, HashMap<usize, Vec<String>>>,
+    pub cache_active: bool,
     pub cache_window: usize,
     pub seg_size: usize,
 }
@@ -36,11 +39,12 @@ impl basic{
         shol_state: false,
         swtch_shols: false,
         mk_shol_state: 0,
-        tmp_dir: bkp_tmp_dir(),
+        tmp_dir: bkp_tmp_dir(None, false),
         shols: Vec::new(),
         rec_shol: (String::new(), String::new()),
         ext_old_modes: _ext_msgs::new(),
         cache: HashMap::with_capacity(new_cache_window),
+        cache_active: true,
         cache_window: new_cache_window,
         seg_size: seg_size_new,
     }
@@ -50,7 +54,14 @@ pub fn default() -> Self{
 }
 pub fn build_page(&mut self, ps: &mut crate::_page_struct){basic::build_page_(self, ps)}
 /*cache */
-pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){basic::pg_rec_from_cache(&mut self.cache, key, indx)}
+pub fn rec_from_cache(&mut self, key: &String, indx: usize) -> (String, cached_data){
+ #[cfg(not(feature = "mae"))] 
+  if clean_fast_cache(None){self.cache = HashMap::new(); 
+    unsafe 
+    {crate::basic::mk_fast_cache(&"".strn(), 0, &"".strn(), crate::cache_state::taken);}; return ("".strn(), cached_data::no_list)}
+  let ret = basic::pg_rec_from_cache(&mut self.cache, key, indx);
+   let corrupted = ("cache was corrupted".to_string(), cached_data::corrupted);
+   if ret == corrupted {self.cache.clear();} ret}
 pub fn rec_to_cache(&mut self, key: String, val: String){basic::pg_rec_to_cache(&mut self.cache, &key, &val)}
 pub fn null_cache(&mut self, key: &String){basic::pg_0_cache(&mut self.cache, &key)}
 pub fn rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{basic::pg_rec_from_front_list(self, indx, fixed_indx)}
@@ -107,22 +118,24 @@ pub trait ManageLists{
 }
 impl ManageLists for basic{
   fn manage_pages(&mut self){
+    use termion::clear;
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
     loop{
         crate::clear_screen();
+        //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
+        if name_of_front_list("", false) == "ls"{fix_num_files(97481);}
         let num_pg = crate::get_num_page(-55541555121);
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
-        if num_pg < num_pgs || num_pgs ==0 {self.build_page( &mut ps);}
+        if num_pg < num_pgs {self.build_page( &mut ps);}
         println!("{}", crate::get_prnt(-1));
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));
-        crate::clear_screen();
     }
 }
  fn custom_input(&mut self, Key: &mut String, ext: bool) -> String{

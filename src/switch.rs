@@ -20,7 +20,13 @@ use std::{
 };
 pub const SWTCH_RUN_VIEWER: i64 = 0;
 pub const SWTCH_USER_WRITING_PATH: i64 = 1;
-use crate::{core18::{errMsg, get_path_from_prnt, update_user_written_path}, ps18::{set_ask_user, get_full_path, get_num_page, get_num_files, page_struct_ret, init_page_struct, child2run}, globs18::{get_item_from_front_list, set_ls_as_front, FRONT_, F3_key, take_list_adr}, func_id18::{viewer_, mk_cmd_file_, where_is_last_pg_}, update18::update_dir_list, complete_path, pg18::form_cmd_line_default, get_prnt, position_of_slash_in_prnt, usize_2_i64, escape_symbs, read_rgx_from_prnt, split_once, cpy_str, raw_ren_file, read_file, mark_front_lst, save_file, path_exists, drop_ls_mode, tui_or_not, run_term_app, read_front_list_but_ls, set_front_list, set_full_path, full_escape, no_view};
+use crate::{add_cmd_in_history, complete_path, core18::{errMsg, get_path_from_prnt, update_user_written_path}, cpy_str, drop_ls_mode, edit_mode_lst, 
+escape_symbs, full_escape, func_id18::{mk_cmd_file_, viewer_, where_is_last_pg_}, get_prnt,
+ globs18::{get_item_from_front_list, set_ls_as_front, take_list_adr, FRONT_}, mark_front_lst, no_view, path_exists, 
+ pg18::form_cmd_line_default, position_of_slash_in_prnt, 
+ ps18::{child2run, get_full_path, get_num_files, get_num_page, init_page_struct, page_struct_ret, set_ask_user}, raw_ren_file, read_file, 
+ read_front_list_but_ls, read_rgx_from_prnt, run_term_app, save_file, set_front_list, set_full_path, split_once, tui_or_not, 
+ update18::update_dir_list, usize_2_i64};
 pub(crate) unsafe fn check_mode(mode: &mut i64){
     static mut state: i64 = 0;
     if *mode == -1 {*mode = state;}
@@ -30,6 +36,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String){
     static mut fst_run: bool = true;
     static mut fn_indx: usize = 0;
     static mut fn_: OnceCell<Vec<fn(String) -> bool>> = OnceCell::new();
+    if edit_mode_lst(None) {return}
     if fst_run{
         let fn_vec: Vec<fn(String) -> bool> = Vec::new();
         fn_.set(fn_vec); fst_run = false;
@@ -88,12 +95,12 @@ pub(crate) fn renFile() -> bool{
         Ok(n) => n,
         _ => 0i64
     };
-    let old_name = escape_symbs(&get_item_from_front_list(file_indx, true));
+    let old_name = full_escape(&get_item_from_front_list(file_indx, true));
     if old_name.len() == 0 || Path::new(&old_name).is_dir(){
         set_ask_user(&"file has wrong type".bold().red().to_string(), 12154487);
         return false;
     }
-    let mut new_name = escape_symbs(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
+    let mut new_name = full_escape(&prnt.replace(&crate::cpy_str(&head), "").trim_start_matches(" ").to_string());
     let is_last_ch_slash = new_name.chars().count() - 1;
     let is_last_ch_slash = new_name.chars().nth(is_last_ch_slash).unwrap().to_string();
     let mut slash = "".to_string();
@@ -142,6 +149,7 @@ let path_2_new0 = path_2_new.to_str().unwrap().to_string();
     true
 }
 fn viewer_n_adr(app: String, file: String) -> bool{
+    use crate::custom_traits::STRN_strip;
     let func_id = crate::func_id18::viewer_;
     if app == "none" {
         crate::core18::errMsg("To run file w/ viewer, You need to type '<indx of viewer> /path/to/file'", func_id);
@@ -155,12 +163,13 @@ fn viewer_n_adr(app: String, file: String) -> bool{
     let filename_len = file.chars().count();
     let mut file = file;
     let patch_mark_len = "::patch".to_string().chars().count();
-    if filename_len > patch_mark_len && file.substring(filename_len - patch_mark_len, filename_len) == "::patch"{
-    file = file.replace("::patch", "");
-    }else{file = full_escape(&file);}
+    if crate::Path::new(&file).exists(){
+        file = full_escape(&file);
+    }else{file.strip_all_symbs();}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
+    add_cmd_in_history(&format!("term {cmd}") );
     if tui_or_not(cpy_str(&cmd), &mut file){cmd = format!("{} {}", viewer, file);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
@@ -202,6 +211,7 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
     }else{filename = full_escape(&filename);}
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
+    add_cmd_in_history(&format!("term {cmd}") );
     if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
@@ -336,7 +346,7 @@ pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool{
     file_2_write_path.set_len(0);
     file_2_write_path.write_all(strn.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
-    let written_path = escape_symbs(&read_user_written_path());
+    let written_path = full_escape(&read_user_written_path());
    // save_file(written_path.to_string(), "written_path.dbg".to_string());
     update_dir_list(&written_path, "-maxdepth 1", false);
     true
@@ -355,10 +365,10 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
     file_2_write_path.write_all(path_from_prnt.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
     let written_path = read_user_written_path();
-    if written_path == "" {drop_ls_mode(); F3_key();}
+    if written_path == "" {drop_ls_mode(); crate::F3_key();}
     else{set_ls_as_front();}
     save_file(written_path.to_string(), "written_path_prnt.dbg".to_string());
-    update_dir_list(&escape_symbs(&written_path), "-maxdepth 1", false);
+    update_dir_list(&full_escape(&written_path), "-maxdepth 1", false);
     written_path
 }
 

@@ -10,9 +10,13 @@
 #[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
-use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize};
+use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize, take_list_adr};
+use syn::token::Return;
+use update18::delay_ms;
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
+#[cfg(feature ="mae")]
+use Mademoiselle_Entropia::true_rnd::UID_UTF8;
 use_all!();
 
 pub(crate) fn split_once(in_string: &str, delim: &str) -> (String, String) {
@@ -25,6 +29,19 @@ let first = match splitter.next(){
 let second = match splitter.next(){
     Some(val) => val,
     _ => return (first.to_string(), "none".to_string())
+};
+return  (first.to_string(), second.to_string());
+}
+pub(crate) fn split_once_or_ret_null_strs(in_string: &str, delim: &str) -> (String, String) {
+    if delim.chars().count() > 1{return split_once_alt(&in_string.to_string(), &delim.to_string());}
+let mut splitter = in_string.splitn(2, delim);
+let first = match splitter.next(){
+    Some(val) => val,
+    _ => return ("".to_string(), "".to_string())
+};
+let second = match splitter.next(){
+    Some(val) => val,
+    _ => return (first.to_string(), "".to_string())
 };
 return  (first.to_string(), second.to_string());
 }
@@ -75,7 +92,6 @@ let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-let path_2_list_of_found_files = format!("{}", unsafe{ps18::page_struct("", ps18::FOUND_FILES_, -1).str_});
 core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
@@ -98,7 +114,6 @@ let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-let path_2_list_of_found_files = format!("{}", unsafe{ps18::page_struct("", ps18::FOUND_FILES_, -1).str_});
 core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
@@ -128,7 +143,6 @@ let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-let path_2_list_of_found_files = format!("{}", unsafe{ps18::page_struct("", ps18::FOUND_FILES_, -1).str_});
 core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 let fstdout0 = File::open("/dev/null").unwrap();
@@ -153,7 +167,7 @@ let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-let path_2_list_of_found_files = format!("{}", unsafe{ps18::page_struct("", ps18::FOUND_FILES_, -1).str_});
+let path_2_list_of_found_files = take_list_adr("found_files");
 fstdout = String::from(path_2_list_of_found_files); 
 core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 core18::errMsg_dbg(&fstdout, func_id, -1.0);
@@ -222,11 +236,13 @@ return match from_utf8(&run_command.stdout){
 }.to_string()
 }
 fn read_midway_data() -> bool{
+    delay_ms(27);
+    if checkArg("-front-lst"){return read_midway_data_not_main0() }
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
         let stopCode = getStop_code__!();
-        let filename = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let filename = take_list_adr("found_files").unreel_link_to_depth(1);
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {
@@ -236,17 +252,55 @@ fn read_midway_data() -> bool{
         let ret = globs18::add_2_front_list(&line, -1); // todo => add_2_front_list
        // let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
         ps18::set_num_files0(func_id, indx); 
-        if dirty!(){println!("line {}", line)}
+        if dirty!(){println!("line {indx} {}", line)}
         if line == stopCode{ps18::fix_num_files(func_id); return true}
-    }  if dirty!(){println!("midway ended")}}
+    }  }
+    if dirty!(){println!("midway ended")}
+    false
+}
+fn read_midway_data_not_main0() -> bool{
+    let func_id = func_id18::read_midway_data_;
+    let mut added_indx = 0usize;
+    loop {
+        let stopCode = getStop_code__!();
+        let filename = format!("{}/main0", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let file = File::open(filename).unwrap();
+        let reader = BufReader::new(file);
+    for (indx, line) in reader.lines().enumerate() {
+        if indx <= added_indx && added_indx > 0{continue;}
+        added_indx = indx;
+        let line = line.unwrap();
+        let ret = globs18::add_2_main0_list(&line ); 
+       // let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
+        ps18::set_num_files0(func_id, indx); 
+        if dirty!(){println!("line {indx} {}", line)}
+        if line == stopCode{ps18::fix_num_files(func_id); return true}
+    }  }
+    if dirty!(){println!("midway ended")}
     false
 }
 //#[inline(always)]
 fn find_files(path: &str, path_2_tmp_file: &str) -> bool{
+    if checkArg("-front-lst"){return find_files_not_main0(path, path_2_tmp_file) }
 let func_id: i64 = 2;
+let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+/*let mut perms = std::fs::metadata(&output).unwrap().permissions();
+perms.set_readonly(true);
+std::fs::set_permissions(output, perms); return true; */
 let mut in_name = String::new();
 let mut list_of_found_files: Vec<String> = vec![]; 
-let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+if in_name.len() == 0{in_name = core18::put_in_name();}
+else{in_name = format!("|{}", form_grep_cmd(&in_name));}
+let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
+let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f{in_name} >> {};echo '{stopCode}' >> {}", output, output);
+run_cmd0(cmd);
+return true;
+}
+fn find_files_not_main0(path: &str, path_2_tmp_file: &str) -> bool{
+let func_id: i64 = 2;
+let output = format!("{}/main0", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+let mut in_name = String::new();
+let mut list_of_found_files: Vec<String> = vec![]; 
 if in_name.len() == 0{in_name = core18::put_in_name();}
 else{in_name = format!("|{}", form_grep_cmd(&in_name));}
 let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
@@ -263,6 +317,7 @@ for i in 1..args.len(){
 }
 return ret;
 }
+
 fn get_arg_in_cmd(key: &str) -> core18::ret0{
 let mut s: [char; 512] = ['\0'; 512];
 let mut ret: core18::ret0 = core18::ret0{s, res: false};
@@ -302,6 +357,9 @@ fn main (){
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
     // let mut x = 0u64;
  //   loop{ x += 1;}
+ /*#[cfg(feature ="mae")] let tst = UID_UTF8(15);
+ #[cfg(feature ="mae")]
+ println!("{} {}", tst, tst.chars().count() ); return;*/
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if checkArg("-mk-dummy-file"){
@@ -314,12 +372,13 @@ fn main (){
  SYS();
     }
     if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
-   initSession();
-   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){info(); SYS();}
-   if checkArg("-rilocan"){rilocan(); return;}
+   //initSession();
+   if checkArg("-ver") || checkArg("-version") || checkArg("--version"){initSession(); info(); SYS();}
+   if checkArg("-rilocan"){initSession(); rilocan(); return;}
    let key = "-encrypt-copy".strn();
    if checkArg(&key){
-    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    if !cfg!(feature="mae"){println!("Dear User, enable feature mae", ); SYS()}
+    initSession();
     let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     #[cfg(feature="mae")] encrypt_n_keep_orig_file(&name);
     SYS();
@@ -327,6 +386,7 @@ fn main (){
    let key = "-decrypt-copy".strn();
    if checkArg(&key){
     if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+    initSession();
     let name = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     #[cfg(feature="mae")] decrypt_copy(&name);
     SYS();
@@ -334,6 +394,7 @@ fn main (){
    let key = "-count-ch".strn();
 #[cfg(feature="mae")] 
    if checkArg(&key){
+    initSession();
      use Mademoiselle_Entropia::help_funcs;
     let ch = String::from_iter(get_arg_in_cmd(&key).s).trim().trim_matches('\0').strn();
     let name = String::from_iter(get_arg_in_cmd("-file").s).trim().trim_matches('\0').strn();

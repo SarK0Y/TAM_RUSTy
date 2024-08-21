@@ -2,7 +2,7 @@ use Mademoiselle_Entropia::{Mademoiselle_Entropia::cipher, help_funcs};
 use crate::{custom_traits::{STRN, STRN_strip}, getkey};
 pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
     let func_name = "encrypt_n_keep_orig_file".strn();
-    let file_to_encrypt = cmd.replace("encrypt copy", "").trim_start().trim_end().strn();
+    let file_to_encrypt = cmd.replace("encrypt copy", "").trim_start().trim_end().strn().strip_all_symbs();
     match std::fs::copy(&file_to_encrypt, format!("{file_to_encrypt}.mae")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
     let fst_pswd = pswd(None);
     let nd_pswd = pswd(Some("\rPlease, repeat Your password: ".strn()) );
@@ -22,7 +22,7 @@ pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
 }
 pub(crate) fn decrypt_copy(cmd: &String){
     let func_name = "decrypt_copy".strn();
-    let file_to_decrypt = cmd.replace("decrypt copy", "").trim_start().trim_end().strn();
+    let file_to_decrypt = cmd.replace("decrypt copy", "").trim_start().trim_end().strn().strip_all_symbs();
     match std::fs::copy(&file_to_decrypt, file_to_decrypt.replace(".mae", "")){Ok(f) => {}, Err(e) =>  {return println!("{func_name} got {e:?}" );}}
     let fst_pswd = pswd(None);
     let mut file = match help_funcs::get_file(
@@ -75,4 +75,11 @@ pub(crate) fn mk_dummy_filo(name: &str, content: &str, len: usize){
     use Mademoiselle_Entropia::help_funcs::dummy_file;
     file.populate_w_strn(content, len, 40*1024);
     println!("{name} created with length {len}");
+}
+pub(crate) fn mk_empty_fil0(name: &str ){
+    let func_name = "mk_empty_fil0".strn();
+    let name = name.trim_end().trim_end_matches('\0');
+    match std::fs::File::options().write(true).read(true).create_new(true).open(&name){Ok(f) => f,
+                                                         Err(e) => return println!("{func_name} got {e:?}")};
+    let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
 }

@@ -8,8 +8,8 @@ use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops};
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{unblock_fd, take_list_adr, get_item_from_front_list};
-use crate::{run_cmd_out, popup_msg, getkey, cpy_str, save_file, save_file_append, tailOFF, is_dir, split_once, read_prnt, set_prnt, read_file, rm_file, checkArg, get_arg_in_cmd, term_mv, save_file0, dont_scrn_fix, run_cmd_out_sync, default_term_4_shol_a, no_view, check_substr, drop_ls_mode, save_file_append_newline};
+use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
+use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -24,26 +24,33 @@ let fstdout: String;
 let mut stderr_path = "stderr".to_string();
 stderr_path = format!("{}stderr_term_app", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
 crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
-let fstderr = crate::File::create(stderr_path).unwrap();
+#[cfg(not(feature = "mae" ))] let fstderr = crate::File::create(stderr_path).unwrap();
+#[cfg(feature = "mae")] crate::mae::mk_empty_fil0(&stderr_path);
+#[cfg(feature = "mae")] use Mademoiselle_Entropia::help_funcs::get_file;
+#[cfg(feature = "mae")] let fstderr = match get_file(&stderr_path){Ok(f) => f, Err(e) => {crate::errMsg0(&format!("{e:?}") ); return false}};
+
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
 taken_term_msg();
 let adr_of_term_msg = adr_term_msg();
-let cmd = format!("clear;reset;{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+let pwd = read_file("env/cd");
+let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
 let (mut in_out, mut in_in) = os_pipe::pipe().unwrap();
+let err_msg = format!("run_term_app_ren cmd path {path_2_cmd}, fstderr {fstderr:#?}");
 let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .env("LC_ALL", &lc)
     .env("LANG", lc)
-    .stderr(fstderr)
+   // .current_dir(pwd)
+   // .stderr(fstderr)
 //    .stdout(out_in)//(std::process::Stdio::piped())
   //  .stdin(in_out)//(std::process::Stdio::piped())
     .spawn()
-    .expect("can't run command in run_term_app_ren");
+    .expect(&err_msg);
 
 let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];
@@ -91,7 +98,8 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("{cmd} 2>&1");
+let pwd = read_file("env/cd");
+let cmd = format!("cd {pwd};{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -130,7 +138,8 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let cmd = format!("clear;reset;{cmd} 2>&1");
+let pwd = read_file("env/cd");
+let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
 let (mut out_out, mut out_in) = os_pipe::pipe().unwrap();
@@ -172,6 +181,7 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     false
 }
 pub(crate) fn term(cmd: &String){
+    if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
     let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
@@ -180,9 +190,11 @@ pub(crate) fn term(cmd: &String){
     let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-    run_term_app(cmd.replace("term", "").trim_start().trim_end().to_string());
+    let (_, cmd) = split_once(&cmd, " ");
+    run_term_app(cmd.trim_start().trim_end().strn());
 }
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){
@@ -250,6 +262,10 @@ pub(crate) fn mk_dummy_file() -> String{
     save_file0("".to_string(), "msgs/term/dummy_file_4_id".to_string());
     take_list_adr("msgs/term/dummy_file_4_id")
 }
+pub(crate) fn mk_empty_file(name: &String){
+    match std::fs::remove_file(name){Ok (f) => {}, _ => {} }; 
+    crate::save_file_abs_adr("".strn(), name.strn());
+}
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();
     let cmd = format!("ps -eo pid,args|grep -Ei 'tam.*dummy'|grep -Eio '[0-9]+\\s+{ending}'|grep -Eo '[0-9]+'");
@@ -264,9 +280,5 @@ pub(crate) fn ending(sav: &str) -> String{
 }
 pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
     run_cmd_out_sync(format!("kill {sig} {pid}"));
-}
-pub(crate) fn add_cmd_in_history(){
-    let prnt = read_prnt();
-    save_file_append_newline(prnt, "history".strn());
 }
 //fn

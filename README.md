@@ -4,6 +4,8 @@
 
 The very reason of this project is to make Your life easy at least for a little bit thanks to efficient automation of daily routine.
 
+# Remark: it's outdated Readme ==>> check out the links for actual Info. TAM already has a damn lot of tricks to use it for Shell tasks 😉
+
 # FUNCTIONS:
 
 For now, TAM makes possible to find files in whatever directory and run them with chosen viewers. hmmm.. yea, looks rather boring ain't it??? :)) well, let's look on some examples & details will show You how this "boring" feature can make Your life better.
@@ -51,6 +53,7 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  <b>GITHUB:</b> https://github.com/SarK0Y/TAM_RUSTy.git <br>
  <b>YouTube:</b> https://www.youtube.com/@evgeneyknyazhev968 <br>
  <b>Twitter_X:</b> https://x.com/SarK0Y8 <br>
- Donations: https://boosty.to/alg0z/donate <br>
+ Donations: https://boosty.to/alg0z/donate https://zap-hosting.com/en/shop/donation/1f0c83845d810df04ca74e56238399f7/ <br>
+ # <p align=center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b> </p>
  
 # my the Best Wishes to You 🙃
