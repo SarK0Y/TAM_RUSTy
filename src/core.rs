@@ -51,10 +51,12 @@ pub(crate) fn up_front_list(){
     run_cmd_str(&cmd);
 }
 pub(crate) fn set_front_list(list: &str){
+    if list == "" {return }
     if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
     else {swtch_esc(true, true); }
     let prev = name_of_front_list("", false);
-    if prev != "" && prev != "ls" {
+    if prev == "" {return }
+    if prev != "ls" {
         save_file(prev, "prev_list".strn() );
     }
     let found_files = take_list_adr_env(&"found_files".strn() );
