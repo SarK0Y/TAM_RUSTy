@@ -497,6 +497,10 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd == cmd0{crate::lst::upd_lst_cmds(); return;} 
     let cmd0 = "cmds";
     if cmd == cmd0{crate::lst::lst_cmds(); return;} 
+    let cmd0 = "upd cmds fp";
+    if cmd == cmd0{crate::lst::upd_lst_cmds_fp(); return;} 
+    let cmd0 = "cmds fp";
+    if cmd == cmd0{crate::lst::lst_cmds_fp(); return;} 
     let cmd0 = "no decode cmd";
     if cmd == cmd0{crate::globs18::cmd_decode_mode( Some (false) ); return;} 
     let cmd0 = "en decode cmd";

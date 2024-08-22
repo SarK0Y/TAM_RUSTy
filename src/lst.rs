@@ -613,6 +613,11 @@ pub fn lst_cmds(){
     if !crate::Path::new(&cmds_adr).exists(){ upd_lst_cmds(); return; }
     crate::set_front_list("cmds"); 
 }
+pub fn lst_cmds_fp(){
+    let cmds_adr = take_list_adr_env("cmds");
+    if !crate::Path::new(&cmds_adr).exists(){ upd_lst_cmds_fp(); return; }
+    crate::set_front_list("cmds"); 
+}
 pub fn upd_lst_cmds(){
     use std::io::Write;
     let mut strn_of_cmds = run_cmd_out_sync("echo $PATH".strn() );
@@ -627,6 +632,23 @@ pub fn upd_lst_cmds(){
         let see = format!("find -L '{dir}' -executable");
         let see = run_cmd_out_sync(see);
         let see = see.replace(&format!("{dir}/"), "");
+        file.write_all(see.as_bytes() );
+    }
+    crate::set_front_list("cmds"); 
+}
+pub fn upd_lst_cmds_fp(){
+    use std::io::Write;
+    let mut strn_of_cmds = run_cmd_out_sync("echo $PATH".strn() );
+    let cmds_adr = take_list_adr_env("cmds");
+    crate::rm_file(&cmds_adr); crate::mk_empty_file(&cmds_adr);
+    let mut file = match get_file_append(&cmds_adr){Ok (f) => f, _ => 
+                                    {errMsg0(&format! ("Sorry, Dear User, failed to create {cmds_adr}")); return}};
+    loop {
+        let (dir, others) = split_once_or_ret_null_strs(&strn_of_cmds, ":");
+         if others == "" {break;}
+        strn_of_cmds = others;
+        let see = format!("find -L '{dir}' -executable");
+        let see = run_cmd_out_sync(see);
         file.write_all(see.as_bytes() );
     }
     crate::set_front_list("cmds"); 
