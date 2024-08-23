@@ -477,6 +477,13 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd == "show mrg"{
         set_front_list("merge");
     }
+    let cmd0 = ">_";
+    if cmd.as_str().substring(0, cmd0.len() ) == cmd0 {
+        let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
+        add_cmd_in_history(&cmd.replace(&format!(":>:{subcmd}"), "") );
+        if subcmd != "no_upd_scrn"{crate::term(&cmd); return}
+        crate::term(&cmd);
+    }
     if cmd.as_str().substring(0, 4) == "term"{
         let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
         add_cmd_in_history(&cmd.replace(&format!(":>:{subcmd}"), "") );

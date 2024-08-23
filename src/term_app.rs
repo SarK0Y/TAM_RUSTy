@@ -181,13 +181,14 @@ pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     false
 }
 pub(crate) fn term(cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
-    let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
+    if cmd.substring(0, 2) == ">_"{cmd = cmd.replace(">_", "term") }
+    let mut subcmd = "".to_string();
      if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
     //let (_, cmd) = split_once(&cmd, " ");
-    let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
