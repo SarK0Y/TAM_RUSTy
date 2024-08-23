@@ -1,4 +1,4 @@
-use crate::{add_cmd_in_history, clear_screen, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr, take_list_adr_env}, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_};
+use crate::{add_cmd_in_history, clear_screen, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr, take_list_adr_env}, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -107,7 +107,12 @@ format!("go2 {}", read_file("main0.pg"))
 }
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
-    crate::set_prnt("", func_id);
+    let prnt = get_prnt(func_id);
+    let cmd0 = ":+"; let mut done = false;
+    if prnt.substring(0, 2) == cmd0  && prnt != cmd0 { crate::set_prnt(&cmd0, func_id); done = true;}
+     let cmd0 = ">_";
+    if !done && prnt.substring(0, 2) == cmd0  && prnt != cmd0 { crate::set_prnt(&cmd0, func_id); done = true;}
+    if !done {crate::set_prnt("", func_id); }
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
     crate::rm_user_written_path(func_id);
     count_ln(false, false, false);
