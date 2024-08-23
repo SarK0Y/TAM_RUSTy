@@ -419,7 +419,13 @@ pub(crate) fn exec_cmd(cmd: String){
         if !global_indx_or_not {crate::C!(local_indx(true));}
         return;
     }
-    if cmd.as_str().substring(0, 5) == "sieve"{
+    let cmd0 = "sieve";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        sieve_list(crate::cpy_str(&cmd));
+        return;
+    }
+    let cmd0 = ":+";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         sieve_list(crate::cpy_str(&cmd));
         return;
     }

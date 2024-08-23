@@ -68,10 +68,10 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    let data0 = data.replace("sieve ", "");
+    let data0 = data.replace("sieve ", "").replace(":+ ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
     if opts == "none".strn() || data0 == "none".strn(){
-        set_ask_user("example: sieve -Ei some\\shere", 5977871);
+        set_ask_user("example: {sieve -Ei some\\shere} or {:+ -Ei some\\shere}", 5977871);
     }
     let mut history_mode = "".strn();
     if check_substrn(&name_of_front_list("", false), "history"){history_mode = "_history".strn();}
