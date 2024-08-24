@@ -386,6 +386,7 @@ pub(crate) fn upd_session_lists(){
 }
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
+    if cmd0 == "lst" || cmd0 == "lst "{set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
@@ -405,7 +406,6 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
-    if cmd0 == "lst"{set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
