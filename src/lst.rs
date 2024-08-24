@@ -145,7 +145,7 @@ pub(crate) fn term_rm(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/rm");
-    if add_opts == "" {add_opts = "-v".strn() }
+    if add_opts == "" {add_opts = "-vi".strn() }
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}

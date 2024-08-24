@@ -63,11 +63,11 @@ let abort = std::thread::spawn(move|| {
    // writeIn_stdin.write(&enter);
    let mut pause_operation = false;
    let mut fst = true;
-   let mut key = getkey().to_lowercase(); 
+   let mut key: String = getkey().to_lowercase(); 
    while key != "k" {
     if !fst{key = getkey().to_lowercase();}
     fst = false;
-    if read_term_msg() == "free" {op_status = true; break;}
+    //if read_term_msg() == "free" {op_status = true; break;}
        if key == "p"{
         if !pause_operation{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-STOP"); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
         else{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-CONT"); popup_msg("continue"); pause_operation = false;}
