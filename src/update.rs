@@ -15,10 +15,10 @@ pub(crate) fn main_update(){
         if  crate::checkArg("-path0"){path = get_arg_in_cmd("-path0").s.iter().collect(); no_path = false;}
         if no_path {panic!("No path was provided: set flag '-path' or '-path0");}
         KonsoleTitle(&gen_win_title());
-        if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-rows").s).as_str(), 10).expect(
+        if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-rows"), 10).expect(
             "set number of rows as an integer: '-rows 9'"
         ); crate::set_num_rows(val, func_id);}
-        if  crate::checkArg("-cols"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-cols").s).as_str(), 10).expect(
+        if  crate::checkArg("-cols"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-cols"), 10).expect(
             "set number of columns as an integer: '-cols 3'"
         ); ps0::set_num_cols(val, func_id);}
         let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
