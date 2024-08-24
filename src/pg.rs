@@ -433,12 +433,16 @@ pub(crate) fn exec_cmd(cmd: String){
         renFile();
         return;
     }
-    if cmd.as_str().substring(0, 3) == "lst"{
-        manage_lst(&cmd);
-        return;
-    }
     if cmd == "upd lst"{
         crate::lst::upd_session_lists();
+        return;
+    }
+    if cmd == "lst upd"{
+        crate::lst::upd_session_lists();
+        return;
+    }
+    if cmd.as_str().substring(0, 3) == "lst"{
+        manage_lst(&cmd);
         return;
     }
     if cmd.as_str().substring(0, 2) == "cd"{
