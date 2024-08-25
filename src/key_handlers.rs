@@ -1,4 +1,4 @@
-use crate::{add_cmd_in_history, clear_screen, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr, take_list_adr_env}, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_};
+use crate::{add_cmd_in_history, clear_screen, count_ln, custom_traits::{find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN}, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to, get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front, take_list_adr, take_list_adr_env}, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_};
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
 use substring::Substring; use std::io;
@@ -99,7 +99,8 @@ pub(crate) fn swtch_tam_konsole(){
 pub(crate) fn F1_key() -> String{
     let mut prnt: String = read_prnt();
    crate::set_front_list("main0" );
-   crate::ps18::fix_num_files(-13971);
+   //crate::ps18::fix_num_files(-13971);
+   set_num_files_4_lst( &"main0".strn() );
    crate::clean_cache("main0");
    crate::mk_uid(); drop_ls_mode();
    crate::core18::rm_file(&take_list_adr("msgs/term/state"));
