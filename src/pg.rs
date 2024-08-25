@@ -504,6 +504,8 @@ pub(crate) fn exec_cmd(cmd: String){
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{load_bash_history(); return;}
     let cmd0 = "load fish history";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::globs18::load_fish_history(); return;}
+    let cmd0 = "mke lst";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::mke_lst(&cmd); return;}
     let cmd0 = "mk lst";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0{crate::lst::mk_lst(&cmd); return;}
     let cmd0 = "del ";

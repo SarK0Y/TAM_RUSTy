@@ -465,6 +465,10 @@ pub(crate) fn mk_lst(cmd: &String){
     let src = take_list_adr_env("found_files").unreel_link_to_file();
     match std::fs::copy(src, dst){Ok(done) => done, Err(e) => return println!("{e:?}")};
 }
+pub(crate) fn mke_lst(cmd: &String){
+    let dst = cmd.replace("mke lst", "").trim_start().trim_end().strn();
+    crate::set_front_list ( &dst );
+}
 #[cfg(not(feature = "mae"))]
 pub(crate) fn del_ln_from_lst(cmd: &String){
     let ln_num = cmd.replace("del ", "").trim_end().trim_start().i640();

@@ -201,7 +201,7 @@ pub(crate) fn set_num_files(func_id: i64) ->i64{
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
 pub(crate) fn set_num_files_4_lst(name: &String) ->i64{
   let func_id = 313972147;
-   let len_of_front = i64::from_str_radix(crate::globs18::len_of_list_wc( name ).as_str(), 10).unwrap();
+   let len_of_front = match i64::from_str_radix(crate::globs18::len_of_list_wc( name ).as_str(), 10){Ok (n) => n, _ => 0};
    let mut list_len_adr = crate::globs18::take_list_adr_len( name );
    save_file(len_of_front.to_string(), list_len_adr); 
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
