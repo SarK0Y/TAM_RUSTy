@@ -44,7 +44,7 @@ So, actually we have hella number of files & we (in many cases) need to use rege
  
  So far, TAM has been tested only for Linux. However, theoretically this variant must work on FreeBSD, NetBSD & MacOS quite smoothly (but i don't guarantee it). <br>
  # Links: <br>
- <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html
+ <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
  <b>TELEGRAM:</b> https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z). <br>
  <b>ALG0Z RU:</b> https://dzen.ru/alg0z <br>
  <b>ALG0Z EN:</b> https://alg0z.blogspot.com <br>

@@ -109,10 +109,10 @@ format!("go2 {}", read_file("main0.pg"))
 pub(crate) fn key_f12(func_id: i64){
     unsafe {crate::shift_cursor_of_prnt(0, None, func_id)};
     let prnt = get_prnt(func_id);
-    let cmd0 = ":+"; let mut done = false;
-    if prnt.substring(0, 2) == cmd0  && prnt != cmd0 { crate::set_prnt(&cmd0, func_id); done = true;}
-     let cmd0 = ">_";
-    if !done && prnt.substring(0, 2) == cmd0  && prnt != cmd0 { crate::set_prnt(&cmd0, func_id); done = true;}
+    let cmd0 = ":+ "; let mut done = false;
+    if prnt.substring(0, 3) == cmd0  && prnt != cmd0 { crate::set_prnt(":+ ", func_id); done = true;}
+     let cmd0 = ">_ ";
+    if !done && prnt.substring(0, 3) == cmd0  && prnt != cmd0 { crate::set_prnt(">_ ", func_id); done = true;}
     if !done {crate::set_prnt("", func_id); }
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));
     crate::rm_user_written_path(func_id);
