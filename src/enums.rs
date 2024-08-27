@@ -21,3 +21,9 @@ pub(crate) enum parse_paths{
     each_name_unique,
     default,
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum amaze_me{
+    ret_indx_n_do_none,
+    do_ur_stuff,
+    warming(/*times*/ u64),
+}
