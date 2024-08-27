@@ -100,11 +100,11 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 if indx_mode {crate::swtch::local_indx(true);}
                 let count = crate::ps18::get_num_files(510974534);
                 let file_indx = state % count as u64;
-                let item = crate::get_item_from_front_list( file_indx as i64, true );
+                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
                 let cmd = format!("0 {item}");
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
-                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 );
+                crate::set_prnt( &format!("surprise me {file_indx} {item}"), 510974534 );
                 return Some( file_indx );
             }
             amaze_me::warming(c) => {
@@ -113,7 +113,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 if indx_mode {crate::swtch::local_indx(true);}
                 let count = crate::ps18::get_num_files(510974534);
                 let file_indx = state % count as u64;
-                let item = crate::get_item_from_front_list( file_indx as i64, true );
+                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
                 let cmd = format!("0 {item}");
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
@@ -124,6 +124,48 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
     }
     None
 }
+#[cfg(feature = "in_dbg")]
+pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
+    if cmd == None {return None;}
+    static mut state: u64 = 0;
+    use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
+    unsafe {
+        let in_val = cmd.unwrap();
+        /*  ret_indx_n_do_none,
+    do_ur_stuff,
+    warming(/*times*/ u64),*/
+        match in_val {
+            amaze_me::ret_indx_n_do_none => {return Some (state);}
+            amaze_me::do_ur_stuff => {
+                state ^= u64_();
+                let indx_mode = crate::swtch::local_indx(false);
+                if indx_mode {crate::swtch::local_indx(true);}
+                let count = crate::ps18::get_num_files(510974534);
+                let file_indx = state % count as u64;
+                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
+                let cmd = format!("0 {item}");
+                if indx_mode {crate::swtch::local_indx(true);} 
+                crate::set_prnt( &format!("surprise me dry run {file_indx} {item}"), 510974534 );
+                return Some( file_indx );
+            }
+            amaze_me::warming(c) => {
+                state ^= warming_up( c );
+                let indx_mode = crate::swtch::local_indx(false);
+                if indx_mode {crate::swtch::local_indx(true);}
+                let count = crate::ps18::get_num_files(510974534);
+                let file_indx = state % count as u64;
+                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
+                let cmd = format!("0 {item}");
+                crate::swtch::run_viewer(cmd);
+                if indx_mode {crate::swtch::local_indx(true);} 
+                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 );
+                return Some( file_indx );
+            }
+        }       
+    }
+    None
+}
+
 pub fn warming_up(times: u64) -> u64{
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
     let mut ret =0u64;

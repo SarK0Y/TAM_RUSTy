@@ -1,6 +1,6 @@
 use chrono::format::{self, format_item}; use std::io::BufRead;
 use num_traits::ToPrimitive;
-use crate::update18::upd_screen_or_not;
+use crate::update18::{delay_ms, upd_screen_or_not};
 use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, read_tail, run_cmd_out_sync, save_file_append_newline};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use crate::{exts::globs_uses, run_cmd0, ps18::{shift_cursor_of_prnt, get_prnt, set_ask_user}, 
@@ -491,6 +491,20 @@ pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String{
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     return crate::C!(lists("", FRONT_, proper_indx.0, GET))
+}
+pub(crate) fn get_item_from_front_list_times(indx: i64, fixed_indx: bool, attempts: u64) -> String{
+    let proper_indx = get_proper_indx(indx, fixed_indx);
+    if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
+    //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
+    let mut ret = crate::C!(lists("", FRONT_, proper_indx.0, GET));
+    if ret == "" || ret == "no str gotten"{
+        for _ in 0..attempts{
+            delay_ms(37);
+            ret = crate::C!(lists("", FRONT_, proper_indx.0, GET));
+            if ret != "" && ret != "no str gotten"{break;}
+        }
+    }
+    return ret
 }
 pub fn set_main0_as_front(){crate::drop_ls_mode(); mark_front_lst("main0"); unsafe{lists("", MAIN0_, 0, SET_FRONT_LIST);}}
 pub fn set_ls_as_front() -> String{
