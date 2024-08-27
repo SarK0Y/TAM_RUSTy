@@ -68,8 +68,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool{
 }
 pub(crate) fn sieve_list(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    let data = data.replace(":+ ", "sieve ");
-    let data0 = data.replace("sieve ", "");
+    let data0 = data.replace("sieve ", "").replace(":+ ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
     if opts == "none".strn() || data0 == "none".strn(){
         set_ask_user("example: {sieve -Ei some\\shere} or {:+ -Ei some\\shere}", 5977871);
@@ -104,7 +103,7 @@ pub(crate) fn sieve_list(data: String){
 }
 pub(crate) fn sieve_list1(data: String){
     if check_symb_in_strn(&data, "|"){return sieve_list0(data)}
-    let data0 = data.replace("sieve ", "");
+    let data0 = data.replace("sieve ", "").replace(":+ ", "");
     let (mut opts, mut data0) = split_once(&data0, " ");
     if opts == "none".strn() || data0 == "none".strn(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
@@ -139,7 +138,7 @@ pub(crate) fn sieve_list1(data: String){
 }
 
 pub(crate) fn sieve_list0(data: String){
-    let data = data.replace("sieve ", "");
+    let data = data.replace("sieve ", "").replace(":+ ", "");
     let (mut opts, mut data) = split_once(&data, " ");
     if opts == "none".to_string() || data == "none".to_string(){
         set_ask_user("example: sieve -Ei some\\shere", 5977871);
