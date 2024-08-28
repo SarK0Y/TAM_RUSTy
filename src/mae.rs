@@ -105,6 +105,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me {file_indx} {item}"), 510974534 );
+                crate::lst::add_randomly_picked_file(file_indx, &item);
                 return Some( file_indx );
             }
             amaze_me::warming(c) => {
@@ -131,9 +132,6 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
     unsafe {
         let in_val = cmd.unwrap();
-        /*  ret_indx_n_do_none,
-    do_ur_stuff,
-    warming(/*times*/ u64),*/
         match in_val {
             amaze_me::ret_indx_n_do_none => {return Some (state);}
             amaze_me::do_ur_stuff => {
@@ -146,6 +144,7 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 let cmd = format!("0 {item}");
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me dry run {file_indx} {item}"), 510974534 );
+                crate::lst::add_randomly_picked_file(file_indx, &item);
                 return Some( file_indx );
             }
             amaze_me::warming(c) => {
