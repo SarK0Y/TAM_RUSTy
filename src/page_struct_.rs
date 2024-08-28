@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, read_front_list, read_front_list_but_ls, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
+use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -362,7 +362,8 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     11    
     };
     let cpy: fn(&String) -> String = |val: &String| -> String{return val.to_string();}; 
-    if id_of_val == PRNT_  {ps_ret.str_.push_str(cpy_str(&*PRNT.get()).as_str());/*String::from(PRNT.get().unwrap())*/; return ps_ret;}
+    //if id_of_val == PRNT_  {ps_ret.str_.push_str(cpy_str(&*PRNT.get()).as_str());/*String::from(PRNT.get().unwrap())*/; return ps_ret;}
+    if id_of_val == PRNT_  {ps_ret.str_.push_str(cpy_str(&raw_read_prnt() ).as_str()); return ps_ret;}
     if id_of_val == crate::set(PRNT_) {crate::set_prnt_!(&val.to_string()); file_prnt(val.to_string()); 
        if *PRNT.get() != val {println!("set_prtn failed")} ps_ret.str_= "ok".to_string(); prnt_set =true; return ps_ret;}
     if id_of_val == NUM_OF_VIEWERS  {ps_ret.int = VIEWER.get().unwrap().len().to_i64().unwrap(); return ps_ret;}

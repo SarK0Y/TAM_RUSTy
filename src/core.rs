@@ -971,7 +971,7 @@ pub(crate) fn raw_read_file_abs_adr(fname: &String) -> String{
     file.read_to_string(&mut ret);
     ret
 }
-
+pub(crate) fn raw_read_prnt() -> String{raw_read_file("prnt")}
 pub(crate) fn read_prnt() -> String{read_file("prnt")}
 pub(crate) fn file_prnt(content: String){
     save_file(cpy_str(&content), "prnt".to_string());

@@ -608,6 +608,12 @@ pub fn editor(name: Option < &String > ) -> String{
     my_editor.strn()
     }
 }
+pub fn edit_cmd () {
+    let prnt = take_list_adr( "prnt" );
+    let editor = editor(None);
+    let cmd = format!("{editor} {prnt}");
+    run_term_app(cmd);
+}
 pub fn ched (cmd: String){
     let (_, name) = split_once(&cmd, " ");
     editor (Some (&name) );
