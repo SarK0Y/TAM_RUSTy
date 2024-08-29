@@ -543,8 +543,7 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
         prnt.push_str(read_prnt().as_str());
       //  if prnt != ""{break;}
     //}
-    let mut prnt = "".to_string();
-    if prnt.len() == 0{set_ask_user("prnt is empty", -5);}
+    if prnt.len() == 0{set_ask_user("prnt is empty", -47);}
     if num_of_ln_in_dir_lst < 2{
         let mut full_path = ln_of_found_files(0).0;
         let is_dir = Path::new(&full_path.strip_all_symbs() ).is_dir();
@@ -555,7 +554,7 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
         //popup_msg(msg.as_str());
         set_prnt(&prnt, -47);
         let prnt = read_prnt();
-        set_ask_user(&prnt, -5);
+        set_ask_user(&prnt, -47);
         rewrite_user_written_path(&full_path);
         //unsafe{crate::swtch::path_completed(true, false);}
         let proper_dir = crate::full_escape(&full_path.to_string());
