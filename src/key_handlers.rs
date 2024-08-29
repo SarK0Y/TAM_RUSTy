@@ -61,6 +61,8 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.as_str().substring(0, 5) == "no ls"{crate::swtch_ls(true, false); return empty;}
     if file_indx.as_str().substring(0, 7) == "delim::"{crate::delim(Some(file_indx) ); return empty;}
     if file_indx.trim_end() == "scroll ln in pg"{crate::scroll_ln_in_pg( true ); return empty;}
+    let cmd0 = "mrg";
+    if file_indx.trim_end() == cmd0{crate::lst::mrg_prnt(); return empty;} 
     let cmd0 = "mrg as";
     if file_indx.substring(0, cmd0.len() ) == cmd0{crate::lst::mrg_as(file_indx); return empty;} 
     let cmd0 = "ched";
