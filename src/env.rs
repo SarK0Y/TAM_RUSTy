@@ -15,10 +15,9 @@ pub(crate) fn change_dir(cmd: String, set: bool){
     }
     let path = cmd.replace("cd", "").trim_start().to_string();
     if path == ""{return};
-    let mut path_escaped = if crate::Path::new(&path).exists(){ path.clone() }else { crate::full_escape(&path) };
-    //let (base_path, indx) = ln_of_list(0, "cd");
-    //let check_base_str = base_path.replace(&path, "");
-    if !crate::Path::new(&path_escaped).exists(){ path_escaped.strip_all_symbs(); }
+    let mut path_escaped = path.clone();
+    if !crate::Path::new(&path_escaped).exists() { path_escaped = path_escaped.strip_all_symbs(); }
+    if !crate::Path::new(&path_escaped).exists() {path_escaped = crate::full_escape(&path);}
     if !crate::find_files_cd_cpy_ls(&path_escaped) {crate::errMsg0(&format!("{path_escaped} is empty") ); return};
     drop_ls_mode();
     crate::set_front_list2("cd", 0);
