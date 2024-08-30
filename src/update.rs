@@ -70,6 +70,7 @@ pub(crate) fn prime(){
     crate::initSession();
      C!(front_list_indx(MAIN0_));
      C!(set_main0_as_front());
+     set_front_list("main0");
      main_update();
      let key = "-front-lst";
     if checkArg(key){

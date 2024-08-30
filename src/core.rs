@@ -52,11 +52,12 @@ pub(crate) fn up_front_list(){
     run_cmd_str(&cmd);
 }
 pub(crate) fn set_front_list(list: &str){
-    if list == "" {return }
+    let mut list = list.strn();
+    if list == "" {list = "lst".strn() }
     if check_substrn(&list.strn(), "history"){swtch_esc(true, false); }
     else {swtch_esc(true, true); }
-    let prev = name_of_front_list("", false);
-    if prev == "" {return }
+    let mut prev = name_of_front_list("", false);
+    if prev == "" {prev = "main0".strn() }
     if prev != "ls" {
         save_file(prev, "prev_list".strn() );
     }
@@ -64,11 +65,11 @@ pub(crate) fn set_front_list(list: &str){
     let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
-    mark_front_lst(list);
-    crate::wait_4_empty_cache();
+    mark_front_lst(&list);
+    //crate::wait_4_empty_cache();
     //if list == "merge"
-    name_of_front_list(list, true);
-    background_fixing();
+    name_of_front_list(&list, true);
+    //background_fixing();
     crate::set_num_files_4_lst( &list.strn() );
 }
 pub(crate) fn name_of_front_list(name: &str, set: bool) -> String{
