@@ -180,6 +180,7 @@ impl ManageLists for basic{
   if self.shol_state && Key == " "{
     self.shol_state = false;
     use crate::parse_replacing::parse_replace;
+    crate::swtch_ls(true, false);
     let mut ret_tag = self.validate_tag();
     if ret_tag == None {self.clear_rec_shol()}
     return crate::globs18::drop_key(Key, &mut Some(&mut self.ext_old_modes));

@@ -7,7 +7,7 @@ use ps21::set_num_files0;
 use termios::ISIG;
 //use gag::RedirectError;
 
-use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, update_dir_list}, STRN_strip};
+use crate::{cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once, swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{alive_session, background_fixing, background_fixing_count, fix_screen, upd_screen_or_not, update_dir_list}, STRN_strip};
 
 use self::ps21::{set_ask_user, get_prnt, set_prnt, get_mainpath, get_tmp_dir};
 core_use!();

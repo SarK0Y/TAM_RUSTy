@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}};
+use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::upd_screen_or_not};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -106,6 +106,9 @@ pub(crate) fn init_page_struct() -> _page_struct{
 }
 pub(crate) fn INS(val: &str) -> bool{
  // if !crate::pg18::no_print( None, Some ( 150_000_000 ) ){return false ;}
+ if crate::swtch_ls(false, false){
+    upd_screen_or_not((0, "ls".strn()) );
+ }
   if val == ""{return false}
   let func_id = crate::func_id18::INS_;
   let mut cur_cur_pos = get_prnt(func_id).chars().count();

@@ -81,10 +81,10 @@ pub(crate) fn swtch_ls(set: bool, new_state: bool) -> bool{
     static mut state: bool = true;
     static mut fst_run: bool = false;
     if set{crate::C!(state = new_state);}
-    if !crate::C!(state) && set {
+    /*if !crate::C!(state) && set {
         let prev = crate::read_file( "prev_list" );
         set_front_list( &prev );
-    }
+    }*/
     crate::C!(state)
 }
 pub(crate) fn link_ext_lsts(){
