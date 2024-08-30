@@ -100,7 +100,7 @@ pub(crate) fn link_ext_lst(cmd: &String){
 pub(crate) fn front_lst(cmd: &String){
     let (lst, adr) = split_once(cmd, " ");
     link_lst_to(&lst, &adr);
-    crate::set_front_list2(&lst, 2);
+    crate::core18::set_front_list( &lst );
 }
 
 //fn

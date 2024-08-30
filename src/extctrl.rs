@@ -122,7 +122,6 @@ impl ManageLists for basic{
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
-    crate::core18::set_front_list("main0");
     loop{
         crate::clear_screen();
         //println!("{}", clear::BeforeCursor);

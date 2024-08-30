@@ -68,14 +68,15 @@ pub(crate) fn delay_secs(sleep: u64){
 }
 pub(crate) fn prime(){
     crate::initSession();
-     C!(front_list_indx(MAIN0_));
-     C!(set_main0_as_front());
-     set_front_list("main0");
-     main_update();
-     let key = "-front-lst";
+    let key = "-front-lst";
+    main_update();
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
         crate::front_lst(&cmd);
+    }else{
+        C!(front_list_indx(MAIN0_));
+        C!(set_main0_as_front());
+        set_front_list("main0");
     }
     let mut base = crate::basic::new();
 println!("len of main0 list {}", globs17::len_of_main0_list());
