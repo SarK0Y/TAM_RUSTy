@@ -688,4 +688,11 @@ pub fn mrg_prnt(){
     let merge_lst_adr = take_list_adr_env("merge");
     save_file_append_newline_abs_adr_fast(&prnt, &merge_lst_adr);
 }
+pub fn prnt_screen(){
+    let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(91138549) ); return;
+}
+pub fn prnt_screen_dbg(){
+    let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(91138549) ); return;
+    getkey();
+}
 //fn

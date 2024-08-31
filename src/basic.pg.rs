@@ -32,7 +32,7 @@ impl super::basic{
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
     if !upd_screen_or_not(pg_info) {
         if name_of_front_list("", false) != "ls" {
-          let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(func_id) ); return;
+          crate::lst::prnt_screen(); return;
         }
     }
     let save_screen: String = take_list_adr("screen");

@@ -75,6 +75,8 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.trim_end() == cmd0{crate::globs18::cmd_decode_mode( Some (true) ); return empty;} 
     let cmd0 = "modes";
     if file_indx.trim_end() == cmd0{crate::lst::show_modes(); return empty;} 
+ #[cfg(feature="in_dbg")] let cmd0 = "prnt screen";
+ #[cfg(feature="in_dbg")] if file_indx.trim_end() == cmd0{crate::lst::prnt_screen_dbg(); getkey(); return empty;} 
     #[cfg(feature="in_dbg")]
     if file_indx.as_str().substring(0, 8) == "::report"{crate::report(&"".to_string(), ""); return empty;}
     #[cfg(feature="in_dbg")]
