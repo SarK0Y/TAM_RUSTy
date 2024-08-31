@@ -1,7 +1,12 @@
 use crate::{repeat_char, run_cmd_out_sync, clear_screen, run_cmd_str, getkey};
 use std::io::Write; use std::os::fd::FromRawFd;
 use std::process::Command;
-
+#[macro_use]
+pub fn Ver0_0_ () -> String 
+    {
+        let ver = option_env!("PROJECT_VERSION").unwrap_or(env!("CARGO_PKG_VERSION")).to_string();
+        let ver = format!("Ver: {ver}"); ver
+    }
 pub(crate) fn SYS(){
     println!("\nHave a nice day, DEAR USER\nSee You Soon 🙃", );
     std::process::exit(0)
@@ -35,7 +40,7 @@ pub(crate) fn info(){
     clear_screen();
   // println!("{}", crate::from_utf8(&tst.unwrap().stdout).unwrap());
 banners_line(Project, "◑"); println!("");
-banners_line(Ver, "◑"); println!("");
+banners_line(&Ver0_0_(), "◑"); println!("");
 banners_line(Telega, "◑"); println!("");
 banners_line(Ru_blog, "◑"); println!("");
 banners_line(En_blog, "◑"); println!("");
@@ -56,7 +61,7 @@ pub(crate) fn info1(){
     clear_screen();
  {crate::be_silent(true, true); crate::dont_scrn_fix(true); crate::no_view(true, true);}
 banners_line(Project, "◑"); println!("");
-banners_line(Ver, "◑"); println!("");
+banners_line(&Ver0_0_(), "◑"); println!("");
 banners_line(Telega, "◑"); println!("");
 banners_line(Ru_blog, "◑"); println!("");
 banners_line(En_blog, "◑"); println!("");
@@ -151,7 +156,7 @@ pub(crate) fn KonsoleTitle(title: &String){
 pub fn ver(){
     use crate::custom_traits::STRN;
     let mae = if cfg!(feature = "mae"){ "mae".strn() } else { "".strn() };
-    let val: String = format!("{} {}", crate::info::Ver, mae);
+    let val: String = format!("{} {}", Ver0_0_(), mae);
     crate::set_ask_user(&val, 30050017);
 }
 //fn
