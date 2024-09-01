@@ -461,7 +461,7 @@ pub(crate) fn count_ln(yes: bool, inc: bool, get_size: bool) -> usize{
 }
 pub(crate) fn mk_lst(cmd: &String){
     let dst = cmd.replace("mk lst", "").trim_start().trim_end().strn();
-    let dst = take_list_adr_env(&dst);
+    let dst = if dst.substring(0, 1) == "/" { dst } else { take_list_adr_env(&dst) };
     let src = take_list_adr_env("found_files").unreel_link_to_file();
     match std::fs::copy(src, dst){Ok(done) => done, Err(e) => return println!("{e:?}")};
 }
