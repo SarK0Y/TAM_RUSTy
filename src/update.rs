@@ -134,7 +134,7 @@ pub(crate) fn lets_write_path(key: String){
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
     if mode < 0{return;}
     name_of_front_list("ls", true);
-    C!(swtch_fn(mode, key));
+    C!(swtch_fn(mode, "".strn() )); C!(swtch_fn( -1, key)); 
 
 }
 pub(crate) fn background_fixing(){ 

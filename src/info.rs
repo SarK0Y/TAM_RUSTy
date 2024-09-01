@@ -1,5 +1,3 @@
-use syn::ext;
-
 use crate::{repeat_char, run_cmd_out_sync, clear_screen, run_cmd_str, getkey};
 use std::io::Write; use std::os::fd::FromRawFd;
 use std::process::Command;
@@ -158,12 +156,12 @@ pub(crate) fn KonsoleTitle(title: &String){
 pub fn ver(){
     use crate::custom_traits::STRN;
     let mae = if cfg!(feature = "mae"){ "mae".strn() } else { "".strn() };
-    let extra_marker = std::option_env!("extra_marker");
+    let extra_marker = std::option_env! ("extra_marker");
     if let Some (x) = extra_marker {
         let val: String = format!("{} {} {x}", Ver0_0_(), mae);
-        crate::set_ask_user(&val, 30050017); return;   
+        crate::set_ask_user(&val, 30050017); return;
     }
-    let val: String = format!("{} {}", Ver0_0_(), mae);
+    let val: String = format!("{} {}", crate::info::Ver, mae);
     crate::set_ask_user(&val, 30050017);
 }
 //fn
