@@ -359,8 +359,7 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
     let mut file_2_write_path = match File::options().create_new(true).open(save_path){
         Ok(p) => p,
         Err(e) => update_user_written_path(e)
-    }; //.expect("user_wrote_path failed ");
-    //let mut writer = BufWriter::new(file_2_write_path);
+    }; 
     let key = format!("{}", path_from_prnt);
     file_2_write_path.write_all(path_from_prnt.as_bytes()).expect("user_wrote_path failed write in");
     crate::globs18::unblock_fd(file_2_write_path.as_raw_fd());
@@ -374,11 +373,6 @@ pub(crate) fn set_user_written_path_from_prnt() -> String{
 
 pub(crate) fn user_writing_path(key: String) -> bool{
     unsafe{set_ls_as_front(); front_list_indx(crate::globs18::LS_);}
-    //let mut cur_cur_pos = crate::read_prnt().chars().count();
-    //let shift = unsafe {crate::shift_cursor_of_prnt(0, None, -19).shift};
-    //if cur_cur_pos > shift {cur_cur_pos -= shift;}
-   // if position_of_slash_in_prnt() >= cur_cur_pos {unsafe {swtch_fn(-2, crate::cpy_str(&key))} return false;}
-   // set_ask_user(&save_path, -1); //dbg here
     let key = key.replace("//", "/");
     let mut written_path = read_user_written_path();
     let written_path_from_prnt = get_path_from_prnt();

@@ -13,7 +13,7 @@ use crate::globs18::cmd_decode_mode;
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, read_prnt, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
+use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, read_prnt, rm_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -673,15 +673,20 @@ pub fn show_modes(){
     errMsg0("Please, press any key to continue.. Thanks.");
 }
 pub fn add_randomly_picked_file (indx: u64, name: &String) {
+    static mut fst_run: bool = true;
     let rnd_nums = take_list_adr("rnd.nums");
     let rnd_nums_lnk = take_list_adr_env("rnd.nums");
     let names = take_list_adr("randomly_picked.files");
     let names_lnk = take_list_adr_env("randomly_picked.files");
-    std::os::unix::fs::symlink(&rnd_nums, rnd_nums_lnk);
-    std::os::unix::fs::symlink(&names, names_lnk);
-    save_file_append_newline_abs_adr(name.strn(), names);
+    unsafe {
+        if fst_run {rm_file(&names_lnk); rm_file(&rnd_nums_lnk); fst_run = false;
+            std::os::unix::fs::symlink(&rnd_nums, rnd_nums_lnk);
+            std::os::unix::fs::symlink(&names, names_lnk);
+         }
+    }
     save_file_append_newline_abs_adr(indx.strn(), rnd_nums);
-    
+    if name == "" { return }
+    save_file_append_newline_abs_adr(name.strn(), names);    
 }
 pub fn mrg_prnt(){
     let prnt = read_prnt();
