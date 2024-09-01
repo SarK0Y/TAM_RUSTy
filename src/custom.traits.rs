@@ -66,6 +66,7 @@ pub(crate) trait STRN_strip {
     fn strip_apostrophe(&mut self) -> String;
     fn strip_backslash(&mut self) -> String;
     fn strip_all_symbs(&mut self) -> String;
+  //  fn _strip_all_symbs(&self) -> String;
 }
 impl STRN_strip for str {
     fn del_ch(&self, del_ch: &str) -> String{
@@ -103,6 +104,11 @@ fn strip_all_symbs(&mut self) -> String{
     self.strip_apostrophe();
     self.strip_symbs()
 }
+/*fn _strip_all_symbs(&self) -> String{
+    self.strip_backslash();
+    self.strip_apostrophe();
+    self.strip_symbs()
+}*/
 }
 impl STRN for str {
     fn strn(&self) -> String{

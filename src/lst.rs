@@ -392,8 +392,9 @@ pub(crate) fn manage_lst(cmd: &String){
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
-        if match std::fs::metadata
-                       (&item){Ok(it) => it, _ => return empty_lst(&item)}.len() < 2 {empty_lst(&item); return;}
+        match std::fs::metadata
+                       (&item){Ok(it) => { it }, _ => {let mut non_escaped = item.clone().strip_all_symbs();
+                        match std::fs::metadata (&non_escaped) {Ok (ok) => {ok} _ => {return empty_lst(&item); }} }};
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
