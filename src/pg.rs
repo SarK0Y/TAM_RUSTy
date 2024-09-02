@@ -253,13 +253,11 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
     if kcode::TAB == ansiKey{ tab_key(); return "dontPass".strn() ;}  
    crate::INS(&Key);
        // enter();
-       let user_written_path = read_user_written_path().replace("//", "/");
-       let prnt = get_prnt(func_id);
-       if user_written_path == prnt {crate::cmd_keys::dont_run_file(Some(true) ); return get_prnt(func_id);}
         let path = get_path_from_prnt();
-        if path.len() == 0{return "dontPass".to_string();}
+        if path != "" {crate::core18::complete_path(&path, "-maxdepth 1", false)}
+       // if path.len() == 0{return "dontPass".to_string();}
         if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}
-        return "".to_string();
+        return "dontPath".to_string();
 //return get_prnt(func_id);
 }
 pub fn manage_pages(ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>){
