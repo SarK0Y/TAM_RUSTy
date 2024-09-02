@@ -102,5 +102,10 @@ pub(crate) fn front_lst(cmd: &String){
     link_lst_to(&lst, &adr);
     crate::core18::set_front_list( &lst );
 }
-
+pub fn dont_run_file (control: Option < bool >) -> bool{
+    static mut state: bool = false;
+    unsafe {
+        if let Some (x) = control {state = x} state
+    }
+}
 //fn

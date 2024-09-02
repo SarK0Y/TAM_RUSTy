@@ -254,7 +254,8 @@ fn hotKeys(Key: &mut String, ext: &mut Option<&mut crate::__ext_msgs::_ext_msgs>
    crate::INS(&Key);
        // enter();
        let user_written_path = read_user_written_path().replace("//", "/");
-       if user_written_path != "/" && Path::new(&user_written_path).exists() && ln_of_found_files(usize::MAX).1 < 2usize {return get_prnt(func_id);}
+       let prnt = get_prnt(func_id);
+       if user_written_path == prnt {crate::cmd_keys::dont_run_file(Some(true) ); return get_prnt(func_id);}
         let path = get_path_from_prnt();
         if path.len() == 0{return "dontPass".to_string();}
         if ext_is_alive {if ext.as_ref().unwrap().dontPass{return "dontPass".to_string();}}

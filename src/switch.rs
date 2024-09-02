@@ -26,7 +26,7 @@ escape_symbs, full_escape, func_id18::{mk_cmd_file_, viewer_, where_is_last_pg_}
  pg18::form_cmd_line_default, position_of_slash_in_prnt, 
  ps18::{child2run, get_full_path, get_num_files, get_num_page, init_page_struct, page_struct_ret, set_ask_user}, raw_ren_file, read_file, 
  read_front_list_but_ls, read_rgx_from_prnt, run_term_app, save_file, set_front_list, set_full_path, split_once, tui_or_not, 
- update18::update_dir_list, usize_2_i64};
+ update18::update_dir_list, usize_2_i64, STRN};
 pub(crate) unsafe fn check_mode(mode: &mut i64){
     static mut state: i64 = 0;
     if *mode == -1 {*mode = state;}
@@ -37,6 +37,12 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String){
     static mut fn_indx: usize = 0;
     static mut fn_: OnceCell<Vec<fn(String) -> bool>> = OnceCell::new();
     if edit_mode_lst(None) {return}
+    let mut ls_mode = "".strn();
+    let mut indx = indx;
+    if fn_indx != crate::swtch::SWTCH_USER_WRITING_PATH as usize {
+        ls_mode = read_file("ls_mode");
+        if ls_mode == "ls" {fn_indx = crate::swtch::SWTCH_USER_WRITING_PATH as usize; indx != crate::swtch::SWTCH_USER_WRITING_PATH; }
+    }
     if fst_run{
         let fn_vec: Vec<fn(String) -> bool> = Vec::new();
         fn_.set(fn_vec); fst_run = false;
@@ -56,6 +62,8 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String){
   //  if indx > -1 && !cmd.is_empty(){fn_indx = indx.to_usize().unwrap();}
     let mut mode = indx;
     check_mode(&mut mode);
+    let dont_run = crate::cmd_keys::dont_run_file(None);
+    if dont_run && fn_indx == crate::swtch::SWTCH_RUN_VIEWER as usize {return; }
     fn_.get().unwrap()[fn_indx](cmd);
 }
 pub(crate) unsafe fn swtch_ps(indx: i64, ps: Option<crate::_page_struct>) -> crate::_page_struct{

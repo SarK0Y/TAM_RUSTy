@@ -31,11 +31,12 @@ pub(crate) fn pre_Enter(){
 }
 pub(crate) fn Enter(){
     let mut prnt = crate::get_prnt(-881454);
-    let (term, _) = crate::split_once(&prnt, " ");
+   // let (term, _) = crate::split_once(&prnt, " ");
    /* if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
     }*/
+    crate::cmd_keys::dont_run_file(Some(false) ); 
     drop_ls_mode();
     let mut mode = 0i64;
     crate::C!(crate::swtch::check_mode(&mut mode));

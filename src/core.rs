@@ -534,6 +534,7 @@ pub(crate) fn cpy_str(in_str: &String) -> String{
     in_str.to_string()
 }
 pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool){
+    let dir = dir.trim_end().trim_start();
     let proper_dir = crate::full_escape(&dir.to_string());
     update_dir_list(&proper_dir, opts, no_grep);
     let not_full_path = get_path_from_prnt();//read_user_written_path();

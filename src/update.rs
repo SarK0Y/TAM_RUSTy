@@ -128,7 +128,7 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
 pub(crate) fn lets_write_path(key: String){
     if !swtch_ls(false, false) {return;}
     //C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
-    let anchor = (0i64, "ls".strn());
+    let anchor = (-1i64, "ls".strn());
     upd_screen_or_not(anchor);
     set_front_list("ls");
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
