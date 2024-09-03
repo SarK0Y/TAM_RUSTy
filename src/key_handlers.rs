@@ -74,6 +74,8 @@ pub(crate) fn Ins_key() -> String{
     if file_indx.trim_end() == cmd0{crate::globs18::cmd_decode_mode( Some (false) ); return empty;} 
     let cmd0 = "en decode cmd";
     if file_indx.trim_end() == cmd0{crate::globs18::cmd_decode_mode( Some (true) ); return empty;} 
+    let cmd0 = ":+";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::globs18::sieve_list(file_indx.trim_end().strn() ); return empty; }
     let cmd0 = "modes";
     if file_indx.trim_end() == cmd0{crate::lst::show_modes(); return empty;} 
     if file_indx.trim_end() == "lst upd"{ crate::lst::upd_session_lists(); return empty; }
