@@ -70,3 +70,4 @@ pub(crate) fn dbg_dir_down(cmd: String){
     popup_msg(&fname);
     change_dir(fname, true);
 }
+//fn

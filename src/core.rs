@@ -215,6 +215,7 @@ unsafe{crate::page_struct(&path_2_found_files_list, set(crate::FOUND_FILES_), fu
     link_ext_lsts();
     alive_session();
     change_dir0();
+    crate::init::user_home_dir();
 #[cfg(feature = "mae")] crate::cache::lazy_cache_cleaning(None);
     return true;
 }

@@ -702,7 +702,8 @@ pub fn show_modes(){
     let ls = swtch_ls(false, false);
     let cmd_decode = cmd_decode_mode(None);
     let escape_special_symbs = swtch_esc(false, false);
-    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n");
+    let user_home = crate::init::user_home_dir();
+    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n\tUser home dir: {user_home}\n");
     print!("{see}", );
     errMsg0("Please, press any key to continue.. Thanks.");
 }
