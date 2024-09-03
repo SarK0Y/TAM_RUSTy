@@ -1,14 +1,19 @@
 use crate::{repeat_char, run_cmd_out_sync, clear_screen, run_cmd_str, getkey};
 use std::io::Write; use std::os::fd::FromRawFd;
 use std::process::Command;
-
+#[macro_use]
+pub fn Ver0_0_ () -> String 
+    {
+        let ver = option_env!("PROJECT_VERSION").unwrap_or(env!("CARGO_PKG_VERSION")).to_string();
+        let ver = format!("Ver: {ver}"); ver
+    }
 pub(crate) fn SYS(){
     println!("\nHave a nice day, DEAR USER\nSee You Soon 🙃", );
     std::process::exit(0)
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";
 const Project: &str = "Project: Tiny Automation Manager.";
-pub const Ver: &str = "Ver: 1.9.115";
+pub const Ver: &str = "Ver: 4.1.4";
 const Telega: &str = "TELEGRAM: https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z)";
 const Ru_blog: &str = "ALG0Z RU: https://dzen.ru/alg0z";
 const En_blog: &str = "ALG0Z EN: https://alg0z.blogspot.com";
@@ -29,13 +34,13 @@ const LICENSE_MAE: &str = "🠳 License/Agreement for Mademoiselle Entropia 🠳
  Price for commercial usage: $7.13.\n
 Or just Your Soul 😇😜\n my the Best Wishes to You 🙃";
 
-const donate: &str = "Donations: https://boosty.to/alg0z/donate";
+const donate: &str = "Donations: https://boosty.to/alg0z/donate https://zap-hosting.com/en/shop/donation/1f0c83845d810df04ca74e56238399f7/";
 pub(crate) fn info(){
     KonsoleTitle(&"TAM RUSTy".to_string());
     clear_screen();
   // println!("{}", crate::from_utf8(&tst.unwrap().stdout).unwrap());
 banners_line(Project, "◑"); println!("");
-banners_line(Ver, "◑"); println!("");
+banners_line(&Ver0_0_(), "◑"); println!("");
 banners_line(Telega, "◑"); println!("");
 banners_line(Ru_blog, "◑"); println!("");
 banners_line(En_blog, "◑"); println!("");
@@ -56,7 +61,7 @@ pub(crate) fn info1(){
     clear_screen();
  {crate::be_silent(true, true); crate::dont_scrn_fix(true); crate::no_view(true, true);}
 banners_line(Project, "◑"); println!("");
-banners_line(Ver, "◑"); println!("");
+banners_line(&Ver0_0_(), "◑"); println!("");
 banners_line(Telega, "◑"); println!("");
 banners_line(Ru_blog, "◑"); println!("");
 banners_line(En_blog, "◑"); println!("");
@@ -148,3 +153,15 @@ pub(crate) fn KonsoleTitle(title: &String){
     .output();
     std::io::stdout().write_all(&writeTermTitle.unwrap().stdout);
 }
+pub fn ver(){
+    use crate::custom_traits::STRN;
+    let mae = if cfg!(feature = "mae"){ "mae".strn() } else { "".strn() };
+    let extra_marker = std::option_env! ("extra_marker");
+    if let Some (x) = extra_marker {
+        let val: String = format!("{} {} {x}", Ver0_0_(), mae);
+        crate::set_ask_user(&val, 30050017); return;
+    }
+    let val: String = format!("{} {}", crate::info::Ver, mae);
+    crate::set_ask_user(&val, 30050017);
+}
+//fn

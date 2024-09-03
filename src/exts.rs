@@ -33,6 +33,8 @@ use std::os::unix::io::{AsRawFd, RawFd};
 mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
+#[path = "init.rs"]
+mod init;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
