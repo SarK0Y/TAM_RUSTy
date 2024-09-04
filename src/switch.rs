@@ -1,7 +1,7 @@
 use chrono::format::format;
 use colored::Colorize;
 use num_traits::{FloatErrorKind, ToPrimitive};
-use once_cell::sync::OnceCell;
+use once_cell::sync::{OnceCell, Lazy};
 use substring::Substring;
 use std::{
     fs::File,
@@ -220,7 +220,7 @@ pub(crate) fn run_viewer(cmd: String) -> bool{
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
     add_cmd_in_history(&format!("term {cmd}") );
-    if tui_or_not(cpy_str(&cmd), &mut filename){cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
+    if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {cmd = format!("{} {}", viewer, filename);return run_term_app(cmd)}
     return crate::run_cmd_viewer(cmd)
 }
 pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String{
@@ -242,6 +242,12 @@ pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String
     let ret = unsafe {share_usize(indx, func_id_loc)};
     if ret.1{return unsafe{crate::page_struct("", crate::VIEWER_, func_id_loc).str_};}
 "locked".to_string()
+}
+pub fn tui_mode (indx: usize, set_state: Option < bool >) -> Option <bool> {
+    static mut mode_to_run_app: Lazy < Vec<bool> > = Lazy::new( || {vec![] } );
+    unsafe {
+        if let Some (x) = set_state {mode_to_run_app.push (x); return None;} Some (mode_to_run_app [indx] )
+    }
 }
 pub(crate) fn get_num_of_viewers(func_id: i64) -> i64{return unsafe{crate::page_struct("", crate::NUM_OF_VIEWERS, func_id).int}}
 pub(crate) fn add_viewer(val: &str, func_id: i64) -> String{return unsafe{crate::page_struct(val, crate::set(crate::VIEWER_), func_id).str_}}
@@ -308,9 +314,10 @@ fst_run = false;
 let args: Vec<_> = crate::env::args().collect();
 let arg = args.as_slice();
 for i in 1..args.len(){
-    if arg[i] == "-view_w" || arg[i] == "-view-w" {
+    if arg[i] == "-view_w" || arg[i] == "-view-w" || arg[i] == "-tui-app" {
         let viewer: String = (args[i + 1]).chars().collect();
         add_viewer(&viewer, -1);
+        if  arg[i] == "-tui-app" { tui_mode(0, Some (true) ) } else { tui_mode(0, Some (false) ) };
     }
 }
 }
