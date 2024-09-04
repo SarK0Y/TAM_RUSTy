@@ -8,7 +8,7 @@ pub fn user_home_dir() -> String {
             let cmd = format!("cd ~/;pwd");
             *home = run_cmd_out_sync(cmd);
             fst = false;
-            } home.clone()    
+            } format!("{}/", home.trim_end() )    
     }    
 }
 //fn
