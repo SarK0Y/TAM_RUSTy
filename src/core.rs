@@ -1154,6 +1154,7 @@ pub(crate) fn raw_ren_file(src: String, dst: String){
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn mkdir(name: String){
+#[cfg(feature="in_dbg")] if name.len() > 20 && check_substrn(name.substring(2, name.len()), "dev") {crate::in_dbg0::just_break();}
     let name = full_escape(&name);
     let cmd = format!("mkdir -p {name}");
     run_cmd_str(cmd.as_str());

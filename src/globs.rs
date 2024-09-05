@@ -1,4 +1,6 @@
-use chrono::format::{self, format_item}; use std::io::BufRead;
+use chrono::format::{self, format_item}; use std::borrow::Borrow;
+use std::io::BufRead;
+use std::str::FromStr;
 use num_traits::ToPrimitive;
 use crate::update18::{delay_ms, upd_screen_or_not};
 use crate::{add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, read_tail, run_cmd_out_sync, save_file_append_newline};
@@ -598,6 +600,7 @@ if list == FRONT_ {
 "wrong".to_string()
 }
 pub(crate) fn take_list_adr(name: &str) -> String{
+#[cfg(feature="in_dbg")] if name.len() > 20 && check_substrn(name, "dev") {crate::in_dbg0::just_break();}
     return format!("{}/{name}", crate::bkp_tmp_dir(None, false));
 }
 pub(crate) fn renew_lists(new_item: String){
@@ -639,12 +642,12 @@ pub(crate) fn split_once_alt(strn: &String, delim: &String) -> (String, String){
     if !found {return ("none".to_string(), "none".to_string())}
     ret
 }
-pub(crate) fn check_substrn(strn: &String, delim: &str) -> bool{
+pub(crate) fn check_substrn <T: STRN + ToString + AsRef <str> > (strn: T, delim: &str) -> bool{
     let mut maybe = String::new();
     let delim_len = delim.chars().count();
-    let strn_len = strn.chars().count();
+    let strn_len = strn.strn().chars().count();
     let mut count_delim_chars = 0usize;
-    for i in strn.chars(){
+    for i in strn.strn().chars(){
         if count_delim_chars < delim_len && Some(i) == delim.chars().nth(count_delim_chars){
             maybe.push(i);
             count_delim_chars += 1;

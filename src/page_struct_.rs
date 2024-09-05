@@ -1,7 +1,7 @@
 mod exts;
 use exts::page_struct_uses;
 
-use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_file, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::{prev_key, upd_screen_or_not}};
+use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_file, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, save_file_abs_adr, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::{prev_key, upd_screen_or_not}};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
 pub const KONSOLE_TITLE_: i64 = 2;
@@ -207,7 +207,7 @@ pub(crate) fn set_num_files_4_lst(name: &String) ->i64{
   let func_id = 313972147;
    let len_of_front = match i64::from_str_radix(crate::globs18::len_of_list_wc( name ).as_str(), 10){Ok (n) => n, _ => 0};
    let mut list_len_adr = crate::globs18::take_list_adr_len( name );
-   save_file(len_of_front.to_string(), list_len_adr); 
+   save_file_abs_adr(len_of_front.to_string(), list_len_adr); 
    return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
 pub(crate) fn set_num_files0(func_id: i64, len_of_front: usize) ->i64{
    let mut list_len_adr = read_front_list();
