@@ -322,6 +322,7 @@ for i in 1..args.len(){
 }
 }
 pub(crate) fn print_viewers(){
+    if !crate::cmd_keys::screen_state(None) {return}
 let num_of_viewers = get_num_of_viewers(-1).to_usize().unwrap();
     for i in 0..num_of_viewers{
         print!("|||{}: {}", i, get_viewer(i, -1, true));
@@ -329,6 +330,7 @@ let num_of_viewers = get_num_of_viewers(-1).to_usize().unwrap();
     println!("")
 }
 pub fn print_pg_info(){
+    if !crate::cmd_keys::screen_state(None) {return}
     let num_page = get_num_page(-1);
     let num_files = get_num_files(-1);
     let last_pg = crate::where_is_last_pg();
