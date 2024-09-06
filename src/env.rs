@@ -13,12 +13,12 @@ pub(crate) fn change_dir(cmd: String, set: bool){
         let pwd = format!("cd {pwd}");
         change_dir(pwd, false);   
     }
-    let path = cmd.replace("cd", "").trim_start().to_string();
+    let path = cmd.replace("cd", "").trim_start().trim_end().strn();
     if path == ""{return};
     let mut path_escaped = path.clone();
     if !crate::Path::new(&path_escaped).exists() { path_escaped = path_escaped.strip_all_symbs(); }
-    if !crate::Path::new(&path_escaped).exists() {path_escaped = crate::full_escape(&path);}
-    if !crate::find_files_cd_cpy_ls(&path_escaped) {crate::errMsg0(&format!("{path_escaped} is empty") ); return};
+    //if !crate::Path::new(&path_escaped).exists() {path_escaped = crate::full_escape(&path);}
+    if !crate::find_files_cd_cpy_ls(&crate::full_escape(&path_escaped ) ) {crate::errMsg0(&format!("{path_escaped} is empty") ); return};
     drop_ls_mode();
     crate::set_front_list2("cd", 0);
     let mut path_display = format!("Working directory: {}", path);
