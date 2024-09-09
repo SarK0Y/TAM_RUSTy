@@ -474,7 +474,7 @@ pub(crate) fn F3_key() -> String {
     let orig_path = crate::get_path_from_strn(crate::cpy_str(&prnt));
     if orig_path.len() == 0 {
         if crate::tailOFF(&mut prnt, " ") {
-            let dt = delta(tmp.len(), prnt.len() );
+            let dt = delta(tmp.chars().count(), prnt.chars().count() );
             cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
             set_cur_cur_pos(cur_cur_pos.i640(), -1);
             prnt = prnt0.replace(tmp.as_str(), &prnt);
@@ -509,7 +509,7 @@ pub(crate) fn F3_key() -> String {
     path = path.replace("//", "/");
     prnt = prnt.replace(&orig_path, &path);
     if orig_path != "/" {
-       let dt = delta(tmp.len(),  prnt.len() );
+       let dt = delta(tmp.chars().count(),  prnt.chars().count() );
        cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
        set_cur_cur_pos(cur_cur_pos.i640(), -1);
     } else { set_cur_cur_pos(cur_cur_pos.dec().i640(), -1); }
