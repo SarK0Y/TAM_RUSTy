@@ -1,7 +1,7 @@
 use crate::{
     add_cmd_in_history, clear_screen, count_ln,
     custom_traits::{
-        find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize, vec_tools, STRN_usize, STRN,
+        find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize,  vec_tools, STRN_usize, STRN,
     },
     drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey,
     globs18::{
@@ -466,10 +466,18 @@ pub(crate) fn delim(cmd: Option<String>) -> String {
     cmd
 }
 pub(crate) fn F3_key() -> String {
-    let mut prnt: String = read_prnt();
+    let mut cur_cur_pos = get_cur_cur_pos(796196721).usize0();
+    let mut prnt0: String = read_prnt(); 
+    if cur_cur_pos == 0 {return prnt0;}
+    let mut prnt = prnt0.substring(0, cur_cur_pos).strn();
+    let tmp = prnt.clone();
     let orig_path = crate::get_path_from_strn(crate::cpy_str(&prnt));
     if orig_path.len() == 0 {
         if crate::tailOFF(&mut prnt, " ") {
+            let dt = delta(tmp.len(), prnt.len() );
+            cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
+            set_cur_cur_pos(cur_cur_pos.i640(), -1);
+            prnt = prnt0.replace(tmp.as_str(), &prnt);
             crate::set_prnt(&prnt, -1);
             return prnt;
         }
@@ -479,11 +487,11 @@ pub(crate) fn F3_key() -> String {
         crate::set_prnt(&prnt, -1);
         return prnt
     }*/
-
     crate::C_!(crate::globs18::set_ls_as_front(); /*front_list_indx(crate::globs18::LS_);*/);
     let ls_mode = take_list_adr("ls.mode");
     let mut ret_2_Front = || -> String {
         prnt = prnt.replace("/", "");
+        prnt = prnt0.replace(tmp.as_str(), &prnt);
         set_prnt(&prnt, -2317712);
         crate::C!(crate::swtch::swtch_fn(0, "".to_string()));
         crate::from_ls_2_front(ls_mode);
@@ -500,6 +508,12 @@ pub(crate) fn F3_key() -> String {
     );
     path = path.replace("//", "/");
     prnt = prnt.replace(&orig_path, &path);
+    if orig_path != "/" {
+       let dt = delta(tmp.len(),  prnt.len() );
+       cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
+       set_cur_cur_pos(cur_cur_pos.i640(), -1);
+    } else { set_cur_cur_pos(cur_cur_pos.dec().i640(), -1); }
+    prnt = prnt0.replace(tmp.as_str(), &prnt);
     set_prnt(&prnt, -1405);
     /*let user_wrote_path = user_wrote_path();
     rm_file(&user_wrote_path);*/
