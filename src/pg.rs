@@ -452,11 +452,11 @@ pub(crate) fn wipe_cmd_line(len_2_wipe: usize) {
 }
 pub(crate) fn form_cmd_line(prompt: String, prnt: String) {
     //let whole_line_len = prompt.len() + prnt.len() + 2;
-    let print_whole_line = format!("\r{}: {}", prompt, prnt);
+    let print_whole_line = format!("\r{}{}", prompt, prnt);
     print!("{}", print_whole_line);
 }
 pub(crate) fn form_cmd_newline(prompt: String, prnt: String) {
-    let print_whole_line = format!("{}: {}\n", prompt, prnt);
+    let print_whole_line = format!("{}{}\n", prompt, prnt);
     io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default() {
