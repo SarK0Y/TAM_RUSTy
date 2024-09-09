@@ -471,7 +471,9 @@ pub(crate) fn F3_key() -> String {
     if cur_cur_pos == 0 {return prnt0;}
     let mut prnt = prnt0.substring(0, cur_cur_pos).strn();
     let tmp = prnt.clone();
-    let orig_path = crate::get_path_from_strn(crate::cpy_str(&prnt));
+    let indx_of_space = crate::globs18::find_last_char_in_strn(&prnt, " ").unwrap_or(0);
+    let indx_of_slash = crate::globs18::find_last_char_in_strn(&prnt, "/").unwrap_or(0);
+    let orig_path = if indx_of_slash > indx_of_space {crate::get_path_from_strn(crate::cpy_str(&prnt)) } else { "".strn() };
     if orig_path.len() == 0 {
         if crate::tailOFF(&mut prnt, " ") {
             let dt = delta(tmp.chars().count(), prnt.chars().count() );

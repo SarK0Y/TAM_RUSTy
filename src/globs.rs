@@ -30,6 +30,7 @@ use num_traits::ToPrimitive;
 use std::borrow::Borrow;
 use std::io::BufRead;
 use std::str::FromStr;
+use std::usize;
 self::globs_uses!();
 use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 = 1;
@@ -1238,6 +1239,28 @@ pub(crate) fn check_char_in_strn(strn: &String, is_there_ch: char) -> String {
     }
     "no".to_string()
 }
+pub(crate) fn find_char_in_strn(strn: &String, is_there_ch: &str) -> usize {
+    let is_there_ch = is_there_ch.chars().nth(0).unwrap_or(" ".chars().nth(0).unwrap() );
+    let mut cnt = 0usize;
+    for ch in strn.chars() {
+        if ch == is_there_ch {
+            return cnt;
+        } cnt.inc();
+    }
+    cnt
+}
+pub(crate) fn find_last_char_in_strn(strn: &String, is_there_ch: &str) -> Option< usize > {
+    let is_there_ch = is_there_ch.chars().nth(0).unwrap_or(" ".chars().nth(0).unwrap() );
+    let mut cnt = 0usize;
+    let mut ret: Option< usize > = None;
+    for ch in strn.chars() {
+        if ch == is_there_ch {
+            ret = Some( cnt );
+        } cnt.inc();
+    }
+    ret
+}
+
 pub(crate) fn instance_num() -> u64 {
     let path_2_id_suffix = format!("{}/{}", shm_tam_dir(None), crate::full_escape(&id_suffix()));
     let num = crate::read_file_abs_adr0(&path_2_id_suffix);
