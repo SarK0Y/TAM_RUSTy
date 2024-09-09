@@ -491,7 +491,7 @@ pub(crate) fn F3_key() -> String {
     let ls_mode = take_list_adr("ls.mode");
     let mut ret_2_Front = || -> String {
         prnt = prnt.replace("/", "");
-        prnt = format! ("{}{}", prnt, prnt0.substring(prnt.chars().count(), prnt0.chars().count() ) );
+        prnt = format! ("{}{}", prnt, prnt0.substring(prnt.chars().count().inc(), prnt0.chars().count() ) );
         set_prnt(&prnt, -2317712);
         crate::C!(crate::swtch::swtch_fn(0, "".to_string()));
         crate::from_ls_2_front(ls_mode);
