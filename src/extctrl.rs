@@ -1,6 +1,6 @@
 use num_traits::bounds;
 
-use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, fix_num_files, free_term_msg, get_arg_in_cmd, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -115,6 +115,7 @@ pub trait ManageLists{
   fn manage_pages(&mut self);
   fn custom_input(&mut self, Key: &mut String, ext: bool) -> String;
   fn ext_key_modes(&mut self, Key: &mut String, ext: bool) -> String;
+  fn cut_prnt(&mut self);
 }
 impl ManageLists for basic{
   fn manage_pages(&mut self){
@@ -133,11 +134,20 @@ impl ManageLists for basic{
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
         if num_pg < num_pgs {self.build_page( &mut ps);}
-        println!("{}", crate::get_prnt(-1));
+        self.cut_prnt();
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));
     }
 }
+fn cut_prnt (&mut self) {
+        use crate::custom_traits::turn_2_usize; use substring::Substring;
+        let prnt = get_prnt(-1);
+        let prnt_len = prnt.chars().count();
+        let cur_pos = get_cur_cur_pos(-1).usize0();
+        let start: usize = if cur_pos > 5 {cur_pos - 5} else {0};
+        let end = if crate::delta(prnt_len, cur_pos) > 5 {cur_pos + 5} else {prnt_len};
+        let prnt = prnt.substring(start, end).strn(); println!("{prnt}");
+    }
  fn custom_input(&mut self, Key: &mut String, ext: bool) -> String{
     let mut Key = Key;
     crate::form_cmd_line_default();
