@@ -269,10 +269,12 @@ pub(crate) fn hotKeys(
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-        unsafe { shift_cursor_of_prnt(-1, None, func_id).shift };
-        let pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
+        let len = read_prnt().chars().count();
+        let mut pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
+        if pos > 1 {unsafe { shift_cursor_of_prnt(-1, None, func_id).shift }; }
+        if pos == 1 { unsafe { shift_cursor_of_prnt(-1, Some( len ), func_id).shift }; }
         cursor_direction(Some(true));
-        set_cur_cur_pos(usize_2_i64(pos), func_id);
+        set_cur_cur_pos(usize_2_i64(pos.dec() ), func_id);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
@@ -319,9 +321,9 @@ pub(crate) fn hotKeys(
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
-        unsafe { shift_cursor_of_prnt(i64::MIN, None, func_id).shift };
-        let pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
-        set_cur_cur_pos(usize_2_i64(pos), func_id);
+       let home_pos = read_prnt().chars().count();
+        unsafe { shift_cursor_of_prnt(0, Some( home_pos ), func_id).shift };
+        set_cur_cur_pos(0, func_id);
         return "dontPass".strn();
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
