@@ -146,7 +146,9 @@ fn cut_prnt (&mut self) {
         let cur_pos = get_cur_cur_pos(-1).usize0();
         let start: usize = if cur_pos > 5 {cur_pos - 5} else {0};
         let end = if crate::delta(prnt_len, cur_pos) > 5 {cur_pos + 5} else {prnt_len};
-        let prnt = prnt.substring(start, end).strn(); println!("{prnt}");
+        let prnt = prnt.substring(start, end).strn();
+        let prnt = format!("{prnt} P: {cur_pos} L: {prnt_len}");
+        println!("{prnt}");
     }
  fn custom_input(&mut self, Key: &mut String, ext: bool) -> String{
     let mut Key = Key;
