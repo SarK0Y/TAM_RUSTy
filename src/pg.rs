@@ -1,3 +1,5 @@
+use std::usize;
+
 use crate::custom_traits::{helpful_math_ops, STRN};
 use cli_table::TableStruct;
 use libc::uname;
@@ -269,12 +271,14 @@ pub(crate) fn hotKeys(
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
+        let mut pos = unsafe { shift_cursor_of_prnt(0, None, func_id) };
+        let pos0= unsafe { shift_cursor_of_prnt(-2, None, func_id) };
         let len = read_prnt().chars().count();
-        let mut pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
-        if pos > 1 {unsafe { shift_cursor_of_prnt(-1, None, func_id).shift }; }
-        if pos == 1 { unsafe { shift_cursor_of_prnt(-1, Some( len ), func_id).shift }; }
+        if pos0.shift == len { return "dontPass".strn(); }
+        {unsafe { shift_cursor_of_prnt(-1, None, func_id).shift }; }
+        //if pos.shift == 1 { unsafe { shift_cursor_of_prnt(-1, Some( len ), func_id).shift }; }
         cursor_direction(Some(true));
-        set_cur_cur_pos(usize_2_i64(pos.dec() ), func_id);
+        set_cur_cur_pos(usize_2_i64(pos.shift.dec() ), func_id);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
@@ -322,7 +326,7 @@ pub(crate) fn hotKeys(
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
        let home_pos = read_prnt().chars().count();
-        unsafe { shift_cursor_of_prnt(0, Some( home_pos ), func_id).shift };
+        unsafe { shift_cursor_of_prnt(0, Some( 0 ), func_id).shift };
         set_cur_cur_pos(0, func_id);
         return "dontPass".strn();
     }

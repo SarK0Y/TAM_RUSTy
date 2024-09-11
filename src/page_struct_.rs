@@ -1,4 +1,6 @@
 mod exts;
+use std::usize;
+
 use exts::page_struct_uses;
 
 use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_file, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, save_file_abs_adr, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::{prev_key, upd_screen_or_not}};
@@ -255,17 +257,22 @@ pub(crate) unsafe fn page_struct_int(val: i64, val_id: i64, caller_id: i64) -> i
 }
 pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, just_set_shift: Option<usize>, func_id: i64) -> shift_cur_struct{ // shift == 0 to get cursor position, -1 to move left for one char, 1 to move right /
   static mut num_of_shifts: usize = 0;                                          // i64::MIN/MAX to set num_of_shifts = 0/END, 2 to ret num_of_shifts w/ no string /
+  static mut ret_shift: usize = 0; 
   let mut str__ = String::from("");                                             // 3 to ret str of shifts
-  if just_set_shift.is_some(){
-    { num_of_shifts = just_set_shift.unwrap() }; return shift_cur_struct{
+  if let Some (mut x) = just_set_shift{
+    if x == 0 {
+            x = read_prnt().chars().count(); ret_shift = usize::MAX;
+        } else {ret_shift = x}
+    { num_of_shifts = x }; return shift_cur_struct{
       str__: "".to_string(),
-      shift: num_of_shifts
+      shift: ret_shift
     };
   }
   let len = get_prnt(func_id).chars().count();
   let mut ret = shift_cur_struct{shift: num_of_shifts, str__: str__};
   if shift == i64::MIN{num_of_shifts = len;}
   if shift == i64::MAX{num_of_shifts = 0;}
+  if shift == -2 {ret.shift = num_of_shifts}
   if shift == 2 {return ret;}
   if shift == 0 || shift == 3{
   macro_rules! shift {
@@ -273,10 +280,11 @@ pub(crate) unsafe fn shift_cursor_of_prnt(shift: i64, just_set_shift: Option<usi
       repeat_char(num_of_shifts, "\x1b[D").as_str()      
       };
   }
-  if shift == 0{
+   if shift == 0{
     if len > num_of_shifts {ret.shift= len - num_of_shifts;}
-    if ret.shift == 0{ret.shift = len}
+    //else{ret.shift = ret_shift}
   }
+    //if shift == 0 {return ret;}
     ret.str__.push_str(shift!());
     return ret
   }
