@@ -337,7 +337,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
       VIEWER.set(viewer_vec);
      // let msg = format!("notify-send 'once prnt {}'", PRNT.get().unwrap()[0]);
      // crate::run_cmd0(msg);
-      let _ = PROMPT.set("Your command, Please: ".to_string());
+      let _ = PROMPT.set( crate::cmd_keys::prompt() );
       fst_run = false;
     }
     //let fn_ptr_get_string: fn(&str) -> String = get_string;

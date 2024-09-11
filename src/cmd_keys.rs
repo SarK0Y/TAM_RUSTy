@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use crate::{checkArg, getkey, link_lst_to, set_front_list, set_front_list2, split_once};
+use crate::{__get_arg_in_cmd, checkArg, getkey, link_lst_to, set_front_list, set_front_list2, split_once, STRN};
 pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
     static mut fst_run: bool = false;
@@ -114,4 +114,10 @@ pub fn dont_run_file (control: Option < bool >) -> bool{
         if let Some (x) = control {state = x} state
     }
 }
+pub fn prompt () -> String{
+    static mut strn0: Lazy < String > = Lazy::new( || {"Your command, please: ".strn() });
+    if checkArg( "-prompt" ) {
+        unsafe { *strn0 = __get_arg_in_cmd("-prompt" ); }
+    } unsafe { strn0.strn() }
+} 
 //fn
