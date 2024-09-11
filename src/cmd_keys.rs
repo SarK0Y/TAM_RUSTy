@@ -6,7 +6,7 @@ pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     if !crate::C!(fst_run){
         crate::C!(fst_run = true);
         if checkArg("-dont-clean-bash"){crate::C!(state = true)}
-        println!("dont_clean_bash status: {}", crate::C!(state))
+#[cfg(feature = "in_dbg")] println!("dont_clean_bash status: {}", crate::C!(state))
     }
     if roll{crate::C!(state = !state); println!("dont_clean_bash status: {}", crate::C!(state)); }
     crate::C!(state)
