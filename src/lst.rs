@@ -384,9 +384,20 @@ pub(crate) fn session_lists(){
 pub(crate) fn upd_session_lists(){
     session_lists(); crate::set_front_list("lst"); mk_cnt();
 }
+pub fn lst_fst_run() -> bool {
+    static mut fst: bool = true;
+    unsafe {
+        let ret = fst;
+        fst = false; ret
+    }
+}
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
-    if cmd0 == "lst" || cmd0 == "lst "{set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
+    if cmd0 == "lst" || cmd0 == "lst "{
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
@@ -419,7 +430,11 @@ pub(crate) fn manage_lst(cmd: &String){
 }
 pub(crate) fn manage_lst_sub(cmd: &String){
     let cmd0 =cmd.to_string();
-    if cmd0 == "lst" || cmd0 == "lst "{ crate::set_front_list( "lst" ); return;}
+    if cmd0 == "lst" || cmd0 == "lst "{ 
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
