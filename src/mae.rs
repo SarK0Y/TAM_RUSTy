@@ -1,5 +1,5 @@
 use Mademoiselle_Entropia::{Mademoiselle_Entropia::cipher, help_funcs};
-use crate::{amaze_me, custom_traits::{STRN_strip, STRN}, getkey};
+use crate::{amaze_me, custom_traits::{STRN_strip, STRN}, getkey, END_KEY};
 pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
     let func_name = "encrypt_n_keep_orig_file".strn();
     let file_to_encrypt = cmd.replace("encrypt copy", "").trim_start().trim_end().strn().strip_all_symbs();
@@ -105,7 +105,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me {file_indx} {item}"), 510974534 );
-                crate::lst::add_randomly_picked_file(file_indx, &item);
+                crate::lst::add_randomly_picked_file(file_indx, &item); END_KEY();
                 return Some( file_indx );
             }
             amaze_me::warming(c) => {
@@ -118,11 +118,12 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 let cmd = format!("0 {item}");
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
-                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 );
+                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 ); END_KEY();
                 return Some( file_indx );
             }
         }       
     }
+    END_KEY();
     None
 }
 #[cfg(feature = "in_dbg")]
@@ -144,7 +145,7 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 let cmd = format!("0 {item}");
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me dry run {file_indx} {item}"), 510974534 );
-                crate::lst::add_randomly_picked_file(file_indx, &item);
+                crate::lst::add_randomly_picked_file(file_indx, &item); END_KEY();
                 return Some( file_indx );
             }
             amaze_me::warming(c) => {
@@ -157,11 +158,12 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 let cmd = format!("0 {item}");
                 crate::swtch::run_viewer(cmd);
                 if indx_mode {crate::swtch::local_indx(true);} 
-                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 );
+                crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 ); END_KEY();
                 return Some( file_indx );
             }
         }       
     }
+    END_KEY();
     None
 }
 
