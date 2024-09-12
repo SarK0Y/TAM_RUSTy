@@ -75,7 +75,7 @@ pub(crate) fn up_front_list() {
     run_cmd_str(&cmd);
 }
 pub(crate) fn set_front_list(list: &str) {
-    let mut list = list.strn();
+    let mut list = list.strn(); crate::lst::edit_mode_lst(Some (false) );
     if list == "" {
         list = "lst".strn()
     }
@@ -113,6 +113,7 @@ pub(crate) fn name_of_front_list(name: &str, set: bool) -> String {
     unsafe { name0.to_string() }
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize) {
+    crate::lst::edit_mode_lst(Some (false) );
     if check_substrn(&list.strn(), "history") {
         swtch_esc(true, false);
     } else {
