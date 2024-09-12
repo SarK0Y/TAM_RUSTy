@@ -1,4 +1,6 @@
-use crate::{__get_arg_in_cmd, bkp_main_path, checkArg, getkey, run_cmd_out_sync, save_file_append_newline_abs_adr, swtch::print_pg_info};
+use std::str::{Chars, FromStr};
+
+use crate::{__get_arg_in_cmd, bkp_main_path, checkArg, getkey, run_cmd_out_sync, save_file_append_newline_abs_adr, swtch::print_pg_info, STRN};
 
 /*Run it Later or Cancel Now */
 pub(crate) fn rilocan(){
@@ -76,3 +78,17 @@ pub(crate) fn u64_from_strn(strn: &String) -> (u64, bool){
         _ => return (0, false)
     }
 }
+pub fn glee_prompt <T: STRN + AsRef <str> + std::fmt::Display + ExactSizeIterator + FromStr > (str0: T) -> String where String: From < T >  {
+    use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64;
+    let mut ret = "".strn();
+    let mut cnt = 0usize;
+    let str0_len = str0.len();
+    let rnd = get_true_rnd_u64() as usize % str0_len;
+    for ch in str0.strn().chars() {
+        if cnt == rnd {
+            ret.push( ch.to_uppercase().nth(0 ).unwrap() );
+        }
+    }
+    "".strn()
+}
+//fn
