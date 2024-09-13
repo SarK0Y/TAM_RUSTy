@@ -336,6 +336,7 @@ pub(crate) fn initSession() -> bool {
     );
     #[cfg(feature = "mae")]
     crate::cache::lazy_cache_cleaning(None);
+    crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
