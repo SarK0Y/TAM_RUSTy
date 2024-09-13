@@ -331,7 +331,7 @@ pub(crate) fn initSession() -> bool {
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
-        "{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)",
+        &"{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)".bold().strn(),
         func_id,
     );
     #[cfg(feature = "mae")]

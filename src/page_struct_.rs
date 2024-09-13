@@ -1,7 +1,9 @@
 mod exts;
 use std::usize;
 
+use crossterm::style::Stylize;
 use exts::page_struct_uses;
+use once_cell::sync::Lazy;
 
 use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_file, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, save_file_abs_adr, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::{prev_key, upd_screen_or_not}};
 self::page_struct_uses!();
@@ -169,9 +171,34 @@ pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
   file_prnt(val.to_string());
   return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
 pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
-pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
-pub(crate) fn get_full_path(func_id: i64) -> String{return format!("{}",unsafe{page_struct("", FULL_PATH_, func_id).str_}) }
-pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id).str_}}
+pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{ unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
+pub(crate) fn get_full_path(func_id: i64) -> String {
+    let mut val =  format!("{}",unsafe{page_struct("", FULL_PATH_, func_id).str_});
+    let guide = guide_full_path( None );
+    if guide || val == "{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)" {
+        if crate::subs::prompt_mode(None) == crate::enums::prompt_modes::glee_uppercases {
+            val = crate::subs::glee_prompt(&val );
+        }
+    }
+   if guide  {
+        return Colorize::bold(val.as_str() ).black().strn()
+    }
+    val
+}
+pub fn guide_full_path (set: Option< bool > ) -> bool {
+    static mut state: bool = true;
+    unsafe {
+        if set.is_some() { state = set.unwrap() } state
+    }
+}
+pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{
+use colored::ColoredString;
+    let mut val = val.strn();
+   let guide: bool = guide_full_path( None );
+   if val != "{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)" {
+        guide_full_path( Some( false ) );   
+    }
+    return unsafe{page_struct(&val.to_string(), crate::set(FULL_PATH_), func_id).str_}}
 pub(crate) fn get_prompt(func_id: i64) -> String{
     let prmpt = unsafe{page_struct("", PROMPT_, func_id).str_};
     match crate::subs::prompt_mode (None) {
