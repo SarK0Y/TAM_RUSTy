@@ -172,7 +172,13 @@ pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("",
 pub(crate) fn set_ask_user(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(ASK_USER_), func_id).str_}}
 pub(crate) fn get_full_path(func_id: i64) -> String{return format!("{}",unsafe{page_struct("", FULL_PATH_, func_id).str_}) }
 pub(crate) fn set_full_path(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(FULL_PATH_), func_id).str_}}
-pub(crate) fn get_prompt(func_id: i64) -> String{return unsafe{page_struct("", PROMPT_, func_id).str_}}
+pub(crate) fn get_prompt(func_id: i64) -> String{
+    let prmpt = unsafe{page_struct("", PROMPT_, func_id).str_};
+    match crate::subs::prompt_mode (None) {
+        crate::enums::prompt_modes::glee_uppercases => {return crate::subs::glee_prompt( &prmpt)},
+        _ => { return prmpt}
+    }
+}
 pub(crate) fn set_prompt(val: &str, func_id: i64) -> String{return unsafe{page_struct(val, crate::set(PROMPT_), func_id).str_}}
 /*------------------------------------------------------------------------------------------------------------------------ */
 pub(crate) fn get_num_cols(func_id: i64) -> i64{return unsafe{page_struct_int(0, NUM_COLS_, func_id)}}

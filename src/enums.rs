@@ -27,3 +27,9 @@ pub enum amaze_me{
     do_ur_stuff,
     warming(/*times*/ u64),
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum prompt_modes {
+    default,
+    glee_uppercases,    
+}
+

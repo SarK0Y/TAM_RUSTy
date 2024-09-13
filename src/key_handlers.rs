@@ -128,6 +128,11 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.trim_end() == cmd0 { crate::lst::show_modes(); return empty; }
     if file_indx.trim_end() == "lst upd" { crate::lst::upd_session_lists(); return empty; }
     if file_indx.substring(0, 3) == "lst" { crate::lst::manage_lst_sub(&file_indx.trim_end().strn()); return empty; }
+    let cmd0 = "prompt mode default";
+    if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode( cmd0); return empty; }
+    let cmd0 = "prompt mode glee uppercases";
+    if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode(cmd0 ); return empty; }
+
     #[cfg(feature = "in_dbg")] let cmd0 = "prnt screen";
     #[cfg(feature = "in_dbg")]
     if file_indx.trim_end() == cmd0 { crate::lst::prnt_screen_dbg(); getkey(); return empty; }
