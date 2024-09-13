@@ -86,11 +86,12 @@ pub fn glee_prompt <T: STRN + AsRef <str> + std::fmt::Display > (str0: T) -> Str
     let mut cnt = 0usize;
     let str0_len = str0.strn().len();
     static mut rnd: usize = 517;
+    let rnd0 = unsafe { rnd } % str0_len;
     let mut copy = |val: &usize| -> usize {return val.to_usize().unwrap() ;};
-std::thread::spawn(move|| { unsafe { rnd = get_true_rnd_u64() as usize % str0_len; } } );
+std::thread::spawn(move|| { unsafe { rnd ^= get_true_rnd_u64() as usize; } } );
 //    crate::set_ask_user( rnd.strn().as_str(), -111);
     for ch in str0.strn().chars() {
-        if cnt == unsafe { copy (&rnd) } {
+        if cnt == rnd0 {
             ret.push( ch.to_uppercase().nth(0 ).unwrap() );
         } else {ret.push(ch )} cnt.inc();
     }
