@@ -178,6 +178,9 @@ pub(crate) fn get_full_path(func_id: i64) -> String {
     if guide || val == "{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)" {
         if crate::subs::prompt_mode(None) == crate::enums::prompt_modes::glee_uppercases {
             val = crate::subs::glee_prompt(&val );
+            //Colorize::bold(val.as_str() ).black().strn()
+            return format!("{}", val.bold() );
+
         }
     }
    if guide  {
