@@ -58,8 +58,14 @@ pub(crate) fn pre_Enter() {
     set_front_list(&prev_list);
     crate::free_term_msg();
 }
-pub(crate) fn Enter() {
-    let mut prnt = crate::get_prnt(-881454);
+pub fn Shift_Enter () -> String {
+    let viewer_mode = crate::swtch::mode_default_viewers( None );
+    crate::swtch::mode_default_viewers(Some( !viewer_mode ) );
+    return Enter();
+}
+pub(crate) fn Enter() -> String {
+    let func_id = -881454;
+    let mut prnt = crate::get_prnt( func_id );
     // let (term, _) = crate::split_once(&prnt, " ");
     /* if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
@@ -78,6 +84,7 @@ pub(crate) fn Enter() {
         stop_term_msg();
         crate::lst::edit_ln_in_lst_fin_op();
     }
+    let decoded_prnt = crate::globs18::decode_sub_cmds(&crate::get_prnt(func_id)); decoded_prnt
 }
 pub(crate) fn Ins_key() -> String {
     stop_term_msg();

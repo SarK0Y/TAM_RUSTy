@@ -304,6 +304,10 @@ pub(crate) fn hotKeys(
         shift_f3_cut_off_tail_of_prnt();
         return "dontPass".to_string();
     }
+    if crate::globs18::eq_ansi_str(&kcode::Shift_Enter, Key.as_str()) == 0 {
+        return crate::key_handlers::Shift_Enter();
+    }
+
     if crate::globs18::eq_ansi_str(&kcode::F8, Key.as_str()) == 0 {
         crate::F8_key();
         return "dontPass".to_string();
@@ -390,9 +394,7 @@ pub(crate) fn hotKeys(
         println!("ansi {}, Key {:?}", ansiKey, Key);
     }
     if kcode::ENTER == ansiKey {
-        crate::Enter();
-        let decoded_prnt = crate::globs18::decode_sub_cmds(&crate::get_prnt(func_id));
-        return decoded_prnt;
+        return crate::Enter();
     }
     if kcode::BACKSPACE == ansiKey {
         crate::press_BKSP();

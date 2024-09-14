@@ -28,3 +28,4 @@ pub(crate) const DOWN_ARROW:  &str  = "\x1b[B";
 pub(crate) const Alt_0:  &str  = "\x1b0";
 pub(crate) const Alt_min:  &str  = "\x1b-";
 pub(crate) const Alt_2:  &str  = "\x1b2";
+pub(crate) const Shift_Enter:  &str  = "\x1bOM";
