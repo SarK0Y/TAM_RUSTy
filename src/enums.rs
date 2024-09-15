@@ -32,4 +32,10 @@ pub enum prompt_modes {
     default,
     glee_uppercases,    
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum smart_lags {
+    well_done ( u128 ),
+    too_small_lag ( u128 ),
+    failed
+}
 

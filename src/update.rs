@@ -79,14 +79,14 @@ pub(crate) fn prime(){
         set_front_list("main0");
     }
     let mut base = crate::basic::new();
-println!("len of main0 list {}", globs17::len_of_main0_list());
+//println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
 let handler = builder.spawn(move || {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
-else{base.manage_pages()}
+else{ base.manage_pages() }
 println!("stop manage_page");
 }).unwrap();
 //background_fixing_count(2);

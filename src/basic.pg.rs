@@ -31,7 +31,8 @@ impl super::basic{
     println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
     let GUARD_LAG = 47u128;
-    if !upd_screen_or_not(pg_info) && screen_state(None) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
+    if !crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) { return;} 
+    if !upd_screen_or_not(pg_info) && screen_state(None) {
         if name_of_front_list("", false) != "ls" {
           crate::lst::prnt_screen(); return;
         }
