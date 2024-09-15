@@ -30,7 +30,8 @@ impl super::basic{
     }
     println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
-    if !upd_screen_or_not(pg_info) && screen_state(None){
+    let GUARD_LAG = 47u128;
+    if !upd_screen_or_not(pg_info) && screen_state(None) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
         if name_of_front_list("", false) != "ls" {
           crate::lst::prnt_screen(); return;
         }
@@ -103,7 +104,7 @@ impl super::basic{
     }
     //println!("{}", pg.table().display().unwrap());
     drop(redirect_out);
-    if crate::cmd_keys::screen_state( None ) {
+    if crate::cmd_keys::screen_state( None ) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
         let screen = read_file("screen");
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );
     } else {println!("{}", get_ask_user(func_id) )}

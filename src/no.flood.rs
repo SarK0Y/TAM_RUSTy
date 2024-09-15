@@ -8,7 +8,8 @@ pub fn fork_lag_mcs_bool (mcs: u128) -> bool {
         let end: u128 = match end_time.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return false}.as_micros();
         let start: u128 = match start_time.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return false }.as_micros();
         *start_time =  end_time;
-        if end - start > mcs { return true} false
+        let end = crate::key_handlers::delta( end, start);
+        if end > mcs { return true} false
     }
 } 
 //fn
