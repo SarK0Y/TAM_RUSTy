@@ -31,7 +31,7 @@ impl super::basic{
     }
     println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
-    let GUARD_LAG = 4770u128;
+    let GUARD_LAG = crate::smart_lags::screen_lag ( None );
     if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
     if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {
             if x > GUARD_LAG / 10 { clear_screen() }

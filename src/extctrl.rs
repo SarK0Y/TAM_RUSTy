@@ -124,7 +124,8 @@ impl ManageLists for basic{
     let mut count: u64 = 0;
     let mut bal =String::new();
     loop{
-       if let enums::smart_lags::well_done(x ) = crate::smart_lags::fork_lag_mcs_verbose(4770 ) { crate::clear_screen(); }
+       if let enums::smart_lags::well_done(x ) = crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
+             crate::clear_screen(); }
         //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();

@@ -192,6 +192,7 @@ pub(crate) fn clear_screen() {
     if checkArg("-dbg") || checkArg("-dirty") {
         return;
     }
+   //  print!("\x1B[2J\x1B[1;1H"); io::stdout().flush();
     let run_command = Command::new("clear").output().expect("can't clear screen");
     if run_command.status.success() {
         io::stdout().write_all(&run_command.stdout).unwrap();
