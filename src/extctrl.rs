@@ -123,6 +123,7 @@ impl ManageLists for basic{
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
+    crate::clear_screen();
     loop{
        if let enums::smart_lags::well_done(x ) = crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
              crate::clear_screen(); }
