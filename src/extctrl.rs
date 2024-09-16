@@ -125,7 +125,7 @@ impl ManageLists for basic{
     let mut bal =String::new();
     crate::clear_screen();
     loop{
-       if let enums::smart_lags::well_done(x ) = crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
+       if enums::smart_lags::failed != crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
              crate::clear_screen(); }
         //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
