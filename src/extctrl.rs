@@ -126,7 +126,7 @@ impl ManageLists for basic{
     crate::clear_screen();
     loop{
        if enums::smart_lags::failed != crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
-             crate::clear_screen(); }
+             crate::clear_screen(); } else { continue; }
         //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
