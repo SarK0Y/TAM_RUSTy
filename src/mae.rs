@@ -87,6 +87,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
+    crate::swtch_ls( true, false);
     unsafe {
         let in_val = cmd.unwrap();
         /*  ret_indx_n_do_none,
@@ -131,6 +132,7 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
+    crate::swtch_ls( true, false);
     unsafe {
         let in_val = cmd.unwrap();
         match in_val {
