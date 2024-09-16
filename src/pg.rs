@@ -737,6 +737,16 @@ pub(crate) fn exec_cmd(cmd: String) {
         }
         crate::term(&cmd);
     }
+    let cmd0 = "new ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        let subcmd = extract_sub_cmd_by_mark(&cmd, ":>:".to_string());
+        add_cmd_in_history(&cmd.replace(&format!(":>:{subcmd}"), ""));
+        if subcmd != "no_upd_scrn" {
+            crate::new0__(&cmd);
+            return;
+        }
+        crate::new0__(&cmd);
+    }
     #[cfg(feature = "mae")]
     let cmd0 = "mk uid";
     #[cfg(feature = "mae")]

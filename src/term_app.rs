@@ -199,6 +199,29 @@ pub(crate) fn term(cmd: &String){
     let (_, cmd) = split_once(&cmd, " ");
     run_term_app(cmd.trim_start().trim_end().strn());
 }
+pub(crate) fn new0__ (cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
+    if edit_mode_lst(None) {return; }
+    if read_term_msg() == "stop"{return;}
+    else {taken_term_msg()}
+    let mut cmd = cmd.trim_start_matches("new ").strn();
+    let mut subcmd = "".to_string();
+    if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
+    //if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
+    //if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
+    if default_term_4_shol_a(&cmd){return}
+    let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
+    let cmd = format! ("{} {cmd}", konsole( None ) );
+    println!( "{cmd}" );
+    run_term_app(cmd.trim_start().trim_end().strn());
+}
+pub fn konsole (cmd: Option< String >) -> String {
+    static mut term: Lazy< String > = Lazy::new( || {"konsole --hold -e".strn() });
+    unsafe {
+        if let Some( x ) = cmd { *term = x} term.strn()
+    }
+}
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){
         "#" => key.as_str(),
@@ -213,7 +236,7 @@ pub(crate) fn process_tag(key: String){
         "8" => key.as_str(),
         "9" => key.as_str(),
         _ => return validate_tag(key)
-    }.to_string();
+   }.to_string();
     save_file_append(valid, "tag".to_string());
 }
 pub(crate) fn validate_tag(key: String){
