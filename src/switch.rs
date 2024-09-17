@@ -348,7 +348,9 @@ pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String
 
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {
-        return unsafe { crate::page_struct("", crate::VIEWER_, func_id_loc).str_ };
+        return unsafe { 
+            { let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; crate::nvim::add_keys_2_cmd( &viewer ) }
+        };
     }
     "locked".to_string()
 }

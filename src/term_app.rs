@@ -164,11 +164,11 @@ getkey();
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
-    if check_known_cmd(&cmd, "nano /"){return true;}
-    if check_known_cmd(&cmd, "vim /"){return true;}
-    if check_known_cmd(&cmd, "nvim /"){return true;}
-    if check_known_cmd(&cmd, "nvim.app /"){return true;}
-    if check_known_cmd(&cmd, "vi /"){return true;}
+    if check_known_cmd(&cmd, "nano"){return true;}
+    if check_known_cmd(&cmd, "vim"){return true;}
+    if check_known_cmd(&cmd, "nvim"){return true;}
+    if check_known_cmd(&cmd, "nvim.app"){return true;}
+    if check_known_cmd(&cmd, "vi"){return true;}
     if check_known_cmd(&cmd, "mc "){
         if !is_dir(fname){
             //*fname = crate::Path::new(&fname).parent().unwrap().to_str().unwrap().to_string();
@@ -178,7 +178,7 @@ pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
     false
 }
 pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
-    let cmd0 = cmd.replace(name, "");
+    let cmd0 = cmd.trim_start_matches( name );
     if cmd0.len() < cmd.len(){return true} 
     false
 }

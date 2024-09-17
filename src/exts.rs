@@ -35,6 +35,8 @@ mod kcode01;
 mod swtch;
 #[path = "init.rs"]
 mod init;
+#[path = "nvim.ext.rs"]
+mod nvim;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
