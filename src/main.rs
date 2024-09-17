@@ -139,6 +139,7 @@ return match from_utf8(&run_command.stdout){
 pub(crate) fn run_cmd_viewer(cmd: String) -> bool{
 let func_id = func_id18::run_cmd_viewer_;
 set_ask_user(cmd.as_str(), func_id);
+if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
 let fstdout: String; 
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();

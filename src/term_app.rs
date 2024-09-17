@@ -86,6 +86,7 @@ true
 pub(crate) fn run_term_app1(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 drop_ls_mode();
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); return true}
 let mut lc = "ru_RU.UTF-8".to_string();
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
@@ -127,6 +128,7 @@ pub(crate) fn run_term_app(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 let mut lc = "ru_RU.UTF-8".to_string();
 drop_ls_mode();
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::run_new_win_bool( Some( false ) ); crate::term_app::new0__(&cmd); return true; }
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
 {dont_scrn_fix(true); no_view(true, true);}
@@ -177,6 +179,14 @@ pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
         return true;}
     false
 }
+pub fn run_new_win_bool (toggle: Option< bool >) -> bool {
+    static mut state: bool = false;
+    unsafe {
+        if let Some (x) = toggle {
+            state = x;
+        } state
+    }
+}
 pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
     let cmd0 = cmd.trim_start_matches( name );
     if cmd0.len() < cmd.len(){return true} 
@@ -187,6 +197,7 @@ pub(crate) fn term(cmd: &String){
     if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
     if cmd.substring(0, 2) == ">_"{cmd = cmd.replace(">_", "term") }
     let mut subcmd = "".to_string();
      if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}

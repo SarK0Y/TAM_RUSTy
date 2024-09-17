@@ -570,6 +570,11 @@ pub(crate) fn exec_cmd(cmd: String) {
     if cmd.as_str().substring(0, 3) == "sl:" {
 
         //        process_tag(key)
+    } 
+    crate::term_app::run_new_win_bool( Some( false ) );
+    let cmd0 = "_";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::term_app::run_new_win_bool( Some( true ) );
     }
     if cmd == "np" {
         unsafe { exec_cmd_cnt(true) };

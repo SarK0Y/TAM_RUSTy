@@ -252,6 +252,10 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     return crate::run_cmd_viewer(cmd);
 }
 pub(crate) fn run_viewer(cmd: String) -> bool {
+    let mut cmd = cmd;
+    if crate::term_app::run_new_win_bool( None ) {
+        cmd = cmd.substring(1, usize::MAX).strn();
+    }
     if stop_run_viewer(&cmd) {
         return false;
     }
