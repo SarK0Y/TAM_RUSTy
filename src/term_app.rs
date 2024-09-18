@@ -5,7 +5,7 @@ use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
-use crate::custom_traits::{STRN, helpful_math_ops};
+use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
@@ -224,6 +224,7 @@ pub(crate) fn new0__ (cmd: &String){
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
     let cmd = format! ("{} {cmd}", konsole( None ) );
+    let cmd = cmd.replace_unesc_ch(";", &format! (";{} ", konsole(None ) ) );
     println!( "{cmd}" );
     run_term_app(cmd.trim_start().trim_end().strn());
 }
