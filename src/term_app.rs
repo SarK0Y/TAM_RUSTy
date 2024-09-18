@@ -226,7 +226,28 @@ pub(crate) fn new0__ (cmd: &String){
     let cmd = format! ("{} {cmd}", konsole( None ) );
     let cmd = cmd.replace_unesc_ch(";", &format! (";{} ", konsole(None ) ) );
     println!( "{cmd}" );
-    run_term_app(cmd.trim_start().trim_end().strn());
+   // run_term_app(cmd.trim_start().trim_end().strn());
+    let fstdout: String;  let func_id = -617506194i64;
+    let path_2_cmd = crate::mk_cmd_file(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
+    crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = crate::File::create(stderr_path).unwrap();
+    let fstdout0 = crate::File::open("/dev/null").unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr)
+        .stdout(fstdout0)
+        .spawn()
+        .expect("can't run command in run_cmd_viewer");
+    /*if run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return false;
+    }*/
+    return
 }
 pub fn konsole (cmd: Option< String >) -> String {
     static mut term: Lazy< String > = Lazy::new( || {"konsole --hold -e".strn() });
