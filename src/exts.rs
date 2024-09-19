@@ -33,6 +33,10 @@ use std::os::unix::io::{AsRawFd, RawFd};
 mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
+#[path = "init.rs"]
+mod init;
+#[path = "nvim.ext.rs"]
+mod nvim;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
@@ -45,6 +49,8 @@ use custom_traits::*;
 #[path = "cmd_keys.rs"]
 mod cmd_keys;
 use cmd_keys::*;
+#[path = "no.flood.rs"]
+mod smart_lags;
 #[path = "key_handlers.rs"]
 mod key_handlers;
 use key_handlers::*;

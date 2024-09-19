@@ -1,14 +1,10 @@
 use once_cell::sync::Lazy;
-use ps0::get_mainpath;
+use ps0::{fix_num_files, get_mainpath};
 
-use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, dont_scrn_fix, drop_ls_mode, errMsg0, 
-    exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, 
-    popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_prnt, split_once, 
-    swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists,
-custom_traits::{STRN, fs_tools}}; 
+use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{check_substrn, path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, init::user_home_dir, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_front_list, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists}; 
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
-use std::time::Instant;
+use std::{borrow::Borrow, time::Instant};
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
     let mut no_path =true;
@@ -19,14 +15,19 @@ pub(crate) fn main_update(){
         if  crate::checkArg("-path0"){path = get_arg_in_cmd("-path0").s.iter().collect(); no_path = false;}
         if no_path {panic!("No path was provided: set flag '-path' or '-path0");}
         KonsoleTitle(&gen_win_title());
-        if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-rows").s).as_str(), 10).expect(
+        if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-rows"), 10).expect(
             "set number of rows as an integer: '-rows 9'"
         ); crate::set_num_rows(val, func_id);}
-        if  crate::checkArg("-cols"){let val: i64 = i64::from_str_radix(String::from_iter(get_arg_in_cmd("-cols").s).as_str(), 10).expect(
+        if  crate::checkArg("-cols"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-cols"), 10).expect(
             "set number of columns as an integer: '-cols 3'"
         ); ps0::set_num_cols(val, func_id);}
         let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
         let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
+        
+        let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
+        //logs(&orig_lst, "see");
+        std::fs::remove_file(&orig_lst);
+        upd_screen_or_not((-1, "".strn() ) );
         if !checkArg("-slow-load"){
             thr_find_files.spawn(move||{
                 println!("spawn find files");
@@ -67,26 +68,29 @@ pub(crate) fn delay_secs(sleep: u64){
 }
 pub(crate) fn prime(){
     crate::initSession();
-     C!(front_list_indx(MAIN0_));
-     C!(set_main0_as_front());
-     main_update();
-     let key = "-front-lst";
+    let key = "-front-lst";
+    main_update();
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
         crate::front_lst(&cmd);
+    }else{
+        C!(front_list_indx(MAIN0_));
+        C!(set_main0_as_front());
+        set_front_list("main0");
     }
     let mut base = crate::basic::new();
-println!("len of main0 list {}", globs17::len_of_main0_list());
+//println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
 let handler = builder.spawn(move || {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
-else{base.manage_pages()}
+else{ base.manage_pages() }
 println!("stop manage_page");
 }).unwrap();
-background_fixing_count(2);
+//background_fixing_count(2);
+delay_ms(37);
     handler.join().unwrap();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
@@ -114,14 +118,35 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     let mut cmd = format!("find -L {} {}|grep -Ei '{}'", tail, opts, head);
     if no_grep{cmd = format!("find -L {}/{}", tail, head);}
     crate::find_files_ls_no_stop_code(cmd);
+    fix_num_files(5197521);
     clear_screen();
-    background_fixing_count_n_delay(2, 40);
+    name_of_front_list("ls", true);
+    delay_ms(12);
+    crate::mk_cnt();
+    //background_fixing_count_n_delay(2, 40);
+}
+pub fn prev_key <T: STRN + ToString  + Borrow <str> + std::cmp::PartialEq<T> > (prev: T) -> String {
+    static mut key: Lazy <String> = Lazy::new(|| {String::new()});
+    unsafe {
+        if prev.strn() != "" {*key = prev.strn() } key.strn()
+    }
 }
 pub(crate) fn lets_write_path(key: String){
-    C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
+    if !swtch_ls(false, false) {return;}
+    //C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
+    let anchor = (-1i64, "ls".strn());
+    upd_screen_or_not(anchor);
+    set_front_list("ls");
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
     if mode < 0{return;}
-    C!(swtch_fn(mode, key));
+    name_of_front_list("ls", true);
+    let mut key0: String;
+    if prev_key("") == "~" {
+     let mut prnt = read_prnt();
+     key0 = crate::init::user_home_dir(); prnt = prnt.replace("~", &key0);
+     set_prnt(&prnt, 1198001452 );
+} else {key0 = key}
+     C!(swtch_fn(mode, "".strn() )); C!(swtch_fn( -1, key0)); 
 
 }
 pub(crate) fn background_fixing(){ 
@@ -215,6 +240,7 @@ let ls_mode = take_list_adr("ls.mode");
 }
 
 pub(crate) fn fix_screen(){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;} // if user did set flag - drop it after use
     std::thread::spawn(||{
@@ -235,6 +261,7 @@ pub(crate) fn fix_screen(){
     });
 }
 pub(crate) fn fix_screen_count(num: usize){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{
@@ -255,6 +282,7 @@ pub(crate) fn fix_screen_count(num: usize){
     });
 }
 pub(crate) fn fix_screen_count_n_delay(num: usize, delay: u64){
+    return;
     if checkArg("-no-shadow-fix"){return;}
     if dont_scrn_fix(false).0{dont_scrn_fix(dont_scrn_fix(false).1);return;}
     std::thread::spawn(move||{

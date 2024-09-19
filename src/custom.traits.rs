@@ -1,4 +1,5 @@
 use num_traits::Bounded; use core::mem::size_of;
+use std::char;
 use std::io::Read;
 #[cfg(feature="tam")] 
 use crate::{globs18::strn_2_usize, usize_2_i64, core18::i64_2_usize, errMsg0};
@@ -66,6 +67,7 @@ pub(crate) trait STRN_strip {
     fn strip_apostrophe(&mut self) -> String;
     fn strip_backslash(&mut self) -> String;
     fn strip_all_symbs(&mut self) -> String;
+  //  fn _strip_all_symbs(&self) -> String;
 }
 impl STRN_strip for str {
     fn del_ch(&self, del_ch: &str) -> String{
@@ -103,6 +105,11 @@ fn strip_all_symbs(&mut self) -> String{
     self.strip_apostrophe();
     self.strip_symbs()
 }
+/*fn _strip_all_symbs(&self) -> String{
+    self.strip_backslash();
+    self.strip_apostrophe();
+    self.strip_symbs()
+}*/
 }
 impl STRN for str {
     fn strn(&self) -> String{
@@ -414,4 +421,40 @@ impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::Parti
         vecc
     }
 }
+#[cfg(feature = "tam")]
+pub trait escaped_chars {
+    fn replace_unesc_ch (&self, ch: &str, new0: &str ) -> String;
+}
+#[cfg( feature = "tam")]
+impl <T> escaped_chars for T where T: ToString + STRN + AsRef < str > {
+    fn replace_unesc_ch (&self, ch0: &str, new0: &str) -> String {
+        let mut ret = "".strn();
+        let mut prev_ch: Option <char> = None;
+        for ch in self.strn().chars () {
+            if ch0.chars().nth(0).unwrap() == ch && prev_ch != Some( '\\' ) {ret.push_str(new0 )}
+            else { ret.push ( ch ) }
+            prev_ch = Some(ch );
+        }
+        ret
+    }
+}
+#[cfg(feature = "tam")]
+pub trait escaped_chars_mut {
+    fn replace_unesc_ch (&mut self, ch: &str, new0: &str ) -> String;
+}
+#[cfg( feature = "tam")]
+impl escaped_chars_mut for String {
+    fn replace_unesc_ch (&mut self, ch0: &str, new0: &str) -> String {
+        let mut ret = "".strn();
+        let mut prev_ch: Option <char> = None;
+        for ch in self.chars () {
+            if ch0.chars().nth(0).unwrap() == ch && prev_ch != Some( '\\' ) {ret.push_str(new0 )}
+            else { ret.push ( ch ) }
+            prev_ch = Some(ch );
+        }
+        *self = ret;
+        self.clone()
+    }
+}
+
 //fn

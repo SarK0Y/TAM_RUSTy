@@ -12,6 +12,7 @@ mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize, take_list_adr};
 use syn::token::Return;
+use update18::delay_ms;
 
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 #[cfg(feature ="mae")]
@@ -28,6 +29,19 @@ let first = match splitter.next(){
 let second = match splitter.next(){
     Some(val) => val,
     _ => return (first.to_string(), "none".to_string())
+};
+return  (first.to_string(), second.to_string());
+}
+pub(crate) fn split_once_or_ret_null_strs(in_string: &str, delim: &str) -> (String, String) {
+    if delim.chars().count() > 1{return split_once_alt(&in_string.to_string(), &delim.to_string());}
+let mut splitter = in_string.splitn(2, delim);
+let first = match splitter.next(){
+    Some(val) => val,
+    _ => return ("".to_string(), "".to_string())
+};
+let second = match splitter.next(){
+    Some(val) => val,
+    _ => return (first.to_string(), "".to_string())
 };
 return  (first.to_string(), second.to_string());
 }
@@ -71,6 +85,31 @@ Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
 core18::errMsg_dbg(&cmd, func_id, -1.0);
 path_2_cmd.to_string()
 }
+fn mk_cmd_file_dirty(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
+let func_id = 4;
+let timestamp = Local::now();
+let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+let path_2_cmd = format!("{}/cmd{}.sh", unsafe{ps18::page_struct("", ps18::TMP_DIR_, func_id).str_}, proper_timestamp);
+let err_msg = format!("failed create {}", &path_2_cmd);
+let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
+core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
+let mut cmd = cmd;
+make_cmd_file.write_all(&cmd.as_bytes());
+Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
+core18::errMsg_dbg(&cmd, func_id, -1.0);
+path_2_cmd.to_string()
+}
+
 pub(crate) fn run_cmd_str(cmd: &str) ->bool{return run_cmd_spawn(cmd.to_string());} 
 pub fn run_cmd0(cmd: String) -> bool{
 let func_id = 5;
@@ -125,6 +164,7 @@ return match from_utf8(&run_command.stdout){
 pub(crate) fn run_cmd_viewer(cmd: String) -> bool{
 let func_id = func_id18::run_cmd_viewer_;
 set_ask_user(cmd.as_str(), func_id);
+if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
 let fstdout: String; 
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
@@ -222,12 +262,13 @@ return match from_utf8(&run_command.stdout){
 }.to_string()
 }
 fn read_midway_data() -> bool{
+    delay_ms(27);
     if checkArg("-front-lst"){return read_midway_data_not_main0() }
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
         let stopCode = getStop_code__!();
-        let filename = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let filename = take_list_adr("found_files").unreel_link_to_depth(1);
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {

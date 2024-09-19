@@ -21,3 +21,21 @@ pub(crate) enum parse_paths{
     each_name_unique,
     default,
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum amaze_me{
+    ret_indx_n_do_none,
+    do_ur_stuff,
+    warming(/*times*/ u64),
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum prompt_modes {
+    default,
+    glee_uppercases,    
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum smart_lags {
+    well_done ( u128 ),
+    too_small_lag ( u128 ),
+    failed
+}
+

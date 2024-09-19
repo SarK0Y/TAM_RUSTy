@@ -5,7 +5,7 @@ use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
-use crate::custom_traits::{STRN, helpful_math_ops};
+use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
@@ -63,7 +63,7 @@ let abort = std::thread::spawn(move|| {
    // writeIn_stdin.write(&enter);
    let mut pause_operation = false;
    let mut fst = true;
-   let mut key = getkey().to_lowercase(); 
+   let mut key: String = getkey().to_lowercase(); 
    while key != "k" {
     if !fst{key = getkey().to_lowercase();}
     fst = false;
@@ -86,6 +86,7 @@ true
 pub(crate) fn run_term_app1(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 drop_ls_mode();
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); return true}
 let mut lc = "ru_RU.UTF-8".to_string();
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
@@ -127,6 +128,7 @@ pub(crate) fn run_term_app(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 let mut lc = "ru_RU.UTF-8".to_string();
 drop_ls_mode();
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::run_new_win_bool( Some( false ) ); crate::term_app::new0__(&cmd); return true; }
 if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 crate::set_ask_user(cmd.as_str(), func_id);
 {dont_scrn_fix(true); no_view(true, true);}
@@ -164,9 +166,11 @@ getkey();
 true
 }
 pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
-    if check_known_cmd(&cmd, "nano /"){return true;}
-    if check_known_cmd(&cmd, "vim /"){return true;}
-    if check_known_cmd(&cmd, "vi /"){return true;}
+    if check_known_cmd(&cmd, "nano"){return true;}
+    if check_known_cmd(&cmd, "vim"){return true;}
+    if check_known_cmd(&cmd, "nvim"){return true;}
+    if check_known_cmd(&cmd, "nvim.app"){return true;}
+    if check_known_cmd(&cmd, "vi"){return true;}
     if check_known_cmd(&cmd, "mc "){
         if !is_dir(fname){
             //*fname = crate::Path::new(&fname).parent().unwrap().to_str().unwrap().to_string();
@@ -175,19 +179,29 @@ pub(crate) fn tui_or_not(cmd: String, fname: &mut String) -> bool{
         return true;}
     false
 }
+pub fn run_new_win_bool (toggle: Option< bool >) -> bool {
+    static mut state: bool = false;
+    unsafe {
+        if let Some (x) = toggle {
+            state = x;
+        } state
+    }
+}
 pub(crate) fn check_known_cmd(cmd:&String, name: &str) -> bool{
-    let cmd0 = cmd.replace(name, "");
+    let cmd0 = cmd.trim_start_matches( name );
     if cmd0.len() < cmd.len(){return true} 
     false
 }
 pub(crate) fn term(cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
     else {taken_term_msg()}
-    let mut cmd = cmd.to_string(); let mut subcmd = "".to_string();
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
+    if cmd.substring(0, 2) == ">_"{cmd = cmd.replace(">_", "term") }
+    let mut subcmd = "".to_string();
      if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
     //let (_, cmd) = split_once(&cmd, " ");
-    let cmd = cmd.trim_start().to_string();
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
@@ -195,6 +209,52 @@ pub(crate) fn term(cmd: &String){
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
     let (_, cmd) = split_once(&cmd, " ");
     run_term_app(cmd.trim_start().trim_end().strn());
+}
+pub(crate) fn new0__ (cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
+    if edit_mode_lst(None) {return; }
+    if read_term_msg() == "stop"{return;}
+    else {taken_term_msg()}
+    let mut cmd = cmd.trim_start_matches("new ").strn();
+    let mut subcmd = "".to_string();
+    if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
+    //if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
+    //if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
+    if default_term_4_shol_a(&cmd){return}
+    let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
+    let cmd = format! ("{} {cmd}", konsole( None ) );
+    let cmd = cmd.replace_unesc_ch(";", &format! ("& {} ", konsole(None ) ) );
+    let cmd = format!("{cmd}&");
+    println!( "{cmd}" );
+   // run_term_app(cmd.trim_start().trim_end().strn());
+    let fstdout: String;  let func_id = -617506194i64;
+    let path_2_cmd = crate::mk_cmd_file_dirty(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
+    crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = crate::File::create(stderr_path).unwrap();
+    let fstdout0 = crate::File::open("/dev/null").unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr)
+        .stdout(fstdout0)
+        .spawn()
+        .expect("can't run command in run_cmd_viewer");
+    /*if run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return false;
+    }*/
+    return
+}
+pub fn konsole (cmd: Option< String >) -> String {
+    static mut term: Lazy< String > = Lazy::new( || {"konsole --hold -e".strn() });
+    unsafe {
+        if let Some( x ) = cmd { *term = x} term.strn()
+    }
 }
 pub(crate) fn process_tag(key: String){
     let valid: String = match key.as_str(){
@@ -210,7 +270,7 @@ pub(crate) fn process_tag(key: String){
         "8" => key.as_str(),
         "9" => key.as_str(),
         _ => return validate_tag(key)
-    }.to_string();
+   }.to_string();
     save_file_append(valid, "tag".to_string());
 }
 pub(crate) fn validate_tag(key: String){
@@ -263,7 +323,8 @@ pub(crate) fn mk_dummy_file() -> String{
     take_list_adr("msgs/term/dummy_file_4_id")
 }
 pub(crate) fn mk_empty_file(name: &String){
-    save_file_abs_adr0("".strn(), name.strn());
+    match std::fs::remove_file(name){Ok (f) => {}, _ => {} }; 
+    crate::save_file_abs_adr("".strn(), name.strn());
 }
 pub(crate) fn get_pid_by_dummy(ending: &str) -> String{
     let dummy = mk_dummy_file();
