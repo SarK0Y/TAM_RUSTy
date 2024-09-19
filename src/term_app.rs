@@ -224,11 +224,12 @@ pub(crate) fn new0__ (cmd: &String){
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
     let cmd = format! ("{} {cmd}", konsole( None ) );
-    let cmd = cmd.replace_unesc_ch(";", &format! (";{} ", konsole(None ) ) );
+    let cmd = cmd.replace_unesc_ch(";", &format! ("& {} ", konsole(None ) ) );
+    let cmd = format!("{cmd}&");
     println!( "{cmd}" );
    // run_term_app(cmd.trim_start().trim_end().strn());
     let fstdout: String;  let func_id = -617506194i64;
-    let path_2_cmd = crate::mk_cmd_file(cmd);
+    let path_2_cmd = crate::mk_cmd_file_dirty(cmd);
     let mut stderr_path = "stderr".to_string();
     stderr_path = format!("{}stderr", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
     crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);

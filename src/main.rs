@@ -85,6 +85,31 @@ Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
 core18::errMsg_dbg(&cmd, func_id, -1.0);
 path_2_cmd.to_string()
 }
+fn mk_cmd_file_dirty(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
+let func_id = 4;
+let timestamp = Local::now();
+let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+let path_2_cmd = format!("{}/cmd{}.sh", unsafe{ps18::page_struct("", ps18::TMP_DIR_, func_id).str_}, proper_timestamp);
+let err_msg = format!("failed create {}", &path_2_cmd);
+let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
+core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
+let mut cmd = cmd;
+make_cmd_file.write_all(&cmd.as_bytes());
+Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
+core18::errMsg_dbg(&cmd, func_id, -1.0);
+path_2_cmd.to_string()
+}
+
 pub(crate) fn run_cmd_str(cmd: &str) ->bool{return run_cmd_spawn(cmd.to_string());} 
 pub fn run_cmd0(cmd: String) -> bool{
 let func_id = 5;
