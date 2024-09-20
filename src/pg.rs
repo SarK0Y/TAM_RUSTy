@@ -764,6 +764,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         full_clean_cache();
         return;
     }
+    let cmd0 = "nvr ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::nvim::nvim_remote(&cmd);
+        return;
+    }
     let cmd0 = "clean dead tams";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         clean_dead_tams();
