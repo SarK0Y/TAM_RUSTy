@@ -1,6 +1,6 @@
 use std::fmt::format;
 use once_cell::sync::Lazy;
-use crate::{mkdir, STRN};
+use crate::{mkdir, split_once, STRN};
 
 pub fn add_keys_2_cmd (cmd: &String) -> String {
     match cmd.as_str() {
@@ -28,8 +28,17 @@ pub fn nvimc (nvim: Option < String >) -> String {
     "".strn()
 }
 pub fn nvim_version () -> Option < (String, String ) > {
-   let nvv = r"nvim --version|grep -i 'nvim\sv[0-9]*\.[0-9]*\.[0-9]*'".strn();
+   let mut nvv = r"nvim --version|grep -i 'nvim\sv[0-9]*\.[0-9]*\.[0-9]*'".strn();
    let ret = crate::run_cmd_out_sync( nvv );
+    if ret != "" { nvv = ret }
+    else { crate::errMsg0( "Err: Unknown Neovim is installed on Your system."); return None}
+   let (_, nvv ) = crate::split_once(&nvv, " ") ;
+   let nvv = nvv.replace ("v", "");
+   let (high, nvv) = split_once(&nvv, ".");
+   let (middle, nvv) = split_once(&nvv, ".");
+   let low = nvv;
+
+
     None
 }
 //fn
