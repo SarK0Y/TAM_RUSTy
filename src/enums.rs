@@ -38,4 +38,11 @@ pub enum smart_lags {
     too_small_lag ( u128 ),
     failed
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum nvim {
+    not_found,
+    too_old,
+    unknown,
+    ok
+}
 
