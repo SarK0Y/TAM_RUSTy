@@ -35,6 +35,32 @@ pub fn nvim_remote (cmd: &String) {
     let cmd = format! ( "{nvc} {cmd}");
     crate::run_cmd_out_sync( cmd );
 }
+pub fn nvim_remote_file_in_new_tab (cmd: &String) {
+    use substring::Substring;
+   let cmd = cmd.trim_start_matches( "nvt ").trim_start().strn();
+    let mut file_name = if cmd.substring(0, 1) == "/" { cmd } else {
+        let mut indx: i64;
+        if let Ok (x) = cmd.parse:: <i64> () {indx = x} else {
+            crate::errMsg0("Example: c{nvt /path/to/file} or c{nvt <file's index>}"); return;
+        }
+        let name = crate::get_item_from_front_list( indx, true);
+        if name == "no str gotten" || name == "" {crate::errMsg0 ("Failed to fetch item from front list"); return;}
+        name
+    };    
+    let nvc = nvimc();
+    let base_ver = (0u16, 10u32, 1u16);
+    if nvc == "" {
+        match status( None ) {
+            crate::enums::nvim::unknown => { crate::errMsg0( "Err: Unknown Neovim is installed on Your system."); return; }
+            crate::enums::nvim::too_old => { crate::errMsg0( &format!("Required minimal version of Neovim: {:#?}", base_ver) ); return; }
+            crate::enums::nvim::not_found => { crate::errMsg0 ( "Dear User, Neovim with proper version is not found on Your machine." ); return }
+            crate::enums::nvim::ok => {}
+        }
+    }
+    let cmd = format! ( "{nvc} ':tabe {file_name}<cr>'");
+    crate::run_cmd_out_sync( cmd );
+}
+
 fn nvimc () -> String {
      static mut nvr: Lazy< String > = Lazy::new( || { "".strn() });
     static mut set: bool = false;

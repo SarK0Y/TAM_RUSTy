@@ -652,6 +652,12 @@ pub(crate) fn exec_cmd(cmd: String) {
         sieve_list(crate::cpy_str(&cmd));
         return;
     }
+    let cmd0 = "nvt ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::nvim::nvim_remote_file_in_new_tab( &cmd );
+        return;
+    }
+
     if cmd.as_str().substring(0, 4) == "ren " {
         renFile();
         return;
