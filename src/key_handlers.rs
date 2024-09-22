@@ -119,6 +119,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::lst::edit_cmd(); return empty; }
     let cmd0 = "screen lag";
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::smart_lags::set_screen_lag(file_indx); return empty; }
+    let cmd0 = "unlock cmd line";
+    if file_indx.substring(0, cmd0.len()) == cmd0 { crate::free_term_msg(); return empty; }
     let cmd0 = "no decode cmd";
     if file_indx.trim_end() == cmd0 { crate::globs18::cmd_decode_mode(Some(false)); return empty; }
     let cmd0 = "en decode cmd";
