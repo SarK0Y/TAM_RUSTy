@@ -216,6 +216,8 @@ if run_command.status.success(){
 true
 }
 pub fn run_cmd_spawn(cmd: String) -> bool{
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 let func_id = 5;
 let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
@@ -232,6 +234,8 @@ globs18::unblock_fd(fstdout0.as_raw_fd());
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
+    .env ("LC_ALL", &lc)
+    .env ("LANG", &lc)
     .stdout(fstdout0)
     .stderr(fstderr)
     .spawn()
