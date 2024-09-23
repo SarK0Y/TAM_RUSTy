@@ -57,7 +57,7 @@ pub fn nvim_remote_file_in_new_tab (cmd: &String) {
             crate::enums::nvim::ok => {}
         }
     }
-    let cmd = format! ( "{nvc} ':tabe {file_name}<cr>'");
+    let cmd = format! ( "{nvc} '<esc>:tabe {file_name}<cr>'");
     crate::run_cmd_out_sync( cmd );
 }
 
