@@ -168,12 +168,12 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         rm_file(&adr_of_msg_clean);
     // self.cache.remove_entry(&clean);
     }
-    let rec: (String, cached_data) = self.rec_from_cache(&front_lst, i64_2_usize(indx));
+    let rec: (String, cached_data) = self.rec_from_cache(&front_lst, proper_indx.0 );
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
      let front_lst0 = front_lst.clone(); let front_lst1 = front_lst0.clone(); let front_lst2 = front_lst0.clone();
      let mut cache_entry: entry_cache_t = HashMap::new();
-     let indx = i64_2_usize(indx);//proper_indx.0.clone();
+     let indx = proper_indx.0;
      let seg_num = indx / self.seg_size;
      let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
     if rec.1 != cached_data::all_ok && self.cache_active{
@@ -187,7 +187,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst1, cache_state::ready));
         if ret.1 == cache_state::ready{
            // popup_msg("basic.pg:161");
-            let mut vecc = ret.0.unwrap().clone(); vecc.push(MARKER_OF_ACCESS.strn()); let vecc1 = vecc.clone();
+            let mut vecc = ret.0.unwrap().clone(); /*vecc.push(MARKER_OF_ACCESS.strn());*/ let vecc1 = vecc.clone();
             cache_entry.insert(indx / self.seg_size, vecc);
 #[cfg(feature = "mae")] let front_lst2 = crate::cache::get_uid_cache(&front_lst2);
             match self.cache.entry(front_lst2){
@@ -204,7 +204,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
-        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, indx, &front_lst, cache_state::ready));
+        let ret = crate::C!(crate::basic::mk_fast_cache(&self.tmp_dir, proper_indx.0, &front_lst, cache_state::ready));
         if ret.1 == cache_state::ready{
             popup_msg("basic.pg:179");
            // popup_msg("msg1"); // hits only here 
@@ -215,7 +215,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
             Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, true);}
          }
     }
-    //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
+    //if !list_id.1{llset_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
 //    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
      return get_item_from_front_list(proper_indx.1, true);;

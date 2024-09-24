@@ -1,8 +1,7 @@
 use crate::custom_traits::{fs_tools, helpful_math_ops, STRN};
 use crate::update18::{delay_ms, upd_screen_or_not};
 use crate::{
-    add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, read_tail,
-    run_cmd_out_sync, save_file_append_newline,
+    add_cmd_in_history, cached_ln_of_found_files, get_num_cols, manage_lst, name_of_front_list, read_tail, run_cmd_out_sync, save_file_append_newline, turn_2_usize
 };
 use crate::{
     checkArg, clean_cache,
@@ -25,7 +24,7 @@ use crate::{
     update18::background_fixing,
     where_is_last_pg, TMP_DIR_,
 };
-use chrono::format::{self, format_item};
+use chrono::format::{self, DelayedFormat};
 use num_traits::ToPrimitive;
 use std::borrow::Borrow;
 use std::io::BufRead;
@@ -645,6 +644,20 @@ pub fn len_of_front_list_wc() -> String {
     return len_front_list;
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
+    static mut pg_sz: i64 = 0;
+    static mut fst: bool = true;
+    if indx < 0 { return (0, 0) } 
+    let mut proper_indx = indx;
+    unsafe {
+        if fst { pg_sz =  crate::get_num_cols( -1) * crate::get_num_rows (-1); fst = false; }
+        if indx > pg_sz { return (indx.usize0(), indx ) }
+        if !local_indx( false ) {
+            proper_indx += calc_num_files_up2_cur_pg();
+        }
+    }
+    (proper_indx.usize0(), proper_indx)
+}
+pub(crate) fn __get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
     //let fixed_indx = true;
     let last_pg = where_is_last_pg();
     let mut indx = indx;
@@ -702,9 +715,9 @@ pub(crate) fn get_proper_indx_tst(indx: i64, fixed_indx: bool) -> (usize, i64) {
 }
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String {
     let proper_indx = get_proper_indx(indx, fixed_indx);
-    if proper_indx.0 == usize::MAX {
+    /*if proper_indx.0 == usize::MAX {
         return "front list is empty".to_string();
-    }
+    }*/
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     return crate::C!(lists("", FRONT_, proper_indx.0, GET));
 }

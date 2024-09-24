@@ -420,7 +420,7 @@ pub(crate) unsafe fn front_list_indx(val: i64) -> (i64, bool) {
 }
 
 pub(crate) unsafe fn local_indx(set_new_state: bool) -> bool {
-    static mut actual_state: bool = false;
+    static mut actual_state: bool = true;
     if !set_new_state {
         return actual_state;
     }

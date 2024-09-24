@@ -14,7 +14,7 @@ use crate::{
     init::user_home_dir,
     link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out,
     run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once,
-    swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt},
+    swtch::{local_indx, path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt},
     swtch_esc,
     update18::{
         alive_session, background_fixing, background_fixing_count, fix_screen, upd_screen_or_not,
@@ -337,6 +337,7 @@ pub(crate) fn initSession() -> bool {
     #[cfg(feature = "mae")]
     crate::cache::lazy_cache_cleaning(None);
     crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
+    crate::C! ( local_indx (true) );
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
