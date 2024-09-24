@@ -361,8 +361,7 @@ pub(crate) fn hotKeys(
     } //"/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
         crate::C!(local_indx(true));
-        let msg = format!("alt_0 num page {}", crate::get_num_page(-1));
-        // popup_msg(&msg);
+        crate::mk_uid ();
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0 {
@@ -695,7 +694,7 @@ pub(crate) fn exec_cmd(cmd: String) {
                 return;
             }
         };
-        let file_full_name = crate::globs18::get_item_from_front_list(file_indx, true);
+        let file_full_name = crate::get_item_from_front_list(file_indx, true);
         let file_full_name = format!("Full path: {}", file_full_name);
         set_full_path(&file_full_name, func_id);
         return;

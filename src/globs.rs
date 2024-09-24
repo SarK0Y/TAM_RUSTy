@@ -645,6 +645,7 @@ pub fn len_of_front_list_wc() -> String {
     return len_front_list;
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
+    //let fixed_indx = true;
     let last_pg = where_is_last_pg();
     let mut indx = indx;
     if indx < 0 {

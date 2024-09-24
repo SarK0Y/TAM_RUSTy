@@ -195,11 +195,12 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
             Entry::Vacant(en) => {en.insert(cache_entry);}
          }
         }
-        return get_item_from_front_list(proper_indx.1, false);;
+        return get_item_from_front_list(proper_indx.1, true);;
     }
     else {
         if !self.cache_active{
-            return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET)) }
+           // return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET)) }
+         return get_item_from_front_list(proper_indx.1, true);; }
         //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
@@ -210,13 +211,15 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
            let vecc = ret.0.unwrap().clone(); let vecc1 = vecc.clone();
             cache_entry.insert(indx / self.seg_size, vecc1);
             match self.cache.entry(front_lst1){
-            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc); return get_item_from_front_list(crate::usize_2_i64(indx), fixed_indx);},
-            Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, false);}
+            Entry::Occupied(mut en) => {en.get_mut().insert(seg_num, vecc); return get_item_from_front_list(crate::usize_2_i64(indx), true);},
+            Entry::Vacant(en) => {en.insert(cache_entry); return get_item_from_front_list(proper_indx.1, true);}
          }
     }
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
-    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
+//    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
+     return get_item_from_front_list(proper_indx.1, true);;
+
 }}
 pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Option<Vec<String>>, cache_state){
     //static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});

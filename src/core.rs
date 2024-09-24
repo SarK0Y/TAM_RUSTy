@@ -1565,14 +1565,14 @@ pub(crate) fn achtung(msg: &str) {
     crate::run_cmd_str(&msg);
 }
 pub(crate) fn calc_num_files_up2_cur_pg() -> i64 {
+    static mut items_on_pg: i64 = 0;
+    static mut fst: bool = true;
     let func_id = crate::func_id18::calc_num_files_up2_cur_pg_;
-    let ps = unsafe { crate::swtch::swtch_ps(-1, None) };
-    let mut num_page;
-    if ps.num_page != i64::MAX {
-        num_page = ps.num_page;
-    } else {
-        num_page = crate::get_num_page(func_id);
+    let mut num_page = crate::get_num_page(func_id);
+    unsafe {
+        if !fst {return items_on_pg * num_page ;} fst = false;
     }
+    let ps = unsafe { crate::swtch::swtch_ps(-1, None) };
     let mut num_cols;
     if ps.num_cols != i64::MAX {
         num_cols = ps.num_cols;
@@ -1589,8 +1589,10 @@ pub(crate) fn calc_num_files_up2_cur_pg() -> i64 {
         crate::set_col_width(ps.col_width, func_id);
     }
     //let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
-    let counted_files = num_page * num_cols * num_rows;
-    return counted_files;
+    unsafe {
+        items_on_pg = num_cols * num_rows;
+        return items_on_pg * num_page;
+    }
 }
 pub(crate) fn calc_num_files_up2_cur_pg01() -> i64 {
     let func_id = crate::func_id18::calc_num_files_up2_cur_pg_;
