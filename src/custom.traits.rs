@@ -430,12 +430,13 @@ impl <T> escaped_chars for T where T: ToString + STRN + AsRef < str > {
     fn replace_unesc_ch (&self, ch0: &str, new0: &str) -> String {
         let mut ret = "".strn();
         let mut prev_ch: Option <char> = None;
-        for ch in self.strn().chars () {
+        let mut zelf = self.strn().replace (";;", "c0mm@").strn ();
+        for ch in zelf.chars () {
             if ch0.chars().nth(0).unwrap() == ch && prev_ch != Some( '\\' ) {ret.push_str(new0 )}
             else { ret.push ( ch ) }
             prev_ch = Some(ch );
         }
-        ret
+        ret.replace("c0mm@", ";").strn()
     }
 }
 #[cfg(feature = "tam")]

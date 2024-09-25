@@ -1,6 +1,6 @@
 use std::fmt::format;
 use once_cell::sync::Lazy;
-use crate::{mkdir, read_midway_data, split_once, STRN};
+use crate::{konsole, mkdir, read_midway_data, split_once, STRN};
 
 pub fn add_keys_2_cmd (cmd: &String) -> String {
     match cmd.as_str() {
@@ -32,7 +32,8 @@ pub fn nvim_remote (cmd: &String) {
             crate::enums::nvim::ok => {}
         }
     }
-    let cmd = format! ( "{nvc} {cmd}");
+    let cmd = format! ( r"{nvc} {cmd}" );
+    let cmd = format!( "{cmd}&" );
     crate::run_cmd_out_sync( cmd );
 }
 pub fn nvim_remote_file_in_new_tab (cmd: &String) {

@@ -245,110 +245,112 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
     add_cmd_in_history(&format!("term {cmd}"));
+    if crate::term_app::run_new_win_bool ( None ) { crate::term_app::new0__(&cmd ); return true;}
     if tui_or_not(cpy_str(&cmd), &mut file) {
-        cmd = format!("{} {}", viewer, file);
-        return run_term_app(cmd);
-    }
-    return crate::run_cmd_viewer(cmd);
-}
-pub(crate) fn run_viewer(cmd: String) -> bool {
-    let mut cmd = cmd;
-    if crate::term_app::run_new_win_bool( None ) {
-        cmd = cmd.substring(1, usize::MAX).strn();
-    }
-    if stop_run_viewer(&cmd) {
-        return false;
-    }
-    let func_id = crate::func_id18::viewer_;
-    if cmd.as_str().substring(0, 1) == "/" {
-        let app_indx = "0".to_string();
-        let file_indx = cmd;
-        return viewer_n_adr(app_indx, file_indx);
-    }
-    let (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
-    if app_indx == "none" || file_indx == "none" {
-        set_ask_user(
-            "To run file w/ viewer, You need to type '<indx of viewer> <index of file>'",
-            func_id,
-        );
-    }
-    if file_indx == "none" {
-        file_indx = app_indx;
-        app_indx = 0.to_string();
-    }
-    if file_indx.as_str().substring(0, 1) == "/" {
-        return viewer_n_adr(app_indx, file_indx);
-    }
-    if app_indx.as_str().substring(0, 1) == "/" {
-        file_indx = app_indx;
-        app_indx = 0.to_string();
-        return viewer_n_adr(app_indx, file_indx);
-    }
-    let msg = || -> bool {
-        crate::core18::errMsg(
-            "To run file w/ viewer, You need to type '<indx of viewer> <index of file>'",
-            func_id,
-        );
-        return false;
-    };
-    let app_indx = match usize::from_str_radix(app_indx.as_str(), 10) {
-        Ok(v) => v,
-        _ => return msg(),
-    };
-    let file_indx = match i64::from_str_radix(file_indx.as_str(), 10) {
-        Ok(v) => v,
-        _ => return msg(),
-    };
-    //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
-    let mut filename = get_item_from_front_list(file_indx, true);
-    let filename_len = filename.chars().count();
-    let patch_mark_len = "::patch".to_string().chars().count();
-    if filename_len > patch_mark_len
-        && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
-    {
-        filename = filename.replace("::patch", "");
-    } else {
-        filename = full_escape(&filename);
-    }
-    let viewer = get_viewer(app_indx, -1, true);
-    let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
-    add_cmd_in_history(&format!("term {cmd}"));
-    if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
-        cmd = format!("{} {}", viewer, filename);
-        return run_term_app(cmd);
-    }
-    return crate::run_cmd_viewer(cmd);
-}
-pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String {
-    if mode_default_viewers(None) {
-        return "xdg-open".strn();
-    }
-    let mut func_id_loc = func_id;
-    if thread_safe {
-        let rnd = get_rnd_u64();
-        let mut msk: u64 = !u64::from(1u64 << 63);
-        let msg = format!("{:b}", msk);
-        if crate::dirty!() {
-            println!("{}", msg.as_str());
+            cmd = format!("{} {}", viewer, file);
+            return run_term_app(cmd);
         }
-        let mut handle_err = move || -> i64 {
-            let ret = msk & rnd.0;
-            let ret = ret.to_i64().unwrap();
-            msk = 0;
-            return ret;
+        return crate::run_cmd_viewer(cmd);
+    }
+    pub(crate) fn run_viewer(cmd: String) -> bool {
+        let mut cmd = cmd;
+        if crate::term_app::run_new_win_bool( None ) {
+            cmd = cmd.substring(1, usize::MAX).strn();
+        }
+        if stop_run_viewer(&cmd) {
+            return false;
+        }
+        let func_id = crate::func_id18::viewer_;
+        if cmd.as_str().substring(0, 1) == "/" {
+            let app_indx = "0".to_string();
+            let file_indx = cmd;
+            return viewer_n_adr(app_indx, file_indx);
+        }
+        let (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
+        if app_indx == "none" || file_indx == "none" {
+            set_ask_user(
+                "To run file w/ viewer, You need to type '<indx of viewer> <index of file>'",
+                func_id,
+            );
+        }
+        if file_indx == "none" {
+            file_indx = app_indx;
+            app_indx = 0.to_string();
+        }
+        if file_indx.as_str().substring(0, 1) == "/" {
+            return viewer_n_adr(app_indx, file_indx);
+        }
+        if app_indx.as_str().substring(0, 1) == "/" {
+            file_indx = app_indx;
+            app_indx = 0.to_string();
+            return viewer_n_adr(app_indx, file_indx);
+        }
+        let msg = || -> bool {
+            crate::core18::errMsg(
+                "To run file w/ viewer, You need to type '<indx of viewer> <index of file>'",
+                func_id,
+            );
+            return false;
         };
-        if !rnd.1 {
-            errMsg("/dev/urandom and /dev/random either don't exist or aren't achivable on Your system", func_id);
-            return "none".to_string();
-        }
-        func_id_loc = match rnd.0.to_i64() {
-            Some(v) => v,
-            _ => handle_err(),
+        let app_indx = match usize::from_str_radix(app_indx.as_str(), 10) {
+            Ok(v) => v,
+            _ => return msg(),
         };
-        if msk == 0 {
-            func_id_loc *= -1;
+        let file_indx = match i64::from_str_radix(file_indx.as_str(), 10) {
+            Ok(v) => v,
+            _ => return msg(),
+        };
+        //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
+        let mut filename = get_item_from_front_list(file_indx, true);
+        let filename_len = filename.chars().count();
+        let patch_mark_len = "::patch".to_string().chars().count();
+        if filename_len > patch_mark_len
+            && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
+        {
+            filename = filename.replace("::patch", "");
+        } else {
+            filename = full_escape(&filename);
         }
+        let viewer = get_viewer(app_indx, -1, true);
+        let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
+        add_cmd_in_history(&format!("term {cmd}"));
+        if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
+            cmd = format!("{} {}", viewer, filename);
+            if crate::term_app::run_new_win_bool ( None ) { crate::term_app::new0__(&cmd ); return true}
+            return run_term_app(cmd);
+        }
+        return crate::run_cmd_viewer(cmd);
     }
+    pub(crate) fn get_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String {
+        if mode_default_viewers(None) {
+            return "xdg-open".strn();
+        }
+        let mut func_id_loc = func_id;
+        if thread_safe {
+            let rnd = get_rnd_u64();
+            let mut msk: u64 = !u64::from(1u64 << 63);
+            let msg = format!("{:b}", msk);
+            if crate::dirty!() {
+                println!("{}", msg.as_str());
+            }
+            let mut handle_err = move || -> i64 {
+                let ret = msk & rnd.0;
+                let ret = ret.to_i64().unwrap();
+                msk = 0;
+                return ret;
+            };
+            if !rnd.1 {
+                errMsg("/dev/urandom and /dev/random either don't exist or aren't achivable on Your system", func_id);
+                return "none".to_string();
+            }
+            func_id_loc = match rnd.0.to_i64() {
+                Some(v) => v,
+                _ => handle_err(),
+            };
+            if msk == 0 {
+                func_id_loc *= -1;
+            }
+        }
 
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {

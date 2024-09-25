@@ -133,6 +133,31 @@ if run_command.status.success(){
 }
 true
 }
+pub fn run_cmd_out_dirty(cmd: String) -> String{
+    let func_id = 5;
+    let fstdout: String; 
+    let path_2_cmd = mk_cmd_file_dirty(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
+    core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = File::create(stderr_path).unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr).stdout(std::process::Stdio::piped())
+        .output()
+        .expect("can't run command in run_cmd");
+    if !run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return match from_utf8(&run_command.stdout){
+            Ok(s) => s.to_string(),
+            _ => "".to_string()
+        };
+    } "".strn()
+}
+
 pub fn run_cmd_out(cmd: String) -> String{
 let func_id = 5;
 let fstdout: String; 
