@@ -650,7 +650,7 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
     let mut proper_indx = indx;
     unsafe {
         if fst { pg_sz =  crate::get_num_cols( -1) * crate::get_num_rows (-1); fst = false; }
-        if indx > pg_sz { return (indx.usize0(), indx ) }
+        if indx >= pg_sz { return (indx.usize0(), indx ) }
         if !local_indx( false ) {
             proper_indx += calc_num_files_up2_cur_pg();
         }

@@ -62,6 +62,7 @@ impl super::basic{
             let mut res: String ="".to_string();
             let mut count_out = 77usize;
             while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
+            if res == "no str gotten" { res = get_item_from_front_list(indx, true) }
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
                 time_to_stop = true;
@@ -223,7 +224,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
 }}
 pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Option<Vec<String>>, cache_state){
     //static mut cache: Lazy<Vec<String>> = Lazy::new(||{Vec::new()});
-    static mut cache: Lazy<Vec<String>> = Lazy::new(||{vec!("".strn()) });
+    static mut cache: Lazy<Vec<String>> = Lazy::new(||{ Vec::with_capacity(1500) });
     static mut count: u64 = 0;
     static mut state: cache_state = cache_state::empty;
     static mut seg_size: usize = 150;
@@ -251,6 +252,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     if state == cache_state::forming {return (None, cache_state::forming);}
     if state == cache_state::taken || (cache.len() != 0){
         cache.clear();
+        //cache = Lazy::new(||{vec!("".strn()) });
         state = cache_state::empty
     }
       //  if cache.len() == 0{return (None, cache_state::cache_seg_corrupted);}
