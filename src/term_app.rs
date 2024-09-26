@@ -229,8 +229,8 @@ pub(crate) fn new0__ (cmd: &String){
     //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-
-    let prefix = format! ( "kid.{}.{}", id_of_child_win (), crate::globs18::id_suffix() );
+    let (app_name, _ ) = split_once( &cmd, " " );
+    let prefix = format! ( "kid.{}.{}.{}", id_of_child_win (), crate::globs18::id_suffix(), app_name );
     let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
     let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'&", konsole ( None ) );
     let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
