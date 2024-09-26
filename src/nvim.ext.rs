@@ -46,6 +46,7 @@ pub fn nvim_remote_file_in_new_tab (cmd: &String) {
         }
         let name = crate::get_item_from_front_list( indx, true);
         if name == "no str gotten" || name == "" {crate::errMsg0 ("Failed to fetch item from front list"); return;}
+        crate::swtch_tam_konsole();
         name
     };    
     let nvc = nvimc();
