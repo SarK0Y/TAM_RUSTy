@@ -1283,10 +1283,14 @@ pub(crate) fn instance_num() -> u64 {
     num
 }
 pub(crate) fn id_suffix() -> String {
-    if checkArg("-window-mark") {
-        return String::from_iter(get_arg_in_cmd("-window-mark").s)
-            .trim_end_matches('\0')
-            .to_string();
+    static mut id: Lazy < String > = Lazy::new (|| { "".strn() });
+    unsafe {
+        if !id.is_empty() { return id.strn() }
+        if checkArg("-window-mark") {
+            *id = String::from_iter(get_arg_in_cmd("-window-mark").s)
+                .trim_end_matches('\0')
+                .to_string(); return id.strn();
+        }
     }
     return format!("{}TR{}", crate::getStop_code__!(), crate::getStop_code__!());
 }

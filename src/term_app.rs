@@ -210,6 +210,12 @@ pub(crate) fn term(cmd: &String){
     let (_, cmd) = split_once(&cmd, " ");
     run_term_app(cmd.trim_start().trim_end().strn());
 }
+pub fn id_of_child_win () -> usize {
+    static mut id: usize = 0;
+    unsafe {
+        let ret = id; id.inc(); return ret;
+    }
+}
 pub(crate) fn new0__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }
@@ -224,7 +230,7 @@ pub(crate) fn new0__ (cmd: &String){
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
 
-    let prefix = "tst".strn();
+    let prefix = format! ( "kid.{}.{}", id_of_child_win (), crate::globs18::id_suffix() );
     let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
     let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'&", konsole ( None ) );
     let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
