@@ -18,7 +18,8 @@ use crate::{
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
-use std::io;
+use once_cell::sync::Lazy;
+use std::{default, io};
 use substring::Substring;
 pub(crate) fn key_slash() {
     let front_list = read_front_list();
@@ -189,9 +190,15 @@ pub(crate) fn Ins_key() -> String {
     crate::set_prnt(&prnt, -1);
     prnt
 }
+pub fn krunner (name: Option < &String >) -> String {
+    static mut default: Lazy < String > = Lazy::new( || { "krunner".strn() });
+    unsafe {
+        if let Some (x) = name { *default = x.strn() } default.strn()
+    }
+}
 pub(crate) fn swtch_tam_konsole() {
     let id_suffix = id_suffix();
-    let cmd = format!("krunner '{id_suffix}'");
+    let cmd = format!( "{} '{id_suffix}'", krunner( None ) );
     run_cmd0(cmd);
 }
 pub(crate) fn F1_key() -> String {
