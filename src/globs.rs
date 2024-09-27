@@ -657,6 +657,15 @@ pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
     }
     (proper_indx.usize0(), proper_indx)
 }
+pub(crate) fn page_size(rows_cols: Option < (usize, usize ) > ) -> usize {
+    static mut pg_sz: i64 = 0;
+    static mut fst: bool = true;
+    unsafe {
+        if fst { pg_sz =  crate::get_num_cols( -1) * crate::get_num_rows (-1); fst = false; }
+        pg_sz.usize0()
+    }
+}
+
 pub(crate) fn __get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
     //let fixed_indx = true;
     let last_pg = where_is_last_pg();

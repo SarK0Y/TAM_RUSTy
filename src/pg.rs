@@ -28,7 +28,7 @@ use crate::{
     update18::{clean_dead_tams, lets_write_path},
     usize_2_i64, wait_4_empty_cache, PgDown, PgUp,
 };
-use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key};
+use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key, turn_2_i64};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct> {
@@ -605,6 +605,12 @@ pub(crate) fn exec_cmd(cmd: String) {
         go2pg(&cmd);
         return;
     }
+    let cmd0 = "pafi ";
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, cmd0.len() ), cmd0) == 0 {
+        pg_at_file_indx(&cmd);
+        return;
+    }
+
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0 {
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {
@@ -915,6 +921,27 @@ fn extract_sub_cmd_by_mark(cmd: &String, mark: String) -> String {
     }
     sub_cmd
 }
+pub(crate) fn pg_at_file_indx(cmd: &String) {
+    let cmd = cmd.replace("pafi ", "");
+    let pg_num: i64 = match i64::from_str_radix(&cmd, 10) {
+        Ok(val) => val,
+        _ => {
+            errMsg0("wrong use of pafi command: {pafi <indx of file to gen number of page>}");
+            return;
+        }
+    } / crate::globs18::page_size ( None).i640();
+    let global_indx_or_not = crate::C!(local_indx(false));
+    if !global_indx_or_not {
+        crate::C!(local_indx(true));
+    }
+    let pg_num = get_proper_indx(pg_num, true);
+    crate::set_num_page(pg_num.1, 4159207);
+    if !global_indx_or_not {
+        crate::C!(local_indx(true));
+    }
+    return;
+}
+
 pub(crate) fn go2pg(cmd: &String) {
     let cmd = cmd.replace("p ", "");
     let pg_num: i64 = match i64::from_str_radix(&cmd, 10) {
