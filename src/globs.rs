@@ -1284,6 +1284,13 @@ pub(crate) fn find_last_char_in_strn(strn: &String, is_there_ch: &str) -> Option
     ret
 }
 pub fn cur_win_id (id: Option < u64 >) -> u64 {
+    static mut this_id: Option <u64> = None;
+    static mut fst: bool = true;
+    unsafe {
+        if id != None { this_id = id; } this_id.unwrap_or (u64::MAX)
+    }
+}
+pub fn cur_win_id0__ (id: Option < u64 >) -> u64 {
     static mut this_id: Lazy < u64 > = Lazy::new (|| {0} );
     static mut fst: bool = true;
     unsafe {
@@ -1291,6 +1298,8 @@ pub fn cur_win_id (id: Option < u64 >) -> u64 {
     }
 }
 pub(crate) fn instance_num() -> u64 {
+    let win_id = crate::globs18::cur_win_id ( None );
+    if win_id != u64::MAX { return win_id }
     let path_2_id_suffix = format!("{}/{}", shm_tam_dir(None), crate::full_escape(&id_suffix()));
     let num = crate::read_file_abs_adr0(&path_2_id_suffix);
     let num = u64_from_strn(&num).0;
