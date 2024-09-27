@@ -29,7 +29,7 @@ use num_traits::ToPrimitive;
 use std::borrow::Borrow;
 use std::io::BufRead;
 use std::str::FromStr;
-use std::usize;
+use std::{u64, usize};
 self::globs_uses!();
 use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 = 1;
@@ -1283,12 +1283,19 @@ pub(crate) fn find_last_char_in_strn(strn: &String, is_there_ch: &str) -> Option
     }
     ret
 }
-
+pub fn cur_win_id (id: Option < u64 >) -> u64 {
+    static mut this_id: Lazy < u64 > = Lazy::new (|| {0} );
+    static mut fst: bool = true;
+    unsafe {
+        if let Some (x) = id { *this_id = x; } this_id.clone()
+    }
+}
 pub(crate) fn instance_num() -> u64 {
     let path_2_id_suffix = format!("{}/{}", shm_tam_dir(None), crate::full_escape(&id_suffix()));
     let num = crate::read_file_abs_adr0(&path_2_id_suffix);
     let num = u64_from_strn(&num).0;
     save_file_abs_adr0((num + 1).to_string(), path_2_id_suffix);
+    crate::globs18::cur_win_id ( Some ( num ) );
     num
 }
 pub(crate) fn id_suffix() -> String {
