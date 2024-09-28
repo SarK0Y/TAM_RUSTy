@@ -27,6 +27,7 @@ use crate::{
 use chrono::format::{self, DelayedFormat};
 use num_traits::ToPrimitive;
 use std::borrow::Borrow;
+use std::collections::btree_map::Keys;
 use std::io::BufRead;
 use std::str::FromStr;
 use std::{u64, usize};
@@ -52,7 +53,7 @@ pub fn rm_char_from_string(indx: usize, origString: &String) -> String {
                 Some(ch) => ch,
                 _ => return ret,
             };
-            ret.push(char1);
+            ret.push(char1); 
         }
     }
     ret
@@ -64,7 +65,7 @@ pub(crate) fn check_strn_in_lst(list: &str, str1: &str) -> bool {
         Ok(f) => f,
         Err(e) => {
             println!("{func_name} failed {e:?}");
-            return false;
+            return false; 
         }
     };
     let mut read_file = crate::BufReader::new(file);
@@ -89,7 +90,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool {
     let len = strn.chars().count();
     for ch in strn.chars() {
         if Some(ch) == symb.chars().nth(0) {
-            return true;
+            return true 
         }
     }
     false

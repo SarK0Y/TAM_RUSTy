@@ -662,6 +662,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::nvim::nvim_remote_file_in_new_tab( &cmd );
         return;
     }
+    let cmd0 = "vimt ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::vim::vim_remote_file_in_new_tab( &cmd );
+        return;
+    }
 
     if cmd.as_str().substring(0, 4) == "ren " {
         renFile();
