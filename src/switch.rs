@@ -360,6 +360,46 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     }
     "locked".to_string()
 }
+    pub(crate) fn display_viewer(indx: usize, func_id: i64, thread_safe: bool) -> String {
+        if mode_default_viewers(None) {
+            return "xdg-open".strn();
+        }
+        let mut func_id_loc = func_id;
+        if thread_safe {
+            let rnd = get_rnd_u64();
+            let mut msk: u64 = !u64::from(1u64 << 63);
+            let msg = format!("{:b}", msk);
+            if crate::dirty!() {
+                println!("{}", msg.as_str());
+            }
+            let mut handle_err = move || -> i64 {
+                let ret = msk & rnd.0;
+                let ret = ret.to_i64().unwrap();
+                msk = 0;
+                return ret;
+            };
+            if !rnd.1 {
+                errMsg("/dev/urandom and /dev/random either don't exist or aren't achivable on Your system", func_id);
+                return "none".to_string();
+            }
+            func_id_loc = match rnd.0.to_i64() {
+                Some(v) => v,
+                _ => handle_err(),
+            };
+            if msk == 0 {
+                func_id_loc *= -1;
+            }
+        }
+    let ret = unsafe { share_usize(indx, func_id_loc) };
+    if ret.1 {
+        return unsafe { 
+             let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; 
+                if mode_display_full_names_of_viewers ( None ) {crate::nvim::add_keys_2_cmd( &viewer ) } else { viewer }
+        };
+    }
+    "locked".to_string()
+}
+
 pub fn mode_default_viewers(mode: Option<bool>) -> bool {
     static mut state: bool = false;
     unsafe {
@@ -369,6 +409,16 @@ pub fn mode_default_viewers(mode: Option<bool>) -> bool {
         state
     }
 }
+pub fn mode_display_full_names_of_viewers(mode: Option<bool>) -> bool {
+    static mut state: bool = false;
+    unsafe {
+        if let Some(x) = mode {
+            state = x;
+        }
+        state
+    }
+}
+
 pub fn tui_mode(indx: usize, set_state: Option<bool>) -> Option<bool> {
     static mut mode_to_run_app: Lazy<Vec<bool>> = Lazy::new(|| vec![]);
     unsafe {
@@ -478,7 +528,7 @@ pub(crate) fn print_viewers() {
     }
     let num_of_viewers = get_num_of_viewers(-1).to_usize().unwrap();
     for i in 0..num_of_viewers {
-        print!("|||{}: {}", i, get_viewer(i, -1, true));
+        print!("|||{}: {}", i, display_viewer(i, -1, true));
     }
     println!("")
 }
