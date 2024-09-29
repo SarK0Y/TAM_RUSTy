@@ -667,6 +667,10 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::vim::vim_remote_file_in_new_tab( &cmd );
         return;
     }
+    let cmd0 = "roll header";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::swtch::roll_header();   return;
+    }
 
     if cmd.as_str().substring(0, 4) == "ren " {
         renFile();

@@ -409,6 +409,11 @@ pub fn mode_default_viewers(mode: Option<bool>) -> bool {
         state
     }
 }
+pub fn roll_header () {
+    mode_display_full_names_of_viewers( Some ( 
+        !mode_display_full_names_of_viewers(None )
+    ) );
+}
 pub fn mode_display_full_names_of_viewers(mode: Option<bool>) -> bool {
     static mut state: bool = false;
     unsafe {
