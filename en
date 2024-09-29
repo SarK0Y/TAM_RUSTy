@@ -1,0 +1,8 @@
+#!/bin/bash
+out=""
+for i in "$@"
+do
+echo $i
+out="$out $i"
+done
+sh -c "LC_ALL=en_US.utf8 $out"
