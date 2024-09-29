@@ -12,46 +12,46 @@ pub fn get_socket () -> String {
         } socket.strn()
     }
 }
-pub fn nvim_remote (cmd: &String) {
-   let cmd = cmd.trim_start_matches( "nvr ").strn();
+pub fn vim_remote (cmd: &String) {
+   let cmd = cmd.trim_start_matches( "vimr ").strn();
     let nvc = nvimc();
     let base_ver = (0u16, 10u32, 1u16);
     if nvc == "" {
         match status( None ) {
-            crate::enums::vim::unknown => { crate::errMsg0( "Err: Unknown Neovim is installed on Your system."); return; }
+            crate::enums::vim::unknown => { crate::errMsg0( "Err: Unknown Vim is installed on Your system."); return; }
             crate::enums::vim::too_old => { crate::errMsg0( &format!("Required minimal version of Neovim: {:#?}", base_ver) ); return; }
-            crate::enums::vim::not_found => { crate::errMsg0 ( "Dear User, Neovim with proper version is not found on Your machine." ); return }
+            crate::enums::vim::not_found => { crate::errMsg0 ( "Dear User, Vim with proper version is not found on Your machine." ); return }
             crate::enums::vim::ok => {}
         }
     }
+    let cmd = cmd.replace (" ", "<space>");
     let cmd = format! ( r"{nvc} {cmd}" );
-    let cmd = format!( "{cmd}&" );
+    crate::swtch_tam_konsole();
     crate::run_cmd_out_sync( cmd );
 }
 pub fn vim_remote_file_in_new_tab (cmd: &String) {
     use substring::Substring;
-   let cmd = cmd.trim_start_matches( "nvt ").trim_start().strn();
+   let cmd = cmd.trim_start_matches( "vimt ").trim_start().strn();
     let mut file_name = if cmd.substring(0, 1) == "/" { cmd } else {
-        let mut indx: i64;
+        let mut indx: i64; 
         if let Ok (x) = cmd.parse:: <i64> () {indx = x} else {
-            crate::errMsg0("Example: c{nvt /path/to/file} or c{nvt <file's index>}"); return;
+            crate::errMsg0("Example: c{vimt /path/to/file} or c{vimt <file's index>}"); return;
         }
         let name = crate::get_item_from_front_list( indx, true);
-        if name == "no str gotten" || name == "" {crate::errMsg0 ("Failed to fetch item from front list"); return;}
-        crate::swtch_tam_konsole();
-        name
+        if name == "no str gotten" || name == "" {crate::errMsg0 ("Failed to fetch item from front list"); return;} name
     };    
     let nvc = nvimc();
     let base_ver = (0u16, 10u32, 1u16);
     if nvc == "" {
         match status( None ) {
-            crate::enums::vim::unknown => { crate::errMsg0( "Err: Unknown Neovim is installed on Your system."); return; }
+            crate::enums::vim::unknown => { crate::errMsg0( "Err: Unknown Vim is installed on Your system."); return; }
             crate::enums::vim::too_old => { crate::errMsg0( &format!("Required minimal version of Neovim: {:#?}", base_ver) ); return; }
-            crate::enums::vim::not_found => { crate::errMsg0 ( "Dear User, Neovim with proper version is not found on Your machine." ); return }
+            crate::enums::vim::not_found => { crate::errMsg0 ( "Dear User, Vim with proper version is not found on Your machine." ); return }
             crate::enums::vim::ok => {}
         }
     }
-    let cmd = format! ( "{nvc} '<esc>:tabe {file_name}<cr>'");
+    crate::swtch_tam_konsole();
+    let cmd = format! ( "{nvc} '<esc>:tabe<space>{file_name}<cr>'");
     crate::run_cmd_out_sync( cmd );
 }
 
@@ -69,7 +69,7 @@ fn choose_ver () -> String {
     let variants = vec! ["vim", "vim.app", "vim.AppImage"];
     for var in variants {
         let variant = vim_version( var );
-        if let Some ( app_name_n_ver ) = variant {return format! ("{} --server {} --remote-send", app_name_n_ver.0, get_socket() ) }
+        if let Some ( app_name_n_ver ) = variant {return format! ("{} --servername {} --remote-send", app_name_n_ver.0, get_socket() ) }
     }
     "".strn()
 }

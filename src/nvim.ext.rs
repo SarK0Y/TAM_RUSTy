@@ -5,7 +5,7 @@ use crate::{konsole, mkdir, read_midway_data, split_once, STRN};
 pub fn add_keys_2_cmd (cmd: &String) -> String {
     match cmd.as_str() {
         "nvim" | "nvim.app" | "nvim.AppImage" => return  format! ("{cmd} --listen {}", get_socket() ).strn(),
-        "vim" | "vim.app" | "vim.AppImage" => return  format! ("{cmd} --listen {}", get_socket() ).strn(),
+        "vim" | "vim.app" | "vim.AppImage" => return  format! ("{cmd} --servername {}", crate::vim::get_socket() ).strn(),
         _ => return cmd.strn()
     }
     "".strn()
