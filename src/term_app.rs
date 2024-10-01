@@ -8,8 +8,8 @@ use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{check_strn_in_lst, get_item_from_front_list, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
+use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
+use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
@@ -210,7 +210,55 @@ pub(crate) fn term(cmd: &String){
     let (_, cmd) = split_once(&cmd, " ");
     run_term_app(cmd.trim_start().trim_end().strn());
 }
+pub fn id_of_child_win () -> usize {
+    static mut id: usize = 0;
+    unsafe {
+        let ret = id; id.inc(); return ret;
+    }
+}
 pub(crate) fn new0__ (cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
+    if edit_mode_lst(None) {return; }
+    if read_term_msg() == "stop"{return;}
+    else {taken_term_msg()}
+    let mut cmd = cmd.trim_start_matches("new ").strn();
+    let mut subcmd = "".to_string();
+    if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
+    //if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
+    //if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
+    if default_term_4_shol_a(&cmd){return}
+    let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
+    let (app_name, _ ) = split_once( &cmd, " " );
+    let prefix = format! ( "kid.{}.{}{}.{}", id_of_child_win (), crate::globs18::id_suffix(), cur_win_id ( None ), app_name );
+    let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
+    let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'&", konsole ( None ) );
+    let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
+    let cmd = format!("{path_2_cmd}");
+    println!( "{cmd}" );
+   // run_term_app(cmd.trim_start().trim_end().strn());
+    let fstdout: String;  let func_id = -617506194i64;
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{crate::ps18::page_struct("", crate::ps18::MAINPATH_, -1).str_});
+    crate::core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = crate::File::create(stderr_path).unwrap();
+    let fstdout0 = crate::File::open("/dev/null").unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let run_command = Command::new( "bash" ).arg( "-c" ).arg(cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr)
+        .stdout(fstdout0)
+        .spawn()
+        .expect("can't run command in run_cmd_viewer");
+    /*if run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return false;
+    }*/
+    return
+}
+pub(crate) fn new1__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }
     if read_term_msg() == "stop"{return;}
@@ -251,7 +299,7 @@ pub(crate) fn new0__ (cmd: &String){
     return
 }
 pub fn konsole (cmd: Option< String >) -> String {
-    static mut term: Lazy< String > = Lazy::new( || {"konsole --hold -e".strn() });
+    static mut term: Lazy< String > = Lazy::new( || {"konsole --hold -e bash -c".strn() });
     unsafe {
         if let Some( x ) = cmd { *term = x} term.strn()
     }

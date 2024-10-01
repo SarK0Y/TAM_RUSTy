@@ -1,24 +1,16 @@
 use crate::{
-    add_cmd_in_history, clear_screen, count_ln,
-    custom_traits::{
+    __get_arg_in_cmd, add_cmd_in_history, checkArg, clear_screen, count_ln, custom_traits::{
         find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize,  vec_tools, STRN_usize, STRN,
-    },
-    drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey,
-    globs18::{
+    }, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{
         drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to,
         get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front,
         take_list_adr, take_list_adr_env,
-    },
-    history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file,
-    read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr,
-    session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt,
-    set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg,
-    update18::{delay_ms, upd_screen_or_not},
-    COUNT_PAGES_,
+    }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
-use std::io;
+use once_cell::sync::Lazy;
+use std::{default, io};
 use substring::Substring;
 pub(crate) fn key_slash() {
     let front_list = read_front_list();
@@ -119,6 +111,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::lst::edit_cmd(); return empty; }
     let cmd0 = "screen lag";
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::smart_lags::set_screen_lag(file_indx); return empty; }
+    let cmd0 = "unlock cmd line";
+    if file_indx.substring(0, cmd0.len()) == cmd0 { crate::free_term_msg(); return empty; }
     let cmd0 = "no decode cmd";
     if file_indx.trim_end() == cmd0 { crate::globs18::cmd_decode_mode(Some(false)); return empty; }
     let cmd0 = "en decode cmd";
@@ -187,9 +181,19 @@ pub(crate) fn Ins_key() -> String {
     crate::set_prnt(&prnt, -1);
     prnt
 }
+pub fn krunner (name: Option < &String >) -> String {
+    static mut default: Lazy < String > = Lazy::new( || { "krunner".strn() });
+    static mut fst: bool = true;
+    unsafe {
+        if fst {
+            if checkArg ("-krunner") { *default = __get_arg_in_cmd ("-krunner") } fst = false;
+        }
+        if let Some (x) = name { *default = x.strn() } default.strn()
+    }
+}
 pub(crate) fn swtch_tam_konsole() {
     let id_suffix = id_suffix();
-    let cmd = format!("krunner '{id_suffix}'");
+    let cmd = format!( "{} '{id_suffix}'", krunner( None ) );
     run_cmd0(cmd);
 }
 pub(crate) fn F1_key() -> String {

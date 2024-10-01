@@ -37,7 +37,11 @@ mod swtch;
 mod init;
 #[path = "nvim.ext.rs"]
 mod nvim;
-#[path = "func_id.rs"]
+#[path = "vim.ext.rs"]
+mod vim;
+#[path = "threadpool.rs"]
+mod threadpool;
+##[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
 #[path = "info.rs"]

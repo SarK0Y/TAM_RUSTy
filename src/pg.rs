@@ -28,7 +28,7 @@ use crate::{
     update18::{clean_dead_tams, lets_write_path},
     usize_2_i64, wait_4_empty_cache, PgDown, PgUp,
 };
-use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key};
+use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key, turn_2_i64};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct> {
@@ -361,8 +361,7 @@ pub(crate) fn hotKeys(
     } //"/".to_string();}
     if crate::globs18::eq_ansi_str(&kcode::Alt_0, Key.as_str()) == 0 {
         crate::C!(local_indx(true));
-        let msg = format!("alt_0 num page {}", crate::get_num_page(-1));
-        // popup_msg(&msg);
+        crate::mk_uid ();
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0 {
@@ -606,6 +605,12 @@ pub(crate) fn exec_cmd(cmd: String) {
         go2pg(&cmd);
         return;
     }
+    let cmd0 = "pafi ";
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, cmd0.len() ), cmd0) == 0 {
+        pg_at_file_indx(&cmd);
+        return;
+    }
+
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0 {
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {
@@ -652,6 +657,21 @@ pub(crate) fn exec_cmd(cmd: String) {
         sieve_list(crate::cpy_str(&cmd));
         return;
     }
+    let cmd0 = "nvt ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::nvim::nvim_remote_file_in_new_tab( &cmd );
+        return;
+    }
+    let cmd0 = "vimt ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::vim::vim_remote_file_in_new_tab( &cmd );
+        return;
+    }
+    let cmd0 = "roll header";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::swtch::roll_header();   return;
+    }
+
     if cmd.as_str().substring(0, 4) == "ren " {
         renFile();
         return;
@@ -689,7 +709,7 @@ pub(crate) fn exec_cmd(cmd: String) {
                 return;
             }
         };
-        let file_full_name = crate::globs18::get_item_from_front_list(file_indx, true);
+        let file_full_name = crate::get_item_from_front_list(file_indx, true);
         let file_full_name = format!("Full path: {}", file_full_name);
         set_full_path(&file_full_name, func_id);
         return;
@@ -764,11 +784,17 @@ pub(crate) fn exec_cmd(cmd: String) {
         full_clean_cache();
         return;
     }
-    let cmd0 = "nvr ";
+    let cmd0 = "nvr";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         crate::nvim::nvim_remote(&cmd);
         return;
     }
+    let cmd0 = "vimr";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::vim::vim_remote(&cmd);
+        return;
+    }
+
     let cmd0 = "clean dead tams";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         clean_dead_tams();
@@ -910,6 +936,27 @@ fn extract_sub_cmd_by_mark(cmd: &String, mark: String) -> String {
     }
     sub_cmd
 }
+pub(crate) fn pg_at_file_indx(cmd: &String) {
+    let cmd = cmd.replace("pafi ", "");
+    let pg_num: i64 = match i64::from_str_radix(&cmd, 10) {
+        Ok(val) => val,
+        _ => {
+            errMsg0("wrong use of pafi command: {pafi <indx of file to gen number of page>}");
+            return;
+        }
+    } / crate::globs18::page_size ( None).i640();
+    let global_indx_or_not = crate::C!(local_indx(false));
+    if !global_indx_or_not {
+        crate::C!(local_indx(true));
+    }
+    let pg_num = get_proper_indx(pg_num, true);
+    crate::set_num_page(pg_num.1, 4159207);
+    if !global_indx_or_not {
+        crate::C!(local_indx(true));
+    }
+    return;
+}
+
 pub(crate) fn go2pg(cmd: &String) {
     let cmd = cmd.replace("p ", "");
     let pg_num: i64 = match i64::from_str_radix(&cmd, 10) {

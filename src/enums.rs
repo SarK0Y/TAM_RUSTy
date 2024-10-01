@@ -45,4 +45,16 @@ pub enum nvim {
     unknown,
     ok
 }
-
+#[derive(Debug, Clone, PartialEq)]
+pub enum vim {
+    not_found,
+    too_old,
+    unknown,
+    ok
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum threadpool {
+    add_new,
+    delete ( usize ),
+    stop ( usize ),
+}

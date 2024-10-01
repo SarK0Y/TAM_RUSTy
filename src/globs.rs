@@ -1,8 +1,7 @@
 use crate::custom_traits::{fs_tools, helpful_math_ops, STRN};
 use crate::update18::{delay_ms, upd_screen_or_not};
 use crate::{
-    add_cmd_in_history, cached_ln_of_found_files, manage_lst, name_of_front_list, read_tail,
-    run_cmd_out_sync, save_file_append_newline,
+    add_cmd_in_history, cached_ln_of_found_files, get_num_cols, manage_lst, name_of_front_list, read_tail, run_cmd_out_sync, save_file_append_newline, turn_2_usize
 };
 use crate::{
     checkArg, clean_cache,
@@ -25,12 +24,13 @@ use crate::{
     update18::background_fixing,
     where_is_last_pg, TMP_DIR_,
 };
-use chrono::format::{self, format_item};
+use chrono::format::{self, DelayedFormat};
 use num_traits::ToPrimitive;
 use std::borrow::Borrow;
+use std::collections::btree_map::Keys;
 use std::io::BufRead;
 use std::str::FromStr;
-use std::usize;
+use std::{u64, usize};
 self::globs_uses!();
 use once_cell::unsync::Lazy as UnsyncLazy;
 pub const MAIN0_: i64 = 1;
@@ -53,7 +53,7 @@ pub fn rm_char_from_string(indx: usize, origString: &String) -> String {
                 Some(ch) => ch,
                 _ => return ret,
             };
-            ret.push(char1);
+            ret.push(char1); 
         }
     }
     ret
@@ -65,7 +65,7 @@ pub(crate) fn check_strn_in_lst(list: &str, str1: &str) -> bool {
         Ok(f) => f,
         Err(e) => {
             println!("{func_name} failed {e:?}");
-            return false;
+            return false; 
         }
     };
     let mut read_file = crate::BufReader::new(file);
@@ -90,7 +90,7 @@ pub(crate) fn check_symb_in_strn(strn: &String, symb: &str) -> bool {
     let len = strn.chars().count();
     for ch in strn.chars() {
         if Some(ch) == symb.chars().nth(0) {
-            return true;
+            return true 
         }
     }
     false
@@ -645,6 +645,30 @@ pub fn len_of_front_list_wc() -> String {
     return len_front_list;
 }
 pub(crate) fn get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
+    static mut pg_sz: i64 = 0;
+    static mut fst: bool = true;
+    if indx < 0 { return (0, 0) } 
+    let mut proper_indx = indx;
+    unsafe {
+        if fst { pg_sz =  crate::get_num_cols( -1) * crate::get_num_rows (-1); fst = false; }
+        if indx >= pg_sz { return (indx.usize0(), indx ) }
+        if !local_indx( false ) {
+            proper_indx += calc_num_files_up2_cur_pg();
+        }
+    }
+    (proper_indx.usize0(), proper_indx)
+}
+pub(crate) fn page_size(rows_cols: Option < (usize, usize ) > ) -> usize {
+    static mut pg_sz: i64 = 0;
+    static mut fst: bool = true;
+    unsafe {
+        if fst { pg_sz =  crate::get_num_cols( -1) * crate::get_num_rows (-1); fst = false; }
+        pg_sz.usize0()
+    }
+}
+
+pub(crate) fn __get_proper_indx(indx: i64, fixed_indx: bool) -> (usize, i64) {
+    //let fixed_indx = true;
     let last_pg = where_is_last_pg();
     let mut indx = indx;
     if indx < 0 {
@@ -701,9 +725,9 @@ pub(crate) fn get_proper_indx_tst(indx: i64, fixed_indx: bool) -> (usize, i64) {
 }
 pub(crate) fn get_item_from_front_list(indx: i64, fixed_indx: bool) -> String {
     let proper_indx = get_proper_indx(indx, fixed_indx);
-    if proper_indx.0 == usize::MAX {
+    /*if proper_indx.0 == usize::MAX {
         return "front list is empty".to_string();
-    }
+    }*/
     //if !list_id.1{set_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     return crate::C!(lists("", FRONT_, proper_indx.0, GET));
 }
@@ -1260,19 +1284,39 @@ pub(crate) fn find_last_char_in_strn(strn: &String, is_there_ch: &str) -> Option
     }
     ret
 }
-
+pub fn cur_win_id (id: Option < u64 >) -> u64 {
+    static mut this_id: Option <u64> = None;
+    static mut fst: bool = true;
+    unsafe {
+        if id != None { this_id = id; } this_id.unwrap_or (u64::MAX)
+    }
+}
+pub fn cur_win_id0__ (id: Option < u64 >) -> u64 {
+    static mut this_id: Lazy < u64 > = Lazy::new (|| {0} );
+    static mut fst: bool = true;
+    unsafe {
+        if let Some (x) = id { *this_id = x; } this_id.clone()
+    }
+}
 pub(crate) fn instance_num() -> u64 {
+    let win_id = crate::globs18::cur_win_id ( None );
+    if win_id != u64::MAX { return win_id }
     let path_2_id_suffix = format!("{}/{}", shm_tam_dir(None), crate::full_escape(&id_suffix()));
     let num = crate::read_file_abs_adr0(&path_2_id_suffix);
     let num = u64_from_strn(&num).0;
     save_file_abs_adr0((num + 1).to_string(), path_2_id_suffix);
+    crate::globs18::cur_win_id ( Some ( num ) );
     num
 }
 pub(crate) fn id_suffix() -> String {
-    if checkArg("-window-mark") {
-        return String::from_iter(get_arg_in_cmd("-window-mark").s)
-            .trim_end_matches('\0')
-            .to_string();
+    static mut id: Lazy < String > = Lazy::new (|| { "".strn() });
+    unsafe {
+        if !id.is_empty() { return id.strn() }
+        if checkArg("-window-mark") {
+            *id = String::from_iter(get_arg_in_cmd("-window-mark").s)
+                .trim_end_matches('\0')
+                .to_string(); return id.strn();
+        }
     }
     return format!("{}TR{}", crate::getStop_code__!(), crate::getStop_code__!());
 }
