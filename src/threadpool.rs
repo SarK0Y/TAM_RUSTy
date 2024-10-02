@@ -1,9 +1,9 @@
 use once_cell::sync::Lazy;
 use nix::sys::wait::wait;
-use nix::unistd::{fork, ForkResult, getpid, getppid};
+use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
 use std::{ ffi::CString, env::var, num::NonZero };
 
-use crate::STRN;
+use crate::{breaks, helpful_math_ops, split_once, STRN};
 pub fn thr_ids (id: usize, mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < usize > > = Lazy::new ( || { Vec::with_capacity (100) } );
 }
@@ -20,12 +20,28 @@ pub fn new_thr (cmd: &String) {
     }    
 }
 pub fn run_kid (cmd: &String) {
+    let c_str = |arg: &String| -> CString {CString::new( format! ( "{arg}\0" ).as_str()  ).unwrap() };
+    let empty_c_str = || -> CString {CString::new( format! ( "\0" ).as_str()  ).unwrap() };
+    let empty =  empty_c_str ();
+    let mut env: [CString; 1024];
+    let mut args: [ CString; 1024];
+    for i in 0..1024 { env [ i ] = empty.clone() }
 
+    let (app_name, _ ) = split_once( cmd, " ");
+    let mut cnt = 0usize;
+    loop {
+        let (arg, cmd ) = split_once( cmd, " ");
+        if arg == "none" { break }
+        args[ cnt ] = c_str (&arg); cnt.inc();
+    }
+    execve ( &c_str ( &app_name), &args, form_env (&mut env) );
 }
-pub fn form_env <'a > (env_str: &'a mut String) -> &'a String {
+pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
+    let mut count = 0usize;
     let key = format! ("PATH={}\0",  var ("PATH").unwrap_or( "".strn() ) );
-    env_str.push_str (key.as_str() );
+    env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
+    count.inc();
         env_str
 }
 /*
