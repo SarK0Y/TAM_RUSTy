@@ -22,9 +22,11 @@ pub fn new_thr (cmd: &String) {
 pub fn run_kid (cmd: &String) {
 
 }
-pub fn form_env () -> CString {
-    let PATH = CString::from_vec_with_nul( var ("PATH").unwrap_or( "".strn() ).as_bytes().to_vec() ).unwrap();
-    CString::new("").unwrap()
+pub fn form_env <'a > (env_str: &'a mut String) -> &'a String {
+//    let mut env_vec: Vec < String > = Vec::new();
+    let key = format! ("PATH={}\0",  var ("PATH").unwrap_or( "".strn() ) );
+    env_str.push_str (key.as_str() );
+        env_str
 }
 /*
 use nix::unistd::{execve, fork, ForkResult};
@@ -62,4 +64,6 @@ A Vec<T> is described by 3 values:
 let v = unsafe { Vec::<T>::from_raw_parts(ptr, length, capacity) };
 If you want them to be equals, you can use .shrink_to_fit() on the vector to reduce its capacity as near as its size as possible depending on the allocator.
  print!("{:?}", std::env::vars()); return;
+let PATH = CString::from_vec_with_nul( var ("PATH").unwrap_or( "".strn() ).as_bytes().to_vec() ).unwrap();
+
 */
