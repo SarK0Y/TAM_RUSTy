@@ -4,19 +4,20 @@ use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
 use std::{ ffi::CString, env::var, num::NonZero };
 
 use crate::{breaks, errMsg0, helpful_math_ops, split_once, STRN};
-pub fn thr_ids (id: usize, mode: crate::enums::threadpool ) {
+pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < usize > > = Lazy::new ( || { Vec::with_capacity (100) } );
+    unsafe {
+        match mode {
+            crate::enums::threadpool::add_new( x ) => {ids.push( x );}
+            _ => {}
+        }
+    }
 }
 pub fn new_thr (cmd: &String) {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => {
-            println!("Parent process. PID: {}, Child PID: {}", getpid(), child);
-//            wait().expect("Failed to wait for child");
-        }
-        Ok(ForkResult::Child) => {
-            println!("Child process. PID: {}, Parent PID: {}", getpid(), getppid());
-        }
-        Err(err) => eprintln!("Fork failed: {}", err),
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child as usize ) ); },
+        Ok(ForkResult::Child) => { run_kid(cmd ); },
+        Err(err) => { eprintln!("Fork failed: {}", err); },
     }    
 }
 pub fn run_kid (cmd: &String) {
@@ -24,12 +25,10 @@ pub fn run_kid (cmd: &String) {
     let empty_c_str = || -> CString {CString::new( format! ( "\0" ).as_str()  ).unwrap() };
     let empty =  empty_c_str ();
     unsafe {
-        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();
-        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
-        let mut args: [ CString; 1024] =  match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
-;
-        for i in 0..1024 { env [ i ] = empty.clone(); args [ i ] = empty.clone () }
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
 
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
         let (app_name, _ ) = split_once( cmd, " ");
         let mut cnt = 0usize;
         loop {
@@ -37,7 +36,7 @@ pub fn run_kid (cmd: &String) {
             if arg == "none" { break }
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
-//        execve ( &c_str ( &app_name), &args, form_env (&mut env) );
+        execve ( &c_str ( &app_name), &args, form_env (&mut env) );
     }
 }
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
@@ -85,5 +84,14 @@ let v = unsafe { Vec::<T>::from_raw_parts(ptr, length, capacity) };
 If you want them to be equals, you can use .shrink_to_fit() on the vector to reduce its capacity as near as its size as possible depending on the allocator.
  print!("{:?}", std::env::vars()); return;
 let PATH = CString::from_vec_with_nul( var ("PATH").unwrap_or( "".strn() ).as_bytes().to_vec() ).unwrap();
+ Ok(ForkResult::Parent { child }) => {
+            //println!("Parent process. PID: {}, Child PID: {}", getpid(), child);
 
+//            wait().expect("Failed to wait for child");
+        }
+        Ok(ForkResult::Child) => {
+            println!("Child process. PID: {}, Parent PID: {}", getpid(), getppid());
+        }
+        Err(err) => eprintln!("Fork failed: {}", err),
+    }   
 */

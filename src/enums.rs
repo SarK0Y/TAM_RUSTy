@@ -54,7 +54,7 @@ pub enum vim {
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum threadpool {
-    add_new,
+    add_new ( usize),
     delete ( usize ),
     stop ( usize ),
 }
