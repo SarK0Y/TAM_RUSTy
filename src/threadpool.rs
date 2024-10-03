@@ -5,7 +5,7 @@ use std::{ ffi::CString, env::var, num::NonZero };
 
 use crate::{breaks, errMsg0, helpful_math_ops, split_once, STRN};
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
-    static mut ids: Lazy < Vec < usize > > = Lazy::new ( || { Vec::with_capacity (100) } );
+    static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
     unsafe {
         match mode {
             crate::enums::threadpool::add_new( x ) => {ids.push( x );}
@@ -15,7 +15,7 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 }
 pub fn new_thr (cmd: &String) {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child as usize ) ); },
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); },
         Ok(ForkResult::Child) => { run_kid(cmd ); },
         Err(err) => { eprintln!("Fork failed: {}", err); },
     }    
