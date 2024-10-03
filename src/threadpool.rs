@@ -3,7 +3,7 @@ use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
 use std::{ ffi::CString, env::var, num::NonZero };
 
-use crate::{breaks, helpful_math_ops, split_once, STRN};
+use crate::{breaks, errMsg0, helpful_math_ops, split_once, STRN};
 pub fn thr_ids (id: usize, mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < usize > > = Lazy::new ( || { Vec::with_capacity (100) } );
 }
@@ -23,18 +23,22 @@ pub fn run_kid (cmd: &String) {
     let c_str = |arg: &String| -> CString {CString::new( format! ( "{arg}\0" ).as_str()  ).unwrap() };
     let empty_c_str = || -> CString {CString::new( format! ( "\0" ).as_str()  ).unwrap() };
     let empty =  empty_c_str ();
-    let mut env: [CString; 1024];
-    let mut args: [ CString; 1024];
-    for i in 0..1024 { env [ i ] = empty.clone() }
+    unsafe {
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+;
+        for i in 0..1024 { env [ i ] = empty.clone(); args [ i ] = empty.clone () }
 
-    let (app_name, _ ) = split_once( cmd, " ");
-    let mut cnt = 0usize;
-    loop {
-        let (arg, cmd ) = split_once( cmd, " ");
-        if arg == "none" { break }
-        args[ cnt ] = c_str (&arg); cnt.inc();
+        let (app_name, _ ) = split_once( cmd, " ");
+        let mut cnt = 0usize;
+        loop {
+            let (arg, cmd ) = split_once( cmd, " ");
+            if arg == "none" { break }
+            args[ cnt ] = c_str (&arg); cnt.inc();
+        }
+//        execve ( &c_str ( &app_name), &args, form_env (&mut env) );
     }
-    execve ( &c_str ( &app_name), &args, form_env (&mut env) );
 }
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
