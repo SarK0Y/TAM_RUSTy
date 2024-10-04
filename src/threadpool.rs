@@ -15,8 +15,8 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 }
 pub fn new_thr (cmd: &String) {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); },
-        Ok(ForkResult::Child) => { run_kid(cmd ); return;},
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return; },
+        Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort();},
         Err(err) => { eprintln!("Fork failed: {}", err); },
     }    
 }
@@ -44,6 +44,7 @@ pub fn run_kid (cmd: &String) {
         }
         //dbg!(&args); dbg!(&app_name); delay_secs(31);
         execve ( &c_str ( &app_name), &args, form_env (&mut env) );
+        errMsg0 ("execve failed");
     }
 }
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
