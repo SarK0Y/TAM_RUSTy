@@ -62,9 +62,10 @@ pub fn run_kid (cmd: &String) {
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
-    let key = format! ("PATH={}",  var ("PATH").unwrap_or( "".strn() ) );
-    env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
-    count.inc();
+    for (key, val ) in std::env::vars() {
+        let key = format! ("{}={}", key, val );
+        env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
+    }
         env_str
 }
 pub fn logErr (e: nix::errno::Errno ) {

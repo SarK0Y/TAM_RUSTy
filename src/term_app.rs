@@ -234,7 +234,7 @@ pub(crate) fn new0__ (cmd: &String){
     let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
     let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'", konsole ( None ) );
     let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
-    let cmd = format!("bash -c {path_2_cmd}",  );
+    let cmd = format!("/bin/bash -c {path_2_cmd}",  );
     println!( "{cmd}" );
    // run_term_app(cmd.trim_start().trim_end().strn());
    crate::threadpool::new_thr(&cmd ); return;
