@@ -2,8 +2,8 @@ use once_cell::sync::Lazy;
 use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
 use std::{ ffi::CString, env::var, num::NonZero };
-
-use crate::{breaks, errMsg0, helpful_math_ops, split_once, STRN};
+use crate::update18::delay_secs;
+use crate::{errMsg0, helpful_math_ops, split_once, STRN};
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
     unsafe {
@@ -16,13 +16,16 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 pub fn new_thr (cmd: &String) {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); },
-        Ok(ForkResult::Child) => { run_kid(cmd ); },
+        Ok(ForkResult::Child) => { run_kid(cmd ); return;},
         Err(err) => { eprintln!("Fork failed: {}", err); },
     }    
 }
 pub fn run_kid (cmd: &String) {
-    let c_str = |arg: &String| -> CString {CString::new( format! ( "{arg}\0" ).as_str()  ).unwrap() };
-    let empty_c_str = || -> CString {CString::new( format! ( "\0" ).as_str()  ).unwrap() };
+    let GUARD_LAG = 1;
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
+    let c_str = |arg: &String| -> CString {CString::new( arg.as_str()  ).unwrap() };
+    let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
     let empty =  empty_c_str ();
     unsafe {
         let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
@@ -31,11 +34,15 @@ pub fn run_kid (cmd: &String) {
         let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
         let (app_name, _ ) = split_once( cmd, " ");
         let mut cnt = 0usize;
+        let mut cmd = cmd.strn();
         loop {
-            let (arg, cmd ) = split_once( cmd, " ");
+            let (arg, cmd0 ) = split_once(&cmd, " ");
+            cmd = cmd0;
+           // dbg!(&arg); delay_secs(3);
             if arg == "none" { break }
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
+        //dbg!(&args); dbg!(&app_name); delay_secs(31);
         execve ( &c_str ( &app_name), &args, form_env (&mut env) );
     }
 }

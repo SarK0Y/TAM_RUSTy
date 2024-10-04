@@ -27,7 +27,7 @@ pub fn fork_lag_mcs_verbose (mcs: u128) -> crate::enums::smart_lags {
     }
 }
 pub fn screen_lag (lag: Option < u128 >) -> u128 {
-    static mut state: u128 = 4770;
+    static mut state: u128 = 2000;
     unsafe {
         if let Some ( x ) = lag { state = x } state
     }
