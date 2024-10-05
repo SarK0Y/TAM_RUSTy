@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "7.1.1"
+version = "8.0.0"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -35,6 +35,9 @@ crossterm="0.27.0"
 regex = "=1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
 syn = "2.0.66"
+[dependencies.nix]
+version = "0.28.0"
+features = ["process"]
 #rustix = "0.38.28"
 #cached = "0.48.0"
 [features]

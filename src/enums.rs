@@ -52,4 +52,10 @@ pub enum vim {
     unknown,
     ok
 }
-
+use nix::unistd::Pid;  
+#[derive(Debug, Clone, PartialEq)]
+pub enum threadpool {
+    add_new ( Pid ),
+    delete ( usize ),
+    stop ( usize ),
+}

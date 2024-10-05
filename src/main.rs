@@ -415,6 +415,7 @@ fn main (){
  /*#[cfg(feature ="mae")] let tst = UID_UTF8(15);
  #[cfg(feature ="mae")]
  println!("{} {}", tst, tst.chars().count() ); return;*/
+    //print!("{:?}", std::env::vars()); return;
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if checkArg("-mk-dummy-file"){

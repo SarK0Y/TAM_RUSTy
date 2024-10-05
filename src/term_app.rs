@@ -232,6 +232,29 @@ pub(crate) fn new0__ (cmd: &String){
     let (app_name, _ ) = split_once( &cmd, " " );
     let prefix = format! ( "kid.{}.{}{}.{}", id_of_child_win (), crate::globs18::id_suffix(), cur_win_id ( None ), app_name );
     let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
+    let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'", konsole ( None ) );
+    let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
+    let cmd = format!("/bin/bash -c {path_2_cmd}",  );
+    println!( "{cmd}" );
+   // run_term_app(cmd.trim_start().trim_end().strn());
+   crate::threadpool::new_thr(&cmd ); return;
+   }
+pub(crate) fn new2__ (cmd: &String){
+    let mut cmd = cmd.trim_start().strn();
+    if edit_mode_lst(None) {return; }
+    if read_term_msg() == "stop"{return;}
+    else {taken_term_msg()}
+    let mut cmd = cmd.trim_start_matches("new ").strn();
+    let mut subcmd = "".to_string();
+    if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
+    //if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
+    //if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
+    //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
+    if default_term_4_shol_a(&cmd){return}
+    let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
+    let (app_name, _ ) = split_once( &cmd, " " );
+    let prefix = format! ( "kid.{}.{}{}.{}", id_of_child_win (), crate::globs18::id_suffix(), cur_win_id ( None ), app_name );
+    let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );
     let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'&", konsole ( None ) );
     let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
     let cmd = format!("{path_2_cmd}");
@@ -245,6 +268,7 @@ pub(crate) fn new0__ (cmd: &String){
     let fstdout0 = crate::File::open("/dev/null").unwrap();
     //let mut fstdout0 = io::BufReader::new(fstdout0);
     //errMsg_dbg(&in_name, func_id, -1.0);
+    crate::threadpool::new_thr(&cmd ); return;
     let run_command = Command::new( "bash" ).arg( "-c" ).arg(cmd)//.arg(";echo").arg(stopCode)
     //let run_command = Command::new(cmd)
         .stderr(fstderr)
@@ -258,6 +282,7 @@ pub(crate) fn new0__ (cmd: &String){
     }*/
     return
 }
+
 pub(crate) fn new1__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }

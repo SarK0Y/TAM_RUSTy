@@ -18,7 +18,7 @@ use once_cell::sync::OnceCell;
 use std::cell::Cell;
 use std::str::Split;
 use std::thread;
-use threadpool::{ThreadPool, Builder};
+//use threadpool::{ThreadPool, Builder};
 use std::sync::mpsc;
 use std::ffi::CString;
 use std::process::{Command, Stdio};
@@ -39,6 +39,8 @@ mod init;
 mod nvim;
 #[path = "vim.ext.rs"]
 mod vim;
+#[path = "threadpool.rs"]
+mod threadpool;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
