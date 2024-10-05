@@ -12,6 +12,52 @@ use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, in
 use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
+pub(crate) fn run_term_app_ren_fast(cmd: String) -> bool{
+let func_id = crate::func_id18::run_cmd_viewer_;
+drop_ls_mode();
+crate::set_ask_user(cmd.as_str(), func_id);
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
+let (cols, rows) = termion::terminal_size().unwrap();
+let cols = 680; let rows = 700;
+taken_term_msg();
+let adr_of_term_msg = adr_term_msg();
+let pwd = read_file("env/cd");
+let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+//let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
+let path_2_cmd = crate::mk_cmd_file(cmd);
+let abort = std::thread::spawn(move|| {
+    let mut buf: [u8; 128] = [0; 128];
+    //let mut read_out0 = crate::BufReader::new(out_out);
+   // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
+   let mut op_status = false;
+   println!("press Enter");
+    let enter: [u8; 1] = [13; 1];
+    //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
+   // writeIn_stdin.write(&enter);
+   let mut pause_operation = false;
+   let mut fst = true;
+   let mut key: String = getkey().to_lowercase(); 
+   while key != "k" {
+    if !fst{key = getkey().to_lowercase();}
+    fst = false;
+    if read_term_msg() == "free" {op_status = true; break;}
+       if key == "p"{
+        if !pause_operation{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-STOP"); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
+        else{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-CONT"); popup_msg("continue"); pause_operation = false;}
+       }
+       println!("press k or K to abort operation\nHit P or p to pause.");
+   }
+  if !op_status{println!("Operation aborted")};
+run_command.kill();
+//unsafe{libc::kill(g, SIGKILL)}
+kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-9")
+}); abort.join();
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
+true
+}
+
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 drop_ls_mode();

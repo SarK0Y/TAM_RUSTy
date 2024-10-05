@@ -63,9 +63,12 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
     for (key, val ) in std::env::vars() {
+//        let key = format! ("{}={}", key.into_string().unwrap(), val.into_string().unwrap() );
         let key = format! ("{}={}", key, val );
         env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
+        count.inc();
     }
+//    dbg!(&env_str); getkey();
         env_str
 }
 pub fn logErr (e: nix::errno::Errno ) {
