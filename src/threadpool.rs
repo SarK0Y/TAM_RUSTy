@@ -15,11 +15,11 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
         }
     }
 }
-pub fn new_thr (cmd: &String) {
+pub fn new_thr (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); wait().expect ("failed to wait"); },
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
         Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort();},
-        Err(err) => { eprintln!("Fork failed: {}", err); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
 pub fn run_kid (cmd: &String) {

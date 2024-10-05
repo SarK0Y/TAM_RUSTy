@@ -12,7 +12,9 @@ use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, in
 use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
-pub(crate) fn run_term_app_ren_fast(cmd: String) -> bool{
+use nix::sys::signal::kill;
+use nix::unistd::{ForkResult, Pid};
+pub(crate) fn run_term_app_interactive(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 drop_ls_mode();
 crate::set_ask_user(cmd.as_str(), func_id);
@@ -26,6 +28,13 @@ let pwd = read_file("env/cd");
 let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
+    let mut pid: nix::unistd::Pid; 
+    if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
+        match res {
+            ForkResult::Parent { child } => {pid = child; },
+            _ => { return false; }
+        }
+    }
 let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
@@ -43,15 +52,16 @@ let abort = std::thread::spawn(move|| {
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
        if key == "p"{
-        if !pause_operation{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-STOP"); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
-        else{kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-CONT"); popup_msg("continue"); pause_operation = false;}
+        if !pause_operation{kill (pid, Some ( nix::sys::signal::SIGSTOP ) ); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
+        else{kill (pid, Some ( nix::sys::signal::SIGCONT )); popup_msg("continue"); pause_operation = false;}
        }
        println!("press k or K to abort operation\nHit P or p to pause.");
    }
   if !op_status{println!("Operation aborted")};
-run_command.kill();
+
 //unsafe{libc::kill(g, SIGKILL)}
-kill_proc_w_pid0(&get_pid_by_dummy(&ending("")), "-9")
+kill ( pid, Some ( nix::sys::signal::SIGABRT)); kill ( pid, Some ( nix::sys::signal::SIGKILL));
+
 }); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
@@ -461,3 +471,11 @@ pub(crate) fn kill_proc_w_pid0(pid: &String, sig: &str){
     run_cmd_out_sync(format!("kill {sig} {pid}"));
 }
 //fn
+/*
+use nix::sys::signal::kill;
+use nix::unistd::Pid;
+
+if let Err(Errno::ESRCH) = kill(Pid::from_raw(99999), None) {
+    println!("Process does not exist");
+}
+*/

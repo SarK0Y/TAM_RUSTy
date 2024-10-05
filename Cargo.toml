@@ -37,7 +37,7 @@ Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
 syn = "2.0.66"
 [dependencies.nix]
 version = "0.28.0"
-features = ["process"]
+features = ["process", "signal"]
 #rustix = "0.38.28"
 #cached = "0.48.0"
 [features]
