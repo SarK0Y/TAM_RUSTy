@@ -104,14 +104,15 @@ pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::P
 pub fn mk_tree_of_prox <'a > ( tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
     tree
 }
-pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) {
-    let mut branch = tree_of_prox {
+pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> Box <  tree_of_prox < 'a > > {
+     let mut branch = Box::new(  tree_of_prox  {
         ppid: tree.ppid,
         up: Some( tree ),
         kids: Vec::< &mut tree_of_prox >::new(),
         proxid_of_kid: Vec::< nix::unistd::Pid >::new(),
         cursor: 0
-    };
+    } );
+  branch
 }
 //fn
 /*
