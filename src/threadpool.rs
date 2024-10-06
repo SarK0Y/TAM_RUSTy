@@ -7,6 +7,10 @@ use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
+pub struct tree_of_prox <'a > {
+    up: Option < &'a mut tree_of_prox <'a > >,
+    kids: Vec< &'a tree_of_prox <'a> >,
+}
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
     unsafe {
