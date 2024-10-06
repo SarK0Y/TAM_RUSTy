@@ -8,11 +8,11 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 pub struct tree_of_prox <'a > {
-    //ppid: i32 ,
-    ppid: nix::unistd::Pid,
+    ppid: i32 ,
+    //ppid: nix::unistd::Pid,
     up: Option < &'a mut tree_of_prox <'a > >,
     kids: Vec< &'a mut tree_of_prox <'a> >,
-    proxid_of_kid: Vec < nix::unistd::Pid >,
+    proxid_of_kid: Vec < i32 >,
     cursor: usize,
 }
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
@@ -109,11 +109,30 @@ pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> Box <  
         ppid: tree.ppid,
         up: Some( tree ),
         kids: Vec::< &mut tree_of_prox >::new(),
-        proxid_of_kid: Vec::< nix::unistd::Pid >::new(),
+        proxid_of_kid: Vec::< i32 >::new(),
         cursor: 0
     } );
   branch
 }
+pub fn mk_root_of_prox < 'a > (pid: i32) -> Box <  tree_of_prox < 'a > > {
+     Box::new(  tree_of_prox  {
+        ppid: pid,
+        up: None,
+        kids: Vec::< &mut tree_of_prox >::new(),
+        proxid_of_kid: Vec::< i32 >::new(),
+        cursor: 0
+    } )
+}
+pub fn init_root_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> bool {
+    for proc in all_processes().unwrap() {
+        if let Ok (res) = proc.unwrap().status() {
+            if res.ppid == tree.ppid {
+                tree.proxid_of_kid.push (res.pid );
+            }
+        }
+    }
+    if tree.proxid_of_kid.len() > 0 { return true } false
+} 
 //fn
 /*
 use nix::unistd::{execve, fork, ForkResult};
@@ -132,7 +151,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 CString::new("/")?,
             ];
             
-            // Prepare environment
+:::         // Prepare environment
             let env = [
                 CString::new("PATH=/bin:/usr/bin")?
             ];
