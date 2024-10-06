@@ -9,7 +9,9 @@ use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 pub struct tree_of_prox <'a > {
     up: Option < &'a mut tree_of_prox <'a > >,
-    kids: Vec< &'a tree_of_prox <'a> >,
+    kids: Vec< &'a mut tree_of_prox <'a> >,
+    proxid_of_kid: Vec < nix::unistd::Pid >,
+    cursor: usize,
 }
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
@@ -96,6 +98,18 @@ pub fn logErr (e: nix::errno::Errno ) {
 }
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
+}
+pub fn mk_tree_of_prox <'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+    tree
+}
+pub fn mk_branch_of_prox < 'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+    let mut branch = tree_of_prox {
+        up: Some( tree ),
+        kids: Vec::< &mut tree_of_prox >::new(),
+        proxid_of_kid: Vec::< nix::unistd::Pid >::new(),
+        cursor: 0
+    };
+    tree
 }
 //fn
 /*
