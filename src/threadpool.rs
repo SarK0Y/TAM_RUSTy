@@ -8,6 +8,8 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 pub struct tree_of_prox <'a > {
+    //ppid: i32 ,
+    ppid: nix::unistd::Pid,
     up: Option < &'a mut tree_of_prox <'a > >,
     kids: Vec< &'a mut tree_of_prox <'a> >,
     proxid_of_kid: Vec < nix::unistd::Pid >,
@@ -99,17 +101,17 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox <'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+pub fn mk_tree_of_prox <'a > ( tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
     tree
 }
-pub fn mk_branch_of_prox < 'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) {
     let mut branch = tree_of_prox {
+        ppid: tree.ppid,
         up: Some( tree ),
         kids: Vec::< &mut tree_of_prox >::new(),
         proxid_of_kid: Vec::< nix::unistd::Pid >::new(),
         cursor: 0
     };
-    tree
 }
 //fn
 /*
@@ -159,4 +161,17 @@ let PATH = CString::from_vec_with_nul( var ("PATH").unwrap_or( "".strn() ).as_by
         }
         Err(err) => eprintln!("Fork failed: {}", err),
     }   
+*/
+/***********************************************   Funny moments **********************************/
+/*
+pub fn mk_branch_of_prox < 'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+    let mut branch = tree_of_prox {
+        up: Some( tree ),
+        kids: Vec::< &mut tree_of_prox >::new(),
+        proxid_of_kid: Vec::< nix::unistd::Pid >::new(),
+        cursor: 0
+    };
+    tree
+}
+ borrow checker.. really??? :)))
 */
