@@ -105,11 +105,12 @@ pub(crate) fn term_mv(cmd: &String){
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
+    finally_to = full_escape( &finally_to);
     let ided_cmd = take_list_adr("env/dummy_lnks/mv");
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
@@ -124,10 +125,11 @@ pub(crate) fn term_cp(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    finally_to = full_escape( &finally_to);
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
     lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
 }
 pub(crate) fn term_rm(cmd: &String){
@@ -149,7 +151,7 @@ pub(crate) fn term_rm(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();

@@ -24,7 +24,7 @@ let (cols, rows) = termion::terminal_size().unwrap();
 let cols = 680; let rows = 700;
 taken_term_msg();
 let adr_of_term_msg = adr_term_msg();
-let pwd = read_file("env/cd");
+let pwd = crate::core18::full_escape ( &read_file("env/cd") );
 let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
@@ -34,7 +34,7 @@ let path_2_cmd = crate::mk_cmd_file(cmd);
             ForkResult::Parent { child } => {pid = child; },
             _ => { return false; }
         }
-    }
+    } else { return false }
 let abort = std::thread::spawn(move|| {
     let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);

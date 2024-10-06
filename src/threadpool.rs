@@ -5,6 +5,7 @@ use std::env;
 use std::{ ffi::CString, env::var, num::NonZero };
 use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
+use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
@@ -34,7 +35,7 @@ pub fn run_kid (cmd: &String) {
 
         let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
         let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
-        let (app_name, _ ) = split_once( cmd, " ");
+        let (mut app_name, _ ) = split_once( cmd, " ");
         let mut cnt = 0usize;
         let mut cmd = cmd.strn();
         loop {
@@ -56,6 +57,19 @@ pub fn run_kid (cmd: &String) {
             Err(e) =>  {logErr(e );},
             _ =>              {}
         };
+        match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/local/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+
         errMsg0 ("execve failed");
     }
 }
@@ -75,6 +89,9 @@ pub fn logErr (e: nix::errno::Errno ) {
     let log_err_file = take_list_adr ("ErrNumLog");
     let err = format!("{e:#?}");
     save_file_append_newline_abs_adr_fast( &err, &log_err_file);
+}
+pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
+
 }
 //fn
 /*
