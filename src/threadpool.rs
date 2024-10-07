@@ -101,20 +101,29 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox <'a > ( tree: &'a mut  tree_of_prox <'a > ) -> &'a mut tree_of_prox <'a > {
+pub fn mk_tree_of_prox <'a1 > ( tree: &'a1 mut  tree_of_prox <'a1 > ) -> &'a1 mut tree_of_prox <'a1 > {
+    *tree = *mk_root_of_prox( getpid().as_raw() );
+    init_root_of_prox(tree);
     tree
 }
 pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> Box <  tree_of_prox < 'a > > {
      let mut branch = Box::new(  tree_of_prox  {
-        ppid: tree.ppid,
+        ppid: tree.proxid_of_kid [ tree.cursor ],
         up: Some( tree ),
         kids: Vec::< &mut tree_of_prox >::new(),
         proxid_of_kid: Vec::< i32 >::new(),
         cursor: 0
     } );
+    for proc in all_processes().unwrap() {
+        if let Ok (res) = proc.unwrap().status() {
+            if res.ppid == branch.ppid {
+                branch.proxid_of_kid.push (res.pid );
+            }
+        }
+    }
   branch
 }
-pub fn mk_root_of_prox < 'a > (pid: i32) -> Box <  tree_of_prox < 'a > > {
+pub fn mk_root_of_prox < 'b > (pid: i32) -> Box <  tree_of_prox < 'b > > {
      Box::new(  tree_of_prox  {
         ppid: pid,
         up: None,
