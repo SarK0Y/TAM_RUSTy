@@ -15,6 +15,19 @@ pub struct tree_of_prox <'a > {
     proxid_of_kid: Vec < i32 >,
     cursor: usize,
 }
+pub trait prox <'a > {
+    fn new (&mut self, pid: i32 ) -> Box < &mut tree_of_prox <'a> >;
+    fn init ( &mut self ) -> Box < &mut tree_of_prox <'a> >;
+}
+impl <'a > prox <'a > for tree_of_prox  <'a> {
+    fn new (&mut self, pid: i32) -> Box < &mut tree_of_prox <'a > > {
+         *self = *mk_root_of_prox( pid);
+         Box::new ( self)
+    }
+    fn init ( &mut self ) -> Box < &mut tree_of_prox<'a> > {
+        Box::new ( self )
+    }
+}
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
     static mut ids: Lazy < Vec < nix::unistd::Pid > > = Lazy::new ( || { Vec::with_capacity (100) } );
     unsafe {
@@ -101,10 +114,9 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox <'a1 > ( tree: &'a1 mut  tree_of_prox <'a1 > ) -> &'a1 mut tree_of_prox <'a1 > {
-    *tree = *mk_root_of_prox( getpid().as_raw() );
-    init_root_of_prox(tree);
-    tree
+pub fn mk_tree_of_prox <'a1 > ( tree: Box < &'a1 mut  tree_of_prox <'a1 > > ) -> &'a1 mut tree_of_prox <'a1 > {
+    tree.new( getpid().as_raw() );
+    *tree
 }
 pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> Box <  tree_of_prox < 'a > > {
      let mut branch = Box::new(  tree_of_prox  {
@@ -123,7 +135,7 @@ pub fn mk_branch_of_prox < 'a > ( tree: &'a mut  tree_of_prox <'a > ) -> Box <  
     }
   branch
 }
-pub fn mk_root_of_prox < 'b > (pid: i32) -> Box <  tree_of_prox < 'b > > {
+pub fn mk_root_of_prox < 'a > (pid: i32) -> Box < tree_of_prox < 'a > > {
      Box::new(  tree_of_prox  {
         ppid: pid,
         up: None,
