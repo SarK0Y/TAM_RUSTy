@@ -7,7 +7,7 @@ use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
-//#[derive(Copy, Clone)]
+#[derive(Copy, Clone)]
 pub struct tree_of_prox <'a > {
     ppid: i32 ,
     //ppid: nix::unistd::Pid,
@@ -30,13 +30,28 @@ impl <'a > prox <'a > for tree_of_prox  <'a> {
         Box::new ( self )
     }
     fn new_branch ( &mut self ) -> Box < &mut tree_of_prox<'a> > {
-        /*let mut branch*/ *self = *mk_branch_of_prox( self );
+        let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
+        /*let mut branch*/unsafe { *self = *mk_branch_of_prox( &mut *hacky_pointer ); }
         if self.proxid_of_kid.len() > 0 { return Box::new ( self );}
         while self.proxid_of_kid.len() == 0 ||
               (self.proxid_of_kid.len() == self.cursor && self.up.is_some())
               {
-                //*self = *self.up.unwrap();
+                unsafe { *self = *(*hacky_pointer.clone()).up.unwrap() };
               }  Box::new (self)
+    }
+}
+pub trait Copy {
+    fn Copy (&mut self) -> Self;
+}
+impl <'a > Copy for tree_of_prox <'a >  {
+    fn Copy (&mut self) -> Self {
+        Self {
+            up: self.up,
+            ppid: self.ppid,
+            proxid_of_kid: self.proxid_of_kid.clone(),
+            kids: self.kids.to_vec(),
+            cursor: self.cursor,
+        }
     }
 }
 pub fn thr_ids ( mode: crate::enums::threadpool ) {
