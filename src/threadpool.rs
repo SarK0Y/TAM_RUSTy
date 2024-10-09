@@ -7,21 +7,52 @@ use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
-use std::ptr;
+use std::ptr; use std::cell::RefCell;
 //#[derive(Copy, Clone)]
 pub struct tree_of_prox {
     ppid: i32 ,
     //ppid: nix::unistd::Pid,
-    up: Box < *mut tree_of_prox >,
-    kids: *mut Vec< Box < *mut tree_of_prox > >,
-    proxid_of_kid: Vec < i32 >,
+    up: *mut tree_of_prox,
+    kids: *mut Vec< *mut tree_of_prox >,
+    proxid_of_kid: *mut Vec < i32 >,
     cursor: usize,
 }
+pub trait Clone {
+    fn clone (&self) -> Self;
+}
+impl Clone for tree_of_prox{
+    fn clone (&self) -> Self {
+        unsafe {
+            let up =  if self.up.is_null() { 
+                    ptr::null_mut() 
+                } else { 
+                    *(*self.up).dup()
+                };
+            let proxid_of_kid = self.proxid_of_kid.clone();
+             
+            tree_of_prox {
+                    ppid: self.ppid,
+                    up: up,
+                    proxid_of_kid: proxid_of_kid,
+                    kids:if (*self.kids).len() == 0 {
+                      ptr::null_mut ()
+                    } else {
+                        let rp: *mut Vec < *mut tree_of_prox> = &mut (*self.kids).iter().map(|&kid| {
+                           *(*kid).dup()
+                        }).collect::<Vec<_>>(); rp
+                    },
+                    cursor: self.cursor,       
+            }
+        }
+    }
+}
+//impl Copy for tree_of_prox{ }
 pub trait prox  {
     fn new (&mut self, pid: i32 ) -> Box < *mut tree_of_prox >;
     fn init ( &mut self ) -> Box < *mut tree_of_prox >;
     fn new_branch ( &mut self ) -> Box < *mut tree_of_prox >;
-    fn dup ( &mut self ) -> Box < *mut tree_of_prox >;
+    fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
+    fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
 impl prox for tree_of_prox  {
     fn new (&mut self, pid: i32) -> Box < *mut tree_of_prox  > {
@@ -35,20 +66,20 @@ impl prox for tree_of_prox  {
         unsafe {
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             /*let mut branch*/ *self = *mk_branch_of_prox( &mut *hacky_pointer ); 
-            if self.proxid_of_kid.len() > 0 { return Box::new ( self );}
-            while self.proxid_of_kid.len() == 0 ||
-                (self.proxid_of_kid.len() == self.cursor && !self.up.is_null())
+            if (*self.proxid_of_kid).len() > 0 { return Box::new ( self );}
+            while (*self.proxid_of_kid).len() == 0 ||
+                ((*self.proxid_of_kid).len() == (*self).cursor && !self.up.is_null() )
                 {
-                 //   *self = *(*hacky_pointer.clone()).up.clone ();
+                    *self = *(*(*(*hacky_pointer.clone() ).up).dup ());
                 }  Box::new (self)
         }
     }
-    fn dup ( &mut self ) -> Box < *mut tree_of_prox > {
+    fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox > {
         unsafe {
             let up =  if self.up.is_null() { 
                     ptr::null_mut() 
                 } else { 
-                    *self.up.as_mut().dup() 
+                    *(*self.up).dup()
                 };
             let proxid_of_kid = self.proxid_of_kid.clone();
              
@@ -61,7 +92,33 @@ impl prox for tree_of_prox  {
                       ptr::null_mut ()
                     } else {
                         let rp: *mut Vec < *mut tree_of_prox> = &mut (*self.kids).iter().map(|&kid| {
-                           (*kid).dup()
+                           *(*kid).dup()
+                        }).collect::<Vec<_>>(); rp
+                    },
+                    cursor: self.cursor,      
+                } 
+            ) 
+        }
+    }
+    fn dup ( &self ) -> Box < *mut tree_of_prox > {
+        unsafe {
+            let up =  if self.up.is_null() { 
+                    ptr::null_mut() 
+                } else { 
+                    *(*self.up).dup()
+                };
+            let proxid_of_kid = self.proxid_of_kid.clone();
+             
+            Box:: < *mut tree_of_prox >::new (
+              &mut  tree_of_prox {
+                    ppid: self.ppid,
+                    up: up,
+                    proxid_of_kid: proxid_of_kid,
+                    kids:if (*self.kids).len() == 0 {
+                      ptr::null_mut ()
+                    } else {
+                        let rp: *mut Vec < *mut tree_of_prox> = &mut (*self.kids).iter().map(|&kid| {
+                           *(*kid).dup()
                         }).collect::<Vec<_>>(); rp
                     },
                     cursor: self.cursor,      
@@ -164,17 +221,21 @@ pub fn mk_tree_of_prox ( tree: Box < *mut  tree_of_prox > ) -> *mut tree_of_prox
 }
 pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
     unsafe {
+        let _kids = RefCell::new( Vec::< *mut tree_of_prox >::new() );
+        let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
+        let _proxid_of_kid = RefCell::new( Vec::< i32 >::new() );
+    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
         let mut branch = Box::new(  tree_of_prox  {
-            ppid: (*tree).proxid_of_kid [ (*tree).cursor ],
+            ppid: (*(*tree).proxid_of_kid ) [ (*tree).cursor ],
             up: tree,
-            kids: Vec::< *mut tree_of_prox >::new(),
-            proxid_of_kid: Vec::< i32 >::new(),
+            kids: __kids,
+            proxid_of_kid: __proxid_of_kid,
             cursor: 0
         } );
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == branch.ppid {
-                    branch.proxid_of_kid.push (res.pid );
+                    (*branch.proxid_of_kid).push (res.pid );
                 }
             }
         }
@@ -182,11 +243,15 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
+    let _kids = RefCell::new( Vec::< *mut tree_of_prox >::new() );
+        let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
+    let _proxid_of_kid = RefCell::new( Vec::< i32 >::new() );
+    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
      Box::new(  tree_of_prox  {
         ppid: pid,
         up: ptr::null_mut (),
-        kids: Vec::< *mut tree_of_prox >::new(),
-        proxid_of_kid: Vec::< i32 >::new(),
+        kids: __kids,
+        proxid_of_kid: __proxid_of_kid,
         cursor: 0
     } )
 }
@@ -195,11 +260,11 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == (*tree).ppid {
-                    (*tree).proxid_of_kid.push (res.pid );
+                    (*(*tree).proxid_of_kid).push (res.pid );
                 }
             }
         }
-        if (*tree).proxid_of_kid.len() > 0 { return true } false
+        if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
 } 
 //fn
