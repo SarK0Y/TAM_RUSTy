@@ -12,8 +12,8 @@ use std::ptr;
 pub struct tree_of_prox {
     ppid: i32 ,
     //ppid: nix::unistd::Pid,
-    up: *mut tree_of_prox,
-    kids: *mut Vec<  *mut tree_of_prox >,
+    up: Box < *mut tree_of_prox >,
+    kids: *mut Vec< Box < *mut tree_of_prox > >,
     proxid_of_kid: Vec < i32 >,
     cursor: usize,
 }
@@ -48,7 +48,7 @@ impl prox for tree_of_prox  {
             let up =  if self.up.is_null() { 
                     ptr::null_mut() 
                 } else { 
-                    Box::into_raw(Box::new((*self.up).dup())) 
+                    *self.up.as_mut().dup() 
                 };
             let proxid_of_kid = self.proxid_of_kid.clone();
              
@@ -60,7 +60,7 @@ impl prox for tree_of_prox  {
                     kids:if (*self.kids).len() == 0 {
                       ptr::null_mut ()
                     } else {
-                        let rp: *mut = &mut (*self.kids).iter().map(|&kid| {
+                        let rp: *mut Vec < *mut tree_of_prox> = &mut (*self.kids).iter().map(|&kid| {
                            (*kid).dup()
                         }).collect::<Vec<_>>(); rp
                     },
