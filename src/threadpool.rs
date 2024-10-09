@@ -70,7 +70,7 @@ impl prox for tree_of_prox  {
             while (*self.proxid_of_kid).len() == 0 ||
                 ((*self.proxid_of_kid).len() == (*self).cursor && !self.up.is_null() )
                 {
-                    *self = *(*(*(*hacky_pointer.clone() ).up).dup ());
+                    *self = (*(*hacky_pointer.clone() ).up).clone ();
                 }  Box::new (self)
         }
     }
