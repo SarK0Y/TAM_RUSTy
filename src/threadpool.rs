@@ -65,13 +65,13 @@ impl prox for tree_of_prox  {
     fn new_branch ( &mut self ) -> Box < *mut tree_of_prox > {
         unsafe {
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
-            let branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            if (*(*branch).proxid_of_kid).len() > 0 { (*self.kids).push ( branch ); return Box::new ( self );}
-            while (*self.proxid_of_kid).len() == 0 ||
-                ((*self.proxid_of_kid).len() == (*self).cursor && !self.up.is_null() )
+            let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
+            if (*(*branch).proxid_of_kid).len() > 0 { (*self.kids).push ( branch ); return Box::new ( branch );}
+            while (*(*branch).proxid_of_kid).len() == 0 ||
+                ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
-                    *self = (*(*hacky_pointer.clone() ).up).clone ();
-                }  Box::new (self)
+                    branch = (*hacky_pointer.clone() ).up.clone ();
+                }  Box::new ( branch )
         }
     }
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox > {
