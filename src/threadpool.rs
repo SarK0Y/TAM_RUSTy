@@ -47,14 +47,17 @@ impl Clone for tree_of_prox{
     }
 }
 //impl Copy for tree_of_prox{ }
+#[derive(Debug, Clone, PartialEq)]
 pub enum branch_state {
     new,
     jump_up,
-    none
+    none,
+    failed_init,
+    ok_init,
 }
 pub trait prox  {
     fn new (&mut self, pid: i32 ) -> Box < *mut tree_of_prox >;
-    fn init ( &mut self ) -> Box < *mut tree_of_prox >;
+    fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
     fn new_branch ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
@@ -64,20 +67,21 @@ impl prox for tree_of_prox  {
          *self = *mk_root_of_prox( pid);
          Box::new ( self)
     }
-    fn init ( &mut self ) -> Box < *mut tree_of_prox > {
-        Box::new ( self )
+    fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state ) {
+        if !init_root_of_prox( &mut  *self) { return ( Box::new ( self ), branch_state::failed_init );};
+        ( Box::new ( self ), branch_state::ok_init )
     }
     fn new_branch ( &mut self ) -> ( Box < *mut tree_of_prox >, branch_state ) {
         unsafe {
             if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            if (*(*self).proxid_of_kid).len() > 0 {
+            if (*(*branch).proxid_of_kid).len() > 0 {
                 (*self.kids).push ( branch ); (*self).cursor.inc(); return (Box::new ( branch ), branch_state::new ); }
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
-                    branch = ( *branch ).up.clone ();
+                    branch = ( *branch ).up;
                     
                 }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
         }
