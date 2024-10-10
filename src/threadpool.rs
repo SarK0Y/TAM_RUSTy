@@ -1,3 +1,4 @@
+use console::truncate_str;
 use once_cell::sync::Lazy;
 use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
@@ -83,7 +84,7 @@ impl prox for tree_of_prox  {
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
-                    if (*(*branch).proxid_of_kid).len() == ((*branch).cursor ) { (*branch).direction_to_count = true; }
+                    if (*(*branch).proxid_of_kid).len() == (*branch).cursor { (*branch).direction_to_count = true; }
                     branch = ( *branch ).up;
                 }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
         }
@@ -285,6 +286,31 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
 } 
+pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
+    
+    let mut branch: *mut tree_of_prox = tree;
+    loop {
+        
+    }
+}
+pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
+    use nix::sys::signal::kill as kl;
+    use nix::unistd::Pid;
+    unsafe {
+        let pids: &Vec <i32> = &(*(*tree).proxid_of_kid);
+            for pid in pids {
+                if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
+            }
+        }
+}
+pub fn count_kids_properly (tree: &mut  tree_of_prox){
+    unsafe {
+        if (*(*tree).proxid_of_kid).len() == (*tree).cursor { (*tree).direction_to_count = true }
+        if (*tree).cursor == 0 { (*tree).direction_to_count = false }
+        if (*tree).direction_to_count { (*tree).cursor.dec(); }
+        else { (*tree).cursor.inc(); }
+    }
+}
 //fn
 /*
 use nix::unistd::{execve, fork, ForkResult};
