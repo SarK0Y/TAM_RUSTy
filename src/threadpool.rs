@@ -57,6 +57,7 @@ pub enum branch_state {
     none,
     failed_init,
     ok_init,
+    down
 }
 pub trait prox  {
     fn new (&mut self, pid: i32 ) -> Box < *mut tree_of_prox >;
@@ -290,29 +291,38 @@ pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Sign
     
     let mut branch: *mut tree_of_prox = tree;
     unsafe {
-        let root_len = (*(*tree).kids).len();
-        loop {
-            if ((*tree).direction_to_count && (*tree).cursor == root_len ) ||
-               ( !(*tree).direction_to_count && (*tree).cursor == 0 ) { break; }
+        let mut ret = sig_2_branch_of_prox( &mut *branch, sig);
+        while ret.0 != ptr::null_mut() {
+         branch = ret.0;   
+         ret = sig_2_branch_of_prox( &mut *branch, sig);
         }
     }
 }
-pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
+pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ) -> (*mut tree_of_prox, branch_state){
     use nix::sys::signal::kill as kl;
     use nix::unistd::Pid;
     unsafe {
+        let direction_to_count = if (*tree).up != ptr::null_mut() {(*(*tree).up).direction_to_count} else {(*tree).direction_to_count };
+        let root_len = (*(*tree).kids).len();
+        if (*(*tree).proxid_of_kid).len() == 0 || (*tree).direction_to_count == direction_to_count && (
+           ((*tree).direction_to_count && (*tree).cursor == root_len ) ||
+               ( !(*tree).direction_to_count && (*tree).cursor == 0 ) 
+            ) { return ( (*tree).up, branch_state::jump_up ); }
         let pids: &Vec <i32> = &(*(*tree).proxid_of_kid);
             for pid in pids {
                 if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
-            } count_kids_properly(tree);
+            } let cur = count_kids_properly(tree);
+            ((*(*tree).kids)[cur], branch_state::down )    
         }
 }
-pub fn count_kids_properly (tree: &mut  tree_of_prox){
+pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
     unsafe {
         if (*(*tree).proxid_of_kid).len() == (*tree).cursor { (*tree).direction_to_count = true }
         if (*tree).cursor == 0 { (*tree).direction_to_count = false }
+        let ret = (*tree).cursor;
         if (*tree).direction_to_count { (*tree).cursor.dec(); }
         else { (*tree).cursor.inc(); }
+        ret
     }
 }
 //fn
