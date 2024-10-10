@@ -289,8 +289,12 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
 pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
     
     let mut branch: *mut tree_of_prox = tree;
-    loop {
-        
+    unsafe {
+        let root_len = (*(*tree).kids).len();
+        loop {
+            if ((*tree).direction_to_count && (*tree).cursor == root_len ) ||
+               ( !(*tree).direction_to_count && (*tree).cursor == 0 ) { break; }
+        }
     }
 }
 pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
@@ -300,7 +304,7 @@ pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Si
         let pids: &Vec <i32> = &(*(*tree).proxid_of_kid);
             for pid in pids {
                 if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
-            }
+            } count_kids_properly(tree);
         }
 }
 pub fn count_kids_properly (tree: &mut  tree_of_prox){
