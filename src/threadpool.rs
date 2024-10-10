@@ -15,6 +15,7 @@ pub struct tree_of_prox {
     up: *mut tree_of_prox,
     kids: *mut Vec< *mut tree_of_prox >,
     proxid_of_kid: *mut Vec < i32 >,
+    direction_to_count: bool,
     cursor: usize,
 }
 pub trait Clone {
@@ -41,6 +42,7 @@ impl Clone for tree_of_prox{
                            *(*kid).dup()
                         }).collect::<Vec<_>>(); rp
                     },
+                    direction_to_count: self.direction_to_count,
                     cursor: self.cursor,       
             }
         }
@@ -107,6 +109,7 @@ impl prox for tree_of_prox  {
                            *(*kid).dup()
                         }).collect::<Vec<_>>(); rp
                     },
+                    direction_to_count: self.direction_to_count,
                     cursor: self.cursor,      
                 } 
             ) 
@@ -133,6 +136,7 @@ impl prox for tree_of_prox  {
                            *(*kid).dup()
                         }).collect::<Vec<_>>(); rp
                     },
+                    direction_to_count: self.direction_to_count,
                     cursor: self.cursor,      
                 } 
             ) 
@@ -242,6 +246,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
             up: tree,
             kids: __kids,
             proxid_of_kid: __proxid_of_kid,
+            direction_to_count: false,
             cursor: 0
         } );
         for proc in all_processes().unwrap() {
@@ -264,6 +269,7 @@ pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
         up: ptr::null_mut (),
         kids: __kids,
         proxid_of_kid: __proxid_of_kid,
+        direction_to_count: false,
         cursor: 0
     } )
 }
