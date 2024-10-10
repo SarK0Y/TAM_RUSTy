@@ -83,8 +83,8 @@ impl prox for tree_of_prox  {
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
+                    if (*(*branch).proxid_of_kid).len() == ((*branch).cursor ) { (*branch).direction_to_count = true; }
                     branch = ( *branch ).up;
-                    
                 }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
         }
     }
