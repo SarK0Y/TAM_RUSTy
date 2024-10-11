@@ -9,7 +9,7 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
-//#[derive(Copy, Clone)]
+#[derive( Debug )]
 pub struct tree_of_prox {
     ppid: i32 ,
     //ppid: nix::unistd::Pid,
@@ -68,23 +68,34 @@ pub trait prox  {
 }
 impl prox for tree_of_prox  {
     fn new ( pid: i32) -> Box < *mut tree_of_prox  > {
-         let root: *mut tree_of_prox =  *(*mk_root_of_prox( pid)).init().0;
+         let mut root: *mut tree_of_prox =  *mk_root_of_prox( pid).init().0;
+         dbg!( &root );
          Box::new ( root )
     }
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state ) {
+        dbg! ( &self );
         if !init_root_of_prox( &mut  *self) { return ( Box::new ( self ), branch_state::failed_init );};
+        dbg! ( &self );
         ( Box::new ( self ), branch_state::ok_init )
     }
     fn new_branch ( &mut self ) -> ( Box < *mut tree_of_prox >, branch_state ) {
         unsafe {
+            dbg!(&self);
             if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
+            dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            (*self.kids).push ( branch ); (*self).cursor.inc();
+            dbg!( &branch );
+            (*self.kids).push ( branch );
+            dbg!( &self );
+             (*self).cursor.inc();
+            dbg!( &self );
             if (*(*branch).proxid_of_kid).len() > 0 { return (Box::new ( branch ), branch_state::new ); }
+            dbg!( &branch );
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
+                    dbg!( &branch );
                     if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
                     branch = ( *branch ).up;
                 }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
@@ -234,8 +245,11 @@ pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::P
 pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
     unsafe {
          let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
+         dbg!(&tree);
          while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
+            dbg!(&tree);
             tree = *(*tree).new_branch().0;
+            dbg!(&tree);
          }
          Box::new ( tree )
     }
