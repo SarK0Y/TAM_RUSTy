@@ -35,7 +35,10 @@ let path_2_cmd = crate::mk_cmd_file(cmd);
             _ => { return false; }
         }
     } else { return false }
+    
 let abort = std::thread::spawn(move|| {
+    let mut proxid = *crate::threadpool::mk_tree_of_prox(pid.into() );
+    use crate::threadpool::sig_2_tree_of_prox as kill;
     let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
@@ -52,15 +55,19 @@ let abort = std::thread::spawn(move|| {
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
        if key == "p"{
-        if !pause_operation{kill (pid, Some ( nix::sys::signal::SIGSTOP ) ); println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
-        else{kill (pid, Some ( nix::sys::signal::SIGCONT )); popup_msg("continue"); pause_operation = false;}
+        unsafe {
+            if !pause_operation{kill (&mut *proxid, nix::sys::signal::SIGSTOP ); 
+                println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
+            else{kill (&mut *proxid,  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+        }
        }
        println!("press k or K to abort operation\nHit P or p to pause.");
    }
   if !op_status{println!("Operation aborted")};
 
-//unsafe{libc::kill(g, SIGKILL)}
-kill ( pid, Some ( nix::sys::signal::SIGABRT)); kill ( pid, Some ( nix::sys::signal::SIGKILL));
+unsafe{
+    kill ( &mut *proxid, nix::sys::signal::SIGABRT ); kill ( &mut *proxid, nix::sys::signal::SIGKILL );
+}
 
 }); abort.join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");

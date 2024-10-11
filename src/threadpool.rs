@@ -80,12 +80,12 @@ impl prox for tree_of_prox  {
             if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            if (*(*branch).proxid_of_kid).len() > 0 {
-                (*self.kids).push ( branch ); (*self).cursor.inc(); return (Box::new ( branch ), branch_state::new ); }
+            (*self.kids).push ( branch ); (*self).cursor.inc();
+            if (*(*branch).proxid_of_kid).len() > 0 { return (Box::new ( branch ), branch_state::new ); }
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
                 {
-                    if (*(*branch).proxid_of_kid).len() == (*branch).cursor { (*branch).direction_to_count = true; }
+                    if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
                     branch = ( *branch ).up;
                 }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
         }
@@ -234,6 +234,9 @@ pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::P
 pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
     unsafe {
          let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
+         while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
+            tree = *(*tree).new_branch().0;
+         }
          Box::new ( tree )
     }
 }
@@ -251,6 +254,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
             direction_to_count: false,
             cursor: 0
         } );
+        //(*tree).cursor.inc();
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == branch.ppid {
