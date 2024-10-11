@@ -60,16 +60,16 @@ pub enum branch_state {
     down
 }
 pub trait prox  {
-    fn new (&mut self, pid: i32 ) -> Box < *mut tree_of_prox >;
+    fn new ( pid: i32 ) -> Box < *mut tree_of_prox >;
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
     fn new_branch ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
 impl prox for tree_of_prox  {
-    fn new (&mut self, pid: i32) -> Box < *mut tree_of_prox  > {
-         *self = *mk_root_of_prox( pid);
-         Box::new ( self)
+    fn new ( pid: i32) -> Box < *mut tree_of_prox  > {
+         let root: *mut tree_of_prox =  *(*mk_root_of_prox( pid)).init().0;
+         Box::new ( root )
     }
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state ) {
         if !init_root_of_prox( &mut  *self) { return ( Box::new ( self ), branch_state::failed_init );};
@@ -231,10 +231,10 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox ( tree: Box < *mut  tree_of_prox > ) -> *mut tree_of_prox {
+pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
     unsafe {
-         (*tree).as_mut().unwrap().new( getpid().as_raw() );
-        *tree
+         let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
+         Box::new ( tree )
     }
 }
 pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
