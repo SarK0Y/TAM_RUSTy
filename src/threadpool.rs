@@ -9,6 +9,7 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
+use std::mem::{ManuallyDrop, forget};
 #[derive( Debug )]
 pub struct tree_of_prox {
     ppid: i32 ,
@@ -256,9 +257,9 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
 }
 pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
     unsafe {
-        let _kids = RefCell::new( Vec::< *mut tree_of_prox >::new() );
+        let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
         let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-        let _proxid_of_kid = RefCell::new( Vec::< i32 >::new() );
+        let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
         let mut branch = Box::new(  tree_of_prox  {
             ppid: (*(*tree).proxid_of_kid ) [ (*tree).cursor ],
@@ -280,9 +281,9 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
-    let _kids = RefCell::new( Vec::< *mut tree_of_prox >::new() );
+    let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
         let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-    let _proxid_of_kid = RefCell::new( Vec::< i32 >::new() );
+    let _proxid_of_kid = ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
      Box::new(  tree_of_prox  {
         ppid: pid,
@@ -298,7 +299,9 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == (*tree).ppid {
+                    dbg! ( (*(*tree).proxid_of_kid).len () );
                     (*(*tree).proxid_of_kid).push (res.pid );
+                    dbg! ( (*(*tree).proxid_of_kid).len () );
                 }
             }
         }
