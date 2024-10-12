@@ -105,11 +105,12 @@ pub(crate) fn term_mv(cmd: &String){
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
+    finally_to = full_escape( &finally_to);
     let ided_cmd = take_list_adr("env/dummy_lnks/mv");
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
@@ -124,10 +125,11 @@ pub(crate) fn term_cp(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    finally_to = full_escape( &finally_to);
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
     lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
 }
 pub(crate) fn term_rm(cmd: &String){
@@ -149,7 +151,7 @@ pub(crate) fn term_rm(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
@@ -384,9 +386,20 @@ pub(crate) fn session_lists(){
 pub(crate) fn upd_session_lists(){
     session_lists(); crate::set_front_list("lst"); mk_cnt();
 }
+pub fn lst_fst_run() -> bool {
+    static mut fst: bool = true;
+    unsafe {
+        let ret = fst;
+        fst = false; ret
+    }
+}
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
-    if cmd0 == "lst" || cmd0 == "lst "{set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
+    if cmd0 == "lst" || cmd0 == "lst "{
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
@@ -419,7 +432,11 @@ pub(crate) fn manage_lst(cmd: &String){
 }
 pub(crate) fn manage_lst_sub(cmd: &String){
     let cmd0 =cmd.to_string();
-    if cmd0 == "lst" || cmd0 == "lst "{ crate::set_front_list( "lst" ); return;}
+    if cmd0 == "lst" || cmd0 == "lst "{ 
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
@@ -571,19 +588,18 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
     delay_ms(112);
     front_lst = front_lst.unreel_link_to_file();
     let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
-    edit_mode_lst(Some (false) );
     let new_ln = crate::read_prnt();
     let mut front_lst_tmp = front_lst.clone(); front_lst_tmp.push_str(".tmp");
-    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); return}};
+    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); edit_mode_lst(Some (false) ); return} };
     let mut reader = crate::BufReader::new(open_front_lst);
     for (indx, ln) in reader.lines().enumerate(){
         if indx == ln_num {save_file_append_newline_abs_adr_fast(&new_ln, &front_lst_tmp); continue;}
         save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
     }
    // errMsg0(&cmd);
-   crate::cache::set_uid_cache(&name_of_front_list("", false) );
-    match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
-    upd_screen_or_not((-1, "".strn() ) );
+   crate::cache::set_uid_cache(&name_of_front_list("", false) ); edit_mode_lst(Some (false) );
+   match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
+   upd_screen_or_not((-1, "".strn() ) );
 }
 #[cfg(feature = "mae")]
 pub fn mrg_as <T> (cmd: T) where T: STRN {
@@ -610,7 +626,7 @@ pub fn mk_uid(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
     let front_list = read_tail(&front_list, "/");
     crate::cache::set_uid_cache(&front_list);
-    crate::update18::upd_screen_or_not( (-1, "".strn() ) );
+    crate::update18::rm_screen();
 }
 pub fn mk_cnt(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
@@ -702,7 +718,8 @@ pub fn show_modes(){
     let ls = swtch_ls(false, false);
     let cmd_decode = cmd_decode_mode(None);
     let escape_special_symbs = swtch_esc(false, false);
-    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n");
+    let user_home = crate::init::user_home_dir();
+    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n\tUser home dir: {user_home}\n");
     print!("{see}", );
     errMsg0("Please, press any key to continue.. Thanks.");
 }

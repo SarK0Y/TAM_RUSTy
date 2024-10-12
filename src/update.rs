@@ -1,10 +1,10 @@
 use once_cell::sync::Lazy;
 use ps0::{fix_num_files, get_mainpath};
 
-use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{path_to_shm, set_main0_as_front, strn_2_u64, MAIN0_}, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_front_list, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists}; 
-use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, take_list_adr, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
+use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{check_substrn, path_to_shm, set_main0_as_front, strn_2_u64, take_list_adr, MAIN0_}, init::user_home_dir, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_front_list, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists}; 
+use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
-use std::time::Instant;
+use std::{borrow::Borrow, time::Instant};
 pub(crate) fn main_update(){
     let func_id = crate::func_id18::main_update;
     let mut no_path =true;
@@ -79,14 +79,14 @@ pub(crate) fn prime(){
         set_front_list("main0");
     }
     let mut base = crate::basic::new();
-println!("len of main0 list {}", globs17::len_of_main0_list());
+//println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
 let handler = builder.spawn(move || {
 let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
-else{base.manage_pages()}
+else{ base.manage_pages() }
 println!("stop manage_page");
 }).unwrap();
 //background_fixing_count(2);
@@ -125,6 +125,12 @@ pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     crate::mk_cnt();
     //background_fixing_count_n_delay(2, 40);
 }
+pub fn prev_key <T: STRN + ToString  + Borrow <str> + std::cmp::PartialEq<T> > (prev: T) -> String {
+    static mut key: Lazy <String> = Lazy::new(|| {String::new()});
+    unsafe {
+        if prev.strn() != "" {*key = prev.strn() } key.strn()
+    }
+}
 pub(crate) fn lets_write_path(key: String){
     if !swtch_ls(false, false) {return;}
     //C_!(set_ls_as_front(); front_list_indx(crate::globs18::LS_););
@@ -134,7 +140,13 @@ pub(crate) fn lets_write_path(key: String){
     let mode: i64 = crate::swtch::SWTCH_USER_WRITING_PATH;
     if mode < 0{return;}
     name_of_front_list("ls", true);
-    C!(swtch_fn(mode, "".strn() )); C!(swtch_fn( -1, key)); 
+    let mut key0: String;
+    if prev_key("") == "~" {
+     let mut prnt = read_prnt();
+     key0 = crate::init::user_home_dir(); prnt = prnt.replace("~", &key0);
+     set_prnt(&prnt, 1198001452 );
+} else {key0 = key}
+     C!(swtch_fn(mode, "".strn() )); C!(swtch_fn( -1, key0)); 
 
 }
 pub(crate) fn background_fixing(){ 
@@ -366,5 +378,11 @@ pub fn upd_screen_or_not(anchor: (i64, String) ) -> bool{
         if state != anchor { state = anchor; return true; }}
 
     false
+}
+pub fn rm_screen () {
+    use Mademoiselle_Entropia::true_rnd::UID_UTF8 as rnd_utf8;
+    upd_screen_or_not ( (-1, rnd_utf8 (5)) );
+    let screen = crate::take_list_adr( "screen");
+    rm_file ( &screen);
 }
 //fn

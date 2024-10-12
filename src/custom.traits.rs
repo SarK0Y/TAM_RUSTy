@@ -1,4 +1,5 @@
 use num_traits::Bounded; use core::mem::size_of;
+use std::char;
 use std::io::Read;
 #[cfg(feature="tam")] 
 use crate::{globs18::strn_2_usize, usize_2_i64, core18::i64_2_usize, errMsg0};
@@ -420,4 +421,41 @@ impl <T> vec_tools <T> for Vec<T> where T: Clone + ?Sized + Eq + std::cmp::Parti
         vecc
     }
 }
+#[cfg(feature = "tam")]
+pub trait escaped_chars {
+    fn replace_unesc_ch (&self, ch: &str, new0: &str ) -> String;
+}
+#[cfg( feature = "tam")]
+impl <T> escaped_chars for T where T: ToString + STRN + AsRef < str > {
+    fn replace_unesc_ch (&self, ch0: &str, new0: &str) -> String {
+        let mut ret = "".strn();
+        let mut prev_ch: Option <char> = None;
+        let mut zelf = self.strn().replace (";;", "c0mm@").strn ();
+        for ch in zelf.chars () {
+            if ch0.chars().nth(0).unwrap() == ch && prev_ch != Some( '\\' ) {ret.push_str(new0 )}
+            else { ret.push ( ch ) }
+            prev_ch = Some(ch );
+        }
+        ret.replace("c0mm@", ";").strn()
+    }
+}
+#[cfg(feature = "tam")]
+pub trait escaped_chars_mut {
+    fn replace_unesc_ch (&mut self, ch: &str, new0: &str ) -> String;
+}
+#[cfg( feature = "tam")]
+impl escaped_chars_mut for String {
+    fn replace_unesc_ch (&mut self, ch0: &str, new0: &str) -> String {
+        let mut ret = "".strn();
+        let mut prev_ch: Option <char> = None;
+        for ch in self.chars () {
+            if ch0.chars().nth(0).unwrap() == ch && prev_ch != Some( '\\' ) {ret.push_str(new0 )}
+            else { ret.push ( ch ) }
+            prev_ch = Some(ch );
+        }
+        *self = ret;
+        self.clone()
+    }
+}
+
 //fn
