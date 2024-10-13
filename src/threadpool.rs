@@ -9,7 +9,7 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
-use std::mem::{ManuallyDrop, forget};
+use std::mem::{forget, ManuallyDrop};
 #[derive( Debug )]
 pub struct tree_of_prox {
     ppid: i32 ,
@@ -81,14 +81,16 @@ impl prox for tree_of_prox  {
     }
     fn new_branch ( &mut self ) -> ( Box < *mut tree_of_prox >, branch_state ) {
         unsafe {
+            let me: *mut tree_of_prox = &mut *self;
             dbg!(&self);
             if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
             dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            dbg!( &branch );
-            dbg! (  (*(*self).kids).len() );
-            (*(*self).kids).push ( branch );
+            dbg!( &(*branch) );
+            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            dbg! (    & (*(*me).proxid_of_kid)  );
+            (*self.kids).push ( branch );
             dbg!( &self );
              (*self).cursor.inc();
             dbg!( &self );
@@ -282,10 +284,10 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
-    let mut _kids =  static_vec:: <*mut tree_of_prox >();
+    let mut _kids =  static_vec:: <*mut tree_of_prox >();  //ManuallyDrop::new (RefCell::new (Vec:: < *mut tree_of_prox >::new() ) );
     //let _kids =Box::into_raw ( Box::new( tree_vec ) );
-       // let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-    let _proxid_of_kid = ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
+//    let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
+    let _proxid_of_kid = /* static_vec:: <  i32 > ();*/ ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
     Box::new(  tree_of_prox  {
         ppid: pid,
@@ -293,7 +295,7 @@ pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
         kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
-        cursor: 0
+        cursor: 37
     } )
 }
 pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
@@ -307,7 +309,8 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                 }
             }
         } (*(*tree).proxid_of_kid).push ( 35 );
-        dbg!( (*(*tree).proxid_of_kid).len() ); 
+        println!( "{:p}", & (*(*tree).proxid_of_kid) );
+        dbg!( &(*(*tree).proxid_of_kid) ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
 } 
@@ -348,9 +351,11 @@ pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
     }
 }
 pub fn static_vec <T > () -> *mut Vec < T > {
-    let mut this_vec = Vec:: < T >::new();
-    let pointer: *mut Vec < T > =  &mut this_vec;
-    forget ( this_vec );
+    let mut this_vec = ManuallyDrop::new(RefCell::new( Vec:: < T >::new() ) );
+   // std::mem::forget ( this_vec );
+    unsafe { (*this_vec.as_ptr()).set_len( 0 ); }
+    let pointer: *mut Vec < T > =  this_vec.as_ptr();
+//    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }
 //fn
