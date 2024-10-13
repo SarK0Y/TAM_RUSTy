@@ -87,7 +87,7 @@ impl prox for tree_of_prox  {
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
             dbg!( &branch );
-            (*self.kids).push ( branch );
+            (*(*self).kids).push ( branch );
             dbg!( &self );
              (*self).cursor.inc();
             dbg!( &self );
@@ -281,14 +281,15 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
-    let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
-        let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
+    let mut _kids =  static_vec:: <*mut tree_of_prox >();
+    //let _kids =Box::into_raw ( Box::new( tree_vec ) );
+       // let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
     let _proxid_of_kid = ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
-     Box::new(  tree_of_prox  {
+    Box::new(  tree_of_prox  {
         ppid: pid,
         up: ptr::null_mut (),
-        kids: __kids,
+        kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
         cursor: 0
@@ -305,6 +306,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                 }
             }
         }
+        dbg!( (*(*tree).proxid_of_kid).len() ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
 } 
@@ -343,6 +345,12 @@ pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
         else { (*tree).cursor.inc(); }
         ret
     }
+}
+pub fn static_vec <T > () -> *mut Vec < T > {
+    let mut this_vec = Vec:: < T >::new();
+    let pointer: *mut Vec < T > =  &mut this_vec;
+    forget ( this_vec );
+    pointer
 }
 //fn
 /*
