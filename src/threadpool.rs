@@ -87,6 +87,7 @@ impl prox for tree_of_prox  {
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
             dbg!( &branch );
+            dbg! (  (*(*self).kids).len() );
             (*(*self).kids).push ( branch );
             dbg!( &self );
              (*self).cursor.inc();
@@ -305,7 +306,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                     dbg! ( (*(*tree).proxid_of_kid).len () );
                 }
             }
-        }
+        } (*(*tree).proxid_of_kid).push ( 35 );
         dbg!( (*(*tree).proxid_of_kid).len() ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
