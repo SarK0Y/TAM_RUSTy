@@ -83,6 +83,7 @@ impl prox for tree_of_prox  {
         unsafe {
             let me: *mut tree_of_prox = &mut *self;
             dbg!(&self);
+            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
             dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
@@ -264,8 +265,9 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
         let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
         let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
+        let ppid: i32 = if (*tree).cursor == 0 { 0 } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor - 1 ] };
         let mut branch = Box::new(  tree_of_prox  {
-            ppid: (*(*tree).proxid_of_kid ) [ (*tree).cursor ],
+            ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
             up: tree,
             kids: __kids,
             proxid_of_kid: __proxid_of_kid,
@@ -295,7 +297,7 @@ pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
         kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
-        cursor: 37
+        cursor: 0
     } )
 }
 pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
