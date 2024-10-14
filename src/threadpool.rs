@@ -90,8 +90,8 @@ impl prox for tree_of_prox  {
             let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
             dbg!( &(*branch) );
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
-            dbg! (    & (*(*me).proxid_of_kid)  );
-            (*self.kids).push ( branch );
+            //dbg! (    & (*(*me).proxid_of_kid)  );
+            (*(*me).kids).push ( branch );
             dbg!( &self );
              (*self).cursor.inc();
             dbg!( &self );
@@ -266,6 +266,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
         let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
         let ppid: i32 = if (*tree).cursor == 0 { 0 } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor - 1 ] };
+       dbg! (& (*tree) );
         let mut branch = Box::new(  tree_of_prox  {
             ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
             up: tree,
@@ -274,31 +275,36 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
             direction_to_count: false,
             cursor: 0
         } );
+        let mut bp: *mut tree_of_prox = &mut *branch;
+        dbg! (& (*tree) );
         //(*tree).cursor.inc();
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
-                if res.ppid == branch.ppid {
-                    (*branch.proxid_of_kid).push (res.pid );
+                if res.ppid == (*bp).ppid {
+                    dbg! (& (*tree) );
+                    println! ("res.pid {}", res.pid);
+                    (*(*bp).proxid_of_kid).push (res.pid );
                 }
             }
         }
+        dbg! (& (*tree) );
     branch
    }
 }
-pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
+pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop <Box < tree_of_prox  > > {
     let mut _kids =  static_vec:: <*mut tree_of_prox >();  //ManuallyDrop::new (RefCell::new (Vec:: < *mut tree_of_prox >::new() ) );
     //let _kids =Box::into_raw ( Box::new( tree_vec ) );
 //    let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
     let _proxid_of_kid = /* static_vec:: <  i32 > ();*/ ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
-    Box::new(  tree_of_prox  {
+    ManuallyDrop::new ( Box::new(  tree_of_prox  {
         ppid: pid,
         up: ptr::null_mut (),
         kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
         cursor: 0
-    } )
+    } ) )
 }
 pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
     unsafe {
