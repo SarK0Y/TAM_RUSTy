@@ -7,7 +7,7 @@ use std::{ ffi::CString, env::var, num::NonZero };
 use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
-use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
+use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 #[derive( Debug )]
@@ -250,13 +250,17 @@ pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::P
 pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >{
     unsafe {
          let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
+         let tree0 = tree.clone();
          dbg!(&tree);
+         dbg!(&(*tree));
          while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
             dbg!(&tree);
+            dbg!(&(*tree));
             tree = *(*(*tree).new_branch().0);
             dbg!(&tree);
+            dbg!(&(*tree));
          }
-         md::new (Box::new ( tree ))
+         md::new (Box::new ( tree0 ))
     }
 }
 pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  tree_of_prox > > {
