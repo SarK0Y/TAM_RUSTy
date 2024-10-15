@@ -9,7 +9,7 @@ use crate::update18::delay_secs;
 use procfs::process::all_processes;
 use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
-use std::mem::{forget, ManuallyDrop};
+use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 #[derive( Debug )]
 pub struct tree_of_prox {
     ppid: i32 ,
@@ -63,7 +63,7 @@ pub enum branch_state {
 pub trait prox  {
     fn new ( pid: i32 ) -> Box < *mut tree_of_prox >;
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
-    fn new_branch ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
+    fn new_branch ( &mut self ) -> (ManuallyDrop < Box < *mut tree_of_prox > >, branch_state );
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
@@ -79,15 +79,15 @@ impl prox for tree_of_prox  {
         dbg! ( &self );
         ( Box::new ( self ), branch_state::ok_init )
     }
-    fn new_branch ( &mut self ) -> ( Box < *mut tree_of_prox >, branch_state ) {
+    fn new_branch ( &mut self ) -> ( ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) {
         unsafe {
             let me: *mut tree_of_prox = &mut *self;
             dbg!(&self);
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
-            if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
+            if (*self.proxid_of_kid).len() == 0 { return ( ManuallyDrop::new ( Box::new ( self ) ), branch_state::none ) }
             dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
-            let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
+            let mut branch: *mut tree_of_prox = Box::into_raw (ManuallyDrop::into_inner (mk_branch_of_prox( &mut *hacky_pointer ) ) );
             dbg!( &(*branch) );
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             //dbg! (    & (*(*me).proxid_of_kid)  );
@@ -95,7 +95,7 @@ impl prox for tree_of_prox  {
             dbg!( &self );
              (*self).cursor.inc();
             dbg!( &self );
-            if (*(*branch).proxid_of_kid).len() > 0 { return (Box::new ( branch ), branch_state::new ); }
+            if (*(*branch).proxid_of_kid).len() > 0 { return (md::new (Box::new ( branch )), branch_state::new ); }
             dbg!( &branch );
             while (*(*branch).proxid_of_kid).len() == 0 ||
                 ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
@@ -103,7 +103,7 @@ impl prox for tree_of_prox  {
                     dbg!( &branch );
                     if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
                     branch = ( *branch ).up;
-                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
+                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (md::new (Box::new ( branch )), branch_state::jump_up )
         }
     }
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox > {
@@ -247,19 +247,19 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
+pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >{
     unsafe {
          let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
          dbg!(&tree);
          while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
             dbg!(&tree);
-            tree = *(*tree).new_branch().0;
+            tree = *(*(*tree).new_branch().0);
             dbg!(&tree);
          }
-         Box::new ( tree )
+         md::new (Box::new ( tree ))
     }
 }
-pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
+pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  tree_of_prox > > {
     unsafe {
         let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
         let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
@@ -288,7 +288,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
             }
         }
         dbg! (& (*tree) );
-    branch
+    ManuallyDrop::new( branch )
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop <Box < tree_of_prox  > > {
