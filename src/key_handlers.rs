@@ -133,6 +133,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.substring(0, 3) == "lst" { crate::lst::manage_lst_sub(&file_indx.trim_end().strn()); return empty; }
     let cmd0 = "prompt mode default";
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode( cmd0); return empty; }
+     let cmd0 = "sig 2 proc";
+    if file_indx.trim_end() == cmd0 { crate::prox::sig_2_proc_n_its_kids( &file_indx); return empty; }
     let cmd0 = "prompt mode glee uppercases";
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode(cmd0 ); return empty; }
 

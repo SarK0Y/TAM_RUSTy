@@ -1,6 +1,6 @@
 use nix::sys::signal; use nix::sys::signal::kill as kl; use nix::unistd::Pid;
 use crate::threadpool::sig_2_tree_of_prox; use crate::threadpool::{tree_of_prox, prox};
-//use crate::custom_traits::STRN;
+use crate::custom_traits::{STRN, turn_2_i64};
 pub fn short_name_4_nix_sig (name: &str) -> Option< signal::Signal > {
     match name.to_lowercase().as_str() {
         "-stop" => return Some( signal::SIGSTOP ),
@@ -17,6 +17,13 @@ pub fn send_prox_sig (pid: i32, sig: Option < signal::Signal >) {
     }
     kl( Pid::from_raw( pid ), None);
 }
+pub fn sig_2_proc_n_its_kids (cmd: &String) {
+    let cmd = cmd.replace ("sig 2 proc ", "").trim_start_matches (" ").strn();
+    let (pid, sig) = crate::split_once( &cmd, " ");
+    let pid: i32 = (pid.i640() & i32::MIN as i64) as i32;
+    send_prox_sig(pid, short_name_4_nix_sig (&sig ));
+}
+//fn
 /* use std::fs;
 
 fn read_proc_status(pid: i32) -> std::io::Result<String> {
