@@ -55,6 +55,8 @@ mod cmd_keys;
 use cmd_keys::*;
 #[path = "no.flood.rs"]
 mod smart_lags;
+#[path = "prox.tree.rs"]
+mod prox;
 #[path = "key_handlers.rs"]
 mod key_handlers;
 use key_handlers::*;
