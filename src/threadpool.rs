@@ -61,17 +61,18 @@ pub enum branch_state {
     down
 }
 pub trait prox  {
-    fn new ( pid: i32 ) -> Box < *mut tree_of_prox >;
+    fn new ( pid: i32 ) -> ManuallyDrop < Box < *mut tree_of_prox > >;
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
     fn new_branch ( &mut self ) -> (ManuallyDrop < Box < *mut tree_of_prox > >, branch_state );
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
 impl prox for tree_of_prox  {
-    fn new ( pid: i32) -> Box < *mut tree_of_prox  > {
-         let mut root: *mut tree_of_prox =  *mk_root_of_prox( pid).init().0;
+    fn new ( pid: i32) -> ManuallyDrop < Box < *mut tree_of_prox  > >{
+         let mut root: *mut tree_of_prox = &mut *( *mk_root_of_prox( pid) );
+         unsafe { (*root).init(); }
          dbg!( &root );
-         Box::new ( root )
+         md::new ( Box::new ( root ))
     }
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state ) {
         dbg! ( &self );
@@ -249,7 +250,7 @@ pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::P
 }
 pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >{
     unsafe {
-         let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
+         let mut tree: *mut tree_of_prox = *(*tree_of_prox::new(pid));
          let tree0 = tree.clone();
          dbg!(&tree);
          dbg!(&(*tree));
@@ -295,20 +296,20 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  t
     ManuallyDrop::new( branch )
    }
 }
-pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop <Box < tree_of_prox  > > {
+pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop < Box <tree_of_prox > > {
     let mut _kids =  static_vec:: <*mut tree_of_prox >();  //ManuallyDrop::new (RefCell::new (Vec:: < *mut tree_of_prox >::new() ) );
     //let _kids =Box::into_raw ( Box::new( tree_vec ) );
 //    let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-    let _proxid_of_kid = /* static_vec:: <  i32 > ();*/ ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
-    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
-    ManuallyDrop::new ( Box::new(  tree_of_prox  {
+    let mut _proxid_of_kid = /* static_vec:: <  i32 > ();*/ ManuallyDrop::new ( Box::new (Vec::< i32 >::with_capacity (1024)) );
+    let __proxid_of_kid: *mut Vec::< i32 > = &mut *(*(_proxid_of_kid));
+    ManuallyDrop::new ( Box::new (tree_of_prox  {
         ppid: pid,
         up: ptr::null_mut (),
         kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
         cursor: 0
-    } ) )
+    }) ) 
 }
 pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
     unsafe {
@@ -320,7 +321,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                     dbg! ( (*(*tree).proxid_of_kid).len () );
                 }
             }
-        } (*(*tree).proxid_of_kid).push ( 35 );
+        }
         println!( "{:p}", & (*(*tree).proxid_of_kid) );
         dbg!( &(*(*tree).proxid_of_kid) ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
@@ -363,10 +364,10 @@ pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
     }
 }
 pub fn static_vec <T > () -> *mut Vec < T > {
-    let mut this_vec = ManuallyDrop::new(RefCell::new( Vec:: < T >::new() ) );
+    let mut this_vec = ManuallyDrop::new( Vec:: < T >::new() );
    // std::mem::forget ( this_vec );
-    unsafe { (*this_vec.as_ptr()).set_len( 0 ); }
-    let pointer: *mut Vec < T > =  this_vec.as_ptr();
+    unsafe { (*this_vec).set_len( 0 ); }
+    let pointer: *mut Vec < T > =  &mut *this_vec;
 //    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }

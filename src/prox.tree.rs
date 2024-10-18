@@ -12,7 +12,7 @@ pub fn short_name_4_nix_sig (name: &str) -> Option< signal::Signal > {
 }
 pub fn send_prox_sig (pid: i32, sig: Option < signal::Signal >) {
     if let Some (x ) = sig {
-        let mut tree : *mut tree_of_prox = *tree_of_prox::new ( pid );
+        let mut tree : *mut tree_of_prox = *(*tree_of_prox::new ( pid ));
         unsafe { sig_2_tree_of_prox( &mut (*tree), x); } return;
     }
     kl( Pid::from_raw( pid ), None);
