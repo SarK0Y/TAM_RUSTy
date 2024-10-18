@@ -261,6 +261,7 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >
             dbg!(&tree);
             dbg!(&(*tree));
          }
+         panic!("mk_tree_of_prox", );
          md::new (Box::new ( tree0 ))
     }
 }
@@ -319,6 +320,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                     dbg! ( (*(*tree).proxid_of_kid).len () );
                     (*(*tree).proxid_of_kid).push (res.pid );
                     dbg! ( (*(*tree).proxid_of_kid).len () );
+                    dbg! ( &(*(*tree).proxid_of_kid) );
                 }
             }
         }
@@ -346,6 +348,7 @@ pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Si
         let direction_to_count = if (*tree).up != ptr::null_mut() {(*(*tree).up).direction_to_count} else {(*tree).direction_to_count };
         if (*(*tree).proxid_of_kid).len() == 0 || (*tree).direction_to_count != direction_to_count { return ( (*tree).up, branch_state::jump_up ); }
         let pids: &Vec <i32> = &(*(*tree).proxid_of_kid);
+        dbg!( &(*(*tree).proxid_of_kid) );
             for pid in pids {
                 if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
             } let cur = count_kids_properly(tree);
