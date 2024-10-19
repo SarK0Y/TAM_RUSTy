@@ -98,8 +98,7 @@ impl prox for tree_of_prox  {
             dbg!( &self );
             if (*(*branch).proxid_of_kid).len() > 0 { return (md::new (Box::new ( branch )), branch_state::new ); }
             dbg!( &branch );
-            while (*(*branch).proxid_of_kid).len() == 0 ||
-                ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
+            while (*(*branch).proxid_of_kid).len() == 0 || self.up.is_null() 
                 {
                     dbg!( &branch );
                     if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
@@ -261,7 +260,7 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >
             dbg!(&tree);
             dbg!(&(*tree));
          }
-         panic!("mk_tree_of_prox", );
+        // panic!("mk_tree_of_prox", );
          md::new (Box::new ( tree0 ))
     }
 }
@@ -271,7 +270,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  t
         let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
         let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
     let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
-        let ppid: i32 = if (*tree).cursor == 0 { 0 } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor - 1 ] };
+        let ppid: i32 = if (*(*tree).proxid_of_kid).len() == 0 { i32::MIN } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor.dec() ] };
        dbg! (& (*tree) );
         let mut branch = Box::new(  tree_of_prox  {
             ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
