@@ -88,7 +88,7 @@ impl prox for tree_of_prox  {
             if (*self.proxid_of_kid).len() == 0 { return ( ManuallyDrop::new ( Box::new ( self ) ), branch_state::none ) }
             dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
-            let mut branch: *mut tree_of_prox = Box::into_raw (ManuallyDrop::into_inner (mk_branch_of_prox( &mut *hacky_pointer ) ) );
+            let mut branch: *mut tree_of_prox = Box::into_raw (ManuallyDrop::into_inner (mk_branch_of_prox( self ) ) );
             dbg!( &(*branch) );
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             //dbg! (    & (*(*me).proxid_of_kid)  );
@@ -266,17 +266,15 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >
 }
 pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  tree_of_prox > > {
     unsafe {
-        let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
-        let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-        let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
-    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
+        let _kids = static_vec::<*mut tree_of_prox >();//ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
+        let _proxid_of_kid = static_vec::<i32>();//ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
         let ppid: i32 = if (*(*tree).proxid_of_kid).len() == 0 { i32::MIN } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor.dec() ] };
        dbg! (& (*tree) );
         let mut branch = Box::new(  tree_of_prox  {
             ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
             up: tree,
-            kids: __kids,
-            proxid_of_kid: __proxid_of_kid,
+            kids: _kids,
+            proxid_of_kid: _proxid_of_kid,
             direction_to_count: false,
             cursor: 0
         } );
