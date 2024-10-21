@@ -63,7 +63,7 @@ pub enum branch_state {
 pub trait prox  {
     fn new ( pid: i32 ) -> ManuallyDrop < Box < *mut tree_of_prox > >;
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
-    fn new_branch ( &mut self ) -> (ManuallyDrop < Box < *mut tree_of_prox > >, branch_state );
+    fn new_branch ( &mut self ) -> Option < (ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) >;
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
@@ -80,30 +80,36 @@ impl prox for tree_of_prox  {
         dbg! ( &self );
         ( Box::new ( self ), branch_state::ok_init )
     }
-    fn new_branch ( &mut self ) -> ( ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) {
+    fn new_branch ( &mut self ) -> Option < ( ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) > {
         unsafe {
             let me: *mut tree_of_prox = &mut *self;
             dbg!(&self);
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
-            if (*self.proxid_of_kid).len() == 0 { return ( ManuallyDrop::new ( Box::new ( self ) ), branch_state::none ) }
-            dbg!(&self);
+            if (*self.proxid_of_kid).len() == 0 { return None }
+            //dbg!(&self);
             let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
-            let mut branch: *mut tree_of_prox = Box::into_raw (ManuallyDrop::into_inner (mk_branch_of_prox( self ) ) );
-            dbg!( &(*branch) );
+            let mut branch: *mut tree_of_prox ;
+            if let Some ( x ) = mk_branch_of_prox( self ) {
+                branch = Box::into_raw (ManuallyDrop::into_inner ( x ) );
+            } else { branch = ptr::null_mut () ;}
+           
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             //dbg! (    & (*(*me).proxid_of_kid)  );
             (*(*me).kids).push ( branch );
-            dbg!( &self );
+          //  dbg!( &self );
              (*self).cursor.inc();
+              dbg!( &(*branch) );
             dbg!( &self );
-            if (*(*branch).proxid_of_kid).len() > 0 { return (md::new (Box::new ( branch )), branch_state::new ); }
+            if (*(*branch).proxid_of_kid).len() > 0 { return Some( (md::new (Box::new ( branch )), branch_state::new ) ); }
             dbg!( &branch );
-            while (*(*branch).proxid_of_kid).len() == 0 || self.up.is_null() 
+            while (*(*branch).proxid_of_kid).len() == 0
                 {
                     dbg!( &branch );
                     if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
+                    if self.up.is_null() { break; }
                     branch = ( *branch ).up;
-                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (md::new (Box::new ( branch )), branch_state::jump_up )
+                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } 
+                                                               Some ( (md::new (Box::new ( branch )), branch_state::jump_up ) )
         }
     }
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox > {
@@ -264,11 +270,12 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >
          md::new (Box::new ( tree0 ))
     }
 }
-pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  tree_of_prox > > {
+pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Option < ManuallyDrop < Box <  tree_of_prox > > > {
     unsafe {
         let _kids = static_vec::<*mut tree_of_prox >();//ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
         let _proxid_of_kid = static_vec::<i32>();//ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
-        let ppid: i32 = if (*(*tree).proxid_of_kid).len() == 0 { i32::MIN } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor.dec() ] };
+         if (*tree).cursor >= (*(*tree).proxid_of_kid).len() {return None;}
+        let ppid: i32 = if (*(*tree).proxid_of_kid).len() == 0 { i32::MIN } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor ] };
        dbg! (& (*tree) );
         let mut branch = Box::new(  tree_of_prox  {
             ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
@@ -291,7 +298,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> ManuallyDrop < Box <  t
             }
         }
         dbg! (& (*tree) );
-    ManuallyDrop::new( branch )
+Some( ManuallyDrop::new( branch ) )
    }
 }
 pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop < Box <tree_of_prox > > {
