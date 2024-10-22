@@ -1,4 +1,5 @@
 use console::truncate_str;
+use nix::sys::signal::pthread_sigmask;
 use once_cell::sync::Lazy;
 use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
@@ -98,6 +99,7 @@ impl prox for tree_of_prox  {
             (*(*me).kids).push ( branch );
           //  dbg!( &self );
              (*self).cursor.inc();
+             if branch == ptr::null_mut () { return None }
               dbg!( &(*branch) );
             dbg!( &self );
             if (*(*branch).proxid_of_kid).len() > 0 { return Some( (md::new (Box::new ( branch )), branch_state::new ) ); }
@@ -262,7 +264,7 @@ pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >
          while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
             dbg!(&tree);
             dbg!(&(*tree));
-            tree = *(*(*tree).new_branch().0);
+            tree = if let Some ( x ) = (*tree).new_branch() { **(x.0) } else { break; };
             dbg!(&tree);
             dbg!(&(*tree));
          }
