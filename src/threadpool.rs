@@ -11,6 +11,7 @@ use procfs::process::all_processes;
 use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
+use crate::enums::calc_kids;
 #[derive( Debug )]
 pub struct tree_of_prox {
     ppid: i32 ,
@@ -339,17 +340,24 @@ pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Sign
     
     let mut branch: *mut tree_of_prox = tree;
     unsafe {
-        let mut ret = sig_2_branch_of_prox( &mut *branch, sig);
-        while ret.0 != ptr::null_mut() {
+        let mut ret = sig_2_branch_of_prox( &mut *branch, sig, calc_kids::set_direction);
+        let mut prev = ret.clone ();
+        loop {
          branch = ret.0;   
-         ret = sig_2_branch_of_prox( &mut *branch, sig);
+         if branch == ptr::null_mut () { break; }
+         ret = sig_2_branch_of_prox( &mut *branch, sig, calc_kids::default_way );
+         if ret == prev { break; }
+         prev = ret.clone ();
+         dbg! (&prev); dbg! (&ret);
+         dbg! (&(*prev.0).cursor); dbg! (&(*ret.0).cursor);
         }
     }
 }
-pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ) -> (*mut tree_of_prox, branch_state){
+pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal, mode: calc_kids ) -> (*mut tree_of_prox, branch_state){
     use nix::sys::signal::kill as kl;
     use nix::unistd::Pid;
     unsafe {
+        kl ( Pid::from_raw( (*tree).ppid ), sig );
         let root_len = (*(*tree).kids).len();
         let direction_to_count = if (*tree).up != ptr::null_mut() {(*(*tree).up).direction_to_count} else {(*tree).direction_to_count };
         if (*(*tree).proxid_of_kid).len() == 0 || (*tree).direction_to_count != direction_to_count { return ( (*tree).up, branch_state::jump_up ); }
@@ -357,16 +365,21 @@ pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Si
         dbg!( &(*(*tree).proxid_of_kid) );
             for pid in pids {
                 if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
-            } let cur = count_kids_properly(tree);
+            } let cur = count_kids_properly(tree, mode);
             if (*(*tree).kids).len() == 0 { return ( (*tree).up, branch_state::jump_up ); }
-            ((*(*tree).kids)[cur], branch_state::down )    
+            let mut ret = ptr::null_mut ();
+            if (*(*tree).kids).len () < cur { ret = (*(*tree).kids)[ cur ] }
+            else { return ( (*tree).up, branch_state::jump_up ) }
+            ( ret, branch_state::down )    
         }
 }
-pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
+pub fn count_kids_properly (tree: &mut  tree_of_prox, mode: calc_kids) -> usize {
     unsafe {
-        let mut len = (*(*tree).proxid_of_kid).len();
-        if len <= (*tree).cursor { (*tree).cursor = len.dec(); (*tree).direction_to_count = true; }
-        if (*tree).cursor == 0 { (*tree).direction_to_count = false }
+        if mode == calc_kids::set_direction {
+            let mut len = (*(*tree).proxid_of_kid).len();
+            if len <= (*tree).cursor { (*tree).cursor = len.dec(); (*tree).direction_to_count = true; }
+            if (*tree).cursor == 0 { (*tree).direction_to_count = false }
+        }
         let ret = (*tree).cursor;
         if (*tree).direction_to_count { (*tree).cursor.dec(); }
         else { (*tree).cursor.inc(); }
