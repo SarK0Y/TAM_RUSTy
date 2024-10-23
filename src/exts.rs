@@ -18,7 +18,7 @@ use once_cell::sync::OnceCell;
 use std::cell::Cell;
 use std::str::Split;
 use std::thread;
-use threadpool::{ThreadPool, Builder};
+//use threadpool::{ThreadPool, Builder};
 use std::sync::mpsc;
 use std::ffi::CString;
 use std::process::{Command, Stdio};
@@ -33,6 +33,14 @@ use std::os::unix::io::{AsRawFd, RawFd};
 mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
+#[path = "init.rs"]
+mod init;
+#[path = "nvim.ext.rs"]
+mod nvim;
+#[path = "vim.ext.rs"]
+mod vim;
+#[path = "threadpool.rs"]
+mod threadpool;
 #[path = "func_id.rs"]
 mod func_id18;
 use func_id18::*;
@@ -45,6 +53,10 @@ use custom_traits::*;
 #[path = "cmd_keys.rs"]
 mod cmd_keys;
 use cmd_keys::*;
+#[path = "no.flood.rs"]
+mod smart_lags;
+#[path = "prox.tree.rs"]
+mod prox;
 #[path = "key_handlers.rs"]
 mod key_handlers;
 use key_handlers::*;

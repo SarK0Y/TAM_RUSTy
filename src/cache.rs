@@ -1,6 +1,7 @@
 use std::io::BufRead;
 use std::sync::mpsc::channel;
-use crate::{bkp_tmp_dir, cache_t, clean_fast_cache, custom_traits::{helpful_math_ops, STRN}, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize, ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
+use crate::{bkp_tmp_dir, cache_t, clean_fast_cache, custom_traits::{helpful_math_ops, STRN, turn_2_i64 }, errMsg0, get_num_cols, get_num_page, globs18::{seg_size, take_list_adr}, i64_2_usize,
+    ln_of_found_files, ln_of_found_files_cacheless, popup_msg, read_front_list, rm_file, run_cmd_out, save_file, save_file_append, save_file_append_abs_adr, update18::delay_secs, where_is_last_pg};
  use once_cell::sync::Lazy;
  #[cfg(not(feature = "mae"))]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
@@ -81,6 +82,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
 #[cfg(feature = "mae")]
 pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
      let stopCode = crate::getStop_code__!();
+    let get_indx = crate::get_proper_indx( get_indx.i640(), true).0;
      let last_pg = where_is_last_pg();
      let num_pg = get_indx / seg_size();//get_num_page(27786521);
      let cols = get_num_cols(27786521);

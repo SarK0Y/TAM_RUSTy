@@ -13,6 +13,12 @@ macro_rules! dirty {
         crate::checkArg("-dirty")
     };
 }
+#[macro_use]
+macro_rules! Ver0__ {
+    () => {
+        option_env!("PROJECT_VERSION").unwrap_or(env!("CARGO_PKG_VERSION"));
+    };
+}
 macro_rules! set_prnt_ {
     ($x: expr) => {
        // PRNT = RwLock::new(String::new());

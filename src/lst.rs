@@ -9,10 +9,11 @@ use regex::Regex;
 use std::borrow::Borrow;
 use std::panic;
 use crate::custom_traits::{STRN, STRN_strip, fs_tools};
+use crate::globs18::cmd_decode_mode;
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{checkArg, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, tailOFF, turn_2_i64};
+use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, read_prnt, rm_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -70,6 +71,7 @@ pub(crate) fn clear_patch(){
     __patch(Some("::clear patch::".strn()), None);
 }
 pub(crate) fn no_esc_lst(rec: &String, insert: bool) -> Option<String>{
+    return None;
     static mut no_esc: Lazy<no_esc_t> = Lazy::new(||{HashSet::new()});
     if insert{
         unsafe{
@@ -103,11 +105,12 @@ pub(crate) fn term_mv(cmd: &String){
     all_to_patch(&(vec_files, to));
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
+    finally_to = full_escape( &finally_to);
     let ided_cmd = take_list_adr("env/dummy_lnks/mv");
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
@@ -122,10 +125,11 @@ pub(crate) fn term_cp(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    finally_to = full_escape( &finally_to);
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
     lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
 }
 pub(crate) fn term_rm(cmd: &String){
@@ -143,11 +147,11 @@ pub(crate) fn term_rm(cmd: &String){
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
     let ided_cmd = take_list_adr("env/dummy_lnks/rm");
-    if add_opts == "" {add_opts = "-v".strn() }
+    if add_opts == "" {add_opts = "-vi".strn() }
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_ren(cmd);
+    crate::run_term_app_interactive(cmd);
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
@@ -382,15 +386,28 @@ pub(crate) fn session_lists(){
 pub(crate) fn upd_session_lists(){
     session_lists(); crate::set_front_list("lst"); mk_cnt();
 }
+pub fn lst_fst_run() -> bool {
+    static mut fst: bool = true;
+    unsafe {
+        let ret = fst;
+        fst = false; ret
+    }
+}
 pub(crate) fn manage_lst(cmd: &String){
     let cmd0 =cmd.to_string();
+    if cmd0 == "lst" || cmd0 == "lst "{
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
         let item = get_path_from_strn(cmd.clone());
-        if match std::fs::metadata
-                       (&item){Ok(it) => it, _ => return empty_lst(&item)}.len() < 2 {empty_lst(&item); return;}
+        match std::fs::metadata
+                       (&item){Ok(it) => { it }, _ => {let mut non_escaped = item.clone().strip_all_symbs();
+                        match std::fs::metadata (&non_escaped) {Ok (ok) => {ok} _ => {return empty_lst(&item); }} }};
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     if lst_dir != path_2_item{
         let head = read_tail(&item, "/");
@@ -403,7 +420,43 @@ pub(crate) fn manage_lst(cmd: &String){
         mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
     }
     }
-    if cmd0 == "lst"{crate::set_front_list( "lst" ); return;}
+    if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
+    let ret = strn_2_usize(cmd);
+    if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
+    let item_indx = usize_2_i64(ret.unwrap());
+    let item = get_item_from_front_list(item_indx, true);
+    if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    let head = read_tail(&item, "/");
+    mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);
+}
+pub(crate) fn manage_lst_sub(cmd: &String){
+    let cmd0 =cmd.to_string();
+    if cmd0 == "lst" || cmd0 == "lst "{ 
+        if lst_fst_run() {
+            upd_session_lists();
+        }
+        crate::set_front_list( "lst" ); return;}
+    let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    let full_adr_lst = take_list_adr_env(&cmd);
+    if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
+    if cmd.substring(0, 1) == "/"{
+        let item = get_path_from_strn(cmd.clone());
+        match std::fs::metadata
+                       (&item){Ok(it) => { it }, _ => {let mut non_escaped = item.clone().strip_all_symbs();
+                        match std::fs::metadata (&non_escaped) {Ok (ok) => {ok} _ => {return empty_lst(&item); }} }};
+    let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
+    if lst_dir != path_2_item{
+        let head = read_tail(&item, "/");
+        let item = full_escape(&item);
+        let link_2_item = full_escape(&format!("{}/{}", take_list_adr("env/lst"), head) );
+        if link_2_item != item{
+            let cmd = format!("ln -sf {item} {link_2_item}");
+            run_cmd0(cmd);
+        }
+        mark_front_lst(&head); set_front_list2(&head, 0); crate::fix_num_files(711284191);return;
+    }
+    }
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
     let ret = strn_2_usize(cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
@@ -459,9 +512,13 @@ pub(crate) fn count_ln(yes: bool, inc: bool, get_size: bool) -> usize{
 }
 pub(crate) fn mk_lst(cmd: &String){
     let dst = cmd.replace("mk lst", "").trim_start().trim_end().strn();
-    let dst = take_list_adr_env(&dst);
+    let dst = if dst.substring(0, 1) == "/" { dst } else { take_list_adr_env(&dst) };
     let src = take_list_adr_env("found_files").unreel_link_to_file();
     match std::fs::copy(src, dst){Ok(done) => done, Err(e) => return println!("{e:?}")};
+}
+pub(crate) fn mke_lst(cmd: &String){
+    let dst = cmd.replace("mke lst", "").trim_start().trim_end().strn();
+    crate::set_front_list ( &dst );
 }
 #[cfg(not(feature = "mae"))]
 pub(crate) fn del_ln_from_lst(cmd: &String){
@@ -531,19 +588,18 @@ pub(crate) fn edit_ln_in_lst_fin_op(){
     delay_ms(112);
     front_lst = front_lst.unreel_link_to_file();
     let mut tmp = front_lst.clone(); tmp.push_str(".tmp");
-    edit_mode_lst(Some (false) );
     let new_ln = crate::read_prnt();
     let mut front_lst_tmp = front_lst.clone(); front_lst_tmp.push_str(".tmp");
-    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); return}};
+    let mut open_front_lst = match get_file(&front_lst){Ok(f) => f, Err(e) => {errMsg0(&format!("{e:?}") ); edit_mode_lst(Some (false) ); return} };
     let mut reader = crate::BufReader::new(open_front_lst);
     for (indx, ln) in reader.lines().enumerate(){
         if indx == ln_num {save_file_append_newline_abs_adr_fast(&new_ln, &front_lst_tmp); continue;}
         save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
     }
    // errMsg0(&cmd);
-   crate::cache::set_uid_cache(&name_of_front_list("", false) );
-    match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
-    upd_screen_or_not((-1, "".strn() ) );
+   crate::cache::set_uid_cache(&name_of_front_list("", false) ); edit_mode_lst(Some (false) );
+   match std::fs::rename(tmp, front_lst){Ok (op) => op, Err(e) => return errMsg0(&format!("{e:?}") )};
+   upd_screen_or_not((-1, "".strn() ) );
 }
 #[cfg(feature = "mae")]
 pub fn mrg_as <T> (cmd: T) where T: STRN {
@@ -570,7 +626,7 @@ pub fn mk_uid(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
     let front_list = read_tail(&front_list, "/");
     crate::cache::set_uid_cache(&front_list);
-    crate::update18::upd_screen_or_not( (-1, "".strn() ) );
+    crate::update18::rm_screen();
 }
 pub fn mk_cnt(){
     let front_list = take_list_adr_env("found_files").unreel_link_to_depth(1);
@@ -602,6 +658,12 @@ pub fn editor(name: Option < &String > ) -> String{
     my_editor.strn()
     }
 }
+pub fn edit_cmd () {
+    let prnt = take_list_adr( "prnt" );
+    let editor = editor(None);
+    let cmd = format!("{editor} {prnt}");
+    run_term_app(cmd);
+}
 pub fn ched (cmd: String){
     let (_, name) = split_once(&cmd, " ");
     editor (Some (&name) );
@@ -609,6 +671,11 @@ pub fn ched (cmd: String){
 pub fn lst_cmds(){
     let cmds_adr = take_list_adr_env("cmds");
     if !crate::Path::new(&cmds_adr).exists(){ upd_lst_cmds(); return; }
+    crate::set_front_list("cmds"); 
+}
+pub fn lst_cmds_fp(){
+    let cmds_adr = take_list_adr_env("cmds");
+    if !crate::Path::new(&cmds_adr).exists(){ upd_lst_cmds_fp(); return; }
     crate::set_front_list("cmds"); 
 }
 pub fn upd_lst_cmds(){
@@ -628,5 +695,60 @@ pub fn upd_lst_cmds(){
         file.write_all(see.as_bytes() );
     }
     crate::set_front_list("cmds"); 
+}
+pub fn upd_lst_cmds_fp(){
+    use std::io::Write;
+    let mut strn_of_cmds = run_cmd_out_sync("echo $PATH".strn() );
+    let cmds_adr = take_list_adr_env("cmds");
+    crate::rm_file(&cmds_adr); crate::mk_empty_file(&cmds_adr);
+    let mut file = match get_file_append(&cmds_adr){Ok (f) => f, _ => 
+                                    {errMsg0(&format! ("Sorry, Dear User, failed to create {cmds_adr}")); return}};
+    loop {
+        let (dir, others) = split_once_or_ret_null_strs(&strn_of_cmds, ":");
+         if others == "" {break;}
+        strn_of_cmds = others;
+        let see = format!("find -L '{dir}' -executable");
+        let see = run_cmd_out_sync(see);
+        file.write_all(see.as_bytes() );
+    }
+    crate::set_front_list("cmds"); 
+}
+pub fn show_modes(){
+    clear_screen();
+    let ls = swtch_ls(false, false);
+    let cmd_decode = cmd_decode_mode(None);
+    let escape_special_symbs = swtch_esc(false, false);
+    let user_home = crate::init::user_home_dir();
+    let see = format!("Modes:\n\t{{no/en ls}}: {ls}\n\t{{no/en decode cmd}}: {cmd_decode}\n\t{{no/en esc}}: {escape_special_symbs}\n\tUser home dir: {user_home}\n");
+    print!("{see}", );
+    errMsg0("Please, press any key to continue.. Thanks.");
+}
+pub fn add_randomly_picked_file (indx: u64, name: &String) {
+    static mut fst_run: bool = true;
+    let rnd_nums = take_list_adr("rnd.nums");
+    let rnd_nums_lnk = take_list_adr_env("rnd.nums");
+    let names = take_list_adr("randomly_picked.files");
+    let names_lnk = take_list_adr_env("randomly_picked.files");
+    unsafe {
+        if fst_run {rm_file(&names_lnk); rm_file(&rnd_nums_lnk); fst_run = false;
+            std::os::unix::fs::symlink(&rnd_nums, rnd_nums_lnk);
+            std::os::unix::fs::symlink(&names, names_lnk);
+         }
+    }
+    save_file_append_newline_abs_adr(indx.strn(), rnd_nums);
+    if name == "" { return }
+    save_file_append_newline_abs_adr(name.strn(), names);    
+}
+pub fn mrg_prnt(){
+    let prnt = read_prnt();
+    let merge_lst_adr = take_list_adr_env("merge");
+    save_file_append_newline_abs_adr_fast(&prnt, &merge_lst_adr);
+}
+pub fn prnt_screen(){
+    let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(91138549) ); return;
+}
+pub fn prnt_screen_dbg(){
+    let screen = read_file("screen"); println!("{}\n{}", screen, crate::get_ask_user(91138549) ); return;
+    getkey();
 }
 //fn

@@ -85,6 +85,31 @@ Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
 core18::errMsg_dbg(&cmd, func_id, -1.0);
 path_2_cmd.to_string()
 }
+fn mk_cmd_file_dirty(cmd: String) -> String{
+    let mut filter_cmd = String::new();
+    if checkArg("-filter-cmd"){
+        filter_cmd = String::from_iter(crate::get_arg_in_cmd("-filter-cmd").s);
+        let filter = filter_cmd.clone();
+        std::thread::spawn(move||{
+        popup_msg(&filter);
+        });
+        let new = cmd.replace(&filter_cmd, "");
+        if new != cmd{return "cmd was cleaned".to_string()}
+    }
+let func_id = 4;
+let timestamp = Local::now();
+let proper_timestamp = format!("{}", timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+let path_2_cmd = format!("{}/cmd{}.sh", unsafe{ps18::page_struct("", ps18::TMP_DIR_, func_id).str_}, proper_timestamp);
+let err_msg = format!("failed create {}", &path_2_cmd);
+let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
+core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
+let mut cmd = cmd;
+make_cmd_file.write_all(&cmd.as_bytes());
+Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
+core18::errMsg_dbg(&cmd, func_id, -1.0);
+path_2_cmd.to_string()
+}
+
 pub(crate) fn run_cmd_str(cmd: &str) ->bool{return run_cmd_spawn(cmd.to_string());} 
 pub fn run_cmd0(cmd: String) -> bool{
 let func_id = 5;
@@ -108,6 +133,31 @@ if run_command.status.success(){
 }
 true
 }
+pub fn run_cmd_out_dirty(cmd: String) -> String{
+    let func_id = 5;
+    let fstdout: String; 
+    let path_2_cmd = mk_cmd_file_dirty(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
+    core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = File::create(stderr_path).unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr).stdout(std::process::Stdio::piped())
+        .output()
+        .expect("can't run command in run_cmd");
+    if !run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return match from_utf8(&run_command.stdout){
+            Ok(s) => s.to_string(),
+            _ => "".to_string()
+        };
+    } "".strn()
+}
+
 pub fn run_cmd_out(cmd: String) -> String{
 let func_id = 5;
 let fstdout: String; 
@@ -139,6 +189,7 @@ return match from_utf8(&run_command.stdout){
 pub(crate) fn run_cmd_viewer(cmd: String) -> bool{
 let func_id = func_id18::run_cmd_viewer_;
 set_ask_user(cmd.as_str(), func_id);
+if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
 let fstdout: String; 
 let path_2_cmd = mk_cmd_file(cmd);
 let mut stderr_path = "stderr".to_string();
@@ -190,6 +241,8 @@ if run_command.status.success(){
 true
 }
 pub fn run_cmd_spawn(cmd: String) -> bool{
+let mut lc = "ru_RU.UTF-8".to_string();
+if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
 let func_id = 5;
 let fstdout: String;
 let path_2_cmd = mk_cmd_file(cmd);
@@ -206,6 +259,8 @@ globs18::unblock_fd(fstdout0.as_raw_fd());
 //errMsg_dbg(&in_name, func_id, -1.0);
 let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
+    .env ("LC_ALL", &lc)
+    .env ("LANG", &lc)
     .stdout(fstdout0)
     .stderr(fstderr)
     .spawn()
@@ -360,6 +415,7 @@ fn main (){
  /*#[cfg(feature ="mae")] let tst = UID_UTF8(15);
  #[cfg(feature ="mae")]
  println!("{} {}", tst, tst.chars().count() ); return;*/
+    //print!("{:?}", std::env::vars()); return;
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if checkArg("-mk-dummy-file"){

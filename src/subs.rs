@@ -1,4 +1,8 @@
-use crate::{__get_arg_in_cmd, bkp_main_path, checkArg, getkey, run_cmd_out_sync, save_file_append_newline_abs_adr, swtch::print_pg_info};
+use std::str::{Chars, FromStr};
+
+use num_traits::ToPrimitive;
+
+use crate::{__get_arg_in_cmd, bkp_main_path, checkArg, getkey, helpful_math_ops, prompt_modes, run_cmd_out_sync, save_file_append_newline_abs_adr, swtch::print_pg_info, STRN};
 
 /*Run it Later or Cancel Now */
 pub(crate) fn rilocan(){
@@ -76,3 +80,34 @@ pub(crate) fn u64_from_strn(strn: &String) -> (u64, bool){
         _ => return (0, false)
     }
 }
+pub fn glee_prompt <T: STRN + AsRef <str> + std::fmt::Display > (str0: T) -> String where String: From < T >  {
+    use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64;
+    let mut ret = "".strn();
+    let mut cnt = 0usize;
+    let str0_len = str0.strn().len();
+    static mut rnd: usize = 517;
+    let rnd0 = unsafe { rnd } % str0_len;
+    let mut copy = |val: &usize| -> usize {return val.to_usize().unwrap() ;};
+std::thread::spawn(move|| { unsafe { rnd ^= get_true_rnd_u64() as usize; } } );
+//    crate::set_ask_user( rnd.strn().as_str(), -111);
+    for ch in str0.strn().chars() {
+        if cnt == rnd0 {
+            ret.push( ch.to_uppercase().nth(0 ).unwrap() );
+        } else {ret.push(ch )} cnt.inc();
+    }
+    ret
+}
+pub fn prompt_mode (mode: Option< crate::enums::prompt_modes > )  -> crate::prompt_modes{
+    static mut state: crate::prompt_modes = prompt_modes::default;
+    unsafe {
+        if let Some ( x ) = mode { state = x } state.clone()
+    }
+}
+pub fn set_prompt_mode (cmd: &str) {
+    match cmd {
+        "prompt mode default" => {prompt_mode( Some( prompt_modes::default ) ); },
+        "prompt mode glee uppercases" =>  {prompt_mode( Some( prompt_modes::glee_uppercases ) ); },
+        _ => {}
+    }
+}
+//fn
