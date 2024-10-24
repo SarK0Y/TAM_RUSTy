@@ -6,6 +6,8 @@ use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
+use crate::prox::get_pid_by_name;
+use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
@@ -16,6 +18,7 @@ use nix::sys::signal::kill;
 use nix::unistd::{ForkResult, Pid};
 pub(crate) fn run_term_app_interactive(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
+let alt_lnk = split_once( &cmd, " ");
 drop_ls_mode();
 crate::set_ask_user(cmd.as_str(), func_id);
 let mut lc = "ru_RU.UTF-8".to_string();
@@ -25,50 +28,55 @@ let cols = 680; let rows = 700;
 taken_term_msg();
 let adr_of_term_msg = adr_term_msg();
 let pwd = crate::core18::full_escape ( &read_file("env/cd") );
-let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg};sleep 44400444");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
     let mut pid: nix::unistd::Pid; 
     if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
         match res {
             ForkResult::Parent { child } => {pid = child; },
-            _ => { return false; }
+            _ => { std::process::abort(); return false; }
         }
-    } else { return false }
+    } else { std::process::abort(); return false }
     
-let abort = std::thread::spawn(move|| {
-    let mut proxid = crate::threadpool::mk_tree_of_prox(pid.into() );
-    use crate::threadpool::sig_2_tree_of_prox as kill;
-    let mut buf: [u8; 128] = [0; 128];
+ let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
    let mut op_status = false;
-   let proc_id: i32 = pid.into();
-   println!("press Enter, proc id {}", proc_id);
+   delay_mcs( 3577 );
+   let mut proc_id = get_pid_by_name( &alt_lnk.0 );
+   println!("press Enter, Please" );
     let enter: [u8; 1] = [13; 1];
     let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
     writeIn_stdin.write(&enter);
    let mut pause_operation = false;
    let mut fst = true;
    let mut key: String = getkey().to_lowercase(); 
+   proc_id = get_pid_by_name( &alt_lnk.0 );
+   let mut stop_op = false;
+   let proc_id = proc_id.unwrap_or_else (|| { i32::MIN }) ;
+   println!("proc id {:?}, proc name {}", proc_id, &alt_lnk.0 );
+let abort = std::thread::spawn(move|| {
    while key != "k" {
-    if !fst{key = getkey().to_lowercase();}
+    key = getkey().to_lowercase();
     println!("key {}", key);
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
        if key == "p"{
         unsafe {
-            if !pause_operation{kill (&mut *(*(*proxid) ), nix::sys::signal::SIGSTOP ); 
+            if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
                 println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
-            else{kill (&mut *(*(*proxid) ),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+            else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
         }
        }
+       if "k" == key { stop_op = true; break; }
+       //if stop_op { break; }
        println!("press k or K to abort operation\nHit P or p to pause.");
    }
   if !op_status{println!("Operation aborted")};
 
 unsafe{
-    kill ( &mut *(*(*proxid) ), nix::sys::signal::SIGABRT ); kill ( &mut *(*(*proxid) ), nix::sys::signal::SIGKILL );
+    kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
 }
 
 }); abort.join();
