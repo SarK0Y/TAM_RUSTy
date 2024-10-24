@@ -14,7 +14,7 @@ use crate::{
     init::user_home_dir,
     link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out,
     run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once,
-    swtch::{path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt},
+    swtch::{local_indx, path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt},
     swtch_esc,
     update18::{
         alive_session, background_fixing, background_fixing_count, fix_screen, upd_screen_or_not,
@@ -75,7 +75,7 @@ pub(crate) fn up_front_list() {
     run_cmd_str(&cmd);
 }
 pub(crate) fn set_front_list(list: &str) {
-    let mut list = list.strn();
+    let mut list = list.strn(); crate::lst::edit_mode_lst(Some (false) );
     if list == "" {
         list = "lst".strn()
     }
@@ -113,6 +113,7 @@ pub(crate) fn name_of_front_list(name: &str, set: bool) -> String {
     unsafe { name0.to_string() }
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize) {
+    crate::lst::edit_mode_lst(Some (false) );
     if check_substrn(&list.strn(), "history") {
         swtch_esc(true, false);
     } else {
@@ -330,11 +331,13 @@ pub(crate) fn initSession() -> bool {
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
-        "{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)",
+        &"{Alt + F12} == Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal)".bold().strn(),
         func_id,
     );
     #[cfg(feature = "mae")]
     crate::cache::lazy_cache_cleaning(None);
+    crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
+    crate::C! ( local_indx (true) );
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
@@ -1563,14 +1566,14 @@ pub(crate) fn achtung(msg: &str) {
     crate::run_cmd_str(&msg);
 }
 pub(crate) fn calc_num_files_up2_cur_pg() -> i64 {
+    static mut items_on_pg: i64 = 0;
+    static mut fst: bool = true;
     let func_id = crate::func_id18::calc_num_files_up2_cur_pg_;
-    let ps = unsafe { crate::swtch::swtch_ps(-1, None) };
-    let mut num_page;
-    if ps.num_page != i64::MAX {
-        num_page = ps.num_page;
-    } else {
-        num_page = crate::get_num_page(func_id);
+    let mut num_page = crate::get_num_page(func_id);
+    unsafe {
+        if !fst {return items_on_pg * num_page ;} fst = false;
     }
+    let ps = unsafe { crate::swtch::swtch_ps(-1, None) };
     let mut num_cols;
     if ps.num_cols != i64::MAX {
         num_cols = ps.num_cols;
@@ -1587,8 +1590,10 @@ pub(crate) fn calc_num_files_up2_cur_pg() -> i64 {
         crate::set_col_width(ps.col_width, func_id);
     }
     //let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
-    let counted_files = num_page * num_cols * num_rows;
-    return counted_files;
+    unsafe {
+        items_on_pg = num_cols * num_rows;
+        return items_on_pg * num_page;
+    }
 }
 pub(crate) fn calc_num_files_up2_cur_pg01() -> i64 {
     let func_id = crate::func_id18::calc_num_files_up2_cur_pg_;

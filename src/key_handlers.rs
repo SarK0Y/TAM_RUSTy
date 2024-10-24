@@ -1,24 +1,16 @@
 use crate::{
-    add_cmd_in_history, clear_screen, count_ln,
-    custom_traits::{
+    __get_arg_in_cmd, add_cmd_in_history, checkArg, clear_screen, count_ln, custom_traits::{
         find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize,  vec_tools, STRN_usize, STRN,
-    },
-    drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey,
-    globs18::{
+    }, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{
         drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to,
         get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front,
         take_list_adr, take_list_adr_env,
-    },
-    history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file,
-    read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr,
-    session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt,
-    set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg,
-    update18::{delay_ms, upd_screen_or_not},
-    COUNT_PAGES_,
+    }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
 use num_traits::ops::overflowing::OverflowingSub;
-use std::io;
+use once_cell::sync::Lazy;
+use std::{default, io};
 use substring::Substring;
 pub(crate) fn key_slash() {
     let front_list = read_front_list();
@@ -58,8 +50,14 @@ pub(crate) fn pre_Enter() {
     set_front_list(&prev_list);
     crate::free_term_msg();
 }
-pub(crate) fn Enter() {
-    let mut prnt = crate::get_prnt(-881454);
+pub fn Shift_Enter () -> String {
+    let viewer_mode = crate::swtch::mode_default_viewers( None );
+    crate::swtch::mode_default_viewers(Some( !viewer_mode ) );
+    return Enter();
+}
+pub(crate) fn Enter() -> String {
+    let func_id = -881454;
+    let mut prnt = crate::get_prnt( func_id );
     // let (term, _) = crate::split_once(&prnt, " ");
     /* if term == "term"{
         prnt = format!("{prnt}:>:no_upd_scrn");
@@ -78,6 +76,7 @@ pub(crate) fn Enter() {
         stop_term_msg();
         crate::lst::edit_ln_in_lst_fin_op();
     }
+    let decoded_prnt = crate::globs18::decode_sub_cmds(&crate::get_prnt(func_id)); decoded_prnt
 }
 pub(crate) fn Ins_key() -> String {
     stop_term_msg();
@@ -110,6 +109,10 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::lst::ched(file_indx); return empty; }
     let cmd0 = "edit cmd";
     if file_indx.substring(0, cmd0.len()) == cmd0 { crate::lst::edit_cmd(); return empty; }
+    let cmd0 = "screen lag";
+    if file_indx.substring(0, cmd0.len()) == cmd0 { crate::smart_lags::set_screen_lag(file_indx); return empty; }
+    let cmd0 = "unlock cmd line";
+    if file_indx.substring(0, cmd0.len()) == cmd0 { crate::free_term_msg(); return empty; }
     let cmd0 = "no decode cmd";
     if file_indx.trim_end() == cmd0 { crate::globs18::cmd_decode_mode(Some(false)); return empty; }
     let cmd0 = "en decode cmd";
@@ -128,6 +131,13 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.trim_end() == cmd0 { crate::lst::show_modes(); return empty; }
     if file_indx.trim_end() == "lst upd" { crate::lst::upd_session_lists(); return empty; }
     if file_indx.substring(0, 3) == "lst" { crate::lst::manage_lst_sub(&file_indx.trim_end().strn()); return empty; }
+    let cmd0 = "prompt mode default";
+    if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode( cmd0); return empty; }
+     let cmd0 = "sig 2 proc";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::prox::sig_2_proc_n_its_kids( &file_indx); return empty; }
+    let cmd0 = "prompt mode glee uppercases";
+    if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode(cmd0 ); return empty; }
+
     #[cfg(feature = "in_dbg")] let cmd0 = "prnt screen";
     #[cfg(feature = "in_dbg")]
     if file_indx.trim_end() == cmd0 { crate::lst::prnt_screen_dbg(); getkey(); return empty; }
@@ -173,9 +183,19 @@ pub(crate) fn Ins_key() -> String {
     crate::set_prnt(&prnt, -1);
     prnt
 }
+pub fn krunner (name: Option < &String >) -> String {
+    static mut default: Lazy < String > = Lazy::new( || { "krunner".strn() });
+    static mut fst: bool = true;
+    unsafe {
+        if fst {
+            if checkArg ("-krunner") { *default = __get_arg_in_cmd ("-krunner") } fst = false;
+        }
+        if let Some (x) = name { *default = x.strn() } default.strn()
+    }
+}
 pub(crate) fn swtch_tam_konsole() {
     let id_suffix = id_suffix();
-    let cmd = format!("krunner '{id_suffix}'");
+    let cmd = format!( "{} '{id_suffix}'", krunner( None ) );
     run_cmd0(cmd);
 }
 pub(crate) fn F1_key() -> String {
@@ -471,10 +491,12 @@ pub(crate) fn F3_key() -> String {
     if cur_cur_pos == 0 {return prnt0;}
     let mut prnt = prnt0.substring(0, cur_cur_pos).strn();
     let tmp = prnt.clone();
-    let orig_path = crate::get_path_from_strn(crate::cpy_str(&prnt));
+    let indx_of_space = crate::globs18::find_last_char_in_strn(&prnt, " ").unwrap_or(0);
+    let indx_of_slash = crate::globs18::find_last_char_in_strn(&prnt, "/").unwrap_or(0);
+    let orig_path = if indx_of_slash > indx_of_space {crate::get_path_from_strn(crate::cpy_str(&prnt)) } else { "".strn() };
     if orig_path.len() == 0 {
         if crate::tailOFF(&mut prnt, " ") {
-            let dt = delta(tmp.len(), prnt.len() );
+            let dt = delta(tmp.chars().count(), prnt.chars().count() );
             cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
             set_cur_cur_pos(cur_cur_pos.i640(), -1);
             prnt = prnt0.replace(tmp.as_str(), &prnt);
@@ -491,6 +513,7 @@ pub(crate) fn F3_key() -> String {
     let ls_mode = take_list_adr("ls.mode");
     let mut ret_2_Front = || -> String {
         prnt = prnt.replace("/", "");
+        prnt = format! ("{}{}", prnt, prnt0.substring(prnt.chars().count().inc(), prnt0.chars().count() ) );
         set_prnt(&prnt, -2317712);
         crate::C!(crate::swtch::swtch_fn(0, "".to_string()));
         crate::from_ls_2_front(ls_mode);
@@ -508,7 +531,7 @@ pub(crate) fn F3_key() -> String {
     path = path.replace("//", "/");
     prnt = prnt.replace(&orig_path, &path);
     if orig_path != "/" {
-       let dt = delta(tmp.len(),  prnt.len() );
+       let dt = delta(tmp.chars().count(),  prnt.chars().count() );
        cur_cur_pos = if cur_cur_pos > dt {cur_cur_pos - dt} else {0};
        set_cur_cur_pos(cur_cur_pos.i640(), -1);
     } else { set_cur_cur_pos(cur_cur_pos.dec().i640(), -1); }
