@@ -13,7 +13,7 @@ use crate::globs18::cmd_decode_mode;
 #[cfg(feature = "mae")]
 use Mademoiselle_Entropia::help_funcs::get_file;
 use crate::update18::{delay_ms, upd_screen_or_not};
-use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, read_prnt, rm_file, run_cmd_out_sync, save_file, save_file0, save_file_append, save_file_append_newline, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
+use crate::{checkArg, clear_screen, fix_num_files, full_escape_no_limits, func_id18, get_arg_in_cmd, helpful_math_ops, mk_empty_file, read_prnt, rm_file, run_cmd_out_sync, run_term_app_ren, save_file, save_file0, save_file_append, save_file_append_newline, save_file_append_newline_abs_adr, save_file_append_newline_abs_adr_fast, set_cur_cur_pos, set_prnt, split_once_or_ret_null_strs, swtch_esc, swtch_ls, tailOFF, turn_2_i64};
 use crate::{globs18::{take_list_adr, split_once_alt, check_char_in_strn, take_list_adr_env, strn_2_usize, get_item_from_front_list}, errMsg0, read_file, patch_t, split_once, read_tail, parse_paths, run_term_app, is_dir2, escape_backslash, escape_apostrophe, escape_symbs, getkey, dont_scrn_fix, popup_msg, full_escape, mk_dummy_file, ending, run_cmd0, mark_front_lst, set_front_list2, usize_2_i64, get_path_from_strn, name_of_front_list, no_esc_t};
 
 use std::io::BufRead;
@@ -110,9 +110,9 @@ pub(crate) fn term_mv(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_interactive(cmd);
+    crate::run_term_app_interactive0(cmd);
 }
-pub(crate) fn term_cp(cmd: &String){
+pub fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = parse_paths(&cmd);
     let mut from = all_files.clone();
@@ -129,9 +129,12 @@ pub(crate) fn term_cp(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_interactive(cmd);
     lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
+    let mut func: fn (String ) -> bool = crate::term_app::run_term_app_interactive0;
+    func (cmd); func = stub_strn_in_bool_out; //*/
+    //run_term_app_ren(cmd);
 }
+pub fn stub_strn_in_bool_out (cmd: String) -> bool { return true }
 pub(crate) fn term_rm(cmd: &String){
     let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
     let (mut add_opts, mut all_files, to) = parse_paths(&cmd);
@@ -151,7 +154,7 @@ pub(crate) fn term_rm(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_interactive(cmd);
+    crate::run_term_app_interactive0(cmd);
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();

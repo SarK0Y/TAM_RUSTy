@@ -6,72 +6,91 @@ use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
+use crate::prox::get_pid_by_name;
+use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
 use nix::unistd::{ForkResult, Pid};
-pub(crate) fn run_term_app_interactive(cmd: String) -> bool{
-let func_id = crate::func_id18::run_cmd_viewer_;
-drop_ls_mode();
-crate::set_ask_user(cmd.as_str(), func_id);
-let mut lc = "ru_RU.UTF-8".to_string();
-if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
-let (cols, rows) = termion::terminal_size().unwrap();
-let cols = 680; let rows = 700;
-taken_term_msg();
-let adr_of_term_msg = adr_term_msg();
-let pwd = crate::core18::full_escape ( &read_file("env/cd") );
-let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
-//let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
-let path_2_cmd = crate::mk_cmd_file(cmd);
-    let mut pid: nix::unistd::Pid; 
-    if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
+pub(crate) fn run_term_app_interactive0(cmd: String) -> bool{
+    let func_id = crate::func_id18::run_cmd_viewer_;
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+    let alt_lnk = split_once( &cmd, " ");
+    drop_ls_mode();
+    crate::set_ask_user(cmd.as_str(), func_id);
+    let mut lc = "ru_RU.UTF-8".to_string();
+    if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
+    let (cols, rows) = termion::terminal_size().unwrap();
+    let cols = 680; let rows = 700;
+    taken_term_msg();
+    let adr_of_term_msg = adr_term_msg();
+    let pwd = crate::core18::full_escape ( &read_file("env/cd") );
+    let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+    //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
+    let path_2_cmd = crate::mk_cmd_file(cmd);
+        let mut pid: nix::unistd::Pid; 
+    //    ( &format! ("bash -c {path_2_cmd}") ); 
+      if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
         match res {
             ForkResult::Parent { child } => {pid = child; },
-            _ => { return false; }
+            _ => { std::process::abort(); return false; }
         }
-    } else { return false }
-    
-let abort = std::thread::spawn(move|| {
-    let mut proxid = crate::threadpool::mk_tree_of_prox(pid.into() );
-    use crate::threadpool::sig_2_tree_of_prox as kill;
-    let mut buf: [u8; 128] = [0; 128];
+    } else { std::process::abort(); return false }
+ let mut buf: [u8; 128] = [0; 128];
     //let mut read_out0 = crate::BufReader::new(out_out);
    // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
    let mut op_status = false;
-   println!("press Enter");
+   /*println!("press Enter, Please" );
     let enter: [u8; 1] = [13; 1];
-    //let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
-   // writeIn_stdin.write(&enter);
+    let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
+    writeIn_stdin.write(&enter); */
    let mut pause_operation = false;
    let mut fst = true;
-   let mut key: String = getkey().to_lowercase(); 
+   let mut key: String = "".strn(); //= getkey().to_lowercase(); 
+   let mut proc_id = get_pid_by_name( &alt_lnk.0 );
+   let mut count_down = 20;
+   while proc_id.is_none (){
+    proc_id = get_pid_by_name( &alt_lnk.0 );
+    count_down.dec();
+    if count_down == 0 {break; }
+   }
+   if proc_id.is_none () { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
+   let proc_id = proc_id.unwrap_or_else (|| { i32::MIN }) ;
+   crate::pg18::reset_screen();
+   println!("proc id {:?}, proc name {}", proc_id, &alt_lnk.0 );
+let abort = std::thread::spawn(move|| {
+    let mut count_out = 0;
    while key != "k" {
-    if !fst{key = getkey().to_lowercase();}
+    if !fst { key = getkey().to_lowercase() };
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
        if key == "p"{
         unsafe {
-            if !pause_operation{kill (&mut *(*(*proxid) ), nix::sys::signal::SIGSTOP ); 
+            if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
                 println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
-            else{kill (&mut *(*(*proxid) ),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+            else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
         }
        }
-       println!("press k or K to abort operation\nHit P or p to pause.");
+       if "k" == key { break; }
+       //if stop_op { break; }
+       println!("press k or K to abort operation\nHit P or p to pause."); count_out += 1;
+       if count_out > 20 { return;}
    }
-  if !op_status{println!("Operation aborted")};
-
-unsafe{
-    kill ( &mut *(*(*proxid) ), nix::sys::signal::SIGABRT ); kill ( &mut *(*(*proxid) ), nix::sys::signal::SIGKILL );
+  if !op_status{println!("Operation aborted")}; 
+if get_pid_by_name( &alt_lnk.0 ).is_some () {
+    unsafe{
+        kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+    }
 }
-
-}); abort.join();
+}); abort.join().unwrap ();
+    crate::cmd_keys::drop_ext_modes ( Some (true) );
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
+crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }
 

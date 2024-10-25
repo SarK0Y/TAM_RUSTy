@@ -1,6 +1,8 @@
 use nix::sys::signal; use nix::sys::signal::kill as kl; use nix::unistd::Pid;
 use crate::threadpool::{mk_tree_of_prox, sig_2_tree_of_prox}; use crate::threadpool::{tree_of_prox, prox};
 use crate::custom_traits::{STRN, turn_2_i64};
+use procfs::process::all_processes;
+use sysinfo::System; 
 pub fn short_name_4_nix_sig (name: &str) -> Option< signal::Signal > {
     match name.trim_end().to_lowercase().as_str() {
         "-stop" => return Some( signal::SIGSTOP ),
@@ -22,6 +24,19 @@ pub fn sig_2_proc_n_its_kids (cmd: &String) {
     let (pid, sig) = crate::split_once( &cmd, " ");
     let pid: i32 = pid.i640() as i32;
     send_prox_sig(pid, short_name_4_nix_sig (&sig ));
+}
+pub fn get_pid_by_name ( name: &String ) -> Option < i32 > {
+        let mut system = System::new_all();
+    system.refresh_all();
+
+    for (pid, process) in system.processes() {
+        let process_cmd = process.cmd().join ( &std::ffi::OsString::from  ( " ") ).to_str ().unwrap_or("").to_string (); 
+       // println!("{}", process_cmd );
+        if process_cmd.find (name ).is_some() {
+            return Some( pid.as_u32 () as i32 ); 
+        }
+    }
+    None
 }
 //fn
 /* use std::fs;

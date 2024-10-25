@@ -12,7 +12,7 @@ use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
-#[derive( Debug )]
+#[derive( Debug, PartialEq )]
 pub struct tree_of_prox {
     ppid: i32 ,
     //ppid: nix::unistd::Pid,
@@ -89,7 +89,6 @@ impl prox for tree_of_prox  {
             println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             if (*self.proxid_of_kid).len() == 0 { return None }
             ////dbg!(&self);
-            let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
             let mut branch: *mut tree_of_prox ;
             if let Some ( x ) = mk_branch_of_prox( self ) {
                 branch = Box::into_raw (ManuallyDrop::into_inner ( x ) );
@@ -182,7 +181,7 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 pub fn new_thr (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
-        Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort();},
+        Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
@@ -349,8 +348,8 @@ pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Sign
          if ret == prev { break; }
          if ret.0 == ptr::null_mut () { break; }
          prev = ret.clone ();
-         //dbg! (&prev); //dbg! (&ret);
-         //dbg! (&(*prev.0).cursor); //dbg! (&(*ret.0).cursor);
+       //  dbg! (&prev); dbg! (&ret);
+        // dbg! (&(*prev.0).cursor); dbg! (&(*ret.0).cursor);
         }
     }
 }
@@ -358,6 +357,7 @@ pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Si
     use nix::sys::signal::kill as kl;
     use nix::unistd::Pid;
     unsafe {
+       // if tree == 0 { return ( tree, branch_state::none ); }
         kl ( Pid::from_raw( (*tree).ppid ), sig );
         let root_len = (*(*tree).kids).len();
         let direction_to_count = if (*tree).up != ptr::null_mut() {(*(*tree).up).direction_to_count} else {(*tree).direction_to_count };
