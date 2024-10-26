@@ -14,13 +14,13 @@ use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
 #[derive( Debug, PartialEq )]
 pub struct tree_of_prox {
-    ppid: i32 ,
+   pub ppid: i32 ,
     //ppid: nix::unistd::Pid,
-    up: *mut tree_of_prox,
-    kids: *mut Vec< *mut tree_of_prox >,
-    proxid_of_kid: *mut Vec < i32 >,
-    direction_to_count: bool,
-    cursor: usize,
+   pub  up: *mut tree_of_prox,
+   pub kids: *mut Vec< *mut tree_of_prox >,
+   pub proxid_of_kid: *mut Vec < i32 >,
+   pub direction_to_count: bool,
+   pub  cursor: usize,
 }
 pub trait Clone {
     fn clone (&self) -> Self;

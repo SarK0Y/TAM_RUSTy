@@ -15,7 +15,8 @@ pub fn short_name_4_nix_sig (name: &str) -> Option< signal::Signal > {
 pub fn send_prox_sig (pid: i32, sig: Option < signal::Signal >) {
     if let Some (x ) = sig {
         let mut tree : *mut tree_of_prox = **mk_tree_of_prox(pid);
-        unsafe { sig_2_tree_of_prox( &mut (*tree), x); } return;
+        unsafe { sig_2_tree_of_prox( &mut (*tree), x); } 
+        del_prox_tree ( &mut tree ); return;
     }
     kl( Pid::from_raw( pid ), None);
 }
@@ -37,6 +38,22 @@ pub fn get_pid_by_name ( name: &String ) -> Option < i32 > {
         }
     }
     None
+}
+pub fn del_prox_tree ( tree: &mut *mut tree_of_prox) {
+    unsafe {
+        if *tree == std::ptr::null_mut () { return }
+        if (*(**tree).kids).len() == 0 { std::ptr::drop_in_place ( *tree ); }
+        let mut tmp: *mut tree_of_prox;
+        while *tree != std::ptr::null_mut () && (*(**tree).kids).len() > 0 {
+            tmp = *tree;
+            *tree = (*(**tree).kids).pop().unwrap();
+            if *tree == std::ptr::null_mut () { *tree = tmp; }
+            if (*(**tree).kids).len () == 0{
+                if (**tree).up != std::ptr::null_mut (){ *tree = (**tree).up; } else { *tree = std::ptr::null_mut (); } 
+                 std::ptr::drop_in_place ( tmp );
+            }
+        } 
+    }
 }
 //fn
 /* use std::fs;
