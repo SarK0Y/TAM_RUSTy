@@ -88,7 +88,7 @@ if get_pid_by_name( &alt_lnk.0 ).is_some () {
     }
 }
 }); abort.join().unwrap ();
-    crate::cmd_keys::drop_ext_modes ( Some (true) );
+   // crate::cmd_keys::drop_ext_modes ( Some (true) );
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 crate::smart_lags::fork_lag_mcs_verbose(10);
