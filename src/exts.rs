@@ -66,6 +66,8 @@ use types::*;
 #[path = "lst.rs"]
 mod lst;
 use lst::*;
+#[path = "faav.rs"]
+mod faav;
 #[cfg(feature="in_dbg")] #[path = "in_dbg0.rs"]
 mod in_dbg0;
 #[cfg(feature="in_dbg")]

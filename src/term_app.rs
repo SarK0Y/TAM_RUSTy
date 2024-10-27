@@ -18,6 +18,7 @@ use nix::sys::signal::kill;
 use nix::unistd::{ForkResult, Pid};
 pub(crate) fn run_term_app_interactive0(cmd: String) -> bool{
     let func_id = crate::func_id18::run_cmd_viewer_;
+    crate::faav::one_time_sav_prnt ( Some ( read_prnt() ) );
     if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
     let alt_lnk = split_once( &cmd, " ");
     drop_ls_mode();
