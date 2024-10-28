@@ -119,5 +119,11 @@ pub fn prompt () -> String{
     if checkArg( "-prompt" ) {
         unsafe { *strn0 = __get_arg_in_cmd("-prompt" ); }
     } unsafe { strn0.strn() }
+}
+pub fn drop_ext_modes (set_o_get: Option < bool >) -> bool {
+    static mut state: bool = false;
+    unsafe {
+        if let Some ( x ) = set_o_get { state = x;} state
+    }
 } 
 //fn
