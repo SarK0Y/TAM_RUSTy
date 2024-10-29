@@ -10,7 +10,7 @@
 #[allow(temporary_cstring_as_ptr)]
 mod exts;
 use exts::*;
-use globs18::{get_item_from_front_list, split_once_alt, strn_2_usize, take_list_adr};
+use globs18::{get_item_from_front_list, split_once_alt, split_once_alt_o_null_strns, strn_2_usize, take_list_adr};
 use syn::token::Return;
 use update18::delay_ms;
 
@@ -32,8 +32,8 @@ let second = match splitter.next(){
 };
 return  (first.to_string(), second.to_string());
 }
-pub(crate) fn split_once_or_ret_null_strs(in_string: &str, delim: &str) -> (String, String) {
-    if delim.chars().count() > 1{return split_once_alt(&in_string.to_string(), &delim.to_string());}
+pub(crate) fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
+    if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
 let first = match splitter.next(){
     Some(val) => val,

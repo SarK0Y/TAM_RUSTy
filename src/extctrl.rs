@@ -163,6 +163,11 @@ fn cut_prnt (&mut self) {
   if self.read_file("ext_key_modes") == "y" || crate::breaks("ext key modes", 1, true).1 && crate::breaks("ext key modes", 1, true).0 == 1{
     println!("break ext_key_modes");
   }
+  if crate::cmd_keys::drop_ext_modes( None ) {
+    self.ext_old_modes.dontPass = false;
+    self.ext_old_modes.drop_dontPass_after_n_hotKeys = 0;
+   // crate::cmd_keys::drop_ext_modes (Some (false) );
+  }
   Key.push_str(&crate::getkey());
   if self.ext_old_modes.drop_dontPass_after_n_hotKeys > 0{
     if self.ext_old_modes.hotKeys_got_hits == 0{self.ext_old_modes.dontPass = false}

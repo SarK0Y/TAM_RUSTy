@@ -356,6 +356,7 @@ pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
 pub(crate) fn mk_dummy_lnks() {
     mk_dummy_lnk("cp");
     mk_dummy_lnk("mv");
+    mk_dummy_lnk("rsync");
     mk_dummy_lnk("rm");
 }
 pub(crate) fn mk_dummy_lnk(head: &str) {

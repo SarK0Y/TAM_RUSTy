@@ -199,6 +199,17 @@ pub(crate) fn clear_screen() {
         io::stderr().write_all(&run_command.stderr).unwrap();
     }
 }
+pub(crate) fn reset_screen() {
+    if checkArg("-dbg") || checkArg("-dirty") {
+        return;
+    }
+   //  print!("\x1B[2J\x1B[1;1H"); io::stdout().flush();
+    let run_command = Command::new("reset").output().expect("can't reset screen");
+    if run_command.status.success() {
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+    }
+}
 pub fn no_print(yes: Option<bool>, timeout: Option<u128>) -> bool {
     use once_cell::sync::Lazy;
     static mut state: bool = false;
@@ -252,8 +263,9 @@ pub(crate) fn hotKeys(
     }
     let mut cmd = String::new();
     let ext_is_alive = if Some(&ext) == None { false } else { true };
-    if !ext_is_alive {
+    if !ext_is_alive || crate::drop_ext_modes( None ) {
         Key.push_str(crate::getkey().as_str());
+        crate::cmd_keys::drop_ext_modes( Some (false) );
     } else {
         ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits();
         if ext.as_mut().unwrap().as_mut().drop_dontPass_after_n_hotKeys > 0 {
@@ -570,7 +582,8 @@ pub(crate) fn exec_cmd(cmd: String) {
 
         //        process_tag(key)
     } 
-    crate::term_app::run_new_win_bool( Some( false ) );
+    crate::term_app::run_new_win_bool( Some( false ) ); 
+    if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { set_prnt( x.as_str(), -937851); }
     let cmd0 = "_";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         crate::term_app::run_new_win_bool( Some( true ) );
