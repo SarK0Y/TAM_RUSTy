@@ -10,16 +10,17 @@ use crate::prox::get_pid_by_name;
 use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{check_strn_in_lst, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
+use crate::globs18::{check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
 use nix::unistd::{ForkResult, Pid};
-pub(crate) fn run_term_app_interactive0(cmd: String) -> bool{
+pub(crate) fn run_term_app_interactive_basic(cmd: String) -> bool{
     let func_id = crate::func_id18::run_cmd_viewer_;
     crate::faav::one_time_sav_prnt ( Some ( read_prnt() ) );
     if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+    let term_app_screen = take_list_adr("term_app_screen");
     let alt_lnk = split_once( &cmd, " ");
     drop_ls_mode();
     crate::set_ask_user(cmd.as_str(), func_id);
@@ -30,7 +31,7 @@ pub(crate) fn run_term_app_interactive0(cmd: String) -> bool{
     taken_term_msg();
     let adr_of_term_msg = adr_term_msg();
     let pwd = crate::core18::full_escape ( &read_file("env/cd") );
-    let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1; echo 'free' > {adr_of_term_msg}");
+    let cmd = format!("clear;reset;cd {pwd};{cmd} > {term_app_screen}; echo 'free' > {adr_of_term_msg}");
     //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
     let path_2_cmd = crate::mk_cmd_file(cmd);
         let mut pid: nix::unistd::Pid; 
@@ -78,7 +79,8 @@ let abort = std::thread::spawn(move|| {
        }
        if "k" == key { break; }
        //if stop_op { break; }
-       println!("press k or K to abort operation\nHit P or p to pause."); count_out += 1;
+       let update_screen = read_file_abs_adr( &term_app_screen );
+       println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
        if count_out > 20 { return;}
    }
   if !op_status{println!("Operation aborted")}; 
@@ -285,6 +287,8 @@ pub(crate) fn term(cmd: &String){
     let mut subcmd = "".to_string();
      if crate::globs18::check_substrn(&cmd, ":>:"){(cmd, subcmd) = split_once(&cmd, ":>:");}
     //let (_, cmd) = split_once(&cmd, " ");
+    let cmd0 = "term rsync".strn();
+    if cmd.substring(0, cmd0.len() ) == cmd0 {dbg! ("tst"); crate::term_rsync(&cmd ); return;}
     if cmd.substring(0, 7) == "term mv"{crate::term_mv(&cmd); return;}
     if cmd.substring(0, 7) == "term cp"{crate::term_cp(&cmd); return;}
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}

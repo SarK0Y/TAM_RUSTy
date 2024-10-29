@@ -110,7 +110,7 @@ pub(crate) fn term_mv(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
     else {ending("mv"); cmd = format!("mv {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_interactive0(cmd);
+    crate::run_term_app_interactive_basic(cmd);
 }
 pub fn term_cp(cmd: &String){
     let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
@@ -118,9 +118,9 @@ pub fn term_cp(cmd: &String){
     let mut from = all_files.clone();
     let mut finally_to =to.clone();
     let mut vec_files = lines_2_vec_no_dirs(&all_files);
-    let mut all_files = vec_2_strn_multilined(&vec_files, 1);//reorder_strn_4_cmd(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
     if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
-        all_files = vec_2_strn_multilined_no_esc(&vec_files, 1);
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);
     }
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
@@ -130,11 +130,33 @@ pub fn term_cp(cmd: &String){
     else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
-    let mut func: fn (String ) -> bool = crate::term_app::run_term_app_interactive0;
+    let mut func: fn (String ) -> bool = crate::term_app::run_term_app_interactive_basic;
     func (cmd); func = stub_strn_in_bool_out; //*/
     //run_term_app_ren(cmd);
 }
 pub fn stub_strn_in_bool_out (cmd: String) -> bool { return true }
+pub fn term_rsync(cmd: &String){
+    let cmd = cmd.replace("term rsync", "").trim_start_matches(' ').to_string();
+    let (add_opts, all_files, to) = parse_paths(&cmd);
+    let mut from = all_files.clone();
+    let mut finally_to =to.clone();
+    let mut vec_files = lines_2_vec_no_dirs(&all_files);
+    let mut all_files = vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = vec_2_strn_multilined_no_esc(&vec_files, 0);
+    }
+    let dummy_file = mk_dummy_file();
+    let mut cmd = String::new();
+    let ided_cmd = take_list_adr("env/dummy_lnks/rsync");
+    finally_to = full_escape( &finally_to);
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending("rsync"); cmd = format!("rsync {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
+    let mut func: fn (String ) -> bool = crate::term_app::run_term_app_interactive_basic;
+    func (cmd); func = stub_strn_in_bool_out; //*/
+    //run_term_app_ren(cmd);
+}
 pub(crate) fn term_rm(cmd: &String){
     let cmd = cmd.replace("term rm", "").trim_start_matches(' ').to_string();
     let (mut add_opts, mut all_files, to) = parse_paths(&cmd);
@@ -154,7 +176,7 @@ pub(crate) fn term_rm(cmd: &String){
     if crate::Path::new(&ided_cmd).exists(){ cmd = format!("{ided_cmd} {add_opts} {all_files}");} 
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::run_term_app_interactive0(cmd);
+    crate::run_term_app_interactive_basic(cmd); 
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
@@ -187,12 +209,18 @@ fn parse_paths(cmd: &String) -> (String, String, String){
     let mut all_files = String::new();
     let mut ret = (String::new(), String::new(), String::new());
     if cmd.substring(0, 1) == "-"{
+        let mm = cmd.find("--").is_some();
         let caps = re.captures_iter(&cmd);
+        //let res = panic::catch_unwind(||{ca["long_name_opt"].to_string()});
+       if mm {
+            let caps = re.captures_iter(&cmd); 
+            for ca in caps {
+                if ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
+            }
+        }
+        //    let res = panic::catch_unwind(||{ca["short_name_opt"].to_string()});
         for ca in caps{
-            let res = panic::catch_unwind(||{ca["long_name_opt"].to_string()});
-            if res.is_ok() && ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
-            let res = panic::catch_unwind(||{ca["short_name_opt"].to_string()});
-            if res.is_ok() && ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name_opt"].to_string());}
+                if ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name_opt"].to_string());}
         }
         cmd = re.replace_all(&cmd, "").to_string();
         for opt in opts{add_opts.push_str(opt.as_str()); add_opts.push(' ');}
