@@ -843,6 +843,16 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::lst::ched(cmd);
         return;
     }
+    let cmd0 = "iterm ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::run_cmd_in_extra_interactive_mode(&cmd);
+        return;
+    }
+    let cmd0 = "i>_ ";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::run_cmd_in_extra_interactive_mode(&cmd);
+        return;
+    }
     let cmd0 = "upd cmds";
     if cmd == cmd0 {
         crate::lst::upd_lst_cmds();

@@ -5,13 +5,15 @@ use libc::SIGKILL;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
-use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars};
+use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars, STRN_strip};
 use crate::prox::get_pid_by_name;
 use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, tailOFF, term_mv};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, 
+    is_dir, mk_cmd_file_dirty, mk_dummy_lnk, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, 
+    save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
@@ -294,7 +296,7 @@ pub(crate) fn term(cmd: &String){
     if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
-    let (_, cmd) = split_once(&cmd, " ");
+    let (_, cmd) = crate::split_once_or_ret_null_strns(&cmd, " "); 
     run_term_app(cmd.trim_start().trim_end().strn());
 }
 pub fn id_of_child_win () -> usize {
@@ -302,6 +304,42 @@ pub fn id_of_child_win () -> usize {
     unsafe {
         let ret = id; id.inc(); return ret;
     }
+}
+pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
+    let cmd_prefix = add_interactive_mode_to_cmd( cmd );
+    if cmd_prefix.1 == "" { return; }
+    let cmd_prefix0 = format! ("{} {}", cmd_prefix.0, cmd_prefix.1);
+    let cmd = cmd.replace(&cmd_prefix0, "").trim_start_matches(' ').to_string();
+    let (add_opts, all_files, to) = crate::lst::parse_paths(&cmd);
+    let mut from = all_files.clone();
+    let mut finally_to =to.clone();
+    let mut vec_files = crate::lines_2_vec_no_dirs(&all_files);
+    let mut all_files = crate::lst::vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
+    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
+        all_files = crate::lst::vec_2_strn_multilined_no_esc(&vec_files, 0);
+    }
+    let dummy_file = mk_dummy_file();
+    let mut cmd = String::new();
+    let linked_cmd = format! ("env/dummy_lnks/{}", cmd_prefix.1);
+    let ided_cmd = take_list_adr(&linked_cmd);
+    finally_to = crate::core18::full_escape( &finally_to);
+    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
+    else {ending(&cmd_prefix.1); cmd = format!("{} {add_opts} {dummy_file} {all_files}\\\n {finally_to}", cmd_prefix.1);}
+    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
+    crate::lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
+    crate::term_app::run_term_app_interactive_basic(cmd); //*/
+    
+}
+pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
+    let mut cmd = cmd.strn();
+    let mut mode_cmd = String::new ();
+    if cmd.substring (0, 5) == "iterm" {mode_cmd = "iterm".strn(); cmd = cmd.substring (5, cmd.len() ).strn () ;}
+    if cmd.substring (0, 3) == "i>_" {cmd = cmd.substring (3, cmd.len() ).strn () ; mode_cmd = "i>_".strn();}
+    let cmd = cmd.trim_start().strn ();
+    let (cmd, _) = split_once_or_ret_null_strns( &cmd, " ");
+    if cmd == "" { return (mode_cmd, cmd); }
+    mk_dummy_lnk( &cmd);
+    (mode_cmd, cmd)
 }
 pub(crate) fn new0__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
