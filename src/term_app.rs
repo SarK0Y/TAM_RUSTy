@@ -309,24 +309,14 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     let cmd_prefix = add_interactive_mode_to_cmd( cmd );
     if cmd_prefix.1 == "" { return; }
     let cmd_prefix0 = format! ("{} {}", cmd_prefix.0, cmd_prefix.1);
-    let cmd = cmd.replace(&cmd_prefix0, "").trim_start_matches(' ').to_string();
-    let (add_opts, all_files, to) = crate::lst::parse_paths(&cmd);
-    let mut from = all_files.clone();
-    let mut finally_to =to.clone();
-    let mut vec_files = crate::lines_2_vec_no_dirs(&all_files);
-    let mut all_files = crate::lst::vec_2_strn_multilined(&vec_files, 0);//reorder_strn_4_cmd(&all_files);
-    if !crate::Path::new(&finally_to.strip_all_symbs()).is_dir(){
-        all_files = crate::lst::vec_2_strn_multilined_no_esc(&vec_files, 0);
-    }
-    let dummy_file = mk_dummy_file();
-    let mut cmd = String::new();
+    let cmd = cmd.substring (cmd_prefix0.len(), cmd.len () );
     let linked_cmd = format! ("env/dummy_lnks/{}", cmd_prefix.1);
     let ided_cmd = take_list_adr(&linked_cmd);
-    finally_to = crate::core18::full_escape( &finally_to);
-    if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
-    else {ending(&cmd_prefix.1); cmd = format!("{} {add_opts} {dummy_file} {all_files}\\\n {finally_to}", cmd_prefix.1);}
-    let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
-    crate::lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
+    let replace_it_w = format! (";{}", cmd_prefix.1);
+    let this = format! (";{}", ided_cmd);
+    let cmd =cmd.replace (&replace_it_w, &this);
+    let cmd = format! ("{} {}", ided_cmd, cmd);
+    if !crate::Path::new(&ided_cmd).exists() { return }
     crate::term_app::run_term_app_interactive_basic(cmd); //*/
     
 }
@@ -338,7 +328,7 @@ pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
     let cmd = cmd.trim_start().strn ();
     let (cmd, _) = split_once_or_ret_null_strns( &cmd, " ");
     if cmd == "" { return (mode_cmd, cmd); }
-    mk_dummy_lnk( &cmd);
+    crate::mk_dummy_lnk_( &cmd);
     (mode_cmd, cmd)
 }
 pub(crate) fn new0__ (cmd: &String){
