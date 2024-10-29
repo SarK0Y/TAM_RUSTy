@@ -306,7 +306,10 @@ pub fn id_of_child_win () -> usize {
     }
 }
 pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
-    let cmd = cmd.replace("term cp", "").trim_start_matches(' ').to_string();
+    let cmd_prefix = add_interactive_mode_to_cmd( cmd );
+    if cmd_prefix.1 == "" { return; }
+    let cmd_prefix0 = format! ("{} {}", cmd_prefix.0, cmd_prefix.1);
+    let cmd = cmd.replace(&cmd_prefix0, "").trim_start_matches(' ').to_string();
     let (add_opts, all_files, to) = crate::lst::parse_paths(&cmd);
     let mut from = all_files.clone();
     let mut finally_to =to.clone();
@@ -317,23 +320,26 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     }
     let dummy_file = mk_dummy_file();
     let mut cmd = String::new();
-    let ided_cmd = take_list_adr("env/dummy_lnks/cp");
+    let linked_cmd = format! ("env/dummy_lnks/{}", cmd_prefix.1);
+    let ided_cmd = take_list_adr(&linked_cmd);
     finally_to = crate::core18::full_escape( &finally_to);
     if crate::Path::new(&ided_cmd).exists(){ending("/"); cmd = format!("{ided_cmd} {add_opts} {all_files}\\\n {finally_to}");} 
-    else {ending("cp"); cmd = format!("cp {add_opts} {dummy_file} {all_files}\\\n {finally_to}");}
+    else {ending(&cmd_prefix.1); cmd = format!("{} {add_opts} {dummy_file} {all_files}\\\n {finally_to}", cmd_prefix.1);}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::lst_copied(from.strip_all_symbs(), finally_to.strip_all_symbs());
     crate::term_app::run_term_app_interactive_basic(cmd); //*/
     
 }
-pub fn add_interactive_mode_to_cmd (cmd: &String) -> String{
+pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
     let mut cmd = cmd.strn();
-    if cmd.substring (0, 5) == "iterm" {cmd = cmd.substring (5, cmd.len() ).strn () ;}
-    if cmd.substring (0, 3) == "i>_" {cmd = cmd.substring (3, cmd.len() ).strn () ;}
+    let mut mode_cmd = String::new ();
+    if cmd.substring (0, 5) == "iterm" {mode_cmd = "iterm".strn(); cmd = cmd.substring (5, cmd.len() ).strn () ;}
+    if cmd.substring (0, 3) == "i>_" {cmd = cmd.substring (3, cmd.len() ).strn () ; mode_cmd = "i>_".strn();}
     let cmd = cmd.trim_start().strn ();
     let (cmd, _) = split_once_or_ret_null_strns( &cmd, " ");
+    if cmd == "" { return (mode_cmd, cmd); }
     mk_dummy_lnk( &cmd);
-    cmd
+    (mode_cmd, cmd)
 }
 pub(crate) fn new0__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
