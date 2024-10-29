@@ -214,16 +214,18 @@ fn parse_paths(cmd: &String) -> (String, String, String){
     let mut all_files = String::new();
     let mut ret = (String::new(), String::new(), String::new());
     if cmd.substring(0, 1) == "-"{
+        let mm = cmd.find("--").is_some();
         let caps = re.captures_iter(&cmd);
-        for ca in caps{
-            let res = panic::catch_unwind(||{ca["long_name_opt"].to_string()});
-            if res.is_ok() {
+        //let res = panic::catch_unwind(||{ca["long_name_opt"].to_string()});
+       if mm {
+            let caps = re.captures_iter(&cmd); 
+            for ca in caps {
                 if ca["long_name_opt"] != "".to_string(){opts.push(ca["long_name_opt"].to_string());}
             }
-            let res = panic::catch_unwind(||{ca["short_name_opt"].to_string()});
-            if res.is_ok(){ 
+        }
+        //    let res = panic::catch_unwind(||{ca["short_name_opt"].to_string()});
+        for ca in caps{
                 if ca["short_name_opt"] != "".to_string(){opts.push(ca["short_name_opt"].to_string());}
-            }
         }
         cmd = re.replace_all(&cmd, "").to_string();
         for opt in opts{add_opts.push_str(opt.as_str()); add_opts.push(' ');}
