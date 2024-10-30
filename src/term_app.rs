@@ -98,7 +98,88 @@ getkey();
 crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }
-
+pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &String) -> bool{
+    let func_id = crate::func_id18::run_cmd_viewer_;
+    crate::faav::one_time_sav_prnt ( Some ( read_prnt() ) );
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+    let term_app_screen = take_list_adr("term_app_screen");
+    drop_ls_mode();
+    crate::set_ask_user(cmd.as_str(), func_id);
+    let mut lc = "ru_RU.UTF-8".to_string();
+    if checkArg("-lc"){lc = String::from_iter(get_arg_in_cmd("-lc").s).trim_end_matches('\0').to_string()}
+    let (cols, rows) = termion::terminal_size().unwrap();
+    let cols = 680; let rows = 700;
+    taken_term_msg();
+    let adr_of_term_msg = adr_term_msg();
+    let pwd = crate::core18::full_escape ( &read_file("env/cd") );
+    let cmd = format!("clear;reset;cd {pwd};{cmd} > {term_app_screen}; echo 'free' > {adr_of_term_msg}");
+    //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
+    let path_2_cmd = crate::mk_cmd_file(cmd);
+        let mut pid: nix::unistd::Pid; 
+    //    ( &format! ("bash -c {path_2_cmd}") ); 
+      if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
+        match res {
+            ForkResult::Parent { child } => {pid = child; },
+            _ => { std::process::abort(); return false; }
+        }
+    } else { std::process::abort(); return false }
+ let mut buf: [u8; 128] = [0; 128];
+    //let mut read_out0 = crate::BufReader::new(out_out);
+   // let mut fstd_in0 = crate::File::create(fstd_in).unwrap();
+   let mut op_status = false;
+   /*println!("press Enter, Please" );
+    let enter: [u8; 1] = [13; 1];
+    let mut writeIn_stdin = unsafe {std::fs::File::from_raw_fd(0/*stdin*/)};
+    writeIn_stdin.write(&enter); */
+   let mut pause_operation = false;
+   let mut fst = true;
+   let mut key: String = "".strn(); //= getkey().to_lowercase(); 
+   let mut proc_id = get_pid_by_name( groupID );
+   let mut count_down = 20;
+   while proc_id.is_none (){
+    proc_id = get_pid_by_name( groupID );
+    count_down.dec();
+    if count_down == 0 {break; }
+   }
+   if proc_id.is_none () { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
+   let proc_id = proc_id.unwrap_or_else (|| { i32::MIN }) ;
+   crate::pg18::reset_screen();
+   let groupID_cpy = groupID.strn();
+   println!("proc id {:?}, proc name {}", proc_id, groupID );
+let abort = std::thread::spawn(move|| {
+    let mut count_out = 0;
+   while key != "k" {
+    if !fst { key = getkey().to_lowercase() };
+    fst = false;
+    if read_term_msg() == "free" {op_status = true; break;}
+       if key == "p"{
+        unsafe {
+            if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
+                println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
+            else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+        }
+       }
+       if "k" == key { break; }
+       //if stop_op { break; }
+       let update_screen = read_file_abs_adr( &term_app_screen );
+       println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
+       if count_out > 20 { return;}
+   }
+   match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} } 
+   match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => {} }
+  if !op_status{println!("Operation aborted")}; 
+if get_pid_by_name( &groupID_cpy ).is_some () {
+    unsafe{
+        kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+    }
+}
+}); abort.join().unwrap ();
+   // crate::cmd_keys::drop_ext_modes ( Some (true) );
+println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
+crate::smart_lags::fork_lag_mcs_verbose(10);
+true
+}
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
 drop_ls_mode();
@@ -317,7 +398,7 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     let cmd =cmd.replace (&replace_it_w, &this);
     let cmd = format! ("{} {}", ided_cmd, cmd);
     if !crate::Path::new(&ided_cmd).exists() { return }
-    crate::term_app::run_term_app_interactive_basic(cmd); //*/
+    crate::term_app::run_term_app_interactive_basic_4_group(&cmd, &linked_cmd); //*/
     
 }
 pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
