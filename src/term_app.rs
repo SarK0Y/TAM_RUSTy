@@ -2,11 +2,12 @@ use std::process::Command;
 use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
 use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
 use libc::SIGKILL;
+use termion::raw::IntoRawMode;
 use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars, STRN_strip};
-use crate::prox::{get_pid_by_name, get_ppid_n_pid_by_name};
+use crate::prox::{check_alive_proc_by_pid, get_pid_by_name, get_ppid_n_pid_by_name};
 use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
@@ -112,14 +113,17 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
     taken_term_msg();
     let adr_of_term_msg = adr_term_msg();
     let pwd = crate::core18::full_escape ( &read_file("env/cd") );
-    let cmd = format!("clear;reset;cd {pwd};{cmd} > {term_app_screen}; echo 'free' > {adr_of_term_msg}");
+    let (procName, _ ) = split_once(&cmd, " ");
+    let procName = crate::read_tail(&procName, "/");
+    let cmd = format!("clear;reset;cd {pwd};{cmd} > {term_app_screen}&pkill -stop {procName}; echo 'taken' > {adr_of_term_msg}");
     //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
     let path_2_cmd = crate::mk_cmd_file(cmd);
-        let mut pid: nix::unistd::Pid; 
+        let mut pid_kid: nix::unistd::Pid; 
     //    ( &format! ("bash -c {path_2_cmd}") ); 
       if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
+      //if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("{cmd}") ) {
         match res {
-            ForkResult::Parent { child } => {pid = child; },
+            ForkResult::Parent { child } => {pid_kid = child; },
             _ => { std::process::abort(); return false; }
         }
     } else { std::process::abort(); return false }
@@ -136,10 +140,11 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut key: String = "".strn(); //= getkey().to_lowercase(); 
    let mut proc_id= i32::MIN;
    let mut ppid = i32::MIN;
-   let mut count_down = 20;
+   let mut kill_op = false;
+   let mut count_down = 100;
    while ppid == i32::MIN {
     if let Some ( (ppid0, pid ) )  = get_ppid_n_pid_by_name( &groupID) {
-        ppid = ppid0; proc_id = pid;
+        ppid = pid_kid.as_raw(); proc_id = pid;
     }
     count_down.dec();
     if count_down == 0 {break; }
@@ -148,6 +153,7 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    crate::pg18::reset_screen();
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
+   let mut proc_exited = false;
    println!("proc id {}, proc name {}", proc_id, groupID );
 let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
@@ -155,6 +161,7 @@ let abort = std::thread::spawn(move|| {
     if !fst { key = getkey().to_lowercase() };
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
+    if !check_alive_proc_by_pid( proc_id ) { proc_exited = true; return; }
        if key == "p"{
         unsafe {
             if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
@@ -170,22 +177,40 @@ let abort = std::thread::spawn(move|| {
         while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
             unsafe{
                 kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
-            }
+            } 
         }
 
-    break; }
+    kill_op = true; return; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
        println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
        if count_out > 20 { return;}
    }
-  if !op_status{println!("Operation aborted")}; 
 }); abort.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
-println!("Dear User, Please, hit any key to continue.. Thanks.");
-getkey();
+save_file_abs_adr0("free".strn(), adr_of_term_msg);
+if proc_exited { return true }
+if op_status{println!("Operation aborted"); return false; }
+if kill_op {println!("Operation killed"); return false; }
 crate::smart_lags::fork_lag_mcs_verbose(10);
 true
+}
+pub fn run_proc_by_proc (cmd: &String, groupID: &String){
+    let mut prox_lst: Vec < String > = Vec::new ();
+    let mut cmd = cmd.strn();
+    let mut proc = "".strn();
+    loop {
+        (proc, cmd) = split_once_or_ret_null_strns( &cmd, ";");
+        if proc != "" {prox_lst.push (proc.clone () );}
+        if cmd == "" { break; }
+    }
+    for proc in prox_lst {
+        let ret = run_term_app_interactive_basic_4_group( &proc, groupID);
+        dbg! (&ret);
+        if !ret { break; }
+    }
+    println!("Dear User, Please, hit any key to continue.. Thanks.");
+getkey();
 }
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
 let func_id = crate::func_id18::run_cmd_viewer_;
@@ -408,7 +433,7 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     let cmd =cmd.replace (&replace_it_w, &this);
     let cmd = format! ("{} {}", ided_cmd, cmd);
     if !crate::Path::new(&ided_cmd).exists() { return }
-    crate::term_app::run_term_app_interactive_basic_4_group(&cmd, &ided_cmd); //*/
+    crate::term_app::run_proc_by_proc(&cmd, &ided_cmd); //*/
     
 }
 pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {

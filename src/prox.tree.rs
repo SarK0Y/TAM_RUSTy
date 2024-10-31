@@ -57,6 +57,15 @@ pub fn get_ppid_n_pid_by_name ( name: &String ) -> Option < (i32, i32) > {
     }
     None
 }
+pub fn check_alive_proc_by_pid ( pid0: i32 ) -> bool {
+        let mut system = System::new_all();
+    system.refresh_all();
+
+    for ( pid, _ ) in system.processes() {
+        if pid.as_u32() as i32 == pid0 { return true}
+    }
+    false
+}
 pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
     
     let mut branch: *mut tree_of_prox = tree;
