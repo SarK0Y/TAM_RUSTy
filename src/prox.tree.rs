@@ -35,9 +35,24 @@ pub fn get_pid_by_name ( name: &String ) -> Option < i32 > {
 
     for (pid, process) in system.processes() {
         let process_cmd = process.cmd().join ( &std::ffi::OsString::from  ( " ") ).to_str ().unwrap_or("").to_string (); 
-       // println!("{}", process_cmd );
+       // println!("{}", process_cmd )
+    ;
         if process_cmd.find (name ).is_some() {
             return Some( pid.as_u32 () as i32 ); 
+        }
+    }
+    None
+}
+pub fn get_ppid_n_pid_by_name ( name: &String ) -> Option < (i32, i32) > {
+        let mut system = System::new_all();
+    system.refresh_all();
+
+    for (pid, process) in system.processes() {
+        let process_cmd = process.cmd().join ( &std::ffi::OsString::from  ( " ") ).to_str ().unwrap_or("").to_string (); 
+       // println!("{}", process_cmd )
+        if process_cmd.find (name ).is_some() {
+            let ppid = match system.process ( *pid ).and_then (|p| {p.parent () }) {Some (ppid) => ppid.as_u32 () as i32, _ => i32::MIN };
+            return Some( (ppid, pid.as_u32 () as i32) ); 
         }
     }
     None

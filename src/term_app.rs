@@ -6,11 +6,11 @@ use termion::terminal_size;
 use substring::Substring;
 use once_cell::sync::Lazy;
 use crate::custom_traits::{STRN, helpful_math_ops, escaped_chars, STRN_strip};
-use crate::prox::get_pid_by_name;
+use crate::prox::{get_pid_by_name, get_ppid_n_pid_by_name};
 use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
+use crate::globs18::{bash_unlink, check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
 use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, 
     is_dir, mk_cmd_file_dirty, mk_dummy_lnk, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, 
     save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
@@ -134,21 +134,24 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut pause_operation = false;
    let mut fst = true;
    let mut key: String = "".strn(); //= getkey().to_lowercase(); 
-   let mut proc_id = get_pid_by_name( groupID );
+   let mut proc_id= i32::MIN;
+   let mut ppid = i32::MIN;
    let mut count_down = 20;
-   while proc_id.is_none (){
-    proc_id = get_pid_by_name( groupID );
+   while ppid == i32::MIN {
+    if let Some ( (ppid0, pid ) )  = get_ppid_n_pid_by_name( &groupID) {
+        ppid = ppid0; proc_id = pid;
+    }
     count_down.dec();
     if count_down == 0 {break; }
    }
-   if proc_id.is_none () { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
-   let proc_id = proc_id.unwrap_or_else (|| { i32::MIN }) ;
+   if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
    crate::pg18::reset_screen();
    let groupID_cpy = groupID.strn();
-   println!("proc id {:?}, proc name {}", proc_id, groupID );
+   let groupID_cpy1 = groupID.strn();
+   println!("proc id {}, proc name {}", proc_id, groupID );
 let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
-   while key != "k" {
+   loop {
     if !fst { key = getkey().to_lowercase() };
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
@@ -159,20 +162,24 @@ let abort = std::thread::spawn(move|| {
             else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
         }
        }
-       if "k" == key { break; }
+    if "k" == key { 
+        match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
+        match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
+        kill ( Pid::from_raw (ppid), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (ppid), nix::sys::signal::SIGKILL );
+        kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+        while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
+            unsafe{
+                kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+            }
+        }
+
+    break; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
        println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
        if count_out > 20 { return;}
    }
-   match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} } 
-   match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => {} }
   if !op_status{println!("Operation aborted")}; 
-if get_pid_by_name( &groupID_cpy ).is_some () {
-    unsafe{
-        kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
-    }
-}
 }); abort.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 println!("Dear User, Please, hit any key to continue.. Thanks.");
@@ -396,9 +403,12 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     let replace_it_w = format! (";{}", cmd_prefix.1);
     let this = format! (";{}", ided_cmd);
     let cmd =cmd.replace (&replace_it_w, &this);
+    let replace_it_w = format! ("&{}", cmd_prefix.1);
+    let this = format! ("&{}", ided_cmd);
+    let cmd =cmd.replace (&replace_it_w, &this);
     let cmd = format! ("{} {}", ided_cmd, cmd);
     if !crate::Path::new(&ided_cmd).exists() { return }
-    crate::term_app::run_term_app_interactive_basic_4_group(&cmd, &linked_cmd); //*/
+    crate::term_app::run_term_app_interactive_basic_4_group(&cmd, &ided_cmd); //*/
     
 }
 pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
