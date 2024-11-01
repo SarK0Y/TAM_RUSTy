@@ -140,15 +140,10 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut ppid = i32::MIN;
    let mut kill_op = false;
    let mut count_down = 7;
-   while ppid == i32::MIN {
-    if let Some ( (ppid0, pid ) )  = get_ppid_n_pid_by_name( &groupID) {
-        ppid = pid_kid.as_raw(); proc_id = pid;
-    }
-    count_down.dec();
-    if count_down == 0 {break; }
-   }
+   
   // if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
   // crate::pg18::reset_screen();
+  proc_id = pid_kid.into ();
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
    let mut proc_exited = false;
