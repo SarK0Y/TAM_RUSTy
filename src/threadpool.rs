@@ -281,7 +281,7 @@ pub fn run_kid_no_bash (cmd: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
-        match execve ( &c_str ( &app_name), &args, &env ) {
+        match execve ( &c_str ( &app_name), &args[0..cnt], &env ) {
             Err(e) =>  {logErr(e );},
             _ =>              {}
         };
