@@ -8,7 +8,7 @@ use std::{ ffi::CString, env::var, num::NonZero };
 use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
-use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
+use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file, save_file_append, save_file_append_newline_abs_adr_fast, split_once, split_once_or_ret_null_strns, STRN};
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
@@ -200,14 +200,16 @@ pub fn run_kid (cmd: &String) {
         let (mut app_name, _ ) = split_once( cmd, " ");
         let mut cnt = 0usize;
         let mut cmd = cmd.strn();
+        let mut arg = "".strn();
         loop {
-            let (arg, cmd0 ) = split_once(&cmd, " ");
-            cmd = cmd0;
+            (arg, cmd ) = split_once_or_ret_null_strns(&cmd, " ");
          //   //dbg!(&arg); delay_secs(3);
-            if arg == "none" { break }
+            if arg == "" { break }
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
         form_env (&mut env);
+        save_file(
+            format!("{:?}", env), "env.bash".strn());
        /* let mut env_prnt = |env: & [CString]| {
             for i in 0..6 {
                 //dbg! (env [i] );
@@ -235,6 +237,71 @@ pub fn run_kid (cmd: &String) {
         errMsg0 ("execve failed");
     }
 }
+pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Child) => { run_kid_no_bash(cmd ); std::process::abort(); crate::info::SYS(); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
+pub fn run_kid_no_bash (cmd: &String) {
+    let GUARD_LAG = 1;
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
+    let c_str = |arg: &String| -> CString {CString::new( arg.as_str()  ).unwrap() };
+    let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
+    save_file(
+            format!("{:?}", cmd), "execve".strn());
+    let empty =  empty_c_str ();
+    unsafe {
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
+
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+        let mut cnt = 0usize;
+        let mut cmd = cmd.strn();
+        let mut arg = "".strn();
+        let mut app_name = "".strn();
+        ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, " ");
+        loop {
+            (arg, cmd ) = split_once_or_ret_null_strns(&cmd, " ");
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" { break }
+            args[ cnt ] = c_str (&arg); cnt.inc();
+        }
+        save_file_append(
+            format!("{:?}", args), "execve0".strn());
+        form_env (&mut env);
+        save_file_append(
+            format!("{:?}", env), "env.dbg".strn());
+       /* let mut env_prnt = |env: & [CString]| {
+            for i in 0..6 {
+                //dbg! (env [i] );
+            }
+        }; */
+       ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
+        use nix::errno::Errno;
+        match execve ( &c_str ( &app_name), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/local/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+
+        errMsg0 ("execve failed");
+    }
+}
+
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
@@ -345,6 +412,40 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 }
 //fn
 /*
+////////////////////////// run cargo w/ execve ///////////////////////////////
+use nix::unistd::{execve, fork, ForkResult};
+use nix::sys::wait::wait;
+use std::ffi::CString;
+use std::os::unix::ffi::OsStrExt;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    match unsafe { fork()? } {
+        ForkResult::Parent { child } => {
+            // Parent process
+            wait()?; // Wait for the child to finish
+            println!("Cargo process finished");
+        }
+        ForkResult::Child => {
+            // Child process
+            let cargo_path = CString::new("/usr/bin/cargo")?; // Adjust path as needed
+            let args = vec![
+                CString::new("cargo")?,
+                CString::new("build")?,
+                // Add more arguments as needed
+            ];
+            let envs: Vec<CString> = std::env::vars()
+                .map(|(k, v)| CString::new(format!("{}={}", k, v)).unwrap())
+                .collect();
+
+            execve(&cargo_path, &args, &envs)?;
+            
+            // If execve returns, it's an error
+            panic!("execve failed");
+        }
+    }
+    Ok(())
+}
+////////////////////////// run cargo w/ execve ///////////////////////////////
 use nix::unistd::{execve, fork, ForkResult};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

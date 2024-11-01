@@ -1476,4 +1476,8 @@ pub(crate) fn load_fish_history() {
     set_front_list("fish_history_cpy");
     manage_lst(&cmd_lst);
 }
+pub fn bash_unlink (name: &String) {
+    let cmd = format! ("unlink {}", name);
+    crate::run_cmd_out_sync(cmd);
+}
 //fn

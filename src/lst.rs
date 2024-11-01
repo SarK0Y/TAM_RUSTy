@@ -201,7 +201,7 @@ pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
 }
 pub fn parse_paths(cmd: &String) -> (String, String, String){
     let mut cmd = cmd.to_string();
-    if match cmd.chars().nth(cmd.len() -1){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
+    if match cmd.chars().nth(cmd.len().dec () ){Some(k) => k, _ => "0".chars().nth(0).unwrap()}.to_string() == crate::getStop_code__!(){cmd = cmd.substring(0, cmd.len() - 1).to_string()}
     let re = Regex::new(r"(?x)
                             (?<long_name_opt>--\w+\s)|
                             (?<short_name_opt>-\w+\s)
