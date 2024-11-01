@@ -8,19 +8,10 @@ use termios::ISIG;
 //use gag::RedirectError;
 
 use crate::{
-    cached_ln_of_found_files, change_dir0,
-    custom_traits::{fs_tools, STRN},
-    front_lst, get_arg_in_cmd, helpful_math_ops,
-    init::user_home_dir,
-    link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out,
-    run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once,
-    swtch::{local_indx, path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt},
-    swtch_esc,
-    update18::{
+    cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, init::user_home_dir, link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once, split_once_or_ret_null_strns, swtch::{local_indx, path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{
         alive_session, background_fixing, background_fixing_count, fix_screen, upd_screen_or_not,
         update_dir_list,
-    },
-    STRN_strip,
+    }, STRN_strip
 };
 
 use self::ps21::{get_mainpath, get_prnt, get_tmp_dir, set_ask_user, set_prnt};
@@ -365,14 +356,37 @@ pub(crate) fn mk_dummy_lnk(head: &str) {
         .replace(&format!("{head}:"), "")
         .trim_start()
         .to_string();
-    let (ret, _) = split_once(&ret, head);
-    if ret != "none" {
+    let (ret, _) = split_once_or_ret_null_strns(&ret, head);
+    if ret != "" {
         let cmd = format!(
             "ln -sf {ret}/{head} {}",
             format!("{}/{head}", take_list_adr("env/dummy_lnks"))
         );
         run_cmd0(cmd);
     }
+}
+pub(crate) fn mk_dummy_lnk_(head: &str) {
+    let cmd = "which ".to_string() + head;
+    let ret = run_cmd_out(cmd)
+        .trim_start()
+        .trim_end()
+        .strn();
+    //let (ret, _) = split_once_or_ret_null_strns(&ret, head);
+    if ret != "" {
+        let cmd = format!(
+            "ln -sf {ret} {}", format!("{}/{head}", take_list_adr("env/dummy_lnks"))
+        );
+        run_cmd0(cmd);
+    }
+}
+pub(crate) fn full_path_to_cmd (head: &str) -> String {
+    let cmd = "which ".to_string() + head;
+    let ret = run_cmd_out(cmd)
+        .trim_start()
+        .trim_end()
+        .strn();
+    //let (ret, _) = split_once_or_ret_null_strns(&ret, head);
+    ret
 }
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {
