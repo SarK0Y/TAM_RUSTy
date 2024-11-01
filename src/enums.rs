@@ -39,6 +39,11 @@ pub enum smart_lags {
     failed
 }
 #[derive(Debug, Clone, PartialEq)]
+pub enum calc_kids{
+    default_way,
+    set_direction,
+}
+#[derive(Debug, Clone, PartialEq)]
 pub enum nvim {
     not_found,
     too_old,

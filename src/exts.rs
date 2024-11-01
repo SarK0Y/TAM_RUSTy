@@ -55,6 +55,8 @@ mod cmd_keys;
 use cmd_keys::*;
 #[path = "no.flood.rs"]
 mod smart_lags;
+#[path = "prox.tree.rs"]
+mod prox;
 #[path = "key_handlers.rs"]
 mod key_handlers;
 use key_handlers::*;
@@ -64,6 +66,8 @@ use types::*;
 #[path = "lst.rs"]
 mod lst;
 use lst::*;
+#[path = "faav.rs"]
+mod faav;
 #[cfg(feature="in_dbg")] #[path = "in_dbg0.rs"]
 mod in_dbg0;
 #[cfg(feature="in_dbg")]

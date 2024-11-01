@@ -1,4 +1,5 @@
 use console::truncate_str;
+use nix::sys::signal::pthread_sigmask;
 use once_cell::sync::Lazy;
 use nix::sys::wait::wait;
 use nix::unistd::{fork, ForkResult, getpid, getppid, execve};
@@ -7,18 +8,19 @@ use std::{ ffi::CString, env::var, num::NonZero };
 use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
-use crate::{errMsg0, getkey, helpful_math_ops, save_file_append_newline_abs_adr_fast, split_once, STRN};
+use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file, save_file_append, save_file_append_newline_abs_adr_fast, split_once, split_once_or_ret_null_strns, STRN};
 use std::ptr; use std::cell::RefCell;
-use std::mem::{ManuallyDrop, forget};
-#[derive( Debug )]
+use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
+use crate::enums::calc_kids;
+#[derive( Debug, PartialEq )]
 pub struct tree_of_prox {
-    ppid: i32 ,
+   pub ppid: i32 ,
     //ppid: nix::unistd::Pid,
-    up: *mut tree_of_prox,
-    kids: *mut Vec< *mut tree_of_prox >,
-    proxid_of_kid: *mut Vec < i32 >,
-    direction_to_count: bool,
-    cursor: usize,
+   pub  up: *mut tree_of_prox,
+   pub kids: *mut Vec< *mut tree_of_prox >,
+   pub proxid_of_kid: *mut Vec < i32 >,
+   pub direction_to_count: bool,
+   pub  cursor: usize,
 }
 pub trait Clone {
     fn clone (&self) -> Self;
@@ -61,45 +63,55 @@ pub enum branch_state {
     down
 }
 pub trait prox  {
-    fn new ( pid: i32 ) -> Box < *mut tree_of_prox >;
+    fn new ( pid: i32 ) -> ManuallyDrop < Box < *mut tree_of_prox > >;
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
-    fn new_branch ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state );
+    fn new_branch ( &mut self ) -> Option < (ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) >;
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox >;
     fn dup ( &self ) -> Box < *mut tree_of_prox >;
 }
 impl prox for tree_of_prox  {
-    fn new ( pid: i32) -> Box < *mut tree_of_prox  > {
-         let mut root: *mut tree_of_prox =  *mk_root_of_prox( pid).init().0;
-         dbg!( &root );
-         Box::new ( root )
+    fn new ( pid: i32) -> ManuallyDrop < Box < *mut tree_of_prox  > >{
+         let mut root: *mut tree_of_prox = &mut *( *mk_root_of_prox( pid) );
+         unsafe { (*root).init(); }
+         //dbg!( &root );
+         md::new ( Box::new ( root ))
     }
     fn init ( &mut self ) -> (Box < *mut tree_of_prox >, branch_state ) {
-        dbg! ( &self );
+        //dbg! ( &self );
         if !init_root_of_prox( &mut  *self) { return ( Box::new ( self ), branch_state::failed_init );};
-        dbg! ( &self );
+        //dbg! ( &self );
         ( Box::new ( self ), branch_state::ok_init )
     }
-    fn new_branch ( &mut self ) -> ( Box < *mut tree_of_prox >, branch_state ) {
+    fn new_branch ( &mut self ) -> Option < ( ManuallyDrop < Box < *mut tree_of_prox > >, branch_state ) > {
         unsafe {
-            dbg!(&self);
-            if (*self.proxid_of_kid).len() == 0 { return ( Box::new ( self ), branch_state::none ) }
-            dbg!(&self);
-            let hacky_pointer: *mut tree_of_prox = self as *mut tree_of_prox; 
-            let mut branch: *mut tree_of_prox = Box::into_raw (mk_branch_of_prox( &mut *hacky_pointer ) );
-            dbg!( &branch );
-            (*(*self).kids).push ( branch );
-            dbg!( &self );
+            let me: *mut tree_of_prox = &mut *self;
+            //dbg!(&self);
+            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            if (*self.proxid_of_kid).len() == 0 { return None }
+            ////dbg!(&self);
+            let mut branch: *mut tree_of_prox ;
+            if let Some ( x ) = mk_branch_of_prox( self ) {
+                branch = Box::into_raw (ManuallyDrop::into_inner ( x ) );
+            } else { branch = ptr::null_mut () ;}
+           
+            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            ////dbg! (    & (*(*me).proxid_of_kid)  );
+            (*(*me).kids).push ( branch );
+          //  //dbg!( &self );
              (*self).cursor.inc();
-            dbg!( &self );
-            if (*(*branch).proxid_of_kid).len() > 0 { return (Box::new ( branch ), branch_state::new ); }
-            dbg!( &branch );
-            while (*(*branch).proxid_of_kid).len() == 0 ||
-                ((*(*branch).proxid_of_kid).len() == ((*branch).cursor ) && !self.up.is_null() )
+             if branch == ptr::null_mut () { return None }
+              //dbg!( &(*branch) );
+            //dbg!( &self );
+            if (*(*branch).proxid_of_kid).len() > 0 { return Some( (md::new (Box::new ( branch )), branch_state::new ) ); }
+            //dbg!( &branch );
+            while (*(*branch).proxid_of_kid).len() == 0
                 {
-                    dbg!( &branch );
+                    //dbg!( &branch );
                     if (*(*branch).proxid_of_kid).len() <= (*branch).cursor { (*branch).direction_to_count = true; }
+                    if self.up.is_null() { break; }
                     branch = ( *branch ).up;
-                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } (Box::new ( branch ), branch_state::jump_up )
+                }  if (*branch).cursor < (*(*branch).proxid_of_kid).len() { (*branch).cursor.inc(); } 
+                                                               Some ( (md::new (Box::new ( branch )), branch_state::jump_up ) )
         }
     }
     fn dup_mut ( &mut self ) -> Box < *mut tree_of_prox > {
@@ -169,7 +181,7 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 pub fn new_thr (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
-        Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort();},
+        Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
@@ -188,20 +200,20 @@ pub fn run_kid (cmd: &String) {
         let (mut app_name, _ ) = split_once( cmd, " ");
         let mut cnt = 0usize;
         let mut cmd = cmd.strn();
+        let mut arg = "".strn();
         loop {
-            let (arg, cmd0 ) = split_once(&cmd, " ");
-            cmd = cmd0;
-         //   dbg!(&arg); delay_secs(3);
-            if arg == "none" { break }
+            (arg, cmd ) = split_once_or_ret_null_strns(&cmd, " ");
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" { break }
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
         form_env (&mut env);
        /* let mut env_prnt = |env: & [CString]| {
             for i in 0..6 {
-                dbg! (env [i] );
+                //dbg! (env [i] );
             }
         }; */
-       //dbg!(&args); dbg!(&app_name); dbg! ( &env); delay_secs(12);
+       ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
         match execve ( &c_str ( &app_name), &args, &env ) {
             Err(e) =>  {logErr(e );},
@@ -223,6 +235,69 @@ pub fn run_kid (cmd: &String) {
         errMsg0 ("execve failed");
     }
 }
+pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Child) => { run_kid_no_bash(cmd ); std::process::abort(); crate::info::SYS(); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
+pub fn run_kid_no_bash (cmd: &String) {
+    let GUARD_LAG = 1;
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
+    let c_str = |arg: &String| -> CString {CString::new( arg.as_str()  ).unwrap() };
+    let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
+    save_file(
+            format!("{:?}", cmd), "execve".strn());
+    let empty =  empty_c_str ();
+    unsafe {
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
+
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+        let mut cnt = 0usize;
+        let mut cmd = cmd.strn();
+        let mut arg = "".strn();
+       // let mut app_name = "".strn();
+        let ( app_name, _ ) = split_once_or_ret_null_strns( &cmd, " ");
+        loop {
+            (arg, cmd ) = split_once_or_ret_null_strns(&cmd, " ");
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" { break }
+            args[ cnt ] = c_str (&arg); cnt.inc();
+        }
+        save_file_append(
+            format!("{:?}", args), "execve".strn());
+        form_env (&mut env);
+       /* let mut env_prnt = |env: & [CString]| {
+            for i in 0..6 {
+                //dbg! (env [i] );
+            }
+        }; */
+       ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
+        use nix::errno::Errno;
+        match execve ( &c_str ( &app_name), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/local/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+
+        errMsg0 ("execve failed");
+    }
+}
+
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
@@ -232,7 +307,7 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
         env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
         count.inc();
     }
-//    dbg!(&env_str); getkey();
+//    //dbg!(&env_str); getkey();
         env_str
 }
 pub fn logErr (e: nix::errno::Errno ) {
@@ -243,113 +318,92 @@ pub fn logErr (e: nix::errno::Errno ) {
 pub fn list_kid_pids (ppid: nix::unistd::Pid, pid_vec: &mut Vec < nix::unistd::Pid >) {
 
 }
-pub fn mk_tree_of_prox ( pid: i32 ) -> Box <*mut tree_of_prox >{
+pub fn mk_tree_of_prox ( pid: i32 ) -> ManuallyDrop < Box <*mut tree_of_prox > >{
     unsafe {
-         let mut tree: *mut tree_of_prox = *tree_of_prox::new(pid);
-         dbg!(&tree);
+         let mut tree: *mut tree_of_prox = *(*tree_of_prox::new(pid));
+         let tree0 = tree.clone();
+         //dbg!(&tree);
+         //dbg!(&(*tree));
          while !((*tree).up == ptr::null_mut () && (*tree).cursor >= (*(*tree).proxid_of_kid).len() ){
-            dbg!(&tree);
-            tree = *(*tree).new_branch().0;
-            dbg!(&tree);
+            //dbg!(&tree);
+            //dbg!(&(*tree));
+            tree = if let Some ( x ) = (*tree).new_branch() { **(x.0) } else { break; };
+            //dbg!(&tree);
+            //dbg!(&(*tree));
          }
-         Box::new ( tree )
+        // panic!("mk_tree_of_prox", );
+         md::new (Box::new ( tree0 ))
     }
 }
-pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Box <  tree_of_prox > {
+pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Option < ManuallyDrop < Box <  tree_of_prox > > > {
     unsafe {
-        let _kids = ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
-        let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-        let _proxid_of_kid = ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
-    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
+        let _kids = static_vec::<*mut tree_of_prox >();//ManuallyDrop::new ( RefCell::new( Vec::< *mut tree_of_prox >::new() ) );
+        let _proxid_of_kid = static_vec::<i32>();//ManuallyDrop::new (RefCell::new( Vec::< i32 >::new() ) );
+         if (*tree).cursor >= (*(*tree).proxid_of_kid).len() {return None;}
+        let ppid: i32 = if (*(*tree).proxid_of_kid).len() == 0 { i32::MIN } else { (*(*tree).proxid_of_kid ) [ (*tree).cursor ] };
+       //dbg! (& (*tree) );
         let mut branch = Box::new(  tree_of_prox  {
-            ppid: (*(*tree).proxid_of_kid ) [ (*tree).cursor ],
+            ppid: ppid, //(*(*tree).proxid_of_kid ) [ (*tree).cursor ],
             up: tree,
-            kids: __kids,
-            proxid_of_kid: __proxid_of_kid,
+            kids: _kids,
+            proxid_of_kid: _proxid_of_kid,
             direction_to_count: false,
             cursor: 0
         } );
+        let mut bp: *mut tree_of_prox = &mut *branch;
+        //dbg! (& (*tree) );
         //(*tree).cursor.inc();
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
-                if res.ppid == branch.ppid {
-                    (*branch.proxid_of_kid).push (res.pid );
+                if res.ppid == (*bp).ppid {
+                    //dbg! (& (*tree) );
+                    println! ("res.pid {}", res.pid);
+                    (*(*bp).proxid_of_kid).push (res.pid );
                 }
             }
         }
-    branch
+        //dbg! (& (*tree) );
+Some( ManuallyDrop::new( branch ) )
    }
 }
-pub fn mk_root_of_prox (pid: i32) -> Box < tree_of_prox  > {
-    let mut _kids =  static_vec:: <*mut tree_of_prox >();
+pub fn mk_root_of_prox (pid: i32) -> ManuallyDrop < Box <tree_of_prox > > {
+    let mut _kids =  static_vec:: <*mut tree_of_prox >();  //ManuallyDrop::new (RefCell::new (Vec:: < *mut tree_of_prox >::new() ) );
     //let _kids =Box::into_raw ( Box::new( tree_vec ) );
-       // let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
-    let _proxid_of_kid = ManuallyDrop::new ( RefCell::new( Vec::< i32 >::new() ) );
-    let __proxid_of_kid: *mut Vec::< i32 > = _proxid_of_kid.as_ptr();
-    Box::new(  tree_of_prox  {
+//    let __kids: *mut Vec::< *mut tree_of_prox > = _kids.as_ptr();
+    let mut _proxid_of_kid = /* static_vec:: <  i32 > ();*/ ManuallyDrop::new ( Box::new (Vec::< i32 >::with_capacity (1024)) );
+    let __proxid_of_kid: *mut Vec::< i32 > = &mut *(*(_proxid_of_kid));
+    ManuallyDrop::new ( Box::new (tree_of_prox  {
         ppid: pid,
         up: ptr::null_mut (),
         kids: _kids,
         proxid_of_kid: __proxid_of_kid,
         direction_to_count: false,
         cursor: 0
-    } )
+    }) ) 
 }
 pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
     unsafe {
         for proc in all_processes().unwrap() {
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == (*tree).ppid {
-                    dbg! ( (*(*tree).proxid_of_kid).len () );
+                    //dbg! ( (*(*tree).proxid_of_kid).len () );
                     (*(*tree).proxid_of_kid).push (res.pid );
-                    dbg! ( (*(*tree).proxid_of_kid).len () );
+                    //dbg! ( (*(*tree).proxid_of_kid).len () );
+                    //dbg! ( &(*(*tree).proxid_of_kid) );
                 }
             }
         }
-        dbg!( (*(*tree).proxid_of_kid).len() ); 
+        println!( "{:p}", & (*(*tree).proxid_of_kid) );
+        //dbg!( &(*(*tree).proxid_of_kid) ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }
 } 
-pub fn sig_2_tree_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ){
-    
-    let mut branch: *mut tree_of_prox = tree;
-    unsafe {
-        let mut ret = sig_2_branch_of_prox( &mut *branch, sig);
-        while ret.0 != ptr::null_mut() {
-         branch = ret.0;   
-         ret = sig_2_branch_of_prox( &mut *branch, sig);
-        }
-    }
-}
-pub fn sig_2_branch_of_prox (tree: &mut  tree_of_prox, sig: nix::sys::signal::Signal ) -> (*mut tree_of_prox, branch_state){
-    use nix::sys::signal::kill as kl;
-    use nix::unistd::Pid;
-    unsafe {
-        let direction_to_count = if (*tree).up != ptr::null_mut() {(*(*tree).up).direction_to_count} else {(*tree).direction_to_count };
-        let root_len = (*(*tree).kids).len();
-        if (*(*tree).proxid_of_kid).len() == 0 || (*tree).direction_to_count != direction_to_count { return ( (*tree).up, branch_state::jump_up ); }
-        let pids: &Vec <i32> = &(*(*tree).proxid_of_kid);
-            for pid in pids {
-                if let Ok (x) = kl ( Pid::from_raw(*pid ), sig ) {}
-            } let cur = count_kids_properly(tree);
-            ((*(*tree).kids)[cur], branch_state::down )    
-        }
-}
-pub fn count_kids_properly (tree: &mut  tree_of_prox) -> usize {
-    unsafe {
-        let mut len = (*(*tree).proxid_of_kid).len();
-        if len <= (*tree).cursor { (*tree).cursor = len.dec(); (*tree).direction_to_count = true; }
-        if (*tree).cursor == 0 { (*tree).direction_to_count = false }
-        let ret = (*tree).cursor;
-        if (*tree).direction_to_count { (*tree).cursor.dec(); }
-        else { (*tree).cursor.inc(); }
-        ret
-    }
-}
 pub fn static_vec <T > () -> *mut Vec < T > {
-    let mut this_vec = Vec:: < T >::new();
-    let pointer: *mut Vec < T > =  &mut this_vec;
-    forget ( this_vec );
+    let mut this_vec = ManuallyDrop::new( Box::new (Vec:: < T >::new()) );
+   // std::mem::forget ( this_vec );
+    unsafe { (*this_vec).set_len( 0 ); }
+    let pointer: *mut Vec < T > =  &mut *(*this_vec);
+//    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }
 //fn
