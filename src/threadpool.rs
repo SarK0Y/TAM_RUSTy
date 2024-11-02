@@ -271,9 +271,10 @@ pub fn run_kid_no_bash (cmd: &String) {
         }
         save_file_append(
             format!("{:?}", args), "execve0".strn());
-        form_env (&mut env);
+        let env_len = form_env (&mut env).1;
         save_file_append(
             format!("{:?}", env), "env.dbg".strn());
+        if  env_len == 0 { return }
        /* let mut env_prnt = |env: & [CString]| {
             for i in 0..6 {
                 //dbg! (env [i] );
@@ -281,7 +282,7 @@ pub fn run_kid_no_bash (cmd: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
-        match execve ( &c_str ( &app_name), &args[0..cnt], &env ) {
+        match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
             Err(e) =>  {logErr(e );},
             _ =>              {}
         };
@@ -302,17 +303,24 @@ pub fn run_kid_no_bash (cmd: &String) {
     }
 }
 
-pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
+pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
-    for (key, val ) in std::env::vars() {
-//        let key = format! ("{}={}", key.into_string().unwrap(), val.into_string().unwrap() );
+    let pwd = crate::read_file("env/cd");
+    match nix::unistd::chdir( pwd.as_str() ){
+        Ok (ok) => ok,
+        Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change dir due to {e:?}") ); return (env_str, 0); }
+    };
+    for (key, mut val ) in std::env::vars() {
+        if key.to_lowercase () == "pwd" || key.to_lowercase () == "home" {
+            if pwd != "" { val = pwd.clone (); }
+        }
         let key = format! ("{}={}", key, val );
         env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
         count.inc();
     }
 //    //dbg!(&env_str); getkey();
-        env_str
+        (env_str, count)
 }
 pub fn logErr (e: nix::errno::Errno ) {
     let log_err_file = take_list_adr ("ErrNumLog");

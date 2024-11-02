@@ -166,7 +166,6 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
     if "k" == key { 
         match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
         match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
-        kill ( Pid::from_raw (ppid), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (ppid), nix::sys::signal::SIGKILL );
         kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
         while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
             unsafe{
