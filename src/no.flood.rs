@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-
+use std::collections::HashMap;
 use crate::{enums, smart_lags, STRN};
 
 pub fn fork_lag_mcs_bool (mcs: u128) -> bool {
@@ -35,5 +35,32 @@ pub fn screen_lag (lag: Option < u128 >) -> u128 {
 pub fn set_screen_lag (cmd: String) {
     let cmd = cmd.replace("screen lag", "").trim_end().trim_start().strn();
     if let Ok (lag ) = cmd.parse:: <u128>() { screen_lag( Some ( lag ) ); }
+}
+use crate::enums::named_mutex;
+pub fn mamed_mutexes (name: &String, op: named_mutex) -> Option < bool >
+{
+    static mut lst_mutexes: Lazy < HashMap < String, bool > > = Lazy::new (|| {HashMap::new ()});
+    unsafe {
+        match op {
+            named_mutex::get => {
+                if lst_mutexes.contains_key ( name ) { return Some( *lst_mutexes.get ( name ).unwrap () ) }
+                return None
+            }
+            named_mutex::set => {
+                if let Some ( x ) = lst_mutexes.get_mut ( name ) {
+                    *x = true; return Some ( *x )
+                }
+                lst_mutexes.insert (name.strn(), true); return Some ( true )
+            }
+            named_mutex::unset => {
+                if let Some ( x ) = lst_mutexes.get_mut ( name ) {
+                    *x = false; return Some ( *x )
+                }
+                lst_mutexes.insert (name.strn(), false); return Some ( false )
+            }
+            _ => {}
+        }
+    }
+    None
 }
 //fn

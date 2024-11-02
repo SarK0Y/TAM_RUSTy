@@ -1,6 +1,7 @@
 use std::process::Command;
 use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
 use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
+use std::os::unix::thread::JoinHandleExt;
 use libc::SIGKILL;
 use termion::raw::IntoRawMode;
 use termion::terminal_size;
@@ -101,6 +102,7 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
     let func_id = crate::func_id18::run_cmd_viewer_;
     crate::faav::one_time_sav_prnt ( Some ( read_prnt() ) );
    // if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+   
     let term_app_screen = take_list_adr("term_app_screen");
     drop_ls_mode();
     crate::set_ask_user(cmd.as_str(), func_id);
@@ -149,7 +151,7 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut proc_exited = false;
    println!("proc id {}, proc name {}", proc_id, groupID );
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
-//let abort = std::thread::spawn(move|| {
+let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
    loop {
     if !fst { key = getkey().to_lowercase() };
@@ -167,11 +169,11 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
         match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
         match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
         kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
-        while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
+        /*while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
             unsafe{
                 kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
             } 
-        }
+        }*/
 
     kill_op = true; break; }
        //if stop_op { break; }
@@ -179,7 +181,18 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
        println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
       // if count_out > 20 { return;}
    }
-//}); abort.join().unwrap ();
+}); //abort.join().unwrap ();
+let proc_id1 = proc_id;
+let check_alive_thr = std::thread::spawn ( move || {
+    while !check_alive_proc_by_pid( proc_id1 ) {
+        delay_mcs( 7711 );
+    } 
+    unsafe {
+        //libc::pthread_cancel( abort.as_pthread_t() ); 
+        let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
+    writeIn_stdin.write("k".as_bytes() );
+    }
+}); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
 dbg!(&proc_exited);
