@@ -1,5 +1,6 @@
 use crate::custom_traits::helpful_math_ops;
 use crate::{enums, smart_lags, STRN};
+use nix::fcntl::FallocateFlags;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
 pub fn fork_lag_mcs_bool(mcs: u128) -> bool {
@@ -85,19 +86,23 @@ pub fn mamed_mutexes(
             }
             named_mutex::set => {
                 if let Some(x) = lst_mutexes.get_mut(name) {
-                    if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; *x = true };
+                    let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
+                    if cond { *mutex.owner = mutex.id; *x = true; mutex.status = *x  };
                     return Some(*x);
                 }
-                if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; };
+                let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
+                if cond { *mutex.owner = mutex.id; mutex.status = true};
                 lst_mutexes.insert(name.strn(), true);
                 return Some(true);
             }
             named_mutex::unset => {
                 if let Some(x) = lst_mutexes.get_mut(name) {
-                    if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; *x = false };
+                    let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
+                    if cond { *mutex.owner = mutex.id; *x = false; mutex.status = *x };
                     return Some(*x);
                 }
-                if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; };
+                let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
+                if cond { *mutex.owner = u64::MAX; mutex.status = false };
                 lst_mutexes.insert(name.strn(), false);
                 return Some(false);
             }
@@ -110,10 +115,11 @@ pub fn mutex_group_register(op: crate::enums::mutex_group) -> (*mut u64, usize) 
     static mut register: Lazy<Vec<*mut u64>> = Lazy::new(|| Vec::new());
     unsafe {
         if op == crate::enums::mutex_group::set {
-            let shared: std::mem::ManuallyDrop < Box < u64 > > = std::mem::ManuallyDrop::new (Box::new (u64::MAX ) );
-            let pointer: *mut u64 = Box::into_raw ( std::mem::ManuallyDrop::into_inner (shared) );
+            let mut shared: std::mem::ManuallyDrop < Box < u64 > > = std::mem::ManuallyDrop::new (Box::new (u64::MAX ) );
+            //Box::into_raw ( std::mem::ManuallyDrop::into_inner (shared) );
+            let pointer: *mut u64 = &mut **shared; 
             register.push (pointer);
-            (pointer, register.len () - 1);
+            return (pointer, register.len () - 1);
         }
     }
     (std::ptr::null_mut (), 0)

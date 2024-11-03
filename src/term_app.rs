@@ -200,8 +200,8 @@ let check_alive_thr = std::thread::spawn ( move || {
         if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
         //println! ("mutex state {mutex}");
     }
-    dbg! ("mid");
     unsafe {
+        dbg! ( &mutex); dbg! (*mutex.owner );
         //libc::pthread_cancel( abort.as_pthread_t() ); 
         let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
     writeIn_stdin.write("k".as_bytes() );
