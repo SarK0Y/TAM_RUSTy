@@ -81,8 +81,8 @@ pub struct custom_mutex {
     pub rank: u8
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum mutex_group {
-    set,
+pub enum mutex_group < 'a >  {
+    set ( &'a String ),
     get ( usize ),
     drop ( usize ),
     find ( *mut u64),

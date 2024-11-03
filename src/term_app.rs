@@ -192,11 +192,12 @@ let check_alive_thr = std::thread::spawn ( move || {
     } 
     let fn_name = "run_term_app_interactive_basic_4_group".strn();
     let mut mutex_state = false;
-    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new();
+    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &fn_name );
     if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
     else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
     //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
-    while mutex_state == false {
+    let cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner != mutex.id ) };
+    while cond == true {
         if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
         //println! ("mutex state {mutex}");
     }

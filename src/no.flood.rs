@@ -1,5 +1,5 @@
 use crate::custom_traits::helpful_math_ops;
-use crate::{enums, smart_lags, STRN};
+use crate::{enums, lst, smart_lags, STRN};
 use nix::fcntl::FallocateFlags;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
@@ -112,12 +112,19 @@ pub fn mamed_mutexes(
     None
 }
 pub fn mutex_group_register(op: crate::enums::mutex_group) -> (*mut u64, usize) {
+    static mut lst_mutexes: Lazy<HashMap<String, usize > > = Lazy::new(|| HashMap::new());
     static mut register: Lazy<Vec<*mut u64>> = Lazy::new(|| Vec::new());
     unsafe {
-        if op == crate::enums::mutex_group::set {
+        if let crate::enums::mutex_group::set (x ) = op {
+            if lst_mutexes.contains_key ( x ) {
+                let line = lst_mutexes.get ( x ).unwrap ();
+                let pointer: *mut u64 = register [ *line ]; 
+                return (pointer, *line);
+            }
             let mut shared: std::mem::ManuallyDrop < Box < u64 > > = std::mem::ManuallyDrop::new (Box::new (u64::MAX ) );
             //Box::into_raw ( std::mem::ManuallyDrop::into_inner (shared) );
-            let pointer: *mut u64 = &mut **shared; 
+            let pointer: *mut u64 = &mut **shared;
+            lst_mutexes.insert ( x.strn(), register.len () - 1 );
             register.push (pointer);
             return (pointer, register.len () - 1);
         }
@@ -125,11 +132,11 @@ pub fn mutex_group_register(op: crate::enums::mutex_group) -> (*mut u64, usize) 
     (std::ptr::null_mut (), 0)
 }
 pub trait new_custom_mutex {
-    fn new () -> crate::enums::custom_mutex;
+    fn new ( name: &String) -> crate::enums::custom_mutex;
 }
 impl new_custom_mutex for crate::enums::custom_mutex {
-    fn new () -> crate::enums::custom_mutex {
-        let reg = mutex_group_register( crate::enums::mutex_group::set );
+    fn new ( name: &String ) -> crate::enums::custom_mutex {
+        let reg = mutex_group_register( crate::enums::mutex_group::set ( name ) );
         Self {
             line_in_register: reg.1,
             owner: reg.0,
