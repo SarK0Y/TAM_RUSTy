@@ -68,9 +68,9 @@ pub fn mamed_mutexes(
     name: &String,
     op: named_mutex,
     mutex: &mut crate::enums::custom_mutex,
-) -> Option<bool> {
+) -> Option < bool > {
     static mut lst_mutexes: Lazy<HashMap<String, bool>> = Lazy::new(|| HashMap::new());
-    if let crate::enums::smart_lags::well_done(_) = fork_lag_mcs_verbose(200111) {
+    if let crate::enums::smart_lags::well_done(_) = fork_lag_mcs_verbose(7111) {
     } else {
         return None;
     }
@@ -78,23 +78,26 @@ pub fn mamed_mutexes(
         match op {
             named_mutex::get => {
                 if lst_mutexes.contains_key(name) {
-                    return Some(*lst_mutexes.get(name).unwrap());
+                    if *mutex.owner == mutex.id { return Some( true );}
+                    return Some( false );
                 }
                 return None;
             }
             named_mutex::set => {
                 if let Some(x) = lst_mutexes.get_mut(name) {
-                    *x = true;
+                    if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; *x = true };
                     return Some(*x);
                 }
+                if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; };
                 lst_mutexes.insert(name.strn(), true);
                 return Some(true);
             }
             named_mutex::unset => {
                 if let Some(x) = lst_mutexes.get_mut(name) {
-                    *x = false;
+                    if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; *x = false };
                     return Some(*x);
                 }
+                if *mutex.owner == u64::MAX { *mutex.owner = mutex.id; };
                 lst_mutexes.insert(name.strn(), false);
                 return Some(false);
             }
@@ -144,6 +147,46 @@ pub fn check_named_mutexes_failed (timeout: Option < u64 >) -> (u64, u64 ) {
         if count == timeout0 { return ( timeout0, timeout0 )}
         count.inc (); return (timeout0, count -1)
     }
+}
+
+pub fn mamed_mutexes(
+    name: &String,
+    op: named_mutex,
+    mutex: &mut crate::enums::custom_mutex,
+) -> Option < bool > {
+    static mut lst_mutexes: Lazy<HashMap<String, bool>> = Lazy::new(|| HashMap::new());
+    if let crate::enums::smart_lags::well_done(_) = fork_lag_mcs_verbose(200111) {
+    } else {
+        return None;
+    }
+    unsafe {
+        match op {
+            named_mutex::get => {
+                if lst_mutexes.contains_key(name) {
+                    return Some(*lst_mutexes.get(name).unwrap());
+                }
+                return None;
+            }
+            named_mutex::set => {
+                if let Some(x) = lst_mutexes.get_mut(name) {
+                    *x = true;
+                    return Some(*x);
+                }
+                lst_mutexes.insert(name.strn(), true);
+                return Some(true);
+            }
+            named_mutex::unset => {
+                if let Some(x) = lst_mutexes.get_mut(name) {
+                    *x = false;
+                    return Some(*x);
+                }
+                lst_mutexes.insert(name.strn(), false);
+                return Some(false);
+            }
+            _ => {}
+        }
+    }
+    None
 }
 ///////////// rethink or just kick out ////////////////////
 */
