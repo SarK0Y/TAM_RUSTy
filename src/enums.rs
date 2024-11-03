@@ -74,7 +74,17 @@ pub enum named_mutex {
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum custom_mutex {
+    id_in_register ( usize ),
+    groupID ( *mut u64),
     owner_id (u128),
     status ( bool ),
     rank ( u8 )
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum mutex_group {
+    set,
+    get ( usize ),
+    drop ( usize ),
+    find ( *mut u64),
+    del_all
 }
