@@ -2,7 +2,7 @@ use std::process::Command;
 use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
 use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
 use std::os::unix::thread::JoinHandleExt;
-use crate::smart_lags::mamed_mutexes;
+use crate::smart_lags::{mamed_mutexes, new_custom_mutex};
 use libc::SIGKILL;
 use termion::raw::IntoRawMode;
 use termion::terminal_size;
@@ -179,29 +179,34 @@ let abort = std::thread::spawn(move|| {
     kill_op = true; break; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
-       println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
+       println!("proc id {proc_id} {update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
       // if count_out > 20 { return;}
    }
 }); //abort.join().unwrap ();
 let proc_id1 = proc_id;
 let check_alive_thr = std::thread::spawn ( move || {
     use crate::smart_lags::mamed_mutexes;
-    while !check_alive_proc_by_pid( proc_id1 ) {
+    dbg!("tst");
+    while check_alive_proc_by_pid( proc_id1 ) {
         delay_mcs( 7711 );
     } 
     let fn_name = "run_term_app_interactive_basic_4_group".strn();
-    let mut mutex = false;
-    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ) {mutex = x}
-    else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set ); mutex = true;}
-    while !mutex {
-        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ) {mutex = x}
+    let mut mutex_state = false;
+    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new();
+    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
+    else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
+    //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
+    while mutex_state == false {
+        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
+        //println! ("mutex state {mutex}");
     }
-
+    dbg! ("mid");
     unsafe {
         //libc::pthread_cancel( abort.as_pthread_t() ); 
         let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
     writeIn_stdin.write("k".as_bytes() );
-    } crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::unset );
+    std::mem::drop (writeIn_stdin);
+    } crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::unset, &mut mutex ); dbg!("end");
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);

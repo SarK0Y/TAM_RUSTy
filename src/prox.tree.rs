@@ -2,7 +2,7 @@ use nix::sys::signal; use nix::sys::signal::kill as kl; use nix::unistd::Pid;
 use crate::threadpool::mk_tree_of_prox; use crate::threadpool::{tree_of_prox, prox};
 use crate::custom_traits::{STRN, turn_2_i64, helpful_math_ops}; 
 use procfs::process::all_processes;
-use sysinfo::System; 
+use sysinfo::{System, ProcessStatus}; 
 use std::ptr;
 use crate::threadpool::branch_state;
 use crate::enums::calc_kids;
@@ -61,8 +61,11 @@ pub fn check_alive_proc_by_pid ( pid0: i32 ) -> bool {
         let mut system = System::new_all();
     system.refresh_all();
 
-    for ( pid, _ ) in system.processes() {
-        if pid.as_u32() as i32 == pid0 { return true}
+    for ( pid, proc ) in system.processes() {
+        if pid.as_u32() as i32 == pid0 {
+            let proc_status = proc.status();
+            if ProcessStatus::Dead == proc_status || proc_status == ProcessStatus::Zombie { return false;} return true
+        }
     }
     false
 }

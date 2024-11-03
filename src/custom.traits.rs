@@ -224,6 +224,17 @@ impl helpful_math_ops for u64 {
        *self
     }
 }
+impl helpful_math_ops for u128 {
+    fn inc(&mut self) -> Self{
+       if *self < Self::MAX{*self = *self + 1; return *self;}
+       *self
+    }
+    fn dec(&mut self) -> Self{
+       if *self > Self::MIN{*self = *self - 1; return *self;}
+       *self
+    }
+}
+
 impl helpful_math_ops for u32 {
     fn inc(&mut self) -> Self{
        if *self < Self::MAX{*self = *self + 1; return *self;}
