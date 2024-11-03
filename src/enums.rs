@@ -64,3 +64,17 @@ pub enum threadpool {
     delete ( usize ),
     stop ( usize ),
 }
+#[derive(Debug, Clone, PartialEq)]
+pub enum named_mutex {
+    get,
+    set,
+    unset,
+    drop,
+    drop_all
+}
+#[derive(Debug, Clone, PartialEq)]
+pub enum custom_mutex {
+    owner_id (u128),
+    status ( bool ),
+    rank ( u8 )
+}

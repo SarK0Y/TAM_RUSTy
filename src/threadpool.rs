@@ -208,6 +208,8 @@ pub fn run_kid (cmd: &String) {
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
         form_env (&mut env);
+        save_file(
+            format!("{:?}", env), "env.bash".strn());
        /* let mut env_prnt = |env: & [CString]| {
             for i in 0..6 {
                 //dbg! (env [i] );
@@ -259,8 +261,8 @@ pub fn run_kid_no_bash (cmd: &String) {
         let mut cnt = 0usize;
         let mut cmd = cmd.strn();
         let mut arg = "".strn();
-       // let mut app_name = "".strn();
-        let ( app_name, _ ) = split_once_or_ret_null_strns( &cmd, " ");
+        let mut app_name = "".strn();
+        ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, " ");
         loop {
             (arg, cmd ) = split_once_or_ret_null_strns(&cmd, " ");
          //   //dbg!(&arg); delay_secs(3);
@@ -268,8 +270,11 @@ pub fn run_kid_no_bash (cmd: &String) {
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
         save_file_append(
-            format!("{:?}", args), "execve".strn());
-        form_env (&mut env);
+            format!("{:?}", args), "execve0".strn());
+        let env_len = form_env (&mut env).1;
+        save_file_append(
+            format!("{:?}", env), "env.dbg".strn());
+        if  env_len == 0 { return }
        /* let mut env_prnt = |env: & [CString]| {
             for i in 0..6 {
                 //dbg! (env [i] );
@@ -277,7 +282,7 @@ pub fn run_kid_no_bash (cmd: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
-        match execve ( &c_str ( &app_name), &args, &env ) {
+        match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
             Err(e) =>  {logErr(e );},
             _ =>              {}
         };
@@ -298,17 +303,24 @@ pub fn run_kid_no_bash (cmd: &String) {
     }
 }
 
-pub fn form_env <'a > (env_str: &'a mut [CString] ) -> &'a [CString] {
+pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
-    for (key, val ) in std::env::vars() {
-//        let key = format! ("{}={}", key.into_string().unwrap(), val.into_string().unwrap() );
+    let pwd = crate::read_file("env/cd");
+    match nix::unistd::chdir( pwd.as_str() ){
+        Ok (ok) => ok,
+        Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change dir due to {e:?}") ); return (env_str, 0); }
+    };
+    for (key, mut val ) in std::env::vars() {
+        if key.to_lowercase () == "pwd" || key.to_lowercase () == "home" {
+            if pwd != "" { val = pwd.clone (); }
+        }
         let key = format! ("{}={}", key, val );
         env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
         count.inc();
     }
 //    //dbg!(&env_str); getkey();
-        env_str
+        (env_str, count)
 }
 pub fn logErr (e: nix::errno::Errno ) {
     let log_err_file = take_list_adr ("ErrNumLog");
@@ -408,6 +420,40 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 }
 //fn
 /*
+////////////////////////// run cargo w/ execve ///////////////////////////////
+use nix::unistd::{execve, fork, ForkResult};
+use nix::sys::wait::wait;
+use std::ffi::CString;
+use std::os::unix::ffi::OsStrExt;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    match unsafe { fork()? } {
+        ForkResult::Parent { child } => {
+            // Parent process
+            wait()?; // Wait for the child to finish
+            println!("Cargo process finished");
+        }
+        ForkResult::Child => {
+            // Child process
+            let cargo_path = CString::new("/usr/bin/cargo")?; // Adjust path as needed
+            let args = vec![
+                CString::new("cargo")?,
+                CString::new("build")?,
+                // Add more arguments as needed
+            ];
+            let envs: Vec<CString> = std::env::vars()
+                .map(|(k, v)| CString::new(format!("{}={}", k, v)).unwrap())
+                .collect();
+
+            execve(&cargo_path, &args, &envs)?;
+            
+            // If execve returns, it's an error
+            panic!("execve failed");
+        }
+    }
+    Ok(())
+}
+////////////////////////// run cargo w/ execve ///////////////////////////////
 use nix::unistd::{execve, fork, ForkResult};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
