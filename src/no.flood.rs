@@ -124,8 +124,8 @@ pub fn mutex_group_register(op: crate::enums::mutex_group) -> (*mut u64, usize) 
             let mut shared: std::mem::ManuallyDrop < Box < u64 > > = std::mem::ManuallyDrop::new (Box::new (u64::MAX ) );
             //Box::into_raw ( std::mem::ManuallyDrop::into_inner (shared) );
             let pointer: *mut u64 = &mut **shared;
-            lst_mutexes.insert ( x.strn(), register.len () - 1 );
             register.push (pointer);
+            lst_mutexes.insert ( x.strn(), register.len () - 1 );
             return (pointer, register.len () - 1);
         }
     }

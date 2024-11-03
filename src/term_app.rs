@@ -197,7 +197,7 @@ let check_alive_thr = std::thread::spawn ( move || {
     else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
     //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
     let cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner != mutex.id ) };
-    while cond == true {
+    while cond == false {
         if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
         //println! ("mutex state {mutex}");
     }
