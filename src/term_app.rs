@@ -1,7 +1,10 @@
 use std::process::Command;
 use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
 use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
+use std::os::unix::thread::JoinHandleExt;
+use crate::smart_lags::{mamed_mutexes, new_custom_mutex};
 use libc::SIGKILL;
+use std::panic::catch_unwind;
 use termion::raw::IntoRawMode;
 use termion::terminal_size;
 use substring::Substring;
@@ -12,9 +15,7 @@ use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{bash_unlink, check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, get_arg_in_cmd, getkey, 
-    is_dir, mk_cmd_file_dirty, mk_dummy_lnk, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, 
-    save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, full_path_to_cmd, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, mk_dummy_lnk, named_mutex, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
@@ -102,7 +103,8 @@ true
 pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &String) -> bool{
     let func_id = crate::func_id18::run_cmd_viewer_;
     crate::faav::one_time_sav_prnt ( Some ( read_prnt() ) );
-    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+   // if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose( 70_000 ) { return false; }
+   
     let term_app_screen = take_list_adr("term_app_screen");
     drop_ls_mode();
     crate::set_ask_user(cmd.as_str(), func_id);
@@ -115,13 +117,13 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
     let pwd = crate::core18::full_escape ( &read_file("env/cd") );
     let (procName, _ ) = split_once(&cmd, " ");
     let procName = crate::read_tail(&procName, "/");
-    let cmd = format!("clear;reset;cd {pwd};{cmd} > {term_app_screen}&pkill -stop {procName}; echo 'taken' > {adr_of_term_msg}");
+    //let cmd = format!("clear;reset;cd {pwd};{cmd}&pkill -stop {procName}; echo 'taken' > {adr_of_term_msg}");
     //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
-    let path_2_cmd = crate::mk_cmd_file(cmd);
+    //let path_2_cmd = crate::mk_cmd_file(cmd);
         let mut pid_kid: nix::unistd::Pid; 
     //    ( &format! ("bash -c {path_2_cmd}") ); 
-      if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
-      //if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("{cmd}") ) {
+    //  if let Ok ( res ) = crate::threadpool::new_thr ( &format! ("bash -c {path_2_cmd}") ) {
+      if let Ok ( res ) = crate::threadpool::new_thr_no_bash ( &cmd  ) {
         match res {
             ForkResult::Parent { child } => {pid_kid = child; },
             _ => { std::process::abort(); return false; }
@@ -141,21 +143,17 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut proc_id= i32::MIN;
    let mut ppid = i32::MIN;
    let mut kill_op = false;
-   let mut count_down = 100;
-   while ppid == i32::MIN {
-    if let Some ( (ppid0, pid ) )  = get_ppid_n_pid_by_name( &groupID) {
-        ppid = pid_kid.as_raw(); proc_id = pid;
-    }
-    count_down.dec();
-    if count_down == 0 {break; }
-   }
-   if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
-   crate::pg18::reset_screen();
+   let mut count_down = 7;
+   
+  // if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
+  // crate::pg18::reset_screen();
+  proc_id = pid_kid.into ();
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
    let mut proc_exited = false;
    println!("proc id {}, proc name {}", proc_id, groupID );
-//let abort = std::thread::spawn(move|| {
+   kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
+let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
    loop {
     if !fst { key = getkey().to_lowercase() };
@@ -172,21 +170,49 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
     if "k" == key { 
         match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
         match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
-        kill ( Pid::from_raw (ppid), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (ppid), nix::sys::signal::SIGKILL );
         kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
-        while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
+        /*while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
             unsafe{
                 kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
             } 
-        }
+        }*/
 
     kill_op = true; break; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
-       println!("{update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
+       println!("proc id {proc_id} {update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
       // if count_out > 20 { return;}
    }
-//}); abort.join().unwrap ();
+}); //abort.join().unwrap ();
+let proc_id1 = proc_id;
+let check_alive_thr = std::thread::spawn ( move || {
+    use crate::smart_lags::mamed_mutexes;
+    dbg!("tst");
+    while check_alive_proc_by_pid( proc_id1 ) {
+        delay_mcs( 7711 );
+    } 
+    let fn_name = "run_term_app_interactive_basic_4_group".strn();
+    let mut mutex_state = false;
+    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &fn_name );
+    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    //else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
+    //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
+    unsafe { dbg! (*mutex.owner ); }
+    let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+    while cond == false {
+        cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
+        unsafe { dbg! (*mutex.owner ); dbg! (mutex.id ); }
+    }
+    unsafe {
+        dbg! ( &mutex); dbg! (*mutex.owner );
+        //libc::pthread_cancel( abort.as_pthread_t() ); 
+        let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
+         writeIn_stdin.write("k".as_bytes() );
+         std::mem::forget (writeIn_stdin );
+  //  std::mem::drop (writeIn_stdin);
+    } crate::smart_lags::forcely_set_mamed_mutexes (&fn_name, named_mutex::unset, &mut mutex ); dbg!("end");
+}); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
 dbg!(&proc_exited);
@@ -197,18 +223,22 @@ crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }
 pub fn run_proc_by_proc (cmd: &String, groupID: &String){
+    let mut groupID = groupID.strn();
     let mut prox_lst: Vec < String > = Vec::new ();
     let mut cmd = cmd.strn();
     let mut proc = "".strn();
+    (proc, cmd) = crate::term_app::add_interactive_mode_to_cmd0( &cmd );
+    if proc != "" {prox_lst.push (proc.clone () );}
     loop {
-        (proc, cmd) = split_once_or_ret_null_strns( &cmd, ";");
+        (proc, cmd) = crate::term_app::add_interactive_mode_to_cmd( &cmd );
         if proc != "" {prox_lst.push (proc.clone () );}
         if cmd == "" { break; }
     }
     for proc in prox_lst {
-        let ret = run_term_app_interactive_basic_4_group( &proc, groupID);
+        let ret = run_term_app_interactive_basic_4_group( &proc, &groupID);
        // dbg! (&ret);
         if !ret { break; }
+      
     }
     println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
@@ -420,8 +450,8 @@ pub fn id_of_child_win () -> usize {
     }
 }
 pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
-    let cmd_prefix = add_interactive_mode_to_cmd( cmd );
-    if cmd_prefix.1 == "" { return; }
+   
+    /*if cmd_prefix.1 == "" { return; }
     let cmd_prefix0 = format! ("{} {}", cmd_prefix.0, cmd_prefix.1);
     let cmd = cmd.substring (cmd_prefix0.len(), cmd.len () );
     let linked_cmd = format! ("env/dummy_lnks/{}", cmd_prefix.1);
@@ -433,20 +463,30 @@ pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
     let this = format! ("&{}", ided_cmd);
     let cmd =cmd.replace (&replace_it_w, &this);
     let cmd = format! ("{} {}", ided_cmd, cmd);
-    if !crate::Path::new(&ided_cmd).exists() { return }
-    crate::term_app::run_proc_by_proc(&cmd, &ided_cmd); //*/
+    if !crate::Path::new(&ided_cmd).exists() { return } */
+    crate::term_app::run_proc_by_proc(&cmd, &"".strn()); //*/
     
 }
-pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
+pub fn add_interactive_mode_to_cmd0 (cmd: &String) -> (String, String ) {
     let mut cmd = cmd.strn();
-    let mut mode_cmd = String::new ();
-    if cmd.substring (0, 5) == "iterm" {mode_cmd = "iterm".strn(); cmd = cmd.substring (5, cmd.len() ).strn () ;}
-    if cmd.substring (0, 3) == "i>_" {cmd = cmd.substring (3, cmd.len() ).strn () ; mode_cmd = "i>_".strn();}
+    if cmd.substring (0, 5) == "iterm" { cmd = cmd.substring (5, cmd.len() ).strn () ;}
+    if cmd.substring (0, 3) == "i>_" {cmd = cmd.substring (3, cmd.len() ).strn () ; }
     let cmd = cmd.trim_start().strn ();
-    let (cmd, _) = split_once_or_ret_null_strns( &cmd, " ");
-    if cmd == "" { return (mode_cmd, cmd); }
-    crate::mk_dummy_lnk_( &cmd);
-    (mode_cmd, cmd)
+    let ( mut chunk_of_op, nxt_ops ) = split_once_or_ret_null_strns( &cmd, ";"); 
+    let (cmd, _) = split_once_or_ret_null_strns( &chunk_of_op, " ");
+    //if cmd == "" { return (mode_cmd, cmd); }
+    //crate::mk_dummy_lnk_( &cmd)
+    chunk_of_op = format!("{} {}", full_path_to_cmd( &cmd ), chunk_of_op ); 
+    ( chunk_of_op, nxt_ops )
+}
+pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
+    let cmd = cmd.trim_start().trim_end ().strn ();
+    let ( mut chunk_of_op, nxt_ops ) = split_once_or_ret_null_strns( &cmd, ";"); 
+    let (cmd, _) = split_once_or_ret_null_strns( &chunk_of_op, " ");
+    //if cmd == "" { return (mode_cmd, cmd); }
+    //crate::mk_dummy_lnk_( &cmd)
+    chunk_of_op = format!("{} {}", full_path_to_cmd( &cmd ), chunk_of_op ); 
+    ( chunk_of_op, nxt_ops )
 }
 pub(crate) fn new0__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();

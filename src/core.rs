@@ -379,6 +379,15 @@ pub(crate) fn mk_dummy_lnk_(head: &str) {
         run_cmd0(cmd);
     }
 }
+pub(crate) fn full_path_to_cmd (head: &str) -> String {
+    let cmd = "which ".to_string() + head;
+    let ret = run_cmd_out(cmd)
+        .trim_start()
+        .trim_end()
+        .strn();
+    //let (ret, _) = split_once_or_ret_null_strns(&ret, head);
+    ret
+}
 pub(crate) fn errMsg_dbg(msg: &str, val_func_id: i64, delay: f64) {
     if !checkArg("-dbg") {
         return;

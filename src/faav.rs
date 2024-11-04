@@ -11,3 +11,10 @@ pub fn one_time_sav_prnt (prnt: Option <String > ) -> Option < String > {
         Some ( state.clone() )
     }
 }
+pub fn new_obj_id () -> u64 {
+    static mut id: u64 = 0;
+    unsafe {
+        if id == u64::MAX { id = 0; return 0; }
+        id.inc(); return id - 1;
+    }
+}
