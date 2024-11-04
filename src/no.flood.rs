@@ -75,6 +75,7 @@ pub fn mamed_mutexes(
     } else {
         return None;
     }
+    dbg! ("check");
     unsafe {
         match op {
             named_mutex::get => {
@@ -85,6 +86,7 @@ pub fn mamed_mutexes(
                 return None;
             }
             named_mutex::set => {
+                dbg! ("check");
                 if let Some(x) = lst_mutexes.get_mut(name) {
                     let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
                     if cond { *mutex.owner = mutex.id; *x = true; mutex.status = *x  };
@@ -92,7 +94,8 @@ pub fn mamed_mutexes(
                 }
                 let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
                 if cond { *mutex.owner = mutex.id; mutex.status = true};
-                lst_mutexes.insert(name.strn(), true);
+                lst_mutexes.insert(name.strn(), true); 
+                dbg! ("check");
                 return Some(true);
             }
             named_mutex::unset => {

@@ -193,20 +193,22 @@ let check_alive_thr = std::thread::spawn ( move || {
     let fn_name = "run_term_app_interactive_basic_4_group".strn();
     let mut mutex_state = false;
     let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &fn_name );
-    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
-    else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
+    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    //else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
     //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
-    let cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner != mutex.id ) };
+    unsafe { dbg! (*mutex.owner ); }
+    let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
     while cond == false {
-        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get, &mut mutex ) {mutex_state = x}
-        //println! ("mutex state {mutex}");
+        cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
+        unsafe { dbg! (*mutex.owner ); dbg! (mutex.id ); }
     }
     unsafe {
         dbg! ( &mutex); dbg! (*mutex.owner );
         //libc::pthread_cancel( abort.as_pthread_t() ); 
         let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
     writeIn_stdin.write("k".as_bytes() );
-    std::mem::drop (writeIn_stdin);
+  //  std::mem::drop (writeIn_stdin);
     } crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::unset, &mut mutex ); dbg!("end");
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
