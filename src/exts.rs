@@ -33,6 +33,8 @@ use std::os::unix::io::{AsRawFd, RawFd};
 mod kcode01;
 #[path = "switch.rs"]
 mod swtch;
+#[path = "atomic.rs"]
+mod atomic_op;
 #[path = "init.rs"]
 mod init;
 #[path = "nvim.ext.rs"]

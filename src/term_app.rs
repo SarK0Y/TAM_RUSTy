@@ -142,7 +142,6 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    let mut key: String = "".strn(); //= getkey().to_lowercase(); 
    let mut proc_id= i32::MIN;
    let mut ppid = i32::MIN;
-   let mut kill_op = false;
    let mut count_down = 7;
    
   // if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
@@ -150,7 +149,6 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
   proc_id = pid_kid.into ();
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
-   let mut proc_exited = false;
    println!("proc id {}, proc name {}", proc_id, groupID );
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
 let abort = std::thread::spawn(move|| {
@@ -159,7 +157,7 @@ let abort = std::thread::spawn(move|| {
     if !fst { key = getkey().to_lowercase() };
     fst = false;
     if read_term_msg() == "free" {op_status = true; break;}
-    if !check_alive_proc_by_pid( proc_id ) { proc_exited = true; break; }
+    if !check_alive_proc_by_pid( proc_id ) { crate::faav::proc_exited( Some ( true ) ); break; }
        if key == "p"{
         unsafe {
             if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
@@ -177,7 +175,7 @@ let abort = std::thread::spawn(move|| {
             } 
         }*/
 
-    kill_op = true; break; }
+    crate::faav::kill_prox_chain( Some ( true ) ); break; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
        println!("proc id {proc_id} {update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
@@ -191,34 +189,14 @@ let check_alive_thr = std::thread::spawn ( move || {
     while check_alive_proc_by_pid( proc_id1 ) {
         delay_mcs( 7711 );
     } 
-    let fn_name = "run_term_app_interactive_basic_4_group".strn();
-    let mut mutex_state = false;
-    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &fn_name );
-    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
-    //else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
-    //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
-    unsafe { dbg! (*mutex.owner ); }
-    let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
-    while cond == false {
-        cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
-        if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
-        unsafe { dbg! (*mutex.owner ); dbg! (mutex.id ); }
-    }
-    unsafe {
-        dbg! ( &mutex); dbg! (*mutex.owner );
-        //libc::pthread_cancel( abort.as_pthread_t() ); 
-        let mut writeIn_stdin = std::fs::File::from_raw_fd(0/*stdin*/);
-         writeIn_stdin.write("k".as_bytes() );
-         std::mem::forget (writeIn_stdin );
-  //  std::mem::drop (writeIn_stdin);
-    } crate::smart_lags::forcely_set_mamed_mutexes (&fn_name, named_mutex::unset, &mut mutex ); dbg!("end");
+    crate::atomic_op::stdin_write(Some ("k") );
+   // crate::atomic_op::stdin_write:: < &str> (None ); 
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
-dbg!(&proc_exited);
-if proc_exited { return true }
+if crate::faav::proc_exited( None ) { return true }
 //if op_status{println!("Operation aborted"); return false; }
-if kill_op {println!("Operation killed"); return false; }
+if crate::faav::kill_prox_chain( None ) {println!("Operation killed"); return false; }
 crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }

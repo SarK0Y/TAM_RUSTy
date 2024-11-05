@@ -18,3 +18,19 @@ pub fn new_obj_id () -> u64 {
         id.inc(); return id - 1;
     }
 }
+pub fn kill_prox_chain (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        let prev = state0;
+        if let Some ( x ) = state {state0 = x; } 
+        else { state0 = false } prev
+    }
+}
+pub fn proc_exited (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        let prev = state0;
+        if let Some ( x ) = state {state0 = x; }
+        else { state0 = false } prev
+    }
+}
