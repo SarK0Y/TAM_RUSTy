@@ -471,8 +471,8 @@ pub(crate) fn new0__ (cmd: &String){
     let cmd = format!( "{} '{prnt_prefix_2_title};{cmd}'", konsole ( None ) );
     let path_2_cmd = mk_cmd_file_dirty( format! ("{cmd}" ) );
     let cmd = format!("/bin/bash -c {path_2_cmd}",  );
-    println!( "{cmd}" );
    // run_term_app(cmd.trim_start().trim_end().strn());
+   crate::save_file0(cmd.clone(), "fn_new0__".strn() );
    crate::threadpool::new_thr(&cmd ); return;
    }
 pub(crate) fn new2__ (cmd: &String){

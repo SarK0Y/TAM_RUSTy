@@ -28,7 +28,7 @@ use crate::{
     update18::{clean_dead_tams, lets_write_path},
     usize_2_i64, wait_4_empty_cache, PgDown, PgUp,
 };
-use crate::{errMsg0, full_clean_cache, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key, turn_2_i64};
+use crate::{errMsg0, full_clean_cache, new0__, session_lists, shift_f3_cut_off_tail_of_prnt, tab_key, turn_2_i64};
 self::pg_uses!();
 
 pub fn cpy_row(row: &mut Vec<String>) -> Vec<CellStruct> {
@@ -586,7 +586,8 @@ pub(crate) fn exec_cmd(cmd: String) {
     if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { set_prnt( x.as_str(), -937851); }
     let cmd0 = "_";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
-        crate::term_app::run_new_win_bool( Some( true ) );
+        cmd = cmd.substring (1, cmd.len () ).strn();
+        new0__(&cmd); return
     }
     if cmd == "np" {
         unsafe { exec_cmd_cnt(true) };
