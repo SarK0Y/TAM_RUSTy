@@ -196,7 +196,7 @@ let check_alive_thr = std::thread::spawn ( move || {
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
 if crate::faav::proc_exited( None ) { return true }
 //if op_status{println!("Operation aborted"); return false; }
-if crate::faav::kill_prox_chain( None ) {println!("Operation killed"); return false; }
+if crate::faav::kill_prox_chain( None ) {println!("Operation/Chain killed"); return false; }
 crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }
@@ -428,20 +428,6 @@ pub fn id_of_child_win () -> usize {
     }
 }
 pub fn run_cmd_in_extra_interactive_mode (cmd: &String) {
-   
-    /*if cmd_prefix.1 == "" { return; }
-    let cmd_prefix0 = format! ("{} {}", cmd_prefix.0, cmd_prefix.1);
-    let cmd = cmd.substring (cmd_prefix0.len(), cmd.len () );
-    let linked_cmd = format! ("env/dummy_lnks/{}", cmd_prefix.1);
-    let ided_cmd = take_list_adr(&linked_cmd);
-    let replace_it_w = format! (";{}", cmd_prefix.1);
-    let this = format! (";{}", ided_cmd);
-    let cmd =cmd.replace (&replace_it_w, &this);
-    let replace_it_w = format! ("&{}", cmd_prefix.1);
-    let this = format! ("&{}", ided_cmd);
-    let cmd =cmd.replace (&replace_it_w, &this);
-    let cmd = format! ("{} {}", ided_cmd, cmd);
-    if !crate::Path::new(&ided_cmd).exists() { return } */
     crate::term_app::run_proc_by_proc(&cmd, &"".strn()); //*/
     
 }

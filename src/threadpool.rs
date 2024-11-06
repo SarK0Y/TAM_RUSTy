@@ -307,10 +307,12 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
     let pwd = crate::read_file("env/cd");
-    match nix::unistd::chdir( pwd.as_str() ){
-        Ok (ok) => ok,
-        Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change dir due to {e:?}") ); return (env_str, 0); }
-    };
+    if pwd != "" {
+        match nix::unistd::chdir( pwd.as_str() ){
+            Ok (ok) => ok,
+            Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change to dir >{pwd}< due to {e:?}") ); return (env_str, 0); }
+        };
+    }
     for (key, mut val ) in std::env::vars() {
         if key.to_lowercase () == "pwd" {
             if pwd != "" { val = pwd.clone (); }
