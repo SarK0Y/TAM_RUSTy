@@ -312,7 +312,7 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
         Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change dir due to {e:?}") ); return (env_str, 0); }
     };
     for (key, mut val ) in std::env::vars() {
-        if key.to_lowercase () == "pwd" || key.to_lowercase () == "home" {
+        if key.to_lowercase () == "pwd" {
             if pwd != "" { val = pwd.clone (); }
         }
         let key = format! ("{}={}", key, val );
