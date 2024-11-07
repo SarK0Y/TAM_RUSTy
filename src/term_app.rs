@@ -218,7 +218,7 @@ pub fn run_proc_by_proc (cmd: &String, groupID: &String){
         if !ret { break; }
       
     }
-    println!("Dear User, Please, hit any key to continue.. Thanks.");
+    println!("\nDear User, Please, hit any key to continue.. Thanks.");
 getkey();
 }
 pub(crate) fn run_term_app_ren(cmd: String) -> bool{
