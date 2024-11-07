@@ -20,14 +20,12 @@ pub fn stdin_write <T: ToString + STRN > (strn: Option < T > ) {
     if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
     //else { crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ); mutex_state = true;}
     //if crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::get ).is_none() {mutex = false }
-    unsafe { dbg! (*mutex.owner ); }
     let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
     while cond == false {
         cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
         if let Some ( x ) = crate::smart_lags::mamed_mutexes (&fn_name, named_mutex::set, &mut mutex ) {mutex_state = x}
         unsafe { dbg! (*mutex.owner ); dbg! (mutex.id ); }
     }
-    dbg! ( &mutex); dbg! (*mutex.owner );
     //libc::pthread_cancel( abort.as_pthread_t() ); 
     //if strn.is_none () { (*fd0.as_mut().unwrap()).flush (); return }
     //if strn.is_none () { fd0.as_ref().unwrap().write("".strn().as_bytes() ); return }
