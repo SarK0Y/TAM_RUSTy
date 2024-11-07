@@ -196,7 +196,7 @@ let check_alive_thr = std::thread::spawn ( move || {
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
 if crate::faav::proc_exited( None ) { return true }
 //if op_status{println!("Operation aborted"); return false; }
-if crate::faav::kill_prox_chain( None ) {println!("Operation/Chain killed"); return false; }
+if crate::faav::kill_prox_chain( None ) {println!("\nOperation/Chain killed"); return false; }
 crate::smart_lags::fork_lag_mcs_verbose(10);
 true
 }
