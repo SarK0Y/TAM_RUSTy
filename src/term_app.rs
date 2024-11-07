@@ -15,7 +15,7 @@ use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
 use crate::globs18::{bash_unlink, check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, full_path_to_cmd, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, mk_dummy_lnk, named_mutex, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, full_path_to_cmd, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, mk_dummy_lnk, named_mutex, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, reset_screen, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
@@ -149,7 +149,7 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
   proc_id = pid_kid.into ();
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
-   println!("proc id {}, proc name {}", proc_id, groupID );
+   println!("proc id {}, proc name {}", proc_id, procName );
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
 let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
@@ -166,6 +166,7 @@ let abort = std::thread::spawn(move|| {
         }
        }
     if "k" == key { 
+        crate::faav::kill_prox_chain( Some( true ) );
         match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
         match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
         kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
@@ -174,8 +175,7 @@ let abort = std::thread::spawn(move|| {
                 kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
             } 
         }*/
-
-    crate::faav::kill_prox_chain( Some ( true ) ); break; }
+    break; }
        //if stop_op { break; }
        let update_screen = read_file_abs_adr( &term_app_screen );
        println!("proc id {proc_id} {update_screen}\npress k or K to abort operation\nHit P or p to pause."); count_out += 1;
@@ -185,12 +185,10 @@ let abort = std::thread::spawn(move|| {
 let proc_id1 = proc_id;
 let check_alive_thr = std::thread::spawn ( move || {
     use crate::smart_lags::mamed_mutexes;
-    dbg!("tst");
     while check_alive_proc_by_pid( proc_id1 ) {
         delay_mcs( 7711 );
     } 
-    crate::atomic_op::stdin_write(Some ("k") );
-   // crate::atomic_op::stdin_write:: < &str> (None ); 
+    crate::atomic_op::stdin_write(Some ("k") );    
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
