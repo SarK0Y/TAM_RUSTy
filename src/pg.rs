@@ -583,7 +583,7 @@ pub(crate) fn exec_cmd(cmd: String) {
         //        process_tag(key)
     } 
     crate::term_app::run_new_win_bool( Some( false ) ); 
-    if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { set_prnt( x.as_str(), -937851); }
+    crate::ps18::correct_prnt();
     let cmd0 = "_";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         cmd = cmd.substring (1, cmd.len () ).strn();

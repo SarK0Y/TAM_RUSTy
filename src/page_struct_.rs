@@ -466,3 +466,11 @@ pub(crate) fn where_is_last_pg() -> i64{
   if residue < len {last_pg.inc();}
   last_pg
 }
+pub fn correct_prnt () {
+  let func_id = -937851;
+  let prnt_len = crate::get_prnt(func_id).len();
+  if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { 
+    if prnt_len > x.len () + 1 { set_prnt( x.as_str(), func_id); }
+   }
+}
+//fn
