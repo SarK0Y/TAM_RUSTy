@@ -153,6 +153,8 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
 let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
+    crate::faav::kill_prox_chain( None );
+    crate::faav::proc_exited( None);
    loop {
     if !fst { key = getkey().to_lowercase() };
     fst = false;
