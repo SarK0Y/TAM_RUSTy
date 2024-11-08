@@ -175,6 +175,19 @@ impl new_custom_mutex for crate::enums::custom_mutex {
         }
     }
 }
+pub fn start_barrier (name: &String ) -> crate::enums::custom_mutex {
+    let mut mutex_state = false;
+    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &name );
+    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+    while cond == false {
+        cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+        if let Some ( x ) = crate::smart_lags::mamed_mutexes (name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    } mutex
+}
+pub fn end_barrier (name: &String, mutex: &mut crate::enums::custom_mutex ) {
+     crate::smart_lags::forcely_set_mamed_mutexes (&name, named_mutex::unset, mutex ); //dbg!("end");
+}
 //fn
 /*
 ///////////// rethink or just kick out ////////////////////

@@ -187,16 +187,22 @@ let abort = std::thread::spawn(move|| {
 let proc_id1 = proc_id;
 let check_alive_thr = std::thread::spawn ( move || {
     use crate::smart_lags::mamed_mutexes;
+    let fn_name = "run_term_app_interactive_basic_4_group".strn();
+    let mut mutex = crate::smart_lags::start_barrier(&fn_name);
     crate::faav::lock_control_c( Some ( true ) );
+    let mut paused = false;
     while check_alive_proc_by_pid( proc_id1 ) {
         if !crate::faav::lock_control_c ( None ) { 
+            paused = true;
+            println!("pause {paused}", );
             kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
             crate::atomic_op::stdin_write(Some ("p") );
              }
         delay_mcs( 7711 );
     } 
     crate::faav::lock_control_c( Some ( false ) );
-    crate::atomic_op::stdin_write(Some ("k") );    
+    if !paused {crate::atomic_op::stdin_write(Some ("k") ) };
+    crate::smart_lags::end_barrier(&fn_name, &mut mutex);    
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
 save_file_abs_adr0("free".strn(), adr_of_term_msg);
