@@ -13,6 +13,7 @@ pub fn Ver0_0_() -> String {
     ver
 }
 pub(crate) fn SYS() {
+    if crate::faav::lock_control_c( None ) { crate::faav::lock_control_c( Some ( false ) ); return; }
     println!("\nHave a nice day, DEAR USER\nSee You Soon 🙃",);
     std::process::exit(0)
 }

@@ -187,9 +187,15 @@ let abort = std::thread::spawn(move|| {
 let proc_id1 = proc_id;
 let check_alive_thr = std::thread::spawn ( move || {
     use crate::smart_lags::mamed_mutexes;
+    crate::faav::lock_control_c( Some ( true ) );
     while check_alive_proc_by_pid( proc_id1 ) {
+        if !crate::faav::lock_control_c ( None ) { 
+            kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+            crate::atomic_op::stdin_write(Some ("p") );
+             }
         delay_mcs( 7711 );
     } 
+    crate::faav::lock_control_c( Some ( false ) );
     crate::atomic_op::stdin_write(Some ("k") );    
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );

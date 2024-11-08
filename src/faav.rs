@@ -42,3 +42,9 @@ pub fn proc_exited (state: Option < bool >) -> bool {
         else { state0 = false } prev
     }
 }
+pub fn lock_control_c (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        if let Some ( x ) = state {state0 = x; } state0
+    }
+}
