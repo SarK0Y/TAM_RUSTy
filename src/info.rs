@@ -222,7 +222,7 @@ pub fn ver() {
         crate::set_ask_user(&val, 30050017);
         return;
     }
-    let val: String = format!("{} {}", crate::info::Ver, mae);
+    let val: String = format!("{} {}", Ver0_0_ (), mae);
     crate::set_ask_user(&val, 30050017);
 }
 pub fn load_online_guide() {
