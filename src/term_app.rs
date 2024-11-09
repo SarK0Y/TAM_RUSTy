@@ -189,21 +189,21 @@ let check_alive_thr = std::thread::spawn ( move || {
     use crate::smart_lags::mamed_mutexes;
     let fn_name = "run_term_app_interactive_basic_4_group".strn();
     let mut mutex = crate::smart_lags::start_barrier(&fn_name);
-    crate::faav::lock_control_c( Some ( true ) );
-    let mut paused = false;
-    while check_alive_proc_by_pid( proc_id1 ) {
-      //  dbg! ("tst");
-        if !crate::faav::lock_control_c ( None ) { 
-            paused = true;
-            println!("pause {paused}", );
-            kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
-            crate::atomic_op::stdin_write(Some ("p") );
-            crate::faav::lock_control_c( Some ( true ) );
-             }
-        delay_mcs( 70711 );
-    } 
-    crate::faav::lock_control_c( Some ( false ) );
-    if !paused {crate::atomic_op::stdin_write(Some ("k") ) };
+        crate::faav::lock_control_c( Some ( true ) );
+        let mut paused = false;
+        while check_alive_proc_by_pid( proc_id1 ) {
+        //  dbg! ("tst");
+            if !crate::faav::lock_control_c ( None ) { 
+                paused = true;
+                println!("pause {paused}", );
+                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+                crate::atomic_op::stdin_write(Some ("p") );
+                crate::faav::lock_control_c( Some ( true ) );
+                }
+            delay_mcs( 70711 );
+        } 
+        crate::faav::lock_control_c( Some ( false ) );
+        if !paused {crate::atomic_op::stdin_write(Some ("k") ) };
     crate::smart_lags::end_barrier(&fn_name, &mut mutex);    
 }); check_alive_thr.join().unwrap ();
    // crate::cmd_keys::drop_ext_modes ( Some (true) );
@@ -219,6 +219,7 @@ pub fn run_proc_by_proc (cmd: &String, groupID: &String){
     let mut prox_lst: Vec < String > = Vec::new ();
     let mut cmd = cmd.strn();
     let mut proc = "".strn();
+    crate::init::set_sig_chld_hook ();
     (proc, cmd) = crate::term_app::add_interactive_mode_to_cmd0( &cmd );
     if proc != "" {prox_lst.push (proc.clone () );}
     loop {
@@ -232,6 +233,7 @@ pub fn run_proc_by_proc (cmd: &String, groupID: &String){
         if !ret { break; }
       
     }
+    crate::init::unset_sig_chld_hook();
     println!("\nDear User, Please, hit any key to continue.. Thanks.");
 getkey();
 }

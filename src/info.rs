@@ -15,6 +15,7 @@ pub fn Ver0_0_() -> String {
 }
 pub(crate) fn SYS() {
     if crate::faav::lock_control_c( None ) { 
+        crate::init::set_sig_chld_hook();
         while crate::faav::lock_control_c( None ) {
             crate::faav::lock_control_c( Some ( false ) );
             crate::update18::delay_mcs(20);
