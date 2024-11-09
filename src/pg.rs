@@ -264,7 +264,7 @@ pub(crate) fn hotKeys(
     let mut cmd = String::new();
     let ext_is_alive = if Some(&ext) == None { false } else { true };
     if !ext_is_alive || crate::drop_ext_modes( None ) {
-        Key.push_str(crate::getkey().as_str());
+        Key.push_str(crate::no_other_getkey ().as_str());
         crate::cmd_keys::drop_ext_modes( Some (false) );
     } else {
         ext.as_mut().unwrap().as_mut().dec_hotKeys_got_hits();

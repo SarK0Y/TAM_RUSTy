@@ -20,8 +20,7 @@ extern "C" fn handle_sigchld(_: libc::c_int) {
         Err(err) => eprintln!("waitpid() failed: {}", err),
     }
 }
-extern "C" fn handle_sigchld_null(_: libc::c_int) {
-}
+extern "C" fn handle_sigchld_null(_: libc::c_int) {}
 pub fn set_sig_chld_hook (){
      let sig_action = SigAction::new(
         SigHandler::Handler(handle_sigchld),

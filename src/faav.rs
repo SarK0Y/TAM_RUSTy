@@ -48,3 +48,13 @@ pub fn lock_control_c (state: Option < bool >) -> bool {
         if let Some ( x ) = state {state0 = x; } state0
     }
 }
+pub fn count_getkey (state: Option < i64 >) -> i64 {
+    static mut state0: i64 = 0;
+    unsafe {
+        if let Some ( x ) = state {
+            if x == 0 { state0 = 0; return 0;}
+            state0 += x; 
+        } state0 
+    }
+}
+//fn

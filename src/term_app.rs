@@ -233,6 +233,7 @@ pub fn run_proc_by_proc (cmd: &String, groupID: &String){
         if !ret { break; }
       
     }
+    crate::faav::lock_control_c( Some ( false) );
     crate::init::unset_sig_chld_hook();
     println!("\nDear User, Please, hit any key to continue.. Thanks.");
 getkey();
