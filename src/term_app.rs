@@ -192,13 +192,15 @@ let check_alive_thr = std::thread::spawn ( move || {
     crate::faav::lock_control_c( Some ( true ) );
     let mut paused = false;
     while check_alive_proc_by_pid( proc_id1 ) {
+      //  dbg! ("tst");
         if !crate::faav::lock_control_c ( None ) { 
             paused = true;
             println!("pause {paused}", );
             kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
             crate::atomic_op::stdin_write(Some ("p") );
+            crate::faav::lock_control_c( Some ( true ) );
              }
-        delay_mcs( 7711 );
+        delay_mcs( 70711 );
     } 
     crate::faav::lock_control_c( Some ( false ) );
     if !paused {crate::atomic_op::stdin_write(Some ("k") ) };
