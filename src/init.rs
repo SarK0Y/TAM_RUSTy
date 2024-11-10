@@ -22,6 +22,7 @@ extern "C" fn handle_sigchld(_: libc::c_int) {
 }
 extern "C" fn handle_sigchld_null(_: libc::c_int) {}
 pub fn set_sig_chld_hook (){
+    if !crate::cmd_keys::extra_info(None) { return }
      let sig_action = SigAction::new(
         SigHandler::Handler(handle_sigchld),
         SaFlags::SA_RESTART,

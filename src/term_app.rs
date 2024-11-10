@@ -146,10 +146,10 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    
   // if ppid == i32::MIN { errMsg0("Sorry, Dear User, no operation was run - Please, hit any key to continue.. Thx."); return false; }
   // crate::pg18::reset_screen();
-  proc_id = pid_kid.into ();
+  proc_id = pid_kid.as_raw(); //{Ok (ye) => ye, _ => i32::MAX};
    let groupID_cpy = groupID.strn();
    let groupID_cpy1 = groupID.strn();
-   println!("proc id {}, proc name {}", proc_id, procName );
+   if crate::cmd_keys::extra_info( None) {println!("proc id {}, proc name {}", proc_id, procName )};
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
 let abort = std::thread::spawn(move|| {
     let mut count_out = 0;
