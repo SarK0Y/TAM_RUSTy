@@ -191,8 +191,11 @@ let check_alive_thr = std::thread::spawn ( move || {
     let mut mutex = crate::smart_lags::start_barrier(&fn_name);
         crate::faav::lock_control_c( Some ( true ) );
         let mut paused = false;
+        let mut small_pause = false;
         while check_alive_proc_by_pid( proc_id1 ) {
-        //  dbg! ("tst");
+            if !crate::cmd_keys::extra_info( None ) {
+                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGCONT );
+            }
             if !crate::faav::lock_control_c ( None ) { 
                 paused = true;
                 println!("pause {paused}", );
@@ -200,7 +203,10 @@ let check_alive_thr = std::thread::spawn ( move || {
                 crate::atomic_op::stdin_write(Some ("p") );
                 crate::faav::lock_control_c( Some ( true ) );
                 }
-            delay_mcs( 70711 );
+            delay_mcs( 100711 );
+            if !crate::cmd_keys::extra_info( None ) {
+                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+            }
         } 
         crate::faav::lock_control_c( Some ( false ) );
         if !paused {crate::atomic_op::stdin_write(Some ("k") ) };
