@@ -21,7 +21,7 @@ pub(crate) fn SYS() {
             crate::update18::delay_mcs(20);
          } return;
      }
-    println!("\nHave a nice day, DEAR USER\nSee You Soon 🙃",);
+    println!("\nHave a nice Day & Night, DEAR USER\nSee You Soon 🙃",);
     std::process::exit(0)
 }
 pub const Author: &str = "Knyazhev Evgeney (SarK0Y)";

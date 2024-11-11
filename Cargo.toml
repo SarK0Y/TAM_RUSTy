@@ -1,12 +1,12 @@
 [package]
 name = "sark0y_tam_rst"
-version = "9.8.1"
+version = "9.8.2"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
-description = "Automation tool to make Console/Terminal more comfy. Have a great day, Dear User 💯❤️"
+description = "Automation tool to make Console/Terminal more comfy. Have a great Day & Night, Dear User 💯❤️"
 crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities"]
