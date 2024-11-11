@@ -81,7 +81,8 @@ if !dbg(false) && !dont_clean_bash(false){
     cmd = format!("{cmd};rm -f {}", path_2_cmd);
 }
 make_cmd_file.write_all(&cmd.as_bytes());
-Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
+match Command::new("chmod").arg("700").arg(&path_2_cmd).output() 
+                                            { Ok (ok) => ok, Err (e) => {eprintln! ("mk_cmd_file failed due to {e}"); return "".strn()} };;
 core18::errMsg_dbg(&cmd, func_id, -1.0);
 path_2_cmd.to_string()
 }
@@ -168,11 +169,11 @@ core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
-    .expect("can't run command in run_cmd");
+{ Ok (ok) => ok, Err (e) => {eprintln! ("run_cmd_out failed due to {e}"); return "".strn()} };
 if !run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();

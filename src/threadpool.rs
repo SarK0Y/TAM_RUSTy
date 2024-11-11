@@ -86,7 +86,7 @@ impl prox for tree_of_prox  {
         unsafe {
             let me: *mut tree_of_prox = &mut *self;
             //dbg!(&self);
-            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            //println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             if (*self.proxid_of_kid).len() == 0 { return None }
             ////dbg!(&self);
             let mut branch: *mut tree_of_prox ;
@@ -94,7 +94,7 @@ impl prox for tree_of_prox  {
                 branch = Box::into_raw (ManuallyDrop::into_inner ( x ) );
             } else { branch = ptr::null_mut () ;}
            
-            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            //println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             ////dbg! (    & (*(*me).proxid_of_kid)  );
             (*(*me).kids).push ( branch );
           //  //dbg!( &self );
@@ -307,12 +307,14 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
     let pwd = crate::read_file("env/cd");
-    match nix::unistd::chdir( pwd.as_str() ){
-        Ok (ok) => ok,
-        Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change dir due to {e:?}") ); return (env_str, 0); }
-    };
+    if pwd != "" {
+        match nix::unistd::chdir( pwd.as_str() ){
+            Ok (ok) => ok,
+            Err (e) => {errMsg0( &format! ("Sorry, Dear User, i can't change to dir >{pwd}< due to {e:?}") ); return (env_str, 0); }
+        };
+    }
     for (key, mut val ) in std::env::vars() {
-        if key.to_lowercase () == "pwd" || key.to_lowercase () == "home" {
+        if key.to_lowercase () == "pwd" {
             if pwd != "" { val = pwd.clone (); }
         }
         let key = format! ("{}={}", key, val );
@@ -369,7 +371,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Option < ManuallyDrop <
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == (*bp).ppid {
                     //dbg! (& (*tree) );
-                    println! ("res.pid {}", res.pid);
+                    //println! ("res.pid {}", res.pid);
                     (*(*bp).proxid_of_kid).push (res.pid );
                 }
             }
@@ -405,7 +407,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                 }
             }
         }
-        println!( "{:p}", & (*(*tree).proxid_of_kid) );
+        //println!( "{:p}", & (*(*tree).proxid_of_kid) );
         //dbg!( &(*(*tree).proxid_of_kid) ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }

@@ -9,8 +9,7 @@ use termios::ISIG;
 
 use crate::{
     cached_ln_of_found_files, change_dir0, custom_traits::{fs_tools, STRN}, front_lst, get_arg_in_cmd, helpful_math_ops, init::user_home_dir, link_ext_lsts, link_lst_dir_to, link_lst_to, no_esc_lst, run_cmd0, run_cmd_out, run_cmd_out_sync, run_cmd_str, session_lists, shift_cursor_of_prnt, split_once, split_once_or_ret_null_strns, swtch::{local_indx, path_completed, read_user_written_path, user_wrote_path, user_wrote_path_prnt}, swtch_esc, update18::{
-        alive_session, background_fixing, background_fixing_count, fix_screen, upd_screen_or_not,
-        update_dir_list,
+        alive_session, background_fixing, background_fixing_count, delay_ms, fix_screen, upd_screen_or_not, update_dir_list
     }, STRN_strip
 };
 
@@ -688,6 +687,7 @@ pub(crate) fn find_files_cd_cpy_ls(path: &String) -> bool {
     return true;
 }
 pub(crate) fn getkey() -> String {
+    crate::faav::count_getkey( Some (1) );
     let mut Key: String = "".to_string();
     let xccnt = unsafe { exec_cmd_cnt(false) };
     let mut stdin = io::stdin().lock();
@@ -697,8 +697,9 @@ pub(crate) fn getkey() -> String {
     let mut stdin_buf0: [u8; 1] = [1; 1];
     let termios = match Termios::from_fd(stdin_fd) {
         Ok(t) => t,
-        _ => return "".to_string(),
+        _ => { crate::faav::count_getkey( Some (-1) ); return "".to_string()},
     };
+    crate::faav::count_getkey( Some (-1) );
     let mut new_termios = termios.clone();
     stdout.lock().flush().unwrap();
     //new_termios.c_lflag &= !(ICANON | ECHO | ISIG);
@@ -745,6 +746,79 @@ pub(crate) fn getkey() -> String {
     }*/
     end_termios(&termios);
     //if crate::dirty!() {println!("len of red {:?}", red_stdin);}
+    let str0 = match str::from_utf8(&stdin_buf) {
+        Ok(s) => s,
+        _ => "",
+    };
+    let msg = format!("getch {} {:?}", str0, stdin_buf);
+    if stdin_buf != [0; 16] {
+        let mut i = 0;
+        loop {
+            let ch = match str0.chars().nth(i) {
+                Some(ch) => ch,
+                _ => return Key,
+            };
+            if ch == '\0' {
+                return Key;
+            }
+            Key.push(ch);
+            i += 1;
+        }
+    }
+    //}
+    Key
+}
+pub(crate) fn no_other_getkey() -> String {
+    dbg! ( crate::faav::count_getkey (None) );
+    if crate::faav::lock_control_c( None) == false {
+        dbg! ("no other getkey");
+        let num_of_active_getkeys = crate::faav::count_getkey( None );
+        for i in 0..num_of_active_getkeys {
+            crate::atomic_op::stdin_write(  Some (" ".strn()) );
+            delay_ms( 1 );
+        }
+    }
+    let mut Key: String = "".to_string();
+    let xccnt = unsafe { exec_cmd_cnt(false) };
+    let mut stdin = io::stdin().lock();
+    let stdin_fd = 0;
+    let mut stdout = io::stdout();
+    let mut stdin_buf: [u8; 16] = [0; 16];
+    let mut stdin_buf0: [u8; 1] = [1; 1];
+    let termios = match Termios::from_fd(stdin_fd) {
+        Ok(t) => t,
+        _ => { return "".to_string()},
+    };
+    let mut new_termios = termios.clone();
+    stdout.lock().flush().unwrap();
+    //new_termios.c_lflag &= !(ICANON | ECHO | ISIG);
+    new_termios.c_lflag &= !(ICANON | ECHO);
+    let enter = || {
+        let enter: [u8; 1] = [13; 1];
+        let mut writeIn_stdin = unsafe {
+            File::from_raw_fd(0 /*stdin*/)
+        };
+        //writeIn_stdin.write(&enter);
+        //println!("gotta enter");
+    };
+    //loop {
+    let res = match tcsetattr(stdin_fd, TCSANOW, &new_termios) {
+        Err(e) => {
+            format!("{}", e)
+        }
+        Ok(len) => {
+            format!("kkkkkkkkkkk {:#?}", len)
+        }
+    };
+    let red_stdin = match stdin.read(&mut stdin_buf) {
+        Ok(red) => red,
+        Err(e) => {
+            errMsg0(&format!("{e:?}"));
+            return "".strn();
+        }
+    };
+    let mut j = 1usize;
+    end_termios(&termios);
     let str0 = match str::from_utf8(&stdin_buf) {
         Ok(s) => s,
         _ => "",

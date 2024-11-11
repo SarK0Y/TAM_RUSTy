@@ -22,6 +22,18 @@ pub(crate) fn dbg(roll: bool) -> bool{
     if roll{crate::C!(state = !state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!(state)
 }
+pub fn extra_info(new_state: Option < bool > ) -> bool{
+    static mut state: bool = false;
+    static mut fst_run: bool = false;
+    if !crate::C!(fst_run){
+        crate::C!(fst_run = true);
+        if checkArg("-extra-info"){crate::C!(state = true)}
+        if !silent(){println!("extra info status: {}", crate::C!(state));}
+    }
+    if new_state.is_some () {crate::C!(state = new_state.unwrap () ); if !silent(){println!("extra status: {}", crate::C!(state));}}
+    crate::C!(state)
+}
+
 pub(crate) fn switch_cmd_keys(cmd: &String){
     let cmd = cmd.replace("key::", "").trim_start_matches(' ').to_string();
     match cmd.as_str(){

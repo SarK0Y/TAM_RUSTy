@@ -73,16 +73,16 @@ pub enum named_mutex {
     drop_all
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum custom_mutex {
-    id_in_register ( usize ),
-    groupID ( *mut u64),
-    owner_id (u128),
-    status ( bool ),
-    rank ( u8 )
+pub struct custom_mutex {
+    pub line_in_register: usize,
+    pub owner: *mut u64,
+    pub id: u64,
+    pub status: bool,
+    pub rank: u8
 }
 #[derive(Debug, Clone, PartialEq)]
-pub enum mutex_group {
-    set,
+pub enum mutex_group < 'a >  {
+    set ( &'a String ),
     get ( usize ),
     drop ( usize ),
     find ( *mut u64),
