@@ -86,7 +86,7 @@ impl prox for tree_of_prox  {
         unsafe {
             let me: *mut tree_of_prox = &mut *self;
             //dbg!(&self);
-            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            //println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             if (*self.proxid_of_kid).len() == 0 { return None }
             ////dbg!(&self);
             let mut branch: *mut tree_of_prox ;
@@ -94,7 +94,7 @@ impl prox for tree_of_prox  {
                 branch = Box::into_raw (ManuallyDrop::into_inner ( x ) );
             } else { branch = ptr::null_mut () ;}
            
-            println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
+            //println!( "*self {:?} me: {:?} cursor = {} {:p}", &self, (*me), (*me).cursor, & (*(*me).proxid_of_kid  ) );
             ////dbg! (    & (*(*me).proxid_of_kid)  );
             (*(*me).kids).push ( branch );
           //  //dbg!( &self );
@@ -407,7 +407,7 @@ pub fn init_root_of_prox ( tree: *mut  tree_of_prox ) -> bool {
                 }
             }
         }
-        println!( "{:p}", & (*(*tree).proxid_of_kid) );
+        //println!( "{:p}", & (*(*tree).proxid_of_kid) );
         //dbg!( &(*(*tree).proxid_of_kid) ); 
         if (*(*tree).proxid_of_kid).len() > 0 { return true } false
     }

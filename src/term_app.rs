@@ -152,6 +152,7 @@ pub(crate) fn run_term_app_interactive_basic_4_group(cmd: &String, groupID: &Str
    if crate::cmd_keys::extra_info( None) {println!("proc id {}, proc name {}", proc_id, procName )};
    kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT );
 let abort = std::thread::spawn(move|| {
+    use crate::prox::send_prox_sig as kill;
     let mut count_out = 0;
     crate::faav::kill_prox_chain( None );
     crate::faav::proc_exited( None);
@@ -162,16 +163,19 @@ let abort = std::thread::spawn(move|| {
     if !check_alive_proc_by_pid( proc_id ) { crate::faav::proc_exited( Some ( true ) ); break; }
        if key == "p"{
         unsafe {
-            if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
+            //if !pause_operation{kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP ); 
+            if !pause_operation{kill (proc_id, Some ( nix::sys::signal::SIGSTOP) ); 
                 println!("Operation paused."); popup_msg("pause"); pause_operation = true; continue;}
-            else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+            //else{kill ( Pid::from_raw (proc_id),  nix::sys::signal::SIGCONT ); popup_msg("continue"); pause_operation = false;}
+            else{kill ( proc_id,  Some( nix::sys::signal::SIGCONT ) ); popup_msg("continue"); pause_operation = false;}
         }
        }
     if "k" == key { 
         crate::faav::kill_prox_chain( Some( true ) );
         match std::fs::remove_file (&groupID_cpy) {Ok (fs) => fs, _ => {} }; 
         match std::fs::remove_dir_all (&groupID_cpy) {Ok (fs) => fs, _ => { bash_unlink( &groupID_cpy); } };
-        kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+        //kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
+         kill ( proc_id, Some( nix::sys::signal::SIGKILL ) );
         /*while let Some(proc_id) = get_pid_by_name( &groupID_cpy1.clone() ) {
             unsafe{
                 kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGABRT ); kill ( Pid::from_raw (proc_id), nix::sys::signal::SIGKILL );
@@ -192,20 +196,24 @@ let check_alive_thr = std::thread::spawn ( move || {
         crate::faav::lock_control_c( Some ( true ) );
         let mut paused = false;
         let mut small_pause = false;
+    use crate::prox::send_prox_sig as kill;
         while check_alive_proc_by_pid( proc_id1 ) {
             if !crate::cmd_keys::extra_info( None ) {
-                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGCONT );
+                //kill (Pid::from_raw (proc_id), nix::sys::signal::SIGCONT );
+                kill (proc_id, Some (nix::sys::signal::SIGCONT) );
             }
             if !crate::faav::lock_control_c ( None ) { 
                 paused = true;
                 println!("pause {paused}", );
-                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+                //kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+                kill (proc_id, Some (nix::sys::signal::SIGSTOP) );
                 crate::atomic_op::stdin_write(Some ("p") );
                 crate::faav::lock_control_c( Some ( true ) );
                 }
             delay_mcs( 100711 );
             if !crate::cmd_keys::extra_info( None ) {
-                kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+                //kill (Pid::from_raw (proc_id), nix::sys::signal::SIGSTOP );
+                kill (proc_id, Some (nix::sys::signal::SIGSTOP) );
             }
         } 
         crate::faav::lock_control_c( Some ( false ) );
