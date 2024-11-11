@@ -371,7 +371,7 @@ pub fn mk_branch_of_prox ( tree: *mut  tree_of_prox ) -> Option < ManuallyDrop <
             if let Ok (res) = proc.unwrap().status() {
                 if res.ppid == (*bp).ppid {
                     //dbg! (& (*tree) );
-                    println! ("res.pid {}", res.pid);
+                    //println! ("res.pid {}", res.pid);
                     (*(*bp).proxid_of_kid).push (res.pid );
                 }
             }
