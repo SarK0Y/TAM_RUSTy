@@ -1,7 +1,10 @@
-use midly::{Header, Smf, Track, TrackEvent, TrackEventKind};
-use midly::num::{u4, u7, u28};
-pub fn mk_rnd_midi () {
+use midly::{Header, Smf, Track, TrackEvent, TrackEventKind, Timing::Metrical};
+use midly::num::{u4, u7, u28, u15};
+pub fn mk_rnd_midi (duration: u15) {
+     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration ) ) );
 
+    // Create a new track
+    let mut track = Track::new();
 } 
 /*
 use midly::{Header, Smf, Track, TrackEvent, TrackEventKind};
