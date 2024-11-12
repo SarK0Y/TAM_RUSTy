@@ -1,10 +1,61 @@
 use midly::{Header, Smf, Track, TrackEvent, TrackEventKind, Timing::Metrical};
 use midly::num::{u4, u7, u28, u15};
-pub fn mk_rnd_midi (duration: u15) {
-     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration ) ) );
+use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
+use Mademoiselle_Entropia::true_rnd::get_true_rnd_u32 as u32__;
+pub fn mk_rnd_midi (duration: u16) {
+    let duration_u15 = u15::new( duration );
+     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
 
     // Create a new track
     let mut track = Track::new();
+    let mut time = u28::new(0);
+    let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
+    let mut already_gen_time: u16 = 0;
+    while already_gen_time < duration {
+        let vel_ = u8__( Some( 37 ) );
+        let duration_ = u32__( ) % 313;
+        let note = u8__( Some( vel_ ) );
+        let mum_of_channel_ = u8__( Some( vel_ ) ) % 16;
+        already_gen_time += duration_ as u16;
+        notes.push ( (note, duration_, vel_,  mum_of_channel_ ) );
+    }
+    for (note, duration, vel_, num_of_channel ) in notes.iter() {
+        // Note On
+        track.push(TrackEvent {
+            delta: time,
+            kind: TrackEventKind::Midi {
+                channel: u4::new( *num_of_channel ),
+                message: midly::MidiMessage::NoteOn {
+                    key: u7::new( *note ),
+                    vel: u7::new( *vel_ ),
+                },
+            },
+        });
+
+        // Note Off (after duration)
+        track.push(TrackEvent {
+            delta: u28::new(*duration),
+            kind: TrackEventKind::Midi {
+                channel: u4::new( *num_of_channel ),
+                message: midly::MidiMessage::NoteOff {
+                    key: u7::new(*note),
+                    vel: u7::new( *vel_),
+                },
+            },
+        });
+
+        time = u28::new(0); // Reset delta time for next note
+    }
+
+    // Add End of Track event
+    track.push(TrackEvent {
+        delta: u28::new(0),
+        kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
+    });
+
+    // Add the track to the MIDI file
+    smf.tracks.push(track);
+
 } 
 /*
 use midly::{Header, Smf, Track, TrackEvent, TrackEventKind};
