@@ -2,6 +2,9 @@ use midly::{Header, Smf, Track, TrackEvent, TrackEventKind, Timing::Metrical};
 use midly::num::{u4, u7, u28, u15};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u32 as u32__;
+use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
+use crate::custom_traits::STRN;
+use crate::errMsg0;
 pub fn mk_rnd_midi (duration: u16) {
     let duration_u15 = u15::new( duration );
      let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
@@ -55,7 +58,19 @@ pub fn mk_rnd_midi (duration: u16) {
 
     // Add the track to the MIDI file
     smf.tracks.push(track);
+    let file_name = format! ( "Universum Vox.{}.mid", mk_uid( 24 ));
+    let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
+    smf.save( &full_path );
+    let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
+    errMsg0( &msg );
 
+
+}
+pub fn universum_vox (cmd: &String) {
+    let cmd = cmd.replace ("universum vox", "").trim_end().trim_start ().strn ();
+    let mut duration = 15u16;
+    if let Ok ( x ) = cmd.parse:: <u16> () { duration = x }
+    mk_rnd_midi(duration)
 } 
 /*
 use midly::{Header, Smf, Track, TrackEvent, TrackEventKind};

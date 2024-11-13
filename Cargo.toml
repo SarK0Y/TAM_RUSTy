@@ -34,7 +34,7 @@ terminal_size = "0.3.0"
 crossterm="0.27.0"
 regex = "1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
-midly = {version = "0.5.3"}
+midly = {version = "0.5.3", feature="std"}
 syn = "2.0.66"
 procfs = "0.15.1"
 sysinfo = "0.32.0"
