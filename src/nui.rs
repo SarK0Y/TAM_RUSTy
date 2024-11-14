@@ -20,7 +20,7 @@ pub fn mk_rnd_midi (duration: u16) {
     let mut duration_: u32 = 67;
     while already_gen_time < duration {
         vel_ = u8__( Some( vel_ ) );
-        duration_ = u32__( ) % 213;
+        duration_ = u32__( ) % 999;
         note = u8__( Some( note ) ) % 108;
         if note < 21 && (note & 1 ) == 1  { note += 21 }
         if note < 21 && (note & 1 ) == 0  { note += 23 }
