@@ -14,35 +14,46 @@ pub fn mk_rnd_midi (duration: u16) {
     let mut time = u28::new(0);
     let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
     let mut already_gen_time: u16 = 0;
+    let mut num_of_channel: u8 = 4;
+    let mut note: u8 = 23;
+    let mut vel_: u8 = 64;
+    let mut duration_: u32 = 67;
     while already_gen_time < duration {
-        let vel_ = u8__( Some( 37 ) );
-        let duration_ = u32__( ) % 313;
-        let note = u8__( Some( vel_ ) );
-        let mum_of_channel_ = u8__( Some( vel_ ) ) % 16;
-        already_gen_time += duration_ as u16;
-        notes.push ( (note, duration_, vel_,  mum_of_channel_ ) );
+        vel_ = u8__( Some( vel_ ) ) % 217;
+        duration_ = 100u32;//u32__( ) % 111;
+        note = u8__( Some( note ) ) % 108;
+        num_of_channel = u8__( Some ( num_of_channel ) ) % 16;
+        already_gen_time += 1;
+        notes.push ( (note, duration_, vel_, num_of_channel ) );
     }
-    for (note, duration, vel_, num_of_channel ) in notes.iter() {
+    dbg! (&already_gen_time);
+   // errMsg0( "");
+    for i in notes {
+        note = i.0;
+        dbg! (&note);
+        duration_ = i.1;
+        vel_ = i.2;
+        num_of_channel = i.3;
         // Note On
         track.push(TrackEvent {
             delta: time,
             kind: TrackEventKind::Midi {
-                channel: u4::new( *num_of_channel ),
+                channel: u4::new( num_of_channel ),
                 message: midly::MidiMessage::NoteOn {
-                    key: u7::new( *note ),
-                    vel: u7::new( *vel_ ),
+                    key: u7::new( note ),
+                    vel: u7::new( vel_ ),
                 },
             },
         });
 
         // Note Off (after duration)
         track.push(TrackEvent {
-            delta: u28::new(*duration),
+            delta: u28::new( duration_ ),
             kind: TrackEventKind::Midi {
-                channel: u4::new( *num_of_channel ),
+                channel: u4::new( num_of_channel ),
                 message: midly::MidiMessage::NoteOff {
-                    key: u7::new(*note),
-                    vel: u7::new( *vel_),
+                    key: u7::new( note ),
+                    vel: u7::new( vel_),
                 },
             },
         });
