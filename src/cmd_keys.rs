@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use procfs::sys::fs;
 use crate::{__get_arg_in_cmd, checkArg, getkey, link_lst_to, set_front_list, set_front_list2, split_once, STRN};
 pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
@@ -131,6 +132,19 @@ pub fn prompt () -> String{
     if checkArg( "-prompt" ) {
         unsafe { *strn0 = __get_arg_in_cmd("-prompt" ); }
     } unsafe { strn0.strn() }
+}
+pub fn midi_dir ( name: Option < String >) -> String{
+    static mut strn0: Lazy < String > = Lazy::new( || {"/tmp".strn() });
+    static mut fst_run: bool = true;
+    unsafe {
+        if fst_run {
+            if checkArg( "-midi-dir" ) {
+                *strn0 = __get_arg_in_cmd("-midi-dir" );
+            }
+        }
+        if let Some ( x ) = name { *strn0 = x }
+            strn0.strn()
+    }
 }
 pub fn drop_ext_modes (set_o_get: Option < bool >) -> bool {
     static mut state: bool = false;

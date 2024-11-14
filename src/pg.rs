@@ -661,6 +661,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::mae::surprise_me(Some(crate::enums::amaze_me::do_ur_stuff));
         return;
     }
+    let cmd0 = "universum vox";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::nui::universum_vox( &cmd );
+        return;
+    }
     let cmd0 = "sieve";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         sieve_list(crate::cpy_str(&cmd));

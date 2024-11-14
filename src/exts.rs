@@ -37,6 +37,8 @@ mod swtch;
 mod atomic_op;
 #[path = "init.rs"]
 mod init;
+#[path = "nui.rs"]
+mod nui;
 #[path = "nvim.ext.rs"]
 mod nvim;
 #[path = "vim.ext.rs"]
