@@ -19,9 +19,11 @@ pub fn mk_rnd_midi (duration: u16) {
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
     while already_gen_time < duration {
-        vel_ = u8__( Some( vel_ ) ) % 217;
-        duration_ = 100u32;//u32__( ) % 111;
+        vel_ = u8__( Some( vel_ ) );
+        duration_ = u32__( ) % 213;
         note = u8__( Some( note ) ) % 108;
+        if note < 21 && (note & 1 ) == 1  { note += 21 }
+        if note < 21 && (note & 1 ) == 0  { note += 23 }
         num_of_channel = u8__( Some ( num_of_channel ) ) % 16;
         already_gen_time += 1;
         notes.push ( (note, duration_, vel_, num_of_channel ) );
