@@ -4,8 +4,8 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_traits::STRN;
-use crate::errMsg0;
-use serde::Deserialize;
+use crate::{errMsg0, getkey};
+use serde::{Deserialize, Serialize, Serializer};
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -13,7 +13,21 @@ use std::path::Path;
 pub fn mk_rnd_midi (duration: u16) {
     let duration_u15 = u15::new( duration );
      let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
-
+    let dummy_jsdon = crate::enums::universum_vox_note {
+        duration: 15,
+        const_duration: false,
+        range: None,
+        bottom: Some ( 17 ),
+        velocity_level: 211,
+        const_velocity: true,
+        arr: Some (vec! [63,78] ),
+    };
+    println!("{}", serde_json::to_string (&dummy_jsdon).unwrap () ); 
+    let loaded = match load_uv_conf("/tmp/tst_json") {Ok (json ) => json, Err (e) => {eprintln! ("{e}");getkey(); return;} };
+    println!("{}", serde_json::to_string (&loaded).unwrap () ); 
+    dbg! (&loaded);
+    getkey();
+    return;
     // Create a new track
     let mut track = Track::new();
     let mut time = u28::new(0);
