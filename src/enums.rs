@@ -1,3 +1,4 @@
+use serde::Deserialize;
 #[derive(PartialEq)]
 pub(crate) enum cached_data{
     no_rec,
@@ -87,4 +88,14 @@ pub enum mutex_group < 'a >  {
     drop ( usize ),
     find ( *mut u64),
     del_all
+}
+#[derive(Deserialize, Debug, Clone)]
+pub struct universum_vox_note {
+    duration: u32,
+    variable_duration: bool,
+    velocity_level: u8,
+    variable_velocity: bool,
+    range: Option <u8 >,
+    bottom: Option <u8>,
+    arr: Option < Vec <u8> >
 }
