@@ -10,6 +10,114 @@ use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
+pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
+    let duration_u15 = u15::new( duration );
+     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
+
+    // Create a new track
+    let mut track = Track::new();
+    let uv_note: crate::enums::universum_vox_note =
+                      match load_uv_conf( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
+                      errMsg0( "Dear user, You need to set json properly.. Look example: {
+            \"num_of_channels\":16,\n
+            \"duration\":150,\n
+            \"const_duration\":false,\n
+            \"velocity_level\":211,\n
+            \"const_velocity\":true,\n
+            \"range\":null,\n
+            \"bottom\":17,\n
+            \"arr\":[63,78]\n
+} "); return;} };
+    let mut time = u28::new(0);
+    let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
+    let mut already_gen_time: u16 = 0;
+    let mut num_of_channel: u8 = uv_note.num_of_channels;
+    let mut range_of_notes: u8 = 1;
+    if uv_note.range.is_none () && uv_note.bottom.is_none () && uv_note.arr.is_none () {
+        range_of_notes = 128;
+    }
+    let mut bottom_note: u8 = 0;
+    if let Some ( x ) = uv_note.bottom { bottom_note = x }
+    if let Some ( x ) = uv_note.range { range_of_notes = x }
+    let mut note: u8 = 23;
+    let mut vel_: u8 = 64;
+    let mut duration_: u32 = 67;
+    while already_gen_time < duration {
+        vel_ = u8__( Some( vel_ ) );
+        duration_ = u32__( ) % 999;
+        note = u8__( Some( note ) ) % 108;
+        if note < 21 && (note & 1 ) == 1  { note += 21 }
+        if note < 21 && (note & 1 ) == 0  { note += 23 }
+        num_of_channel = u8__( Some ( num_of_channel ) ) % 16;
+        already_gen_time += 1;
+        notes.push ( (note, duration_, vel_, num_of_channel ) );
+    }
+    dbg! (&already_gen_time);
+   // errMsg0( "");
+    for i in notes {
+        note = i.0;
+        dbg! (&note);
+        duration_ = i.1;
+        vel_ = i.2;
+        num_of_channel = i.3;
+        // Note On
+        track.push(TrackEvent {
+            delta: time,
+            kind: TrackEventKind::Midi {
+                channel: u4::new( num_of_channel ),
+                message: midly::MidiMessage::NoteOn {
+                    key: u7::new( note ),
+                    vel: u7::new( vel_ ),
+                },
+            },
+        });
+
+        // Note Off (after duration)
+        track.push(TrackEvent {
+            delta: u28::new( duration_ ),
+            kind: TrackEventKind::Midi {
+                channel: u4::new( num_of_channel ),
+                message: midly::MidiMessage::NoteOff {
+                    key: u7::new( note ),
+                    vel: u7::new( vel_),
+                },
+            },
+        });
+
+        time = u28::new(0); // Reset delta time for next note
+    }
+
+    // Add End of Track event
+    track.push(TrackEvent {
+        delta: u28::new(0),
+        kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
+    });
+
+    // Add the track to the MIDI file
+    smf.tracks.push(track);
+    let file_name = format! ( "Universum Vox.{}.mid", mk_uid( 24 ));
+    let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
+    smf.save( &full_path );
+    let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
+    errMsg0( &msg );
+
+
+}
+pub fn universum_vox (cmd: &String) {
+    let cmd = cmd.replace ("universum vox", "").trim_end().trim_start ().strn ();
+    let mut duration = 15u16;
+    if let Ok ( x ) = cmd.parse:: <u16> () { duration = x }
+    mk_rnd_midi(duration)
+} 
+pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_note, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let uv_note: crate::universum_vox_note = serde_json::from_reader(reader)?; 
+    Ok (uv_note )
+}
+//fn
+/*
+/////////////////// tst variant ////////////////////////////
 pub fn mk_rnd_midi (duration: u16) {
     let duration_u15 = u15::new( duration );
      let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
@@ -98,93 +206,7 @@ pub fn mk_rnd_midi (duration: u16) {
 
 
 }
-pub fn mk_rnd_midi_advanced (duration: u16) {
-    let duration_u15 = u15::new( duration );
-     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
-
-    // Create a new track
-    let mut track = Track::new();
-    let mut time = u28::new(0);
-    let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
-    let mut already_gen_time: u16 = 0;
-    let mut num_of_channel: u8 = 4;
-    let mut note: u8 = 23;
-    let mut vel_: u8 = 64;
-    let mut duration_: u32 = 67;
-    while already_gen_time < duration {
-        vel_ = u8__( Some( vel_ ) );
-        duration_ = u32__( ) % 999;
-        note = u8__( Some( note ) ) % 108;
-        if note < 21 && (note & 1 ) == 1  { note += 21 }
-        if note < 21 && (note & 1 ) == 0  { note += 23 }
-        num_of_channel = u8__( Some ( num_of_channel ) ) % 16;
-        already_gen_time += 1;
-        notes.push ( (note, duration_, vel_, num_of_channel ) );
-    }
-    dbg! (&already_gen_time);
-   // errMsg0( "");
-    for i in notes {
-        note = i.0;
-        dbg! (&note);
-        duration_ = i.1;
-        vel_ = i.2;
-        num_of_channel = i.3;
-        // Note On
-        track.push(TrackEvent {
-            delta: time,
-            kind: TrackEventKind::Midi {
-                channel: u4::new( num_of_channel ),
-                message: midly::MidiMessage::NoteOn {
-                    key: u7::new( note ),
-                    vel: u7::new( vel_ ),
-                },
-            },
-        });
-
-        // Note Off (after duration)
-        track.push(TrackEvent {
-            delta: u28::new( duration_ ),
-            kind: TrackEventKind::Midi {
-                channel: u4::new( num_of_channel ),
-                message: midly::MidiMessage::NoteOff {
-                    key: u7::new( note ),
-                    vel: u7::new( vel_),
-                },
-            },
-        });
-
-        time = u28::new(0); // Reset delta time for next note
-    }
-
-    // Add End of Track event
-    track.push(TrackEvent {
-        delta: u28::new(0),
-        kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
-    });
-
-    // Add the track to the MIDI file
-    smf.tracks.push(track);
-    let file_name = format! ( "Universum Vox.{}.mid", mk_uid( 24 ));
-    let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
-    smf.save( &full_path );
-    let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
-    errMsg0( &msg );
-
-
-}
-pub fn universum_vox (cmd: &String) {
-    let cmd = cmd.replace ("universum vox", "").trim_end().trim_start ().strn ();
-    let mut duration = 15u16;
-    if let Ok ( x ) = cmd.parse:: <u16> () { duration = x }
-    mk_rnd_midi(duration)
-} 
-pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_note, Box<dyn Error>> {
-    let file = File::open(path)?;
-    let reader = BufReader::new(file);
-    let uv_note: crate::universum_vox_note = serde_json::from_reader(reader)?; 
-    Ok (uv_note )
-}
-/*
+/////////////////// tst variant ////////////////////////////
 use serde::Deserialize;
 
 use std::error::Error;

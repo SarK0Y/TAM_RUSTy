@@ -91,6 +91,7 @@ pub enum mutex_group < 'a >  {
 }
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct universum_vox_note {
+    pub num_of_channels: u8,
     pub duration: u32,
     pub const_duration: bool,
     pub velocity_level: u8,
