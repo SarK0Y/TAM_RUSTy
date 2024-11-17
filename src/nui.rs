@@ -137,7 +137,7 @@ pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum
     Ok (uv_note )
 }
 pub fn universum_vox_lst () {
-    let dir = crate::cmd_keys::midi_dir( None );
+    let dir = crate::cmd_keys::universum_vox_conf( None );
     crate::change_dir (dir, false);
 }
 //fn

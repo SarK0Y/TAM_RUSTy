@@ -149,11 +149,11 @@ pub fn midi_dir ( name: Option < String >) -> String{
 pub fn universum_vox_conf ( name: Option < String >) -> String{
     static mut strn0: Lazy < String > = Lazy::new( || {"/tmp".strn() });
     static mut fst_run: bool = true;
-    let key = "-universum-vox-conf-dir";
+    let key = "-universum-vox-conf-dir".strn();
     unsafe {
         if fst_run {
-            if checkArg( key ) {
-                *strn0 = __get_arg_in_cmd( key );
+            if checkArg( &key ) {
+                *strn0 = __get_arg_in_cmd( &key );
             }
         }
         if let Some ( x ) = name { *strn0 = x }
