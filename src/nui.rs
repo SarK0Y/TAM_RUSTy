@@ -122,15 +122,23 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
 }
 pub fn universum_vox (cmd: &String) {
     let cmd = cmd.replace ("universum vox", "").trim_end().trim_start ().strn ();
+    let (conf_id_, duration_) = crate::split_once( &cmd, " ");
     let mut duration = 15u16;
-    if let Ok ( x ) = cmd.parse:: <u16> () { duration = x }
-    mk_rnd_midi(duration)
+    let mut conf_id: i64 = 0;
+    if let Ok ( x ) = duration_.parse:: <u16> () { duration = x }
+    if let Ok ( x ) = conf_id_.parse:: <i64> () { conf_id = x }
+    let path_to_conf = crate::get_item_from_front_list( conf_id, true);
+    mk_rnd_midi_advanced(duration, &path_to_conf);
 } 
 pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_note, Box<dyn Error>> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let uv_note: crate::universum_vox_note = serde_json::from_reader(reader)?; 
     Ok (uv_note )
+}
+pub fn universum_vox_lst () {
+    let dir = crate::cmd_keys::midi_dir( None );
+    crate::change_dir (dir, false);
 }
 //fn
 /*
