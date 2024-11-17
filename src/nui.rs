@@ -16,7 +16,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
 
     // Create a new track
     let mut track = Track::new();
-    let uv_note: crate::enums::universum_vox_note =
+    let mut uv_note: crate::enums::universum_vox_note =
                       match load_uv_conf( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
                       errMsg0( "Dear user, You need to set json properly.. Look example: {
             \"num_of_channels\":16,\n
@@ -26,7 +26,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
             \"const_velocity\":true,\n
             \"range\":null,\n
             \"bottom\":17,\n
-            \"arr\":[63,78]\n
+            \"arr\":[63,78]\n-----\nRemark: max range of notes is [0..128]
 } "); return;} };
     let mut time = u28::new(0);
     let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
@@ -37,20 +37,37 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
         range_of_notes = 128;
     }
     let mut bottom_note: u8 = 0;
-    if let Some ( x ) = uv_note.bottom { bottom_note = x }
-    if let Some ( x ) = uv_note.range { range_of_notes = x }
+    let mut len_arr = 0usize;
+    if uv_note.arr.is_some () { len_arr = uv_note.arr.as_ref().unwrap().len (); } else {
+        if let Some ( x ) = uv_note.bottom { bottom_note = x }
+        if let Some ( x ) = uv_note.range { range_of_notes = x }
+        if bottom_note + range_of_notes > 127 {
+            let dt = bottom_note + range_of_notes - 127;
+            range_of_notes -= dt;
+        }
+    }
     let mut note: u8 = 23;
+    let mut note_: u8 = 23;
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
     while already_gen_time < duration {
-        vel_ = u8__( Some( vel_ ) );
-        duration_ = u32__( ) % 999;
-        note = u8__( Some( note ) ) % 108;
-        if note < 21 && (note & 1 ) == 1  { note += 21 }
-        if note < 21 && (note & 1 ) == 0  { note += 23 }
-        num_of_channel = u8__( Some ( num_of_channel ) ) % 16;
+        if uv_note.const_velocity { vel_ = uv_note.velocity_level } else {
+            vel_ = u8__( Some( vel_ ) ) % uv_note.velocity_level;
+        }
+        if uv_note.const_duration { duration_ = uv_note.duration } else {
+            duration_ = u32__( ) % uv_note.duration;
+        }
+        note = u8__( Some( note ) );
+        if len_arr > 0 {
+            note_ = note %  len_arr as u8;
+            note_ = uv_note.arr.as_mut().unwrap() [ note_ as usize ]; 
+        } else {
+            note_ = note %  range_of_notes;
+            note_ = note_ + bottom_note;
+        }
+        num_of_channel = u8__( Some ( num_of_channel ) ) % uv_note.num_of_channels;
         already_gen_time += 1;
-        notes.push ( (note, duration_, vel_, num_of_channel ) );
+        notes.push ( (note_, duration_, vel_, num_of_channel ) );
     }
     dbg! (&already_gen_time);
    // errMsg0( "");
