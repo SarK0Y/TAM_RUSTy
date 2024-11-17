@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "10.0.2"
+version = "11.0.0"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -35,6 +35,8 @@ crossterm="0.27.0"
 regex = "1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
 midly = {version = "0.5.3", feature="std"}
+serde = {version = "1.0.215", features=["derive"]}
+serde_json = {version = "1.0.32", feature="std"}
 syn = "2.0.66"
 procfs = "0.15.1"
 sysinfo = "0.32.0"
