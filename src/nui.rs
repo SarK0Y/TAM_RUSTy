@@ -22,6 +22,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
             \"num_of_channels\":16,\n
             \"duration\":150,\n
             \"const_duration\":false,\n
+            \"deviate_duration\":0,\n
             \"velocity_level\":211,\n
             \"const_velocity\":true,\n
             \"range\":null,\n
@@ -54,7 +55,10 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
         if uv_note.const_velocity { vel_ = uv_note.velocity_level } else {
             vel_ = u8__( Some( vel_ ) ) % uv_note.velocity_level;
         }
-        if uv_note.const_duration { duration_ = uv_note.duration } else {
+        if uv_note.const_duration { 
+            duration_ = uv_note.duration;
+            if uv_note.deviate_duration > 0 { duration_ += u32__( ) % uv_note.deviate_duration; }
+         } else {
             duration_ = u32__( ) % uv_note.duration;
         }
         note = u8__( Some( note ) );
