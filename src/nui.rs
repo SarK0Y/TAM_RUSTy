@@ -75,6 +75,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
     }
     dbg! (&already_gen_time);
    // errMsg0( "");
+   let mut dt = 0u32;
     for i in notes {
         note = i.0;
         dbg! (&note);
@@ -83,7 +84,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
         num_of_channel = i.3;
         // Note On
         track.push(TrackEvent {
-            delta: time,
+            delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
                 channel: u4::new( num_of_channel ),
                 message: midly::MidiMessage::NoteOn {
@@ -94,8 +95,9 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
         });
 
         // Note Off (after duration)
+        dt += duration_;
         track.push(TrackEvent {
-            delta: u28::new( duration_ ),
+            delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
                 channel: u4::new( num_of_channel ),
                 message: midly::MidiMessage::NoteOff {
@@ -105,7 +107,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
             },
         });
 
-        time = u28::new(0); // Reset delta time for next note
+        dt = 0; // Reset delta time for next note
     }
 
     // Add End of Track event
