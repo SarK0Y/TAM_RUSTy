@@ -19,6 +19,7 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
     let mut uv_note: crate::enums::universum_vox_note =
                       match load_uv_conf( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
                       errMsg0( "Dear user, You need to set json properly.. Look example: {
+            \"alg0\":1,\n
             \"num_of_channels\":16,\n
             \"duration\":150,\n
             \"const_duration\":false,\n
@@ -123,10 +124,127 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
     smf.save( &full_path );
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     errMsg0( &msg );
-
-
 }
-pub fn universum_vox (cmd: &String) {
+pub fn mk_rnd_midi_dense (duration: u16, path_to_conf: &String) {
+    let duration_u15 = u15::new( duration );
+     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
+
+    // Create a new track
+    let mut track = Track::new();
+    let mut uv_note: crate::enums::universum_vox_note =
+                      match load_uv_conf( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
+                      errMsg0( "Dear user, You need to set json properly.. Look example: {
+            \"alg0\":1,\n
+            \"num_of_channels\":16,\n
+            \"duration\":150,\n
+            \"const_duration\":false,\n
+            \"deviate_duration\":0,\n
+            \"velocity_level\":211,\n
+            \"const_velocity\":true,\n
+            \"range\":null,\n
+            \"bottom\":17,\n
+            \"arr\":[63,78]\n-----\nRemark: max range of notes is [0..128]
+} "); return;} };
+    let mut time = u28::new(0);
+    let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
+    let mut already_gen_time: u16 = 0;
+    let mut num_of_channel: u8 = uv_note.num_of_channels;
+    let mut range_of_notes: u8 = 1;
+    if uv_note.range.is_none () && uv_note.bottom.is_none () && uv_note.arr.is_none () {
+        range_of_notes = 128;
+    }
+    let mut bottom_note: u8 = 0;
+    let mut len_arr = 0usize;
+    if uv_note.arr.is_some () { len_arr = uv_note.arr.as_ref().unwrap().len (); } else {
+        if let Some ( x ) = uv_note.bottom { bottom_note = x }
+        if let Some ( x ) = uv_note.range { range_of_notes = x }
+        if bottom_note + range_of_notes > 127 {
+            let dt = bottom_note + range_of_notes - 127;
+            range_of_notes -= dt;
+        }
+    }
+    let mut note: u8 = 23;
+    let mut note_: u8 = 23;
+    let mut vel_: u8 = 64;
+    let mut duration_: u32 = 67;
+    while already_gen_time < duration {
+        if uv_note.const_velocity { vel_ = uv_note.velocity_level } else {
+            vel_ = u8__( Some( vel_ ) ) % uv_note.velocity_level;
+        }
+        if uv_note.const_duration { 
+            duration_ = uv_note.duration;
+            if uv_note.deviate_duration > 0 { duration_ += u32__( ) % uv_note.deviate_duration; }
+         } else {
+            duration_ = u32__( ) % uv_note.duration;
+        }
+        note = u8__( Some( note ) );
+        if len_arr > 0 {
+            note_ = note %  len_arr as u8;
+            note_ = uv_note.arr.as_mut().unwrap() [ note_ as usize ]; 
+        } else {
+            note_ = note %  range_of_notes;
+            note_ = note_ + bottom_note;
+        }
+        num_of_channel = u8__( Some ( num_of_channel ) ) % uv_note.num_of_channels;
+        already_gen_time += 1;
+        notes.push ( (note_, duration_, vel_, num_of_channel ) );
+    }
+    dbg! (&already_gen_time);
+   // errMsg0( "");
+   let mut dt = 0u32;
+   let notes_per_channel = notes.len() / uv_note.num_of_channels as usize;
+   let mut count_notes_per_ch = 0usize;
+   num_of_channel = 0;
+    for i in notes {
+        note = i.0;
+        dbg! (&note);
+        duration_ = i.1;
+        vel_ = i.2;
+        if count_notes_per_ch == notes_per_channel { num_of_channel += 1; count_notes_per_ch = 0;}
+        else { count_notes_per_ch += 1; }
+        // Note On
+        track.push(TrackEvent {
+            delta: u28::new( dt ),
+            kind: TrackEventKind::Midi {
+                channel: u4::new( num_of_channel ),
+                message: midly::MidiMessage::NoteOn {
+                    key: u7::new( note ),
+                    vel: u7::new( vel_ ),
+                },
+            },
+        });
+
+        // Note Off (after duration)
+        dt += duration_;
+        track.push(TrackEvent {
+            delta: u28::new( dt ),
+            kind: TrackEventKind::Midi {
+                channel: u4::new( num_of_channel ),
+                message: midly::MidiMessage::NoteOff {
+                    key: u7::new( note ),
+                    vel: u7::new( vel_),
+                },
+            },
+        });
+
+        dt = 0; // Reset delta time for next note
+    }
+
+    // Add End of Track event
+    track.push(TrackEvent {
+        delta: u28::new(0),
+        kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
+    });
+
+    // Add the track to the MIDI file
+    smf.tracks.push(track);
+    let file_name = format! ( "Universum Vox.{}.mid", mk_uid( 24 ));
+    let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
+    smf.save( &full_path );
+    let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
+    errMsg0( &msg );
+}
+pub fn universum_vox (cmd: &String) -> Result < (), Box <dyn Error > >{
     let cmd = cmd.replace ("universum vox", "").trim_end().trim_start ().strn ();
     let (conf_id_, duration_) = crate::split_once( &cmd, " ");
     let mut duration = 15u16;
@@ -134,7 +252,13 @@ pub fn universum_vox (cmd: &String) {
     if let Ok ( x ) = duration_.parse:: <u16> () { duration = x }
     if let Ok ( x ) = conf_id_.parse:: <i64> () { conf_id = x }
     let path_to_conf = crate::get_item_from_front_list( conf_id, true);
-    mk_rnd_midi_advanced(duration, &path_to_conf);
+    let alg0: u8 = load_uv_conf( &path_to_conf)?.alg0;
+    match alg0 {
+        0 => { mk_rnd_midi_advanced(duration, &path_to_conf); },
+        1 => { mk_rnd_midi_dense(duration, &path_to_conf); },
+        _ => {}
+    }
+    Ok ( () )
 } 
 pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_note, Box<dyn Error>> {
     let file = File::open(path)?;
