@@ -167,7 +167,7 @@ pub fn mk_rnd_midi_dense (duration: u16, path_to_conf: &String) {
     let mut note_: u8 = 23;
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
-    let notes_per_channel = notes.len() / uv_note.num_of_channels as usize;
+    let notes_per_channel = duration as usize / uv_note.num_of_channels as usize;
    let mut count_notes_per_ch = 0usize;
    num_of_channel = 0;
     while already_gen_time < duration {
@@ -289,7 +289,7 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
     let mut note_: u8 = 23;
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
-    let notes_per_channel = notes.len() / uv_note.num_of_channels as usize;
+    let notes_per_channel = duration as usize / uv_note.num_of_channels as usize;
    let mut count_notes_per_ch = 0usize;
    num_of_channel = 0;
     while already_gen_time < duration {
@@ -310,14 +310,15 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
             note_ = note %  range_of_notes;
             note_ = note_ + bottom_note;
         }
-        if count_notes_per_ch == notes_per_channel { num_of_channel += 1; count_notes_per_ch = 0;}
-        else { count_notes_per_ch += 1; }
         already_gen_time += 1;
+        let chan = num_of_channel as usize % uv_note.num_of_channels as usize;
         duration_ = match uv_note.note_duration_on_channel.as_ref() {
-            Some (x) => x[num_of_channel as usize ],
+            Some (x) => x[ chan ],
             _ => uv_note.duration
         };
         notes.push ( (note_, duration_, vel_, num_of_channel ) );
+        if count_notes_per_ch == notes_per_channel { num_of_channel += 1; count_notes_per_ch = 0;}
+        else { count_notes_per_ch += 1; }
     }
     dbg! (&already_gen_time);
    // errMsg0( "");
