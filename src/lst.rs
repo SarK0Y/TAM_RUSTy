@@ -465,7 +465,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
-    if item == "universum vox" { crate::nui::universum_vox_lst(); return;}
+    if item == "universum vox" { crate::set_prnt ("universum vox ", -6166); crate::nui::universum_vox_lst(); return;}
     if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     let head = read_tail(&item, "/");
