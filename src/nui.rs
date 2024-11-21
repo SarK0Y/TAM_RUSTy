@@ -289,8 +289,7 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
     let mut note_: u8 = 23;
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
-    let notes_per_channel = duration as usize / uv_note.num_of_channels as usize;
-   let mut count_notes_per_ch = 0usize;
+    let notes_per_channel = uv_note.num_of_channels;
    num_of_channel = 0;
     while already_gen_time < duration {
         if uv_note.const_velocity { vel_ = uv_note.velocity_level } else {
@@ -313,12 +312,15 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
         already_gen_time += 1;
         let chan = num_of_channel as usize % uv_note.num_of_channels as usize;
         duration_ = match uv_note.note_duration_on_channel.as_ref() {
-            Some (x) => x[ chan ],
+            Some (x) => {
+                if chan >= x.len () { uv_note.duration }
+                else {x[ chan ]} },
             _ => uv_note.duration
         };
         notes.push ( (note_, duration_, vel_, num_of_channel ) );
-        if count_notes_per_ch == notes_per_channel { num_of_channel += 1; count_notes_per_ch = 0;}
-        else { count_notes_per_ch += 1; }
+        if num_of_channel < notes_per_channel { num_of_channel += 1;}
+        else { num_of_channel = 0; }
+        dbg! (num_of_channel);
     }
     dbg! (&already_gen_time);
    // errMsg0( "");
@@ -330,23 +332,25 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
         vel_ = i.2;
         num_of_channel = i.3;
         // Note On
-        track.push(TrackEvent {
+        let track_event = TrackEvent {
             delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
-                channel: u4::new( num_of_channel ),
+                channel: u4::new( i.3 ),
                 message: midly::MidiMessage::NoteOn {
                     key: u7::new( note ),
                     vel: u7::new( vel_ ),
                 },
             },
-        });
+        };
+        dbg! (&duration_);
+        track.push( track_event );
 
         // Note Off (after duration)
         dt += duration_;
         track.push(TrackEvent {
             delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
-                channel: u4::new( num_of_channel ),
+                channel: u4::new( i.3 ),
                 message: midly::MidiMessage::NoteOff {
                     key: u7::new( note ),
                     vel: u7::new( vel_),
