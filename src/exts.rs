@@ -39,6 +39,8 @@ mod atomic_op;
 mod init;
 #[path = "nui.rs"]
 mod nui;
+#[path = "nui.wav.rs"]
+mod nui_wav;
 #[path = "nvim.ext.rs"]
 mod nvim;
 #[path = "vim.ext.rs"]
