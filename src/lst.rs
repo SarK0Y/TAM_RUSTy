@@ -440,7 +440,7 @@ pub(crate) fn manage_lst(cmd: &String){
         }
         set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
-    if cmd == "universum vox" { crate::nui::universum_vox_lst(); return;}
+    if cmd == "universum vox" { crate::set_prnt ("universum vox ", -6166); crate::nui::universum_vox_lst(); return;}
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
