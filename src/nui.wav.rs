@@ -1,6 +1,13 @@
 use std::f32::consts::PI;
 use std::i16;
 use hound; 
+use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
+use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
+use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
+use crate::custom_traits::STRN;
+use crate::{errMsg0, getkey, helpful_math_ops};
+use serde::{Deserialize, Serialize, Serializer};
+
 //fn
 /*
 use std::f32::consts::PI;

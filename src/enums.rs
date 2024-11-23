@@ -91,6 +91,7 @@ pub enum mutex_group < 'a >  {
 }
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct universum_vox_note {
+    pub type_: Option < String >,
     pub alg0: u8,
     pub num_of_channels: u8,
     pub duration: u32,
@@ -102,4 +103,15 @@ pub struct universum_vox_note {
     pub range: Option <u8 >,
     pub bottom: Option <u8>,
     pub arr: Option < Vec <u8> >
+}
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct universum_vox_wav {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub num_of_channels: u16,
+
+}
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct universum_vox_stub {
+    pub type_: Option < String >
 }
