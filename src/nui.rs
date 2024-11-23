@@ -4,7 +4,7 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_traits::STRN;
-use crate::{errMsg0, getkey};
+use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
 use std::error::Error;
 use std::fs::File;
@@ -94,7 +94,6 @@ pub fn mk_rnd_midi_advanced (duration: u16, path_to_conf: &String) {
                 },
             },
         });
-
         // Note Off (after duration)
         dt += duration_;
         track.push(TrackEvent {
@@ -248,10 +247,7 @@ pub fn mk_rnd_midi_dense (duration: u16, path_to_conf: &String) {
 }
 pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_conf: &String) {
     let duration_u15 = u15::new( duration );
-     let mut smf = Smf::new(Header::new(midly::Format::SingleTrack,  Metrical ( duration_u15 ) ) );
-
-    // Create a new track
-    let mut track = Track::new();
+     let mut smf = Smf::new(Header::new(midly::Format::Parallel,  Metrical ( duration_u15 ) ) );
     let mut uv_note: crate::enums::universum_vox_note =
                       match load_uv_conf( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
                       errMsg0( "Dear user, You need to set json properly.. Look example: {
@@ -267,6 +263,8 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
             \"bottom\":17,\n
             \"arr\":[63,78]\n-----\nRemark: max range of notes is [0..128]
 } "); return;} };
+    let mut track_: Vec < Track > = Vec::new () ;
+    for j in 0..uv_note.num_of_channels { track_.push ( Track::new () )}
     let mut time = u28::new(0);
     let mut notes: Vec < (u8, u32, u8, u8) > = Vec::new ();
     let mut already_gen_time: u16 = 0;
@@ -290,7 +288,7 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
     let mut vel_: u8 = 64;
     let mut duration_: u32 = 67;
     let notes_per_channel = duration as usize / uv_note.num_of_channels as usize;
-   let mut count_notes_per_ch = 0usize;
+    let mut count_notes_per_channel = 0usize;
    num_of_channel = 0;
     while already_gen_time < duration {
         if uv_note.const_velocity { vel_ = uv_note.velocity_level } else {
@@ -319,9 +317,9 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
             _ => uv_note.duration
         };
         notes.push ( (note_, duration_, vel_, num_of_channel ) );
-        if count_notes_per_ch == notes_per_channel { num_of_channel += 1; count_notes_per_ch = 0;}
-        else { count_notes_per_ch += 1; }
-        dbg! (num_of_channel);
+        if count_notes_per_channel == notes_per_channel { num_of_channel += 1; count_notes_per_channel = 0}
+        else { count_notes_per_channel.inc(); }
+        dbg! (chan);
     }
     dbg! (&already_gen_time);
    // errMsg0( "");
@@ -332,25 +330,25 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
         duration_ = i.1;
         vel_ = i.2;
         num_of_channel = i.3;
-        dbg! (u4::new (num_of_channel ) );
         // Note On
-        track.push(TrackEvent {
+        let track_event = TrackEvent {
             delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
-                channel: u4::new( i.3 ),
+                channel: u4::new( 0 ),
                 message: midly::MidiMessage::NoteOn {
                     key: u7::new( note ),
                     vel: u7::new( vel_ ),
                 },
             },
-        });
-
+        };
+        dbg! (&duration_);
+        track_[ num_of_channel as usize ].push( track_event );
         // Note Off (after duration)
         dt += duration_;
-        track.push(TrackEvent {
+        track_[ num_of_channel as usize ].push(TrackEvent {
             delta: u28::new( dt ),
             kind: TrackEventKind::Midi {
-                channel: u4::new( i.3 ),
+                channel: u4::new( 0 ),
                 message: midly::MidiMessage::NoteOff {
                     key: u7::new( note ),
                     vel: u7::new( vel_),
@@ -362,13 +360,14 @@ pub fn mk_rnd_midi_dense_n_own_note_duration_4_each_ch (duration: u16, path_to_c
     }
 
     // Add End of Track event
-    track.push(TrackEvent {
-        delta: u28::new(0),
-        kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
-    });
-
-    // Add the track to the MIDI file
-    smf.tracks.push(track);
+    for mut t in track_ {
+        t.push(TrackEvent {
+            delta: u28::new(0),
+            kind: TrackEventKind::Meta(midly::MetaMessage::EndOfTrack),
+        });
+         // Add the track to the MIDI file
+    smf.tracks.push( t );
+    }
     let file_name = format! ( "Universum Vox.{}.mid", mk_uid( 24 ));
     let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
     smf.save( &full_path );
