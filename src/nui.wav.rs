@@ -32,6 +32,8 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
         bits_per_sample: uv_wav.bits_per_sample,
         sample_format: uv_wav.sample_format.conv(),
     };
+    let mut rnd_samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples);
+
     let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
     let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
@@ -53,6 +55,13 @@ impl Conv for crate::enums::SampleFormat {
             crate::SampleFormat::Int => return hound::SampleFormat::Int,
         }
     }
+}
+pub fn gen_rnd_vals_f32 (num_of_vals: u32) -> Vec < f32 > {
+    let mut rnd_f32s = Vec:: <f32>::new ();
+    for j in 0..num_of_vals {
+        let rnd = 1.0 / i32__() as f32;
+        rnd_f32s.push ( rnd );
+    } rnd_f32s
 }
 //fn
 /*
