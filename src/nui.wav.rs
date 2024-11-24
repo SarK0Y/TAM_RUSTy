@@ -23,6 +23,8 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
             \"sample_rate\":44100,\n
             \"bits_per_sample\":32,\n
             \"sample_format\":SampleFormat::Int(SampleFormat::Float),
+            \"bar_sample\":1879.31,\n
+            \"amplitude\":2,\n
 } "); return;} };
     let spec = hound::WavSpec {
         channels: uv_wav.num_of_channels,
