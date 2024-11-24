@@ -382,6 +382,12 @@ pub fn universum_vox (cmd: &String) -> Result < (), Box <dyn Error > >{
     if let Ok ( x ) = duration_.parse:: <u16> () { duration = x }
     if let Ok ( x ) = conf_id_.parse:: <i64> () { conf_id = x }
     let path_to_conf = crate::get_item_from_front_list( conf_id, true);
+    if let Some (x ) = load_uv_conf_header(&path_to_conf)?.type_{
+        match x.as_str() {
+            "wav" => { return Ok ( () );}
+            _ => { return Ok ( () );}
+        }
+    }
     let alg0: u8 = load_uv_conf( &path_to_conf)?.alg0;
     match alg0 {
         0 => { mk_rnd_midi_advanced(duration, &path_to_conf); },
@@ -395,6 +401,12 @@ pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum
     let file = File::open(path)?;
     let reader = BufReader::new(file);
     let uv_note: crate::universum_vox_note = serde_json::from_reader(reader)?; 
+    Ok (uv_note )
+}
+pub fn load_uv_conf_header <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_stub, Box<dyn Error>> {
+    let file = File::open(path)?;
+    let reader = BufReader::new(file);
+    let uv_note: crate::universum_vox_stub = serde_json::from_reader(reader)?; 
     Ok (uv_note )
 }
 pub fn universum_vox_lst () {
