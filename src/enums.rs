@@ -109,7 +109,14 @@ pub struct universum_vox_wav {
     pub type_: Option < String >,
     pub alg0: u8,
     pub num_of_channels: u16,
-
+    pub sample_rate: u32,
+    pub bits_per_sample: u16,
+   pub sample_format: SampleFormat,
+}
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub enum SampleFormat {
+    Float,
+    Int,
 }
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct universum_vox_stub {
