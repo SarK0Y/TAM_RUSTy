@@ -108,6 +108,8 @@ pub struct universum_vox_note {
 pub struct universum_vox_wav {
     pub type_: Option < String >,
     pub alg0: u8,
+    pub sound_duration: u16, // in seconds
+    pub num_of_rnd_samples: u32,
     pub num_of_channels: u16,
     pub sample_rate: u32,
     pub bits_per_sample: u16,
