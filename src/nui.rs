@@ -4,6 +4,7 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_traits::STRN;
+use crate::nui_wav::load_uv_conf_wav;
 use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
 use std::error::Error;
@@ -384,7 +385,11 @@ pub fn universum_vox (cmd: &String) -> Result < (), Box <dyn Error > >{
     let path_to_conf = crate::get_item_from_front_list( conf_id, true);
     if let Some (x ) = load_uv_conf_header(&path_to_conf)?.type_{
         match x.as_str() {
-            "wav" => { return Ok ( () );}
+            "wav" => {
+                if load_uv_conf_wav(&path_to_conf)?.sample_format == crate::enums::SampleFormat::Int {
+                    let msg = format! ("For now, option {:?} has no algos.. Please, try {:#?}", crate::enums::SampleFormat::Int,
+                            crate::enums::SampleFormat::Float);
+                     errMsg0( &msg); return Ok ( () );} crate::nui_wav::universum_vox_wav0(duration, &path_to_conf); return Ok ( () );}
             _ => { return Ok ( () );}
         }
     }

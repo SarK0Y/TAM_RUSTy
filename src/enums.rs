@@ -89,7 +89,7 @@ pub enum mutex_group < 'a >  {
     find ( *mut u64),
     del_all
 }
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct universum_vox_note {
     pub type_: Option < String >,
     pub alg0: u8,
@@ -104,7 +104,7 @@ pub struct universum_vox_note {
     pub bottom: Option <u8>,
     pub arr: Option < Vec <u8> >
 }
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct universum_vox_wav {
     pub type_: Option < String >,
     pub alg0: u8,
@@ -117,8 +117,8 @@ pub struct universum_vox_wav {
    pub bar_sample: f32, 
    pub amplitude: f32
 }
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub enum SampleFormat {
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum SampleFormat { 
     Float,
     Int,
 }

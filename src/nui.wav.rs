@@ -34,9 +34,15 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
     };
     let mut samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples);
     let num_of_samples_to_gen = uv_wav.sample_rate as u64 * duration as u64;
-    mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav );
+    match uv_wav.alg0 {
+        _ => {mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav ); },
+    }
     let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
     let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
+    let mut writer = hound::WavWriter::create(&full_path, spec).unwrap();
+    for j in samples {
+        writer.write_sample( j );
+    }
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     errMsg0( &msg );
 }
@@ -44,6 +50,8 @@ pub fn mk_samples_alg0 <'a> ( arr: &'a mut Vec <f32>, len: u64, uv: &crate::enum
     for j in 0..arr.len() { arr [j] *= uv.amplitude; }
     let num_of_rnd_samples = arr.len (); let mut count_samples = num_of_rnd_samples;
     for i in 0..len {
+        let sample = (arr [i as usize ].powf( 3.3 ) + arr [ arr.len () - 1 ].powf (2.1) + 1.0 ) % uv.bar_sample;
+        arr.push ( sample );
     }
     arr
 }
