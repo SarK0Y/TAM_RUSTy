@@ -23,8 +23,8 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
             \"sample_rate\":44100,\n
             \"bits_per_sample\":32,\n
             \"sample_format\":SampleFormat::Int(SampleFormat::Float),
-            \"bar_sample\":1879.31,\n
-            \"amplitude\":2,\n
+            \"bar_sample\":0.94,\n
+            \"amplitude\":2077,\n
 } "); return;} };
     let spec = hound::WavSpec {
         channels: uv_wav.num_of_channels,
@@ -34,14 +34,17 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
     };
     let mut samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples);
     let num_of_samples_to_gen = uv_wav.sample_rate as u64 * duration as u64;
-    mk_samples_alg0( &mut samples, num_of_samples_to_gen );
+    mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav );
     let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
     let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     errMsg0( &msg );
 }
-pub fn mk_samples_alg0 <'a> ( arr: &'a mut Vec <f32>, len: u64 ) -> &'a mut Vec < f32 >{
-    
+pub fn mk_samples_alg0 <'a> ( arr: &'a mut Vec <f32>, len: u64, uv: &crate::enums::universum_vox_wav ) -> &'a mut Vec < f32 >{
+    for j in 0..arr.len() { arr [j] *= uv.amplitude; }
+    let num_of_rnd_samples = arr.len (); let mut count_samples = num_of_rnd_samples;
+    for i in 0..len {
+    }
     arr
 }
 pub fn load_uv_conf_wav <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_wav, Box<dyn Error>> {
