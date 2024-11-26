@@ -22,7 +22,7 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
             \"num_of_rnd_samples\":233,\n
             \"sample_rate\":44100,\n
             \"bits_per_sample\":32,\n
-            \"sample_format\":SampleFormat::Int(SampleFormat::Float),
+            \"sample_format\":\"Float\"(or \"Int\"),\n
             \"bar_sample\":0.94,\n
             \"amplitude\":2077,\n
 } "); return;} };
@@ -32,7 +32,7 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
         bits_per_sample: uv_wav.bits_per_sample,
         sample_format: uv_wav.sample_format.conv(),
     };
-    let mut samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples);
+    let mut samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples, &uv_wav);
     let num_of_samples_to_gen = uv_wav.sample_rate as u64 * duration as u64;
     match uv_wav.alg0 {
         _ => {mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav ); },
@@ -47,12 +47,12 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
     errMsg0( &msg );
 }
 pub fn mk_samples_alg0 <'a> ( arr: &'a mut Vec <f32>, len: u64, uv: &crate::enums::universum_vox_wav ) -> &'a mut Vec < f32 >{
-    for j in 0..arr.len() { arr [j] *= uv.amplitude; }
     let num_of_rnd_samples = arr.len (); let mut count_samples = num_of_rnd_samples;
     for i in 0..len {
-        let sample = (arr [i as usize ].powf( 3.3 ) + arr [ arr.len () - 1 ].powf (2.1) + 1.0 ) % uv.bar_sample;
+        let sample = (arr [i as usize ] + arr [ arr.len () - 1 ] + 1.0 ) % uv.bar_sample;
         arr.push ( sample );
     }
+    dbg! (&arr[0..50]);
     arr
 }
 pub fn load_uv_conf_wav <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_wav, Box<dyn Error>> {
@@ -72,10 +72,10 @@ impl Conv for crate::enums::SampleFormat {
         }
     }
 }
-pub fn gen_rnd_vals_f32 (num_of_vals: u32) -> Vec < f32 > {
+pub fn gen_rnd_vals_f32 (num_of_vals: u32, uv: &crate::enums::universum_vox_wav) -> Vec < f32 > {
     let mut rnd_f32s = Vec:: <f32>::new ();
     for j in 0..num_of_vals {
-        let rnd = 1.0 / i32__() as f32;
+        let rnd = (i32__() as f32 % uv.bar_sample ) / uv.bar_sample;
         rnd_f32s.push ( rnd );
     } rnd_f32s
 }

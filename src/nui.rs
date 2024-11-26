@@ -384,7 +384,7 @@ pub fn universum_vox (cmd: &String) -> Result < (), Box <dyn Error > >{
     if let Ok ( x ) = conf_id_.parse:: <i64> () { conf_id = x }
     let path_to_conf = crate::get_item_from_front_list( conf_id, true);
     if let Some (x ) = load_uv_conf_header(&path_to_conf)?.type_{
-        errMsg0("tst11");
+       // errMsg0("tst11");
         match x.as_str() {
             "wav" => {
                 if load_uv_conf_wav(&path_to_conf)?.sample_format == crate::enums::SampleFormat::Int {
@@ -411,18 +411,16 @@ pub fn load_uv_conf <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum
     Ok (uv_note )
 }
 pub fn load_uv_conf_header <P: AsRef<Path> + ToString + std::marker::Copy >(path: P) -> Result<crate::enums::universum_vox_stub, Box<dyn Error>> {
-    errMsg0( &path.to_string() );
     let file = match File::open(path) {
         Ok (file) => file,
         Err (e) => {eprintln! ("{e}"); errMsg0( &"".strn() ); return Err(e.into () ); }
     };
     let reader = BufReader::new(file);
-    errMsg0( &"mid".strn() );
     let uv_note: crate::universum_vox_stub = match serde_json::from_reader(reader) {
         Ok (json) => json,
         Err (e) => {eprintln! ("{e}"); errMsg0( &"".strn() ); return Err(e.into () ); }
     };
-    errMsg0( &uv_note.type_.as_ref().unwrap_or ( &"tst00".strn() ) );
+  //  errMsg0( &uv_note.type_.as_ref().unwrap_or ( &"tst00".strn() ) );
     Ok (uv_note )
 }
 pub fn universum_vox_lst () {
