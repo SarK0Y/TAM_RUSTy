@@ -41,6 +41,8 @@ mod init;
 mod nui;
 #[path = "nui.wav.rs"]
 mod nui_wav;
+#[path = "nui.morph.rs"]
+mod nui_morph;
 #[path = "nvim.ext.rs"]
 mod nvim;
 #[path = "vim.ext.rs"]
