@@ -129,3 +129,12 @@ pub enum SampleFormat {
 pub struct universum_vox_stub {
     pub type_: Option < String >
 }
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct universum_vox_morph {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub sample_format: SampleFormat,
+    pub step_factor: u32,
+    pub file_in: String,
+    pub file_out: String,
+}
