@@ -25,6 +25,9 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
             \"sample_format\":\"Float\"(or \"Int\"),\n
             \"bar_sample\":0.94,\n
             \"amplitude\":2077,\n
+            \"fading_duration\":1110,\n
+            \"fading_step\":0.83,\n
+            \"silent_step\":113,\n
 } "); return;} };
     let spec = hound::WavSpec {
         channels: uv_wav.num_of_channels,
@@ -35,6 +38,7 @@ pub fn universum_vox_wav0 (duration: u16, path_to_conf: &String) {
     let mut samples = gen_rnd_vals_f32( uv_wav.num_of_rnd_samples, &uv_wav);
     let num_of_samples_to_gen = uv_wav.sample_rate as u64 * duration as u64;
     match uv_wav.alg0 {
+        1 => {mk_samples_alg1( &mut samples, num_of_samples_to_gen, &uv_wav ); },
         _ => {mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav ); },
     }
     let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -51,6 +55,22 @@ pub fn mk_samples_alg0 <'a> ( arr: &'a mut Vec <f32>, len: u64, uv: &crate::enum
     for i in 0..len {
         let sample = (arr [i as usize ] + arr [ arr.len () - 1 ] + 1.0 ) % uv.bar_sample;
         arr.push ( sample );
+    }
+    dbg! (&arr[0..50]);
+    arr
+}
+pub fn mk_samples_alg1 <'a> ( arr: &'a mut Vec <f32>, len: u64, uv: &crate::enums::universum_vox_wav ) -> &'a mut Vec < f32 >{
+    let num_of_rnd_samples = arr.len (); let mut count_samples = num_of_rnd_samples;
+    let mut count_fading = 0u32;
+    for i in 0..len {
+
+        let mut sample: f32 = 0.0; 
+        if count_fading < uv.fading_duration {sample = (arr [i as usize ] + arr [ arr.len () - 1 ] + 1.0 ) % uv.bar_sample;}
+        else { 
+            for j in 0..uv.silent_step { arr.push (0.0); } count_fading = 0;
+        }
+        arr.push ( sample );
+        count_fading.inc();
     }
     dbg! (&arr[0..50]);
     arr

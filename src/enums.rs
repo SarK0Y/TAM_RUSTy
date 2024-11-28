@@ -115,7 +115,10 @@ pub struct universum_vox_wav {
     pub bits_per_sample: u16,
    pub sample_format: SampleFormat,
    pub bar_sample: f32, 
-   pub amplitude: f32
+   pub amplitude: f32,
+   pub fading_duration: u32,
+    pub fading_step: f32,
+    pub silent_step: u64,
 }
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum SampleFormat { 
@@ -125,4 +128,13 @@ pub enum SampleFormat {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct universum_vox_stub {
     pub type_: Option < String >
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct universum_vox_morph {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub sample_format: SampleFormat,
+    pub step_factor: u32,
+    pub file_in: String,
+    pub file_out: String,
 }
