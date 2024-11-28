@@ -168,5 +168,20 @@ fn main() {
     write(out_fp, samples, sample_rate, n_channels).unwrap();
 }
 
+ #[test]
+    fn write_sin_wav() {
+        let fp = "./wav.wav";
+        let sr: i32 = 16000;
+        let duration = 10;
+        let mut samples: Vec<f32> = (0..sr * duration).map(|x| (x as f32 / sr as f32)).collect();
+        for sample in samples.iter_mut() {
+            *sample *= 440.0 * 2.0 * std::f32::consts::PI;
+            *sample = sample.sin();
+            *sample *= i16::MAX as f32;
+        }
+        let samples: Samples<f32> = Samples::from(samples.into_boxed_slice().convert_slice());
 
+        write(fp, &samples, sr, 1).unwrap();
+        std::fs::remove_file(fp).unwrap();
+    }
  */
