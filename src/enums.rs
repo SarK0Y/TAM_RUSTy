@@ -133,8 +133,15 @@ pub struct universum_vox_stub {
 pub struct universum_vox_morph {
     pub type_: Option < String >,
     pub alg0: u8,
-    pub sample_format: SampleFormat,
+    pub num_of_channels: u8,
+    pub sample_format: String,
+    pub num_of_rnd_samples: Option  <u32 >,
+    pub sample_rate: u32,
     pub step_factor: u32,
+    pub fading_duration: u32,
+    pub fading_step: f32,
+    pub silent_step: u64,
+    pub bar_sample: f32,
     pub file_in: String,
     pub file_out: String,
 }

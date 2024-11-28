@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use std::i16;
 use hound; 
-use wavers::{Wav, read};
+use wavers::{Wav, read, ConvertTo};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
@@ -19,23 +19,18 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
             \"type_\":\"wav\",\n
             \"alg0\":1,\n
             \"num_of_channels\":2,\n
-            \"sound_duration\":150,\n
-            \"num_of_rnd_samples\":233,\n
+            \"num_of_rnd_samples\":233(null),\n
             \"sample_rate\":44100,\n
-            \"bits_per_sample\":32,\n
-            \"sample_format\":\"Float\"(or \"Int\"),\n
+            \"sample_format\":\"f32\"(or \"i32\"/\"i16\"),\n
             \"bar_sample\":0.94,\n
             \"amplitude\":2077,\n
             \"fading_duration\":1110,\n
             \"fading_step\":0.83,\n
             \"silent_step\":113,\n
+            \"file_in\":\"/tmp/in.wav\",\n
+            \"file_out\":\"/tmp/out.wav\",\n
 } "); return;} };
-    let spec = hound::WavSpec {
-        channels: uv_wav.num_of_channels,
-        sample_rate: uv_wav.sample_rate,
-        bits_per_sample: uv_wav.bits_per_sample,
-        sample_format: uv_wav.sample_format.conv(),
-    };
+   
     match uv_wav.alg0 {
         1 => {mk_samples_alg1( &mut samples, num_of_samples_to_gen, &uv_wav ); },
         _ => {mk_samples_alg0( &mut samples, num_of_samples_to_gen, &uv_wav ); },
