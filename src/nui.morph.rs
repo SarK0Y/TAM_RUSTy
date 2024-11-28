@@ -25,6 +25,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
             \"bar_sample\":0.94,\n
             \"amplitude\":2077,\n
             \"fading_duration\":1110,\n
+            \"step_factor\":8,\n
             \"fading_step\":0.83,\n
             \"silent_step\":113,\n
             \"file_in\":\"/tmp/in.wav\",\n
@@ -38,8 +39,8 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
       //  1 => {mk_samples_alg1( &mut samples, num_of_samples_to_gen, &uv_wav ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
-    let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
-    let full_path = format! ( "{}/{file_name}", crate::cmd_keys::midi_dir ( None ) );
+    //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
+    let full_path = format! ( "{}/{}", crate::cmd_keys::midi_dir ( None ), uv_morph.file_out );
     wav_write(&uv_morph.file_out, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     errMsg0( &msg );
@@ -51,6 +52,13 @@ pub fn load_uv_conf_morph <P: AsRef<Path> >(path: P) -> Result<crate::enums::uni
     Ok (uv_wav )
 }
 pub fn mk_morph_alg0 ( samples: &mut [f32], uv: &crate::enums::universum_vox_morph ){
+    let mut count_frames = 0u32;
+    let mut count_steps = 0u32;
+    for h in 0..samples.len() {
+        if count_steps % uv.num_of_channels as u32 == 0 { count_frames.inc(); }
+        if count_frames % uv.step_factor == 0 { samples [ count_steps as usize] *= uv.fading_step; }
+        count_steps.inc();
+    }
 }
 //fn
 /*
