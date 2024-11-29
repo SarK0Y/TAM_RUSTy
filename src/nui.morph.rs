@@ -57,7 +57,11 @@ pub fn mk_morph_alg0 ( samples: &mut [f32], uv: &crate::enums::universum_vox_mor
     for h in 0..samples.len() {
         if count_steps % uv.num_of_channels as u32 == 0 { count_frames.inc(); }
         if count_frames % uv.step_factor == 0 {
-            if count_frames & 1 == 1{ samples [ count_steps as usize] *= uv.fading_step; }
+            if count_frames & 1 == 1{
+                let a = samples [ count_steps as usize];
+                samples [ count_steps as usize] = samples [ (count_steps -1) as usize];
+                samples [ (count_steps -1) as usize] = a /2.0;
+                samples [ count_steps as usize] *= uv.fading_step; }
             else { samples [ count_steps as usize] /= uv.fading_step; }
          }
         count_steps.inc();
