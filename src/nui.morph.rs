@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 use std::i16;
 use hound; 
+use libc::sa_family_t;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
@@ -33,14 +34,14 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
 } "); return;} };
     let wav: Wav<f32> = Wav::from_path( &uv_morph.file_in ).unwrap();
     // conversion happens automatically when you read
-    let (mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
-
+    let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
+    //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
       //  1 => {mk_samples_alg1( &mut samples, num_of_samples_to_gen, &uv_wav ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
-    let full_path = format! ( "{}/{}", crate::cmd_keys::midi_dir ( None ), uv_morph.file_out );
+    let full_path = format! ( "{}", uv_morph.file_out );
     wav_write(&uv_morph.file_out, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     errMsg0( &msg );
@@ -53,19 +54,24 @@ pub fn load_uv_conf_morph <P: AsRef<Path> >(path: P) -> Result<crate::enums::uni
 }
 pub fn mk_morph_alg0 ( samples: &mut [f32], uv: &crate::enums::universum_vox_morph ){
     let mut count_frames = 0u32;
-    let mut count_steps = 0u32;
+    let mut count_zeros = 0u32;
     for h in 0..samples.len() {
-        if count_steps % uv.num_of_channels as u32 == 0 { count_frames.inc(); }
+        if samples [ h ] == 0.0 {count_zeros += 1;}
+        if h % uv.num_of_channels as usize == 0 { count_frames.inc(); }
         if count_frames % uv.step_factor == 0 {
-            if count_frames & 1 == 1{
-                let a = samples [ count_steps as usize];
-                samples [ count_steps as usize] = samples [ (count_steps -1) as usize];
-                samples [ (count_steps -1) as usize] = a /2.0;
-                samples [ count_steps as usize] *= uv.fading_step; }
-            else { samples [ count_steps as usize] /= uv.fading_step; }
-         }
-        count_steps.inc();
-    }
+            if (count_frames / 2 )% 2 == 1{
+                let a = samples [ h ];
+                samples [h] +=  samples [ h  -1 ]; 
+                samples [ h ] %= uv.bar_sample;
+                samples [ h -1 ] = a / 2.0;
+            }
+            else { 
+                samples [h ] = samples [ h ] / -2.0 ;
+                }
+         } else { samples [h ] *= uv.fading_step; }
+    } 
+    //dbg! (&samples [0..113]);
+    dbg!(&count_zeros);
 }
 //fn
 /*
