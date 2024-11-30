@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 use std::i16;
 use hound; 
-use libc::sa_family_t;
+use once_cell::sync::Lazy;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
@@ -37,7 +37,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
     //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
-      //  1 => {mk_samples_alg1( &mut samples, num_of_samples_to_gen, &uv_wav ); },
+        1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -72,6 +72,36 @@ pub fn mk_morph_alg0 ( samples: &mut [f32], uv: &crate::enums::universum_vox_mor
     } 
     //dbg! (&samples [0..113]);
     dbg!(&count_zeros);
+}
+pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_vox_morph ){
+    let mut ch:  Vec < Vec <f32> > = Vec::new (); ch.push ( vec! () ); ch.push ( vec! () );
+    let mut count_steps = 0usize; 
+    let mut switch = 0usize;
+    let step_factor = uv.step_factor as usize;
+    for j in 0..samples.len() {
+        if count_steps < step_factor {
+            ch [ switch ].push ( samples [j] );
+        } else {
+            dbg! (j );
+            while true {
+                samples [ (step_factor - count_steps) as usize ] = ch [ switch ] [ count_steps.dec() ];
+                if count_steps == 0 { break; }
+            } switch = !switch & 1; ch.clear();
+        } count_steps += 1;
+    }
+}
+pub fn read_chan_f32 ( 
+    samples: &mut [f32], 
+    ch_num: usize, 
+    num_of_channels: usize, start_from: usize, range: usize ) -> Vec < f32> {
+    let mut ret: Vec < f32 > = Vec::new ();
+    let to = (range + start_from );
+    for i in start_from..to / num_of_channels {
+        let cursor = i * num_of_channels + ch_num;
+        if cursor > to { break;}
+        ret.push ( samples [ cursor ] );
+    }
+    ret
 }
 //fn
 /*
