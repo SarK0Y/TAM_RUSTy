@@ -95,13 +95,26 @@ pub fn read_chan_f32 (
     ch_num: usize, 
     num_of_channels: usize, start_from: usize, range: usize ) -> Vec < f32> {
     let mut ret: Vec < f32 > = Vec::new ();
-    let to = (range + start_from );
-    for i in start_from..to / num_of_channels {
+    let mut to = (range + start_from );
+    if to > (samples.len() + start_from ) { to = samples.len() + start_from ; }
+    for i in start_from..to {
         let cursor = i * num_of_channels + ch_num;
         if cursor > to { break;}
         ret.push ( samples [ cursor ] );
     }
     ret
+}
+pub fn write_chan_f32 ( 
+    samples: &mut [f32], 
+    ch_num: usize, 
+    num_of_channels: usize, start_from: usize, patch: Vec < f32 > ) {
+    let mut to = (patch.len() + start_from );
+    if to > (samples.len() + start_from ) { to = samples.len() + start_from ; }
+    for i in start_from..to {
+        let cursor = i * num_of_channels + ch_num;
+        if cursor > to { break;}
+        samples [ cursor ] = patch [ i ];
+    }
 }
 //fn
 /*
