@@ -6,6 +6,7 @@ use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
+use crate::custom_input;
 use crate::custom_traits::STRN;
 use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
@@ -77,17 +78,19 @@ pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_v
     let mut ch:  Vec < Vec <f32> > = Vec::new (); ch.push ( vec! () ); ch.push ( vec! () );
     let mut count_steps = 0usize; 
     let mut switch = 0usize;
-    let step_factor = uv.step_factor as usize;
-    for j in 0..samples.len() {
-        if count_steps < step_factor {
-            ch [ switch ].push ( samples [j] );
-        } else {
-            dbg! (j );
-            while true {
-                samples [ (step_factor - count_steps) as usize ] = ch [ switch ] [ count_steps.dec() ];
-                if count_steps == 0 { break; }
-            } switch = !switch & 1; ch.clear();
-        } count_steps += 1;
+    let range = uv.step_factor as usize;
+    let half_range = range >> 1;
+    loop {
+        let mut samples_to_morph: Vec <_> = read_chan_f32(samples, switch, 2, count_steps, range)
+            .into_iter()
+            .rev()
+            .collect();
+        let written = write_chan_f32(samples, switch, 2, count_steps, &samples_to_morph );
+        dbg!(&written);
+        if written < half_range { return; }
+        count_steps += range;
+        dbg! (&count_steps);
+        switch = !switch & 1;
     }
 }
 pub fn read_chan_f32 ( 
@@ -97,6 +100,7 @@ pub fn read_chan_f32 (
     let mut ret: Vec < f32 > = Vec::new ();
     let mut to = (range + start_from );
     if to > (samples.len() + start_from ) { to = samples.len() + start_from ; }
+    dbg! (&to);
     for i in start_from..to {
         let cursor = i * num_of_channels + ch_num;
         if cursor > to { break;}
@@ -107,17 +111,23 @@ pub fn read_chan_f32 (
 pub fn write_chan_f32 ( 
     samples: &mut [f32], 
     ch_num: usize, 
-    num_of_channels: usize, start_from: usize, patch: Vec < f32 > ) {
+    num_of_channels: usize, start_from: usize, patch: &Vec < f32 > ) -> usize {
     let mut to = (patch.len() + start_from );
-    if to > (samples.len() + start_from ) { to = samples.len() + start_from ; }
+    if to > samples.len() { to = samples.len(); }
+    let mut cursor = 0usize;
+    let mut prev = cursor;
     for i in start_from..to {
-        let cursor = i * num_of_channels + ch_num;
+        cursor = i * num_of_channels + ch_num;
         if cursor > to { break;}
         samples [ cursor ] = patch [ i ];
-    }
+        prev = cursor - ch_num;
+    } dbg! (&cursor); prev
 }
 //fn
 /*
+let vec = vec![1, 2, 3, 4, 5];
+let reversed: Vec<_> = vec.into_iter().rev().collect();
+-------------
 use hound;
 
 fn main() {
