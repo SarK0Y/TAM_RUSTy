@@ -2,7 +2,7 @@ use std::mem;
 use std::io::Read;
 use std::fs;
 use std::error::Error;
-pub fn read_file_to_vec < T > (path: String) -> Result <Vec < T >, Box <dyn Error> > {
+pub fn read_file_to_vec < T > (path: &String) -> Result <Vec < T >, Box <dyn Error> > {
     let t_size = mem::size_of::<T>();
     let u8_size = mem::size_of:: <u8>();
     let ratio = t_size / u8_size;

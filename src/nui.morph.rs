@@ -2,6 +2,7 @@ use std::f32::consts::PI;
 use std::i16;
 use hound; 
 use once_cell::sync::Lazy;
+use wavers::Samples;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
@@ -33,6 +34,11 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
 } "); return;} };
+    match uv_morph.alg0 {
+        2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
+        _ => { },
+    }
+    
     let wav: Wav<f32> = Wav::from_path( &uv_morph.file_in ).unwrap();
     // conversion happens automatically when you read
     let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
@@ -92,6 +98,14 @@ pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_v
         dbg! (&count_steps);
         switch = !switch & 1;
     }
+}
+pub fn mk_morph_alg2_bin_data (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
+    let samples: Vec <f32 > = crate::rw::read_file_to_vec::<f32>( &uv.file_in)?;
+    let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
+    wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+    let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+    errMsg0( &msg );
+    Ok (())
 }
 pub fn read_chan_f32 ( 
     samples: &mut [f32], 
