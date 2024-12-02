@@ -39,6 +39,8 @@ mod atomic_op;
 mod init;
 #[path = "nui.rs"]
 mod nui;
+#[path = "rw.rs"]
+mod rw;
 #[path = "nui.wav.rs"]
 mod nui_wav;
 #[path = "nui.morph.rs"]
