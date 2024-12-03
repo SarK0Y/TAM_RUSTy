@@ -32,6 +32,10 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
             \"step_factor\":8,\n
             \"fading_step\":0.83,\n
             \"silent_step\":113,\n
+            \"old_freq\":5287.7,\n
+            \"new_freq\":7287.7,\n
+            \"step_freq\":2.3,\n
+            \"range\":75.8,\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
 } "); return;} };
