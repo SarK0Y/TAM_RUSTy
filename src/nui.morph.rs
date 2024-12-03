@@ -11,6 +11,7 @@ use crate::custom_input;
 use crate::custom_traits::STRN;
 use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
+use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
 use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
@@ -141,6 +142,7 @@ pub fn write_chan_f32 (
     } dbg! (&cursor); prev
 }
 //fn
+//https://docs.rs/spectrum-analyzer/latest/spectrum_analyzer/
 /*
 let vec = vec![1, 2, 3, 4, 5];
 let reversed: Vec<_> = vec.into_iter().rev().collect();
