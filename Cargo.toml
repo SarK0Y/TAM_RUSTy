@@ -38,7 +38,7 @@ midly = {version = "0.5.3", feature="std"}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
-spectrum_analyzer = {version = "1.5.0"}
+spectrum-analyzer = {version = "1.5.0"}
 serde_json = {version = "1.0.32", feature="std"}
 syn = "2.0.66"
 procfs = "0.15.1"
