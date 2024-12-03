@@ -142,6 +142,10 @@ pub struct universum_vox_morph {
     pub fading_step: f32,
     pub silent_step: u64,
     pub bar_sample: f32,
+    pub old_freq: Option <f32 >,
+    pub new_freq: Option <f32 >,
+    pub step_freq: Option <f32 >,
+    pub range: Option <f32 >,
     pub file_in: String,
     pub file_out: String,
 }
