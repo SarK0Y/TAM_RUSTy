@@ -19,26 +19,7 @@ use std::path::Path;
 pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
      let mut uv_morph: crate::enums::universum_vox_morph =
                       match load_uv_conf_morph( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
-                      errMsg0( "Dear user, You need to set json properly.. Look example: {
-            \"type_\":\"wav\",\n
-            \"alg0\":1,\n
-            \"num_of_channels\":2,\n
-            \"num_of_rnd_samples\":233(null),\n
-            \"sample_rate\":44100,\n
-            \"sample_format\":\"f32\"(or \"i32\"/\"i16\"),\n
-            \"bar_sample\":0.94,\n
-            \"amplitude\":2077,\n
-            \"fading_duration\":1110,\n
-            \"step_factor\":8,\n
-            \"fading_step\":0.83,\n
-            \"silent_step\":113,\n
-            \"old_freq\":5287.7,\n
-            \"new_freq\":7287.7,\n
-            \"step_freq\":2.3,\n
-            \"range\":75.8,\n
-            \"file_in\":\"/tmp/in.wav\",\n
-            \"file_out\":\"/tmp/out.wav\",\n
-} "); return;} };
+                      err_msg_morph (); return;} };
     match uv_morph.alg0 {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
         _ => { },
@@ -104,6 +85,22 @@ pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_v
         switch = !switch & 1;
     }
 }
+pub fn mk_morph_alg3_warp (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+  
+  for s in 0..samples.len() {
+
+  }
+}
+pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
+    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
+    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
+    let mut fading = 1.0f32;
+    for s in 0..samples.len(){
+        samples [ s ] -= (old * samples [s ]).sin() * fading;
+        samples [ s ] += (new * samples [s ]).sin() * fading;
+        fading = uv.fading_step;
+    }
+}
 pub fn mk_morph_alg2_bin_data (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let samples: Vec <f32 > = crate::rw::read_file_to_vec::<f32>( &uv.file_in)?;
     let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
@@ -144,6 +141,28 @@ pub fn write_chan_f32 (
         samples [ cursor ] = patch [ i ];
         prev = cursor - ch_num;
     } dbg! (&cursor); prev
+}
+pub fn err_msg_morph (){
+    errMsg0( "Dear user, You need to set json properly.. Look example: {
+            \"type_\":\"wav\",\n
+            \"alg0\":1,\n
+            \"num_of_channels\":2,\n
+            \"num_of_rnd_samples\":233(null),\n
+            \"sample_rate\":44100,\n
+            \"sample_format\":\"f32\"(or \"i32\"/\"i16\"),\n
+            \"bar_sample\":0.94,\n
+            \"amplitude\":2077,\n
+            \"fading_duration\":1110,\n
+            \"step_factor\":8,\n
+            \"fading_step\":0.83,\n
+            \"silent_step\":113,\n
+            \"old_freq\":5287.7,\n
+            \"new_freq\":7287.7,\n
+            \"step_freq\":2.3,\n
+            \"range\":75.8,\n
+            \"file_in\":\"/tmp/in.wav\",\n
+            \"file_out\":\"/tmp/out.wav\",\n
+} "); 
 }
 //fn
 //https://docs.rs/spectrum-analyzer/latest/spectrum_analyzer/
