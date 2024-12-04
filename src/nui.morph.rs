@@ -98,7 +98,8 @@ pub fn mk_morph_alg3_warp (samples: &mut [f32], uv: &crate::enums::universum_vox
   }
 }
 pub fn mk_morph_alg4_warp (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
-  if uv.old_freq.is_none() || uv.plus_minus_freq.is_none() || uv.range.is_none() || uv.step_freq.is_none() {err_msg_morph(); return;}
+  if uv.old_freq.is_none() || uv.plus_minus_freq.is_none() || uv.range.is_none() || uv.step_freq.is_none()
+  || uv.scale.is_none () {err_msg_morph(); return;}
   let mut step = 0.0f32;
   let plus_or_not = uv.plus_minus_freq.unwrap ();
   let range = uv.range.unwrap();
@@ -123,30 +124,39 @@ pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph
         count_fading.inc();
     }
 }
-pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
-    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
-    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
-    let mut fading = 1.0f32;
-    let mut count_fading = 0u32;
-    for s in 0..samples.len(){
-        samples [ s ] -= (old * samples [s ]).sin() * fading;
-        if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
-        fading *= uv.fading_step;
-        count_fading.inc();
-    }
-}
 pub fn exclude_freq1 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
     let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
     let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
     let mut fading = 1.0f32;
     let mut count_fading = 0u32;
+    let scale = uv.scale.unwrap ();
+    let mut dbg_from = uv.dbg_from.unwrap_or(0);
+    let mut dbg_to = uv.dbg_to.unwrap_or(0);
     for s in 0..samples.len(){
-        samples [ s ] += (old * samples [s ]).sin() * fading;
+        samples [ s ] += ( (old * samples [s ]).sin() * scale * fading );
         if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
+        if s > dbg_from as usize && dbg_to > 0 {dbg! (samples [s] ); dbg_to.dec(); }
         fading *= uv.fading_step;
         count_fading.inc();
     }
 }
+pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
+    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
+    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
+    let mut fading = 1.0f32;
+    let mut count_fading = 0u32;
+    let scale = uv.scale.unwrap ();
+    let mut dbg_from = uv.dbg_from.unwrap_or(0);
+    let mut dbg_to = uv.dbg_to.unwrap_or(0);
+    for s in 0..samples.len(){
+        samples [ s ] -= ( (old * samples [s ]).sin() * scale * fading );
+        if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
+        if s > dbg_from as usize && dbg_to > 0 {dbg! (samples [s] ); dbg_to.dec(); }
+        fading *= uv.fading_step;
+        count_fading.inc();
+    }
+}
+
 pub fn mk_morph_alg2_bin_data (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let samples: Vec <f32 > = crate::rw::read_file_to_vec::<f32>( &uv.file_in)?;
     let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
@@ -197,7 +207,7 @@ pub fn err_msg_morph (){
             \"sample_rate\":44100,\n
             \"sample_format\":\"f32\"(or \"i32\"/\"i16\"),\n
             \"bar_sample\":0.94,\n
-            \"amplitude\":2077,\n
+            \"scale\":1.54,\n
             \"fading_duration\":1110,\n
             \"step_factor\":8,\n
             \"fading_step\":0.83,\n
@@ -212,6 +222,9 @@ pub fn err_msg_morph (){
 } "); 
 }
 //fn
+//let tan = (PI * uv.old_freq.unwrap() / uv.sample_rate as f32).tan();
+  //  let shift_coef = (tan - 1.0) / (tan + 1.0);
+    
 //https://docs.rs/spectrum-analyzer/latest/spectrum_analyzer/
 /*
 let vec = vec![1, 2, 3, 4, 5];
