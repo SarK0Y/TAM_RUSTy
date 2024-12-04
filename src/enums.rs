@@ -146,6 +146,7 @@ pub struct universum_vox_morph {
     pub new_freq: Option <f32 >,
     pub step_freq: Option <f32 >,
     pub range: Option <f32 >,
+    pub plus_minus_freq: Option < bool >,
     pub file_in: String,
     pub file_out: String,
 }

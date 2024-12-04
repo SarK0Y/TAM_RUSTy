@@ -32,6 +32,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
+        4 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -96,6 +97,19 @@ pub fn mk_morph_alg3_warp (samples: &mut [f32], uv: &crate::enums::universum_vox
     step += step_freq;
   }
 }
+pub fn mk_morph_alg4_warp (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+  if uv.old_freq.is_none() || uv.plus_minus_freq.is_none() || uv.range.is_none() || uv.step_freq.is_none() {err_msg_morph(); return;}
+  let mut step = 0.0f32;
+  let plus_or_not = uv.plus_minus_freq.unwrap ();
+  let range = uv.range.unwrap();
+  let mut exclude_freq0: fn (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) = if plus_or_not {
+    exclude_freq1 } else { exclude_freq }; 
+  let step_freq = uv.step_freq.unwrap();
+  while range > step {
+    exclude_freq0 (samples, uv, step);
+    step += step_freq;
+  }
+}
 pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
     let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
     let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
@@ -104,6 +118,30 @@ pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph
     for s in 0..samples.len(){
         samples [ s ] -= (old * samples [s ]).sin() * fading;
         samples [ s ] += (new * samples [s ]).sin() * fading;
+        if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
+        fading *= uv.fading_step;
+        count_fading.inc();
+    }
+}
+pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
+    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
+    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
+    let mut fading = 1.0f32;
+    let mut count_fading = 0u32;
+    for s in 0..samples.len(){
+        samples [ s ] -= (old * samples [s ]).sin() * fading;
+        if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
+        fading *= uv.fading_step;
+        count_fading.inc();
+    }
+}
+pub fn exclude_freq1 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
+    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
+    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
+    let mut fading = 1.0f32;
+    let mut count_fading = 0u32;
+    for s in 0..samples.len(){
+        samples [ s ] += (old * samples [s ]).sin() * fading;
         if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
         fading *= uv.fading_step;
         count_fading.inc();
@@ -168,6 +206,7 @@ pub fn err_msg_morph (){
             \"new_freq\":7287.7,\n
             \"step_freq\":2.3,\n
             \"range\":75.8,\n
+            \"plus_minus_freq\":false,\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
 } "); 
