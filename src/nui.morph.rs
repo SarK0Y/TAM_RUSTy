@@ -141,22 +141,13 @@ pub fn exclude_freq1 (samples: &mut [f32], uv: &crate::enums::universum_vox_morp
     }
 }
 pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
-    let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
-    let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
-    let mut fading = 1.0f32;
-    let mut count_fading = 0u32;
-    let scale = uv.scale.unwrap ();
-    let mut dbg_from = uv.dbg_from.unwrap_or(0);
-    let mut dbg_to = uv.dbg_to.unwrap_or(0);
-    for s in 0..samples.len(){
-        samples [ s ] -= ( (old * samples [s ]).sin() * scale * fading );
-        if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
-        if s > dbg_from as usize && dbg_to > 0 {crate::info::sav_dbg_msg (Some( samples [s].to_string() ) ); dbg_to.dec(); }
-        fading *= uv.fading_step;
-        count_fading.inc();
+    let near_freq_step: usize = (uv.sample_rate as f32 / (uv.old_freq.unwrap() + step ) ).floor() as usize;
+    let mut count = 0usize;
+    while samples.len() > count{
+       samples [count ] *= uv.fading_step;
+       count += near_freq_step;
     }
 }
-
 pub fn mk_morph_alg2_bin_data (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let samples: Vec <f32 > = crate::rw::read_file_to_vec::<f32>( &uv.file_in)?;
     let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
