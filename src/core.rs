@@ -408,6 +408,8 @@ pub(crate) fn errMsg_dbg0(msg: &str) {
 pub(crate) fn errMsg0(msg: &str) {
     errMsg(msg, -1191);
     println!("{}", msg);
+    let dbg_msgs = crate::info::sav_dbg_msg( None );
+    if dbg_msgs.len() > 0 {dbg! (dbg_msgs); }
     getkey();
 }
 pub(crate) fn errMsg(msg: &str, val_func_id: i64) {

@@ -32,7 +32,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
-        4 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
+        4 => {mk_morph_alg4_warp( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -135,7 +135,7 @@ pub fn exclude_freq1 (samples: &mut [f32], uv: &crate::enums::universum_vox_morp
     for s in 0..samples.len(){
         samples [ s ] += ( (old * samples [s ]).sin() * scale * fading );
         if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
-        if s > dbg_from as usize && dbg_to > 0 {dbg! (samples [s] ); dbg_to.dec(); }
+        if s > dbg_from as usize && dbg_to > 0 {crate::info::sav_dbg_msg (Some( samples [s].to_string() ) ); dbg_to.dec(); }
         fading *= uv.fading_step;
         count_fading.inc();
     }
@@ -151,7 +151,7 @@ pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph
     for s in 0..samples.len(){
         samples [ s ] -= ( (old * samples [s ]).sin() * scale * fading );
         if count_fading > uv.fading_duration {fading = 1.0; count_fading = 0; continue;}
-        if s > dbg_from as usize && dbg_to > 0 {dbg! (samples [s] ); dbg_to.dec(); }
+        if s > dbg_from as usize && dbg_to > 0 {crate::info::sav_dbg_msg (Some( samples [s].to_string() ) ); dbg_to.dec(); }
         fading *= uv.fading_step;
         count_fading.inc();
     }
