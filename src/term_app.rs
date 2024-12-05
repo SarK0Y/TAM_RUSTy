@@ -396,10 +396,7 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
     .spawn()
     .expect("can't run command in run_term_app1");
 
- std::thread::spawn(move|| {
 run_command.wait();
-//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
-}).join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 {dont_scrn_fix(true); no_view(true, false);}

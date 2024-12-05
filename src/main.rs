@@ -78,7 +78,9 @@ let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
 if !dbg(false) && !dont_clean_bash(false){
-    cmd = format!("{cmd};rm -f {}", path_2_cmd);
+    cmd = format!("{cmd};rm -f {};exit", path_2_cmd);
+} else {
+    cmd = format!("{cmd};exit");
 }
 make_cmd_file.write_all(&cmd.as_bytes());
 match Command::new("chmod").arg("700").arg(&path_2_cmd).output() 
