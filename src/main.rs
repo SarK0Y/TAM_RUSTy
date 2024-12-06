@@ -124,16 +124,17 @@ core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .stderr(fstderr)
-    .output()
-    .expect("can't run command in run_cmd");
-if run_command.status.success(){
+    .spawn() // .output()
+    { Ok (res) => res, Err( e ) => {eprintln!("{e}"); return false;}};
+    let state = run_command.wait();
+/*if run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
     return false;
-}
+}*/
 true
 }
 pub fn run_cmd_out_dirty(cmd: String) -> String{
@@ -472,3 +473,46 @@ println!("Key is {}", Key);
 //});
 return;
 }
+//fn 
+/*
+use nix::sys::signal::{signal, SigHandler, Signal};
+use nix::sys::wait::waitpid;
+
+extern "C" fn handle_sigchld(_: i32) {
+    while waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)).is_ok() {}
+}
+
+fn main() {
+    unsafe {
+        signal(Signal::SIGCHLD, SigHandler::Handler(handle_sigchld)).unwrap();
+    }
+
+    // Your command spawning code here
+}
+use nix::unistd::{fork, ForkResult};
+
+match unsafe { fork() } {
+    Ok(ForkResult::Parent { child: _ }) => {
+        // Parent process exits immediately
+        std::process::exit(0);
+    }
+    Ok(ForkResult::Child) => {
+        // Child process becomes the new parent
+        match unsafe { fork() } {
+            Ok(ForkResult::Parent { child: _ }) => {
+                // New parent exits
+                std::process::exit(0);
+            }
+            Ok(ForkResult::Child) => {
+                // Grandchild process runs the actual command
+                Command::new("bash")
+                    .arg("-c")
+                    .arg("your_command_here")
+                    .spawn()?;
+            }
+            Err(_) => println!("Fork failed"),
+        }
+    }
+    Err(_) => println!("Fork failed"),
+}
+ */
