@@ -143,10 +143,21 @@ pub fn exclude_freq1 (samples: &mut [f32], uv: &crate::enums::universum_vox_morp
 pub fn exclude_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
     let near_freq_step: usize = (uv.sample_rate as f32 / (uv.old_freq.unwrap() + step ) ).floor() as usize;
     let mut count = 0usize;
-    while samples.len() > count{
-       samples [count ] *= uv.fading_step;
+    let ch_num = 0usize;
+    let mut samples0 = read_chan_f32(samples, ch_num, 2, 0, samples.len() );
+    while samples0.len() > count{
+       samples0 [count ] *= uv.fading_step;
        count += near_freq_step;
     }
+    write_chan_f32(samples, ch_num, 2, 0, &samples0 );
+    let ch_num = 1usize;
+    count = 0;
+    let mut samples0 = read_chan_f32(samples, ch_num, 2, 0, samples.len() );
+    while samples0.len() > count{
+       samples0 [count ] *= uv.fading_step;
+       count += near_freq_step;
+    }
+    write_chan_f32(samples, ch_num, 2, 0, &samples0 );
 }
 pub fn mk_morph_alg2_bin_data (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let samples: Vec <f32 > = crate::rw::read_file_to_vec::<f32>( &uv.file_in)?;
