@@ -190,30 +190,34 @@ return match from_utf8(&run_command.stdout){
         _ => "".to_string()
     };
 }
-pub(crate) fn run_cmd_viewer(cmd: String) -> bool{
-let func_id = func_id18::run_cmd_viewer_;
-set_ask_user(cmd.as_str(), func_id);
-if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
-let fstdout: String; 
-let path_2_cmd = mk_cmd_file(cmd);
-let mut stderr_path = "stderr".to_string();
-stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-core18::errMsg_dbg(&stderr_path, func_id, -1.0);
-let fstderr = File::create(stderr_path).unwrap();
-let fstdout0 = File::open("/dev/null").unwrap();
-//let mut fstdout0 = io::BufReader::new(fstdout0);
-//errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
-//let run_command = Command::new(cmd)
-    .stderr(fstderr)
-    .stdout(fstdout0)
-    .spawn()
-    .expect("can't run command in run_cmd_viewer");
-/*if run_command.status.success(){
-    io::stdout().write_all(&run_command.stdout).unwrap();
-    io::stderr().write_all(&run_command.stderr).unwrap();
-    return false;
-}*/
+pub(crate) fn run_cmd_viewer(cmd: String) -> bool {
+std::thread::spawn( || {
+    let func_id = func_id18::run_cmd_viewer_;
+    set_ask_user(cmd.as_str(), func_id);
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
+    let fstdout: String; 
+    let path_2_cmd = mk_cmd_file(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
+    core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = File::create(stderr_path).unwrap();
+    let fstdout0 = File::open("/dev/null").unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr)
+        .stdout(fstdout0)
+        .spawn()
+        { Ok (res) => res, Err ( e ) => {
+            let err_msg = format! ("{e:#?}"); crate::errMsg0(&err_msg ); return}};
+        let state = run_command.wait();
+    /*if run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return false;
+    }*/
+});
 true
 }
 pub fn run_cmd(cmd: String) -> bool{
