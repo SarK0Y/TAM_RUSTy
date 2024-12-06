@@ -261,14 +261,15 @@ let fstdout0 = File::create(fstdout).unwrap();
 globs18::unblock_fd(fstdout0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .env ("LC_ALL", &lc)
     .env ("LANG", &lc)
     .stdout(fstdout0)
     .stderr(fstderr)
     .spawn()
-    .expect("can't run command in run_cmd");
+    { Ok (res) => res, Err( e ) => {eprintln!("{e}"); return false;}};
+    let state = run_command.wait();
 true
 }
 pub(crate) fn run_cmd_out_sync(cmd: String) -> String{
