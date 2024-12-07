@@ -245,7 +245,13 @@ pub fn run_kid (cmd: &String) {
 }
 pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            }); return Ok ( ForkResult::Parent { child } ) },
         Ok(ForkResult::Child) => { run_kid_no_bash(cmd ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
