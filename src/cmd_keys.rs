@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use procfs::sys::fs;
 use crate::{__get_arg_in_cmd, checkArg, getkey, link_lst_to, set_front_list, set_front_list2, split_once, STRN};
 pub(crate) fn dont_clean_bash(roll: bool) -> bool{
     static mut state: bool = false;
@@ -22,6 +23,18 @@ pub(crate) fn dbg(roll: bool) -> bool{
     if roll{crate::C!(state = !state); if !silent(){println!("dbg status: {}", crate::C!(state));}}
     crate::C!(state)
 }
+pub fn extra_info(new_state: Option < bool > ) -> bool{
+    static mut state: bool = false;
+    static mut fst_run: bool = false;
+    if !crate::C!(fst_run){
+        crate::C!(fst_run = true);
+        if checkArg("-extra-info"){crate::C!(state = true)}
+        if !silent(){println!("extra info status: {}", crate::C!(state));}
+    }
+    if new_state.is_some () {crate::C!(state = new_state.unwrap () ); if !silent(){println!("extra status: {}", crate::C!(state));}}
+    crate::C!(state)
+}
+
 pub(crate) fn switch_cmd_keys(cmd: &String){
     let cmd = cmd.replace("key::", "").trim_start_matches(' ').to_string();
     match cmd.as_str(){
@@ -120,6 +133,34 @@ pub fn prompt () -> String{
         unsafe { *strn0 = __get_arg_in_cmd("-prompt" ); }
     } unsafe { strn0.strn() }
 }
+pub fn midi_dir ( name: Option < String >) -> String{
+    static mut strn0: Lazy < String > = Lazy::new( || {"/tmp".strn() });
+    static mut fst_run: bool = true;
+    unsafe {
+        if fst_run {
+            if checkArg( "-midi-dir" ) {
+                *strn0 = __get_arg_in_cmd("-midi-dir" );
+            }
+        }
+        if let Some ( x ) = name { *strn0 = x }
+            strn0.strn()
+    }
+}
+pub fn universum_vox_conf ( name: Option < String >) -> String{
+    static mut strn0: Lazy < String > = Lazy::new( || {"/tmp".strn() });
+    static mut fst_run: bool = true;
+    let key = "-universum-vox-conf-dir".strn();
+    unsafe {
+        if fst_run {
+            if checkArg( &key ) {
+                *strn0 = __get_arg_in_cmd( &key );
+            }
+        }
+        if let Some ( x ) = name { *strn0 = x }
+            strn0.strn()
+    }
+}
+
 pub fn drop_ext_modes (set_o_get: Option < bool >) -> bool {
     static mut state: bool = false;
     unsafe {

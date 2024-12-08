@@ -1,5 +1,5 @@
 use crate::custom_traits::helpful_math_ops;
-use crate::{enums, lst, smart_lags, STRN};
+use crate::{enums, errMsg0, lst, smart_lags, STRN};
 use nix::fcntl::FallocateFlags;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
@@ -28,8 +28,9 @@ pub fn fork_lag_mcs_bool(mcs: u128) -> bool {
 }
 pub fn fork_lag_mcs_verbose(mcs: u128) -> crate::enums::smart_lags {
     static mut start_time: Lazy<std::time::SystemTime> = Lazy::new(|| std::time::SystemTime::now());
-
+    static mut saturation: bool = true;
     unsafe {
+        saturation = !saturation;
         let end_time = std::time::SystemTime::now();
         let end: u128 = match end_time.duration_since(std::time::UNIX_EPOCH) {
             Ok(dur) => dur,
@@ -43,7 +44,7 @@ pub fn fork_lag_mcs_verbose(mcs: u128) -> crate::enums::smart_lags {
         .as_micros();
         *start_time = end_time;
         let end = crate::key_handlers::delta(end, start);
-        if end > mcs {
+        if end > mcs || saturation{
             return enums::smart_lags::well_done(end);
         }
         enums::smart_lags::too_small_lag(end)
@@ -64,18 +65,45 @@ pub fn set_screen_lag(cmd: String) {
         screen_lag(Some(lag));
     }
 }
+pub fn mutex_lag(lag: Option<u128>) -> u128 {
+    static mut state: u128 = 20_000;
+    unsafe {
+        if let Some(x) = lag {
+            state = x
+        }
+        state
+    }
+}
+pub fn set_mutex_lag(cmd: String) {
+    let cmd = cmd.replace("mutex lag", "").trim_end().trim_start().strn();
+    if let Ok(lag) = cmd.parse::<u128>() {
+        let msg = format! ("lag is {lag}" );
+        mutex_lag(Some(lag)); errMsg0( &msg );
+    }
+}
 use crate::enums::named_mutex;
+pub fn forcely_set_mamed_mutexes(
+    name: &String,
+    op: named_mutex,
+    mutex: &mut crate::enums::custom_mutex,
+) -> Option < bool > {
+    let mut ret: Option < bool > = None;
+    while ret == None
+    {
+        //fork_lag_mcs_verbose( mutex_lag ( None ) );
+        ret = crate::smart_lags::mamed_mutexes ( name, op.clone(), mutex);
+    } ret
+} 
 pub fn mamed_mutexes(
     name: &String,
     op: named_mutex,
     mutex: &mut crate::enums::custom_mutex,
 ) -> Option < bool > {
     static mut lst_mutexes: Lazy<HashMap<String, bool>> = Lazy::new(|| HashMap::new());
-    if let crate::enums::smart_lags::well_done(_) = fork_lag_mcs_verbose(7111) {
+    if let crate::enums::smart_lags::well_done(_) = fork_lag_mcs_verbose( mutex_lag ( None ) ) {
     } else {
         return None;
     }
-    dbg! ("check");
     unsafe {
         match op {
             named_mutex::get => {
@@ -86,7 +114,6 @@ pub fn mamed_mutexes(
                 return None;
             }
             named_mutex::set => {
-                dbg! ("check");
                 if let Some(x) = lst_mutexes.get_mut(name) {
                     let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
                     if cond { *mutex.owner = mutex.id; *x = true; mutex.status = *x  };
@@ -95,16 +122,15 @@ pub fn mamed_mutexes(
                 let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
                 if cond { *mutex.owner = mutex.id; mutex.status = true};
                 lst_mutexes.insert(name.strn(), true); 
-                dbg! ("check");
                 return Some(true);
             }
             named_mutex::unset => {
                 if let Some(x) = lst_mutexes.get_mut(name) {
-                    let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
-                    if cond { *mutex.owner = mutex.id; *x = false; mutex.status = *x };
+                    let cond = *mutex.owner == mutex.id ;
+                    if cond { *mutex.owner = u64::MAX; *x = false; mutex.status = *x };
                     return Some(*x);
                 }
-                let cond = ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id );
+                let cond = *mutex.owner == mutex.id;
                 if cond { *mutex.owner = u64::MAX; mutex.status = false };
                 lst_mutexes.insert(name.strn(), false);
                 return Some(false);
@@ -148,6 +174,19 @@ impl new_custom_mutex for crate::enums::custom_mutex {
             rank: 0
         }
     }
+}
+pub fn start_barrier (name: &String ) -> crate::enums::custom_mutex {
+    let mut mutex_state = false;
+    let mut mutex: crate::enums::custom_mutex = crate::enums::custom_mutex::new( &name );
+    if let Some ( x ) = crate::smart_lags::mamed_mutexes (&name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    let mut cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+    while cond == false {
+        cond = unsafe { ( *mutex.owner == u64::MAX || *mutex.owner == mutex.id ) };
+        if let Some ( x ) = crate::smart_lags::mamed_mutexes (name, named_mutex::set, &mut mutex ) {mutex_state = x}
+    } mutex
+}
+pub fn end_barrier (name: &String, mutex: &mut crate::enums::custom_mutex ) {
+     crate::smart_lags::forcely_set_mamed_mutexes (&name, named_mutex::unset, mutex ); //dbg!("end");
 }
 //fn
 /*

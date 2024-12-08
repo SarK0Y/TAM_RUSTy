@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 #[derive(PartialEq)]
 pub(crate) enum cached_data{
     no_rec,
@@ -87,4 +88,69 @@ pub enum mutex_group < 'a >  {
     drop ( usize ),
     find ( *mut u64),
     del_all
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct universum_vox_note {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub num_of_channels: u8,
+    pub duration: u32,
+    pub const_duration: bool,
+    pub deviate_duration: u32,
+    pub velocity_level: u8,
+    pub const_velocity: bool,
+    pub note_duration_on_channel: Option < Vec <u32> >,
+    pub range: Option <u8 >,
+    pub bottom: Option <u8>,
+    pub arr: Option < Vec <u8> >
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct universum_vox_wav {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub sound_duration: u16, // in seconds
+    pub num_of_rnd_samples: u32,
+    pub num_of_channels: u16,
+    pub sample_rate: u32,
+    pub bits_per_sample: u16,
+   pub sample_format: SampleFormat,
+   pub bar_sample: f32, 
+   pub amplitude: f32,
+   pub fading_duration: u32,
+    pub fading_step: f32,
+    pub silent_step: u64,
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum SampleFormat { 
+    Float,
+    Int,
+}
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct universum_vox_stub {
+    pub type_: Option < String >
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct universum_vox_morph {
+    pub type_: Option < String >,
+    pub alg0: u8,
+    pub num_of_channels: u8,
+    pub sample_format: String,
+    pub num_of_rnd_samples: Option  <u32 >,
+    pub sample_rate: i32,
+    pub step_factor: u32,
+    pub fading_duration: u32,
+    pub fading_step: f32,
+    pub silent_step: u64,
+    pub bar_sample: f32,
+    pub old_freq: Option <f32 >,
+    pub new_freq: Option <f32 >,
+    pub step_freq: Option <f32 >,
+    pub range: Option <f32 >,
+    pub scale: Option <f32 >,
+    pub coef: Option <Vec <f32> >,
+    pub plus_minus_freq: Option < bool >,
+    pub dbg_from: Option <u32>,
+    pub dbg_to: Option <u32>,
+    pub file_in: String,
+    pub file_out: String,
 }

@@ -374,12 +374,14 @@ pub(crate) fn list_the_lists(){
         let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
         run_cmd0(cmd);
     }
-     if crate::Path::new(&take_list_adr("mae")).exists(){
-        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+    let lst_to_add = "mae";
+     if crate::Path::new(&take_list_adr( lst_to_add ) ).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr( lst_to_add ) );
         run_cmd0(cmd);
     }
-     if crate::Path::new(&take_list_adr("decrypted")).exists(){
-        let cmd = format!("echo '{}' >> {lst}", take_list_adr("merge"));
+     let lst_to_add = "decrypted";
+     if crate::Path::new(&take_list_adr( lst_to_add ) ).exists(){
+        let cmd = format!("echo '{}' >> {lst}", take_list_adr( lst_to_add ) );
         run_cmd0(cmd);
     }
     mark_front_lst("lst"); set_front_list2("lst", 0);
@@ -417,6 +419,8 @@ pub(crate) fn session_lists(){
         let cmd = format!("echo '{}' >> {lst}", take_list_adr("decrypted"));
         run_cmd0(cmd);
     }
+    let cmd = format!("echo 'universum vox' >> {lst}", );
+    run_cmd0(cmd);
 }
 pub(crate) fn upd_session_lists(){
     session_lists(); crate::set_front_list("lst"); mk_cnt();
@@ -436,6 +440,7 @@ pub(crate) fn manage_lst(cmd: &String){
         }
         set_prnt("lst ", 66118137); crate::set_front_list( "lst" ); return;}
     let (_, mut cmd) = split_once(&cmd, " "); cmd = cmd.trim_start().trim_end().to_string();
+    if cmd == "universum vox" { crate::set_prnt ("universum vox ", -6166); crate::nui::universum_vox_lst(); return;}
     let full_adr_lst = take_list_adr_env(&cmd);
     if crate::Path::new(&full_adr_lst).exists(){cmd = full_adr_lst}
     if cmd.substring(0, 1) == "/"{
@@ -460,6 +465,7 @@ pub(crate) fn manage_lst(cmd: &String){
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
+    if item == "universum vox" { crate::set_prnt ("universum vox ", -6166); crate::nui::universum_vox_lst(); return;}
     if match std::fs::metadata(&item){Ok(it) => it, _ => return errMsg0(&format!("{item} is empty"))}.len() < 2 {errMsg0(&format!("{item} is empty")); return;}
     let lst_dir = take_list_adr("env/lst"); let path_2_item = item.replace(&read_tail(&item, "/"), "");
     let head = read_tail(&item, "/");

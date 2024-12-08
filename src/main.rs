@@ -78,10 +78,13 @@ let mut make_cmd_file = File::create(&path_2_cmd).expect(&err_msg.bold().red());
 core18::errMsg_dbg(&path_2_cmd, func_id, -1.0);
 let mut cmd = cmd;
 if !dbg(false) && !dont_clean_bash(false){
-    cmd = format!("{cmd};rm -f {}", path_2_cmd);
+    cmd = format!("{cmd};rm -f {};exit", path_2_cmd);
+} else {
+    cmd = format!("{cmd};exit");
 }
 make_cmd_file.write_all(&cmd.as_bytes());
-Command::new("chmod").arg("700").arg(&path_2_cmd).output().expect("");
+match Command::new("chmod").arg("700").arg(&path_2_cmd).output() 
+                                            { Ok (ok) => ok, Err (e) => {eprintln! ("mk_cmd_file failed due to {e}"); return "".strn()} };;
 core18::errMsg_dbg(&cmd, func_id, -1.0);
 path_2_cmd.to_string()
 }
@@ -121,16 +124,17 @@ core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .stderr(fstderr)
-    .output()
-    .expect("can't run command in run_cmd");
-if run_command.status.success(){
+    .spawn() // .output()
+    { Ok (res) => res, Err( e ) => {eprintln!("{e}"); return false;}};
+    let state = run_command.wait();
+/*if run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
     return false;
-}
+}*/
 true
 }
 pub fn run_cmd_out_dirty(cmd: String) -> String{
@@ -168,11 +172,11 @@ core18::errMsg_dbg(&stderr_path, func_id, -1.0);
 let fstderr = File::create(stderr_path).unwrap();
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .stderr(fstderr).stdout(std::process::Stdio::piped())
     .output()
-    .expect("can't run command in run_cmd");
+{ Ok (ok) => ok, Err (e) => {eprintln! ("run_cmd_out failed due to {e}"); return "".strn()} };
 if !run_command.status.success(){
     io::stdout().write_all(&run_command.stdout).unwrap();
     io::stderr().write_all(&run_command.stderr).unwrap();
@@ -186,30 +190,34 @@ return match from_utf8(&run_command.stdout){
         _ => "".to_string()
     };
 }
-pub(crate) fn run_cmd_viewer(cmd: String) -> bool{
-let func_id = func_id18::run_cmd_viewer_;
-set_ask_user(cmd.as_str(), func_id);
-if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
-let fstdout: String; 
-let path_2_cmd = mk_cmd_file(cmd);
-let mut stderr_path = "stderr".to_string();
-stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
-core18::errMsg_dbg(&stderr_path, func_id, -1.0);
-let fstderr = File::create(stderr_path).unwrap();
-let fstdout0 = File::open("/dev/null").unwrap();
-//let mut fstdout0 = io::BufReader::new(fstdout0);
-//errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
-//let run_command = Command::new(cmd)
-    .stderr(fstderr)
-    .stdout(fstdout0)
-    .spawn()
-    .expect("can't run command in run_cmd_viewer");
-/*if run_command.status.success(){
-    io::stdout().write_all(&run_command.stdout).unwrap();
-    io::stderr().write_all(&run_command.stderr).unwrap();
-    return false;
-}*/
+pub(crate) fn run_cmd_viewer(cmd: String) -> bool {
+std::thread::spawn( || {
+    let func_id = func_id18::run_cmd_viewer_;
+    set_ask_user(cmd.as_str(), func_id);
+    if crate::term_app::run_new_win_bool( None) { crate::term_app::new0__(&cmd); }
+    let fstdout: String; 
+    let path_2_cmd = mk_cmd_file(cmd);
+    let mut stderr_path = "stderr".to_string();
+    stderr_path = format!("{}stderr", unsafe{ps18::page_struct("", ps18::MAINPATH_, -1).str_});
+    core18::errMsg_dbg(&stderr_path, func_id, -1.0);
+    let fstderr = File::create(stderr_path).unwrap();
+    let fstdout0 = File::open("/dev/null").unwrap();
+    //let mut fstdout0 = io::BufReader::new(fstdout0);
+    //errMsg_dbg(&in_name, func_id, -1.0);
+    let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+    //let run_command = Command::new(cmd)
+        .stderr(fstderr)
+        .stdout(fstdout0)
+        .spawn()
+        { Ok (res) => res, Err ( e ) => {
+            let err_msg = format! ("{e:#?}"); crate::errMsg0(&err_msg ); return}};
+        let state = run_command.wait();
+    /*if run_command.status.success(){
+        io::stdout().write_all(&run_command.stdout).unwrap();
+        io::stderr().write_all(&run_command.stderr).unwrap();
+        return false;
+    }*/
+});
 true
 }
 pub fn run_cmd(cmd: String) -> bool{
@@ -257,14 +265,15 @@ let fstdout0 = File::create(fstdout).unwrap();
 globs18::unblock_fd(fstdout0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
+let mut run_command = match Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";echo").arg(stopCode)
 //let run_command = Command::new(cmd)
     .env ("LC_ALL", &lc)
     .env ("LANG", &lc)
     .stdout(fstdout0)
     .stderr(fstderr)
     .spawn()
-    .expect("can't run command in run_cmd");
+    { Ok (res) => res, Err( e ) => {eprintln!("{e}"); return false;}};
+    let state = run_command.wait();
 true
 }
 pub(crate) fn run_cmd_out_sync(cmd: String) -> String{
@@ -469,3 +478,46 @@ println!("Key is {}", Key);
 //});
 return;
 }
+//fn 
+/*
+use nix::sys::signal::{signal, SigHandler, Signal};
+use nix::sys::wait::waitpid;
+
+extern "C" fn handle_sigchld(_: i32) {
+    while waitpid(None, Some(nix::sys::wait::WaitPidFlag::WNOHANG)).is_ok() {}
+}
+
+fn main() {
+    unsafe {
+        signal(Signal::SIGCHLD, SigHandler::Handler(handle_sigchld)).unwrap();
+    }
+
+    // Your command spawning code here
+}
+use nix::unistd::{fork, ForkResult};
+
+match unsafe { fork() } {
+    Ok(ForkResult::Parent { child: _ }) => {
+        // Parent process exits immediately
+        std::process::exit(0);
+    }
+    Ok(ForkResult::Child) => {
+        // Child process becomes the new parent
+        match unsafe { fork() } {
+            Ok(ForkResult::Parent { child: _ }) => {
+                // New parent exits
+                std::process::exit(0);
+            }
+            Ok(ForkResult::Child) => {
+                // Grandchild process runs the actual command
+                Command::new("bash")
+                    .arg("-c")
+                    .arg("your_command_here")
+                    .spawn()?;
+            }
+            Err(_) => println!("Fork failed"),
+        }
+    }
+    Err(_) => println!("Fork failed"),
+}
+ */

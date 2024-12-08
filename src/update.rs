@@ -91,7 +91,7 @@ println!("stop manage_page");
 }).unwrap();
 //background_fixing_count(2);
 delay_ms(37);
-    handler.join().unwrap();
+    handler.join();
     println!("len of main0 list {}", globs17::len_of_main0_list());
 }
 pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
