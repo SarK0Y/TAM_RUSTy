@@ -117,19 +117,21 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
   let mut out = 0.0f32;
   let mut coef = 0.0f32;
   let cut_freq = uv.old_freq.as_ref().unwrap();
+  let rc: f32 = 1.0 / (2.0 * PI * cut_freq );
   let mut coefs = uv.coef.as_ref().unwrap();
-  let mut ch0 = read_chan_f32(samples, 0, 2, 0, samples.len() );
-  for i in 0..ch0.len() {
-    coef = 1.0 - f32::powf( coefs[0], -1.0 * 2.0 * PI * coefs [1] * cut_freq );
-    out += (ch0 [i] - out) * coef;
-    ch0 [i ] = out;
+  let alpha = coefs[0]; // / (coefs [0] + rc);
+  //coef = f32::powf( coefs[0], -1.0 * 2.0 * PI * coefs [1] * cut_freq );
+  let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+  dbg!(ch0.len());
+  ch0 [0] *= alpha;
+  for i in 1..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
   }
   write_chan_f32(samples, 0, 2, 0, &ch0 );
   ch0 = read_chan_f32(samples, 1, 2, 0, samples.len() );
-  for i in 0..ch0.len() {
-    coef = 1.0 - f32::powf( coefs[0], -1.0 * 2.0 * PI * coefs [1] * cut_freq );
-    out += (ch0 [i] - out) * coef;
-    ch0 [i ] = out;
+  ch0 [0] *= alpha;
+  for i in 1..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
 }
@@ -196,7 +198,7 @@ pub fn read_chan_f32 (
     let mut ret: Vec < f32 > = Vec::new ();
     if start_from >= samples.len() { return ret;};
     let mut to = range;
-    if to + start_from > samples.len() { to = samples.len() - start_from; }
+    if to + start_from >= samples.len() { to = samples.len() - start_from; }
     let upto = to + start_from;
     dbg! (&to); dbg! (&start_from);
     for i in 0..to {
