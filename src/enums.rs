@@ -147,6 +147,7 @@ pub struct universum_vox_morph {
     pub step_freq: Option <f32 >,
     pub range: Option <f32 >,
     pub scale: Option <f32 >,
+    pub coef: Option <Vec <f32> >,
     pub plus_minus_freq: Option < bool >,
     pub dbg_from: Option <u32>,
     pub dbg_to: Option <u32>,

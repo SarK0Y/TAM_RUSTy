@@ -33,6 +33,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
         4 => {mk_morph_alg4_warp( &mut samples, &uv_morph ); },
+        5 => {mk_morph_alg5_simple_lpf( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -111,6 +112,29 @@ pub fn mk_morph_alg4_warp (samples: &mut [f32], uv: &crate::enums::universum_vox
     step += step_freq;
   }
 }
+pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+  if uv.coef.is_none () || uv.old_freq.is_none () {err_msg_morph (); return }
+  let mut out = 0.0f32;
+  let mut coef = 0.0f32;
+  let cut_freq = uv.old_freq.as_ref().unwrap();
+  let rc: f32 = 1.0 / (2.0 * PI * cut_freq );
+  let mut coefs = uv.coef.as_ref().unwrap();
+  let alpha = coefs[0]; // / (coefs [0] + rc);
+  //coef = f32::powf( coefs[0], -1.0 * 2.0 * PI * coefs [1] * cut_freq );
+  let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+  dbg!(ch0.len());
+  ch0 [0] *= alpha;
+  for i in 1..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
+  }
+  write_chan_f32(samples, 0, 2, 0, &ch0 );
+  ch0 = read_chan_f32(samples, 1, 2, 0, samples.len() );
+  ch0 [0] *= alpha;
+  for i in 1..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
+  }
+  write_chan_f32(samples, 1, 2, 0, &ch0 );
+}
 pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
     let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
     let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
@@ -174,7 +198,7 @@ pub fn read_chan_f32 (
     let mut ret: Vec < f32 > = Vec::new ();
     if start_from >= samples.len() { return ret;};
     let mut to = range;
-    if to + start_from > samples.len() { to = samples.len() - start_from; }
+    if to + start_from >= samples.len() { to = samples.len() - start_from; }
     let upto = to + start_from;
     dbg! (&to); dbg! (&start_from);
     for i in 0..to {
@@ -188,17 +212,19 @@ pub fn write_chan_f32 (
     samples: &mut [f32], 
     ch_num: usize, 
     num_of_channels: usize, start_from: usize, patch: &Vec < f32 > ) -> usize {
-    let mut to = patch.len();
-    if to > samples.len() { to = samples.len() - start_from; }
+    if start_from >= samples.len() { return 0 };
+    let mut to = samples.len() - start_from;
     let upto = to + start_from;
     let mut cursor = 0usize;
     let mut prev = cursor;
+    let mut cnt = 0usize;
     for i in 0..to {
         cursor = start_from + i * num_of_channels + ch_num;
-        if cursor > upto { break;}
+        if cursor > upto  || i >= patch.len() { break;}
         samples [ cursor ] = patch [ i ];
+        cnt = i;
         prev = cursor - ch_num;
-    } dbg! (&cursor); prev
+    } dbg! (&cursor); dbg!(cnt); prev
 }
 pub fn err_msg_morph (){
     errMsg0( "Dear user, You need to set json properly.. Look example: {
@@ -218,6 +244,7 @@ pub fn err_msg_morph (){
             \"new_freq\":7287.7,\n
             \"step_freq\":2.3,\n
             \"range\":75.8,\n
+            \"coef\":[1.97,0.94],\n
             \"plus_minus_freq\":false,\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
