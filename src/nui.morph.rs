@@ -34,6 +34,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
         4 => {mk_morph_alg4_warp( &mut samples, &uv_morph ); },
         5 => {mk_morph_alg5_simple_lpf( &mut samples, &uv_morph ); },
+        6 => {mk_morph_alg6_simple_lpf( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -135,6 +136,38 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
 }
+pub fn mk_morph_alg6_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+  if uv.coef.is_none () || uv.old_freq.is_none () {err_msg_morph (); return }
+  let mut out = 0.0f32;
+  let mut coef = 0.0f32;
+  let cut_freq = uv.old_freq.as_ref().unwrap();
+  let rc: f32 = 1.0 / (2.0 * PI * cut_freq );
+  let mut coefs = uv.coef.as_ref().unwrap();
+  let alpha = coefs[0]; // / (coefs [0] + rc);
+  //coef = f32::powf( coefs[0], -1.0 * 2.0 * PI * coefs [1] * cut_freq );
+  let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+  dbg!(ch0.len());
+  ch0 [0] *= alpha;
+  ch0 [1] = ch0 [1] * (1.0 - alpha) + ch0 [0];
+  ch0 [2] = ch0 [2] * (1.0 - alpha).powi (2 ) + ch0 [1] + ch0 [0] ;
+  //ch0 [3] = ch0 [3] * (1.0 - alpha.powi(2) ) + ch0 [2] + ch0 [1] + ch0 [0];
+  for i in 4..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha + (1.0 - alpha ) * ch0 [i - 1] + (1.0 - alpha ).powi(2) * ch0 [i - 2]; //+ (1.0 - alpha.powi(2) ) * ch0 [i - 3];
+    ch0 [i] *= uv.fading_step;
+  }
+  write_chan_f32(samples, 0, 2, 0, &ch0 );
+  ch0 = read_chan_f32(samples, 1, 2, 0, samples.len() );
+  ch0 [0] *= alpha;
+  ch0 [1] = ch0 [1] * (1.0 - alpha) + ch0 [0];
+  ch0 [2] = ch0 [2] * (1.0 - alpha).powi (2 ) + ch0 [1] + ch0 [0] ;
+  //ch0 [3] = ch0 [3] * (1.0 - alpha.powi(2) ) + ch0 [2] + ch0 [1] + ch0 [0];
+  for i in 4..ch0.len() {
+    ch0 [i ] = ch0 [i] * alpha + (1.0 - alpha ) * ch0 [i - 1] + (1.0 - alpha ).powi(2) * ch0 [i - 2]; //+ (1.0 - alpha.powi(2) ) * ch0 [i - 3];
+    ch0 [i] *= uv.fading_step;
+  }
+  write_chan_f32(samples, 1, 2, 0, &ch0 );
+}
+
 pub fn replace_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph, step: f32 ) {
     let old = (uv.old_freq.unwrap () + step) * 2.0 * PI;
     let new = (uv.new_freq.unwrap () + step) * 2.0 * PI;
