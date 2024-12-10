@@ -125,9 +125,14 @@ pub fn mk_morph_alg7_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(
   let num_of_samples = (uv.sound_duration.unwrap() * uv.num_of_channels as u32 * uv.sample_rate as u32) as usize;
   let from = 53usize;
   let mut y = 0.73f32;
+  let mut count_fading = 0u32;
+  let mut fading = 1.0;
   for k in from..(num_of_samples + from) {
-    if y > 0.41 { y = poly (k as i128); }
-    else { y = poly (k as i128) * -1.0; } 
+    if y > 0.41 { y = poly (k as i128) * fading; }
+    else { y = poly (k as i128) * -1.0 * fading; } 
+    if count_fading < uv.fading_duration { fading *= uv.fading_step; count_fading += 1; }
+    else {fading = 1.0; count_fading = 0;}
+    //dbg! (&fading); dbg! (&y);
     samples.push (y);   
   }
   let samples: Samples<f32> = Samples::from(samples.into_boxed_slice() ).convert();
