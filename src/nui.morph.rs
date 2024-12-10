@@ -5,7 +5,7 @@ use once_cell::sync::Lazy;
 use wavers::Samples;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
-use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
+use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_input;
 use crate::custom_traits::STRN;
@@ -127,11 +127,16 @@ pub fn mk_morph_alg7_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(
   let mut y = 0.73f32;
   let mut count_fading = 0u32;
   let mut fading = 1.0;
+  let mut fading_duration = uv.fading_duration;
+  let low_fading_duration = uv.fading_duration / 5;
+  let mut rnd = fading_duration = u32__() % uv.fading_duration;
   for k in from..(num_of_samples + from) {
     if y > 0.41 { y = poly (k as i128) * fading; }
     else { y = poly (k as i128) * -1.0 * fading; } 
-    if count_fading < uv.fading_duration { fading *= uv.fading_step; count_fading += 1; }
-    else {fading = 1.0; count_fading = 0;}
+    if count_fading < fading_duration { fading *= uv.fading_step; count_fading += 1; }
+    else {fading = 1.0; count_fading = 0; fading_duration = u32__() % uv.fading_duration;
+        if fading_duration < low_fading_duration {fading_duration = low_fading_duration;}
+    }
     //dbg! (&fading); dbg! (&y);
     samples.push (y);   
   }
@@ -311,6 +316,18 @@ pub fn err_msg_morph (){
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
 } "); 
+}
+pub fn roll_num <P: 
+std::ops::Mul + 
+num_traits::Pow < u64, Output = P> +
+std::ops::BitAnd +
+std::ops::Add +
+std::ops::BitAndAssign +
+std::ops::AddAssign +
+std::marker::Copy > (x: P) -> P {
+    let mut y = x.pow(2);
+    y &= x;
+    y += x; y
 }
 //fn
 //let tan = (PI * uv.old_freq.unwrap() / uv.sample_rate as f32).tan();
