@@ -136,6 +136,7 @@ pub struct universum_vox_morph {
     pub num_of_channels: u8,
     pub sample_format: String,
     pub num_of_rnd_samples: Option  <u32 >,
+    pub sound_duration: Option  <u32 >,
     pub sample_rate: i32,
     pub step_factor: u32,
     pub fading_duration: u32,

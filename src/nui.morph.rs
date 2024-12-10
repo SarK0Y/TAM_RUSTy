@@ -22,6 +22,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
                       err_msg_morph (); return;} };
     match uv_morph.alg0 {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
+        7 => {mk_morph_alg7_poly( &uv_morph ); return; },
         _ => { },
     }
     
@@ -112,6 +113,28 @@ pub fn mk_morph_alg4_warp (samples: &mut [f32], uv: &crate::enums::universum_vox
     exclude_freq0 (samples, uv, step);
     step += step_freq;
   }
+}
+pub fn mk_morph_alg7_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> > {
+  if uv.bar_sample == 0.0|| uv.file_out == "" || uv.sample_rate == 0 || uv.sound_duration.is_none() ||
+  uv.num_of_channels == 0 {err_msg_morph(); return Ok (() );}
+  let poly = |x: i128| -> f32 {
+    let y = x.pow(4) + 17 * x.pow (3) + 129 * x.pow(2) + 19 * x + 31;
+    (y as f64 % uv.bar_sample as f64) as f32
+  };
+  let mut samples: Vec < f32 > = Vec::new ();
+  let num_of_samples = (uv.sound_duration.unwrap() * uv.num_of_channels as u32 * uv.sample_rate as u32) as usize;
+  let from = 53usize;
+  let mut y = 0.73f32;
+  for k in from..(num_of_samples + from) {
+    if y > 0.41 { y = poly (k as i128); }
+    else { y = poly (k as i128) * -1.0; } 
+    samples.push (y);   
+  }
+  let samples: Samples<f32> = Samples::from(samples.into_boxed_slice() ).convert();
+  wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+  let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+  errMsg0( &msg );
+  Ok (())
 }
 pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
   if uv.coef.is_none () || uv.old_freq.is_none () {err_msg_morph (); return }
@@ -265,6 +288,7 @@ pub fn err_msg_morph (){
             \"alg0\":1,\n
             \"num_of_channels\":2,\n
             \"num_of_rnd_samples\":233(null),\n
+            \"sound_duration\":150,\n
             \"sample_rate\":44100,\n
             \"sample_format\":\"f32\"(or \"i32\"/\"i16\"),\n
             \"bar_sample\":0.94,\n
@@ -289,6 +313,24 @@ pub fn err_msg_morph (){
     
 //https://docs.rs/spectrum-analyzer/latest/spectrum_analyzer/
 /*
+for i in (0..10).map(|x| x as f64 * 0.1) {
+    println!("{:.1}", i);
+}
+...............
+use std::iter::successors;
+
+let iter = successors(Some(0.1), |&x| {
+    if x < 1.0 {
+        Some(x + 0.1)
+    } else {
+        None
+    }
+});
+
+for i in iter {
+    println!("{:.1}", i);
+}
+-----------
 let vec = vec![1, 2, 3, 4, 5];
 let reversed: Vec<_> = vec.into_iter().rev().collect();
 -------------
