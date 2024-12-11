@@ -24,6 +24,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
         7 => {mk_morph_alg7_poly( &uv_morph ); return; },
         8 => {mk_morph_alg8_poly( &uv_morph ); return; },
+        9 => {mk_morph_alg9_shark_fins( &uv_morph ); return; },
         _ => { },
     }
     
@@ -324,6 +325,27 @@ pub fn write_chan_f32 (
         prev = cursor - ch_num;
     } dbg! (&cursor); dbg!(cnt); prev
 }
+pub fn mk_morph_alg9_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
+    let width = uv.step_factor as i32;
+    let amplitude = uv.bar_sample;
+    let fin = shark_fin(width, amplitude);
+    let mut samples: Vec <f32> = Vec::new ();
+    let mut count_down: u32 = uv.sound_duration.unwrap ();
+    while count_down > 0{
+        for j in &fin {
+            samples.push ( *j );
+        }
+        for null in 0..uv.silent_step {
+            samples.push (0.0)
+        } count_down.dec();
+    }
+    let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
+    wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+    let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+    errMsg0( &msg );
+    Ok (())
+}
+
 pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
     let mut fin: Vec <f32> = Vec::new ();
     let fst_part = 2 * width / 3; 
@@ -354,6 +376,10 @@ pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
         res = amplitude * fading.powi (pow);
         count_down.dec();
     }
+    fading
+}
+pub fn calc_fading_step (bar: f32, amplitude: f32, err: f32 ) -> f32 {
+    let mut fading = amplitude / bar;
     fading
 }
 pub fn err_msg_morph (){
