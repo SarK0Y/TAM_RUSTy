@@ -23,6 +23,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     match uv_morph.alg0 {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
         7 => {mk_morph_alg7_poly( &uv_morph ); return; },
+        8 => {mk_morph_alg8_poly( &uv_morph ); return; },
         _ => { },
     }
     
@@ -135,6 +136,37 @@ pub fn mk_morph_alg7_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(
     else { y = poly (k as i128) * -1.0 * fading; } 
     if count_fading < fading_duration { fading *= uv.fading_step; count_fading += 1; }
     else {fading = 1.0; count_fading = 0; fading_duration = u32__() % uv.fading_duration;
+        if fading_duration < low_fading_duration {fading_duration = low_fading_duration;}
+    }
+    //dbg! (&fading); dbg! (&y);
+    samples.push (y);   
+  }
+  let samples: Samples<f32> = Samples::from(samples.into_boxed_slice() ).convert();
+  wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+  let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+  errMsg0( &msg );
+  Ok (())
+}
+pub fn mk_morph_alg8_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> > {
+  if uv.bar_sample == 0.0|| uv.file_out == "" || uv.sample_rate == 0 || uv.sound_duration.is_none() ||
+  uv.num_of_channels == 0 {err_msg_morph(); return Ok (() );}
+  let poly = |x: i128| -> f32 {
+    let y = x.pow(4) + 17 * x.pow (3) + 129 * x.pow(2) + 19 * x + 31;
+    (y as f64 % uv.bar_sample as f64) as f32
+  };
+  let mut samples: Vec < f32 > = Vec::new ();
+  let num_of_samples = (uv.sound_duration.unwrap() * uv.num_of_channels as u32 * uv.sample_rate as u32) as usize;
+  let from = 53usize;
+  let mut y = 0.73f32;
+  let mut count_fading = 0u32;
+  let mut fading = 1.0;
+  let mut fading_duration = u32__() % uv.fading_duration;
+  let low_fading_duration = uv.fading_duration / 5;
+  for k in from..(num_of_samples + from) {
+    if y > 0.41 { y = poly (k as i128) * fading; }
+    else { y = poly (k as i128) * -1.0 * fading; } 
+    if count_fading < fading_duration { fading *= uv.fading_step; count_fading += 1; }
+    else {fading = 1.0; count_fading = 0; fading_duration = roll_num::<u32> (fading_duration) ;
         if fading_duration < low_fading_duration {fading_duration = low_fading_duration;}
     }
     //dbg! (&fading); dbg! (&y);
@@ -319,7 +351,7 @@ pub fn err_msg_morph (){
 }
 pub fn roll_num <P: 
 std::ops::Mul + 
-num_traits::Pow < u64, Output = P> +
+num_traits::Pow < usize, Output = P> +
 std::ops::BitAnd +
 std::ops::Add +
 std::ops::BitAndAssign +
