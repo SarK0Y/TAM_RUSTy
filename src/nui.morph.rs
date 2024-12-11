@@ -324,6 +324,38 @@ pub fn write_chan_f32 (
         prev = cursor - ch_num;
     } dbg! (&cursor); dbg!(cnt); prev
 }
+pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
+    let mut fin: Vec <f32> = Vec::new ();
+    let fst_part = 2 * width / 3; 
+    let nd_part = width / 3; 
+    let mut amplitude0 = 2.0 * amplitude / 3.0;
+    let mut step = amplitude / 6.0;
+    for s in 0..fst_part{
+        fin.push (amplitude0);
+        amplitude0 += step / 2.0;
+    }
+    let mut fading = calc_fading_coef(0.01, amplitude0, 0.006, nd_part);
+    for s in 0..nd_part {
+        amplitude0 *= fading;
+        fin.push (amplitude0);
+    }
+    fin
+}
+pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
+    let mut fading = 0.5f32;
+    let mut res = amplitude * fading.powi (pow);
+    let mut count_down = 100;
+    loop {
+        if count_down == 0 {break;}
+        if res / bar < err || bar / res < err {break;}
+        if res > bar {
+            fading -= fading / 2.0;
+        } else { fading += fading / 2.0; }
+        res = amplitude * fading.powi (pow);
+        count_down.dec();
+    }
+    fading
+}
 pub fn err_msg_morph (){
     errMsg0( "Dear user, You need to set json properly.. Look example: {
             \"type_\":\"wav\",\n

@@ -245,3 +245,20 @@ pub fn sav_dbg_msg (msg: Option < String >) -> Vec <String> {
     }
 }
 //fn
+/*
+Use the --offline flag: Run cargo build --offline to prevent Cargo from attempting to access the network1.
+Prepare dependencies:
+Run cargo fetch while online to download all required dependencies3.
+Use cargo vendor to create a local copy of all dependencies4.
+Configure offline usage:
+Add a [patch.crates-io] section in your Cargo.toml to specify local paths for dependencies3.
+Modify .cargo/config.toml to use the vendored dependencies4.
+Limitations:
+Adding new dependencies or changing versions may require online access1.
+Some optional dependencies might cause issues when building offline2.
+For reliable offline builds:
+Ensure all dependencies are cached locally before going offline.
+Use cargo fetch or cargo vendor to prepare dependencies in advance34.
+Consider using tools like cargo-prefetch to cache popular crates1.
+Remember that the first build might be slow, but subsequent offline builds should work smoothly if properly prepared3.
+*/
