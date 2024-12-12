@@ -351,31 +351,42 @@ pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
     let fst_part = 2 * width / 3; 
     let nd_part = width / 3; 
     let mut amplitude0 = 2.0 * amplitude / 3.0;
+    let mut growing = 1.0 / calc_fading_coef(amplitude0, amplitude, 0.006, fst_part);
     let mut step = amplitude / 6.0;
     for s in 0..fst_part{
         fin.push (amplitude0);
-        amplitude0 += step / 2.0;
+        let tmp = amplitude0 * growing;
+        if tmp < amplitude {amplitude0 = tmp}
+        else { break; }
     }
-    let mut fading = calc_fading_coef(0.01, amplitude0, 0.006, nd_part);
+    let mut fading = calc_fading_coef(0.001, amplitude0, 0.006, nd_part);
     for s in 0..nd_part {
         amplitude0 *= fading;
         fin.push (amplitude0);
     }
+    dbg!(&amplitude0);
     fin
 }
 pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
     let mut fading = 0.5f32;
     let mut res = amplitude * fading.powi (pow);
     let mut count_down = 100;
+    let mut down = 2.0f32;
+    let hi_err = 1.0 + err;
     loop {
         if count_down == 0 {break;}
-        if res / bar < err || bar / res < err {break;}
+        if (res - bar).abs() >= err {break;}
         if res > bar {
             fading -= fading / 2.0;
-        } else { fading += fading / 2.0; }
+        } else {
+            let tmp = fading + fading / down;
+            if tmp >= 1.0 {down += 1.0;}
+            else { fading = tmp; }
+         }
         res = amplitude * fading.powi (pow);
         count_down.dec();
     }
+    dbg!( &fading );
     fading
 }
 pub fn calc_fading_step (bar: f32, amplitude: f32, err: f32 ) -> f32 {
