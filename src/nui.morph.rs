@@ -25,6 +25,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         7 => {mk_morph_alg7_poly( &uv_morph ); return; },
         8 => {mk_morph_alg8_poly( &uv_morph ); return; },
         9 => {mk_morph_alg9_shark_fins( &uv_morph ); return; },
+        10 => {mk_morph_alg10_shark_fins( &uv_morph ); return; },
         _ => { },
     }
     
@@ -345,7 +346,26 @@ pub fn mk_morph_alg9_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Res
     errMsg0( &msg );
     Ok (())
 }
-
+pub fn mk_morph_alg10_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
+    let width = uv.step_factor as i32;
+    let amplitude = uv.bar_sample;
+    let fin = shark_fin2(width, amplitude);
+    let mut samples: Vec <f32> = Vec::new ();
+    let mut count_down: u32 = uv.sound_duration.unwrap ();
+    while count_down > 0{
+        for j in &fin {
+            samples.push ( *j );
+        }
+        for null in 0..uv.silent_step {
+            samples.push (0.0)
+        } count_down.dec();
+    }
+    let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
+    wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+    let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+    errMsg0( &msg );
+    Ok (())
+}
 pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
     let mut fin: Vec <f32> = Vec::new ();
     let fst_part = 2 * width / 3; 
@@ -356,9 +376,10 @@ pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
     for s in 0..fst_part{
         fin.push (amplitude0);
         let tmp = amplitude0 * growing;
-        if tmp < amplitude {amplitude0 = tmp}
+        if tmp < amplitude && tmp > 0.0 {amplitude0 = tmp}
         else { break; }
     }
+    //fin = fin.into_iter().rev().collect();
     let mut fading = calc_fading_coef(0.001, amplitude0, 0.006, nd_part);
     for s in 0..nd_part {
         amplitude0 *= fading;
@@ -366,6 +387,36 @@ pub fn shark_fin (width: i32, amplitude: f32) -> Vec <f32> {
     }
     dbg!(&amplitude0);
     fin
+}
+pub fn shark_fin2 (width: i32, amplitude: f32) -> Vec <f32> {
+    let mut fin: Vec <f32> = Vec::new ();
+    let fst_part = 2 * width / 3; 
+    let nd_part = width / 3; 
+    let mut amplitude0 = amplitude / 3.0;
+    let mut growing = log_grow_up_to(amplitude0, amplitude, 17.0, fst_part as usize);
+    let mut step = amplitude / 6.0;
+    for s in growing{
+        fin.push ( s );
+        
+    }
+    //fin = fin.into_iter().rev().collect();
+    let mut amplitude0 = amplitude;
+    let mut fading = calc_fading_coef(0.001, amplitude0, 0.006, nd_part);
+    for s in 0..nd_part {
+        amplitude0 *= fading;
+        fin.push (amplitude0);
+    }
+    dbg!(&amplitude0);
+    fin
+}
+pub fn log_grow_up_to (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
+    let mut ret = Vec::<f32>::new();
+    for j in 2..range{
+        let sample = (j as f32).log (base);
+        if sample >= from && sample < to {ret.push (sample);}
+        if sample > to {break}
+    }
+    ret
 }
 pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
     let mut fading = 0.5f32;
