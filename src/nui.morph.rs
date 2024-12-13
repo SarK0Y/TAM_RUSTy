@@ -26,6 +26,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         8 => {mk_morph_alg8_poly( &uv_morph ); return; },
         9 => {mk_morph_alg9_shark_fins( &uv_morph ); return; },
         10 => {mk_morph_alg10_shark_fins( &uv_morph ); return; },
+        11 => {mk_morph_alg11_ellipse_like( &uv_morph ); return; },
         _ => { },
     }
     
@@ -346,6 +347,34 @@ pub fn mk_morph_alg9_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Res
     errMsg0( &msg );
     Ok (())
 }
+pub fn mk_morph_alg11_ellipse_like (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
+    let len = uv.step_factor as usize;
+    let amplitude = uv.bar_sample;
+    let base = uv.scale.unwrap();
+    let fin = half_ellipse_like(0.0, amplitude, base, len);
+    let mut samples: Vec <f32> = Vec::new ();
+    let mut count_down: u32 = uv.sound_duration.unwrap ();
+    while count_down > 0{
+        for j in &fin {
+            samples.push ( *j );
+        }
+        if uv.plus_minus_freq.unwrap() == true {
+            for null in 0..uv.silent_step {
+                samples.push (0.0)
+            }
+        } else {
+            for j in &fin {
+               samples.push ( 0.0 - *j );
+            }   
+        }
+         count_down.dec();
+    }
+    let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
+    wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+    let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+    errMsg0( &msg );
+    Ok (())
+}
 pub fn mk_morph_alg10_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let width = uv.step_factor as i32;
     let amplitude = uv.bar_sample;
@@ -416,15 +445,17 @@ pub fn shark_fin2 (width: i32, amplitude: f32) -> Vec <f32> {
     dbg!(&amplitude0);
     fin
 }
-pub fn half_ellipse (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
+pub fn half_ellipse_like (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
 let mut ret = Vec::<f32>::new();
-let fst_4th = log_grow_up_to (from, to, base, range); 
-fst_4th.into_iter().rev().map (|x| {ret.push (x); });
+let fst_4th: Vec <f32> = log_grow_up_to (from, to, base, range); 
+let nd_4th: Vec <f32> = fst_4th.clone().into_iter().rev().collect();
+for j in 0..fst_4th.len(){ ret.push( fst_4th [j] ); }
+for j in 0..nd_4th.len(){ ret.push( nd_4th [j] ); }
 ret
 }
 pub fn log_grow_up_to (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
     let mut ret = Vec::<f32>::new();
-    for j in 2..range{
+    for j in 1..range{
         let sample = (j as f32).log (base);
         if sample >= from && sample < to {ret.push (sample);}
         if sample > to {break}
