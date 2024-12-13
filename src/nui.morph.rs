@@ -356,9 +356,16 @@ pub fn mk_morph_alg10_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Re
         for j in &fin {
             samples.push ( *j );
         }
-        for null in 0..uv.silent_step {
-            samples.push (0.0)
-        } count_down.dec();
+        if uv.plus_minus_freq.unwrap() == true {
+            for null in 0..uv.silent_step {
+                samples.push (0.0)
+            }
+        } else {
+            for j in &fin {
+               samples.push ( 0.0 - *j );
+            }   
+        }
+         count_down.dec();
     }
     let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
     wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
@@ -408,6 +415,12 @@ pub fn shark_fin2 (width: i32, amplitude: f32) -> Vec <f32> {
     }
     dbg!(&amplitude0);
     fin
+}
+pub fn half_ellipse (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
+let mut ret = Vec::<f32>::new();
+let fst_4th = log_grow_up_to (from, to, base, range); 
+fst_4th.into_iter().rev().map (|x| {ret.push (x); });
+ret
 }
 pub fn log_grow_up_to (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
     let mut ret = Vec::<f32>::new();
