@@ -27,6 +27,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         9 => {mk_morph_alg9_shark_fins( &uv_morph ); return; },
         10 => {mk_morph_alg10_shark_fins( &uv_morph ); return; },
         11 => {mk_morph_alg11_ellipse_like( &uv_morph ); return; },
+        12 => {mk_morph_alg12_tria( &uv_morph ); return; },
         _ => { },
     }
     
@@ -347,6 +348,36 @@ pub fn mk_morph_alg9_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Res
     errMsg0( &msg );
     Ok (())
 }
+pub fn mk_morph_alg12_tria (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
+    let mut coefs: Vec <f32> = if let Some (x) = &uv.coef { x.clone() }else {err_msg_morph(); return Ok (());};
+    let bar = uv.bar_sample;
+    let a = coefs [0];
+    let b = coefs [1];
+    let step = coefs [2];
+    let fin = trias(a, b, step, bar);
+    let mut samples: Vec <f32> = Vec::new ();
+    let mut count_down: u32 = uv.sound_duration.unwrap ();
+    while count_down > 0{
+        for j in &fin {
+            samples.push ( *j );
+        }
+        if uv.plus_minus_freq.unwrap() == true {
+            for null in 0..uv.silent_step {
+                samples.push (0.0)
+            }
+        } else {
+            for j in &fin {
+               samples.push ( 0.0 - *j );
+            }   
+        }
+         count_down.dec();
+    }
+   let samples: &[f32] = &Samples::from (samples.into_boxed_slice() ).convert();
+    wav_write(&uv.file_out, &samples, uv.sample_rate, uv.num_of_channels as u16 )?;
+    let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
+    errMsg0( &msg );
+    Ok (())
+}
 pub fn mk_morph_alg11_ellipse_like (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let len = uv.step_factor as usize;
     let amplitude = uv.bar_sample;
@@ -452,6 +483,24 @@ let nd_4th: Vec <f32> = fst_4th.clone().into_iter().rev().collect();
 for j in 0..fst_4th.len(){ ret.push( fst_4th [j] ); }
 for j in 0..nd_4th.len(){ ret.push( nd_4th [j] ); }
 ret
+}
+pub fn trias (a: f32, b: f32, step: f32, bar: f32) -> Vec <f32> {
+let mut ret = Vec::<f32>::new();
+let fst_tria: Vec <f32> = tria(a, b, step, bar); 
+let nd_tria: Vec <f32> = fst_tria.clone().into_iter().rev().collect();
+for j in 0..fst_tria.len(){ ret.push( fst_tria [j] ); }
+for j in 0..nd_tria.len(){ ret.push( nd_tria [j] ); }
+ret
+}
+pub fn tria (a: f32, b: f32, step: f32, bar: f32) -> Vec <f32> {
+    let mut ret = Vec::<f32>::new();
+    let mut x = 0.0f32;
+    for j in 0..1_000_000_000{
+        let y = a * x + b;
+        if y >= 0.0 && y < bar {ret.push (y );}
+        if y > bar {break} x += step;
+    }
+    ret
 }
 pub fn log_grow_up_to (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
     let mut ret = Vec::<f32>::new();
