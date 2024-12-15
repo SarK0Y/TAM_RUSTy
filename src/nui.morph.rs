@@ -42,6 +42,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         4 => {mk_morph_alg4_warp( &mut samples, &uv_morph ); },
         5 => {mk_morph_alg5_simple_lpf( &mut samples, &uv_morph ); },
         6 => {mk_morph_alg6_simple_lpf( &mut samples, &uv_morph ); },
+        14 => {mk_morph_alg14_abval( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -182,6 +183,12 @@ pub fn mk_morph_alg8_poly (uv: &crate::enums::universum_vox_morph ) -> Result <(
   let msg = format! ("Dear User, data was written to {}\nPlease, hit any key to continue.. Thanks.", uv.file_out);
   errMsg0( &msg );
   Ok (())
+}
+pub fn mk_morph_alg14_abval (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let sign = if uv.plus_minus_freq.unwrap_or ( true ) { 1.0f32 } else { -1.0};
+    for i in 0..samples.len (){
+        samples [i] = samples [i].abs () * sign
+    }
 }
 pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
   if uv.coef.is_none () || uv.old_freq.is_none () {err_msg_morph (); return }
