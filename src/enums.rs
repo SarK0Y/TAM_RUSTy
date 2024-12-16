@@ -152,6 +152,7 @@ pub struct universum_vox_morph {
     pub plus_minus_freq: Option < bool >,
     pub dbg_from: Option <u32>,
     pub dbg_to: Option <u32>,
+    pub sub_config: Option <String>,
     pub file_in: String,
     pub file_out: String,
 }
