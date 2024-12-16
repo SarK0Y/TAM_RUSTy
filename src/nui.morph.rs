@@ -45,6 +45,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         6 => {mk_morph_alg6_simple_lpf( &mut samples, &uv_morph ); },
         14 => {mk_morph_alg14_abval( &mut samples, &uv_morph ); },
         15 => {mk_morph_alg15_rot_ampl( &mut samples, &uv_morph ); },
+        16 => {mk_morph_alg16_half_elliptic_sound( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -221,6 +222,28 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
     ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
+}
+pub fn mk_morph_alg16_half_elliptic_sound (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let len = uv.step_factor as usize;
+    let to = uv.bar_sample;
+    let base = uv.scale.unwrap();
+    let frame = half_ellipse_like(0.0, to, base, len);
+    let frame_len = frame.len();
+    let num_of_channels = 2usize;
+    let ch_num = 0usize;
+    let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
+    for i in 0..samples.len() {
+        if samples [i] < 0.0 { continue;}
+        samples [i] *= frame [i % frame_len ];
+    }
+    write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
+    let ch_num = 1usize;
+    let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
+    for i in 0..samples.len() {
+        if samples [i] < 0.0 { continue;}
+        samples [i] *= frame [i % frame_len ];
+    }
+    write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
 }
 pub fn mk_morph_alg6_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
   if uv.coef.is_none () || uv.old_freq.is_none () {err_msg_morph (); return }
