@@ -6,6 +6,7 @@ use wavers::Samples;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
+use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_input;
 use crate::custom_traits::STRN;
@@ -43,6 +44,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         5 => {mk_morph_alg5_simple_lpf( &mut samples, &uv_morph ); },
         6 => {mk_morph_alg6_simple_lpf( &mut samples, &uv_morph ); },
         14 => {mk_morph_alg14_abval( &mut samples, &uv_morph ); },
+        15 => {mk_morph_alg15_rot_ampl( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -188,6 +190,13 @@ pub fn mk_morph_alg14_abval (samples: &mut [f32], uv: &crate::enums::universum_v
     let sign = if uv.plus_minus_freq.unwrap_or ( true ) { 1.0f32 } else { -1.0};
     for i in 0..samples.len (){
         samples [i] = samples [i].abs () * sign
+    }
+}
+pub fn mk_morph_alg15_rot_ampl (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let mut roll = i32__();
+    for i in 0..samples.len (){
+        samples [i] = samples [i] * -1.0_f32.powi( roll & 1 );
+        roll = roll_num::<i32> ( roll );
     }
 }
 pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
@@ -617,10 +626,21 @@ std::ops::BitAnd +
 std::ops::Add +
 std::ops::BitAndAssign +
 std::ops::AddAssign +
-std::marker::Copy > (x: P) -> P {
-    let mut y = x.pow(2);
-    y &= x;
-    y += x; y
+num_traits::PrimInt +
+std::marker::Copy +
+std::fmt::Debug > (x: P) -> P {
+    let cur_type = std::any::type_name:: <P> ();
+    let mut y = x;
+    match cur_type {
+    "i32" | "u32" | "i64" | "u64" => { 
+        let pow = P::from( 7 ).unwrap ();
+        y =num_traits::checked_pow(x, 2).unwrap_or( pow ); },
+    _ => {errMsg0("fn roll_num failed"); return x;}
+}
+    y.rotate_left( x.to_u32().unwrap_or(3) );
+    y += x; 
+    //dbg! (&y);
+    y
 }
 //fn
 //let tan = (PI * uv.old_freq.unwrap() / uv.sample_rate as f32).tan();
