@@ -35,6 +35,9 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     
     let wav: Wav<f32> = Wav::from_path( &uv_morph.file_in ).unwrap();
     // conversion happens automatically when you read
+    if let Some( uv_path ) = &uv_morph.sub_config {
+        universum_vox_morph0(duration, uv_path);
+    }
     let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
     //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
