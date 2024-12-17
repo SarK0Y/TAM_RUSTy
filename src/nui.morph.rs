@@ -38,7 +38,11 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     if let Some( uv_path ) = &uv_morph.sub_config {
         universum_vox_morph0(duration, uv_path);
     }
-    let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
+    let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = if crate::faav::get_morph_state().is_none(){
+        let data = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
+        crate::faav::set_morph_state(&Some(data.clone() ) );
+        data
+    } else { crate::faav::get_morph_state().unwrap() };
     //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
