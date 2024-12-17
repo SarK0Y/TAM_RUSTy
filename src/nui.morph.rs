@@ -3,7 +3,7 @@ use std::i16;
 use hound; 
 use once_cell::sync::Lazy;
 use wavers::Samples;
-use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write};
+use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write_};
 use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
@@ -616,6 +616,10 @@ pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
 pub fn calc_fading_step (bar: f32, amplitude: f32, err: f32 ) -> f32 {
     let mut fading = amplitude / bar;
     fading
+}
+pub fn wav_write(file_out: &String, samples: &[f32], sample_rate: i32, num_of_channels: u16 ) -> Result <(), Box <dyn Error> >{
+    wav_write_(file_out, samples, sample_rate, num_of_channels )?;
+    Ok (())
 }
 pub fn err_msg_morph (){
     errMsg0( "Dear user, You need to set json properly.. Look example: {
