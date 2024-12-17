@@ -57,4 +57,12 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
         } state0 
     }
 }
+pub fn morph_status (data: Option < ( wavers::Samples <f32>, i32)>, set_unset: bool ) -> Option < ( wavers::Samples <f32>, i32)> {
+    static mut state: Option < ( wavers::Samples <f32>, i32)> = None;
+    unsafe {
+        if set_unset == false {state = None; return None;}
+        if data.is_some() {state = data;}
+        state.clone()
+    }
+}
 //fn
