@@ -59,6 +59,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     let full_path = format! ( "{}", uv_morph.file_out );
     wav_write(&uv_morph.file_out, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
+    crate::faav::unset_morph_state();
     errMsg0( &msg );
 } 
 pub fn load_uv_conf_morph <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_morph, Box<dyn Error>> {
@@ -232,6 +233,7 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 }
 pub fn mk_morph_alg16_half_elliptic_sound (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let len = uv.step_factor as usize;
+    let sign: f32 = if uv.plus_minus_freq.unwrap_or (true) { 1.0 }else { -1.0 };
     let to = uv.bar_sample;
     let base = uv.scale.unwrap();
     let frame = half_ellipse_like(0.0, to, base, len);
@@ -240,7 +242,7 @@ pub fn mk_morph_alg16_half_elliptic_sound (samples: &mut [f32], uv: &crate::enum
     let ch_num = 0usize;
     let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
     for i in 0..samples.len() {
-        if samples [i] < 0.0 { continue;}
+        if samples [i] * sign < 0.0 { continue;}
         samples [i] *= frame [i % frame_len ];
     }
     write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
