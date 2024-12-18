@@ -58,10 +58,11 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
     }
 }
 pub fn morph_status (data: &Option < ( wavers::Samples <f32>, i32)>, unset: bool ) -> Option < ( wavers::Samples <f32>, i32)> {
-    static mut state: Option < ( wavers::Samples <f32>, i32)> = None;
+    static mut state: Lazy< Option < ( wavers::Samples <f32>, i32)> > = Lazy::new(||{None});
     unsafe {
-        if data.is_some() {state = data.clone(); return state.clone();}
-        if unset {state = None; return None;}
+        if data.is_some() {*state = data.clone();}
+        if unset == true {*state = None; return None;}
+        dbg!(state.is_some() );
         state.clone()
     }
 }
