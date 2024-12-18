@@ -60,7 +60,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     wav_write(&uv_morph.file_out, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     crate::faav::unset_morph_state();
-    errMsg0( &msg );
+    if uv_morph.file_out.len() > 0 { errMsg0( &msg );}
 } 
 pub fn load_uv_conf_morph <P: AsRef<Path> >(path: P) -> Result<crate::enums::universum_vox_morph, Box<dyn Error>> {
     let file = File::open(path)?;
@@ -627,7 +627,8 @@ pub fn calc_fading_step (bar: f32, amplitude: f32, err: f32 ) -> f32 {
     fading
 }
 pub fn wav_write(file_out: &String, samples: &[f32], sample_rate: i32, num_of_channels: u16 ) -> Result <(), Box <dyn Error> >{
-    wav_write_(file_out, samples, sample_rate, num_of_channels )?;
+    if file_out != "" { wav_write_(file_out, samples, sample_rate, num_of_channels )?;}
+    else {crate::faav::set_morph_state(&Some( (Samples::from(samples).convert(), sample_rate) ) );}
     Ok (())
 }
 pub fn err_msg_morph (){
