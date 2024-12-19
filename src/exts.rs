@@ -31,6 +31,8 @@ use std::os::unix::io::{AsRawFd, RawFd};
 #[cfg(feature="mae")] use mae::*;
 #[path = "keycodes.rs"]
 mod kcode01;
+#[path = "snd.rs"]
+mod snd;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "atomic.rs"]

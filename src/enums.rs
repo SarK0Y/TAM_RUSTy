@@ -130,6 +130,12 @@ pub struct universum_vox_stub {
     pub type_: Option < String >
 }
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum geom {
+    tria (f32, f32, f32, bool), //a, b, bar/limit, direction (y = ax + b < bar )
+    tria_full (f32, f32, f32, f32, f32), //a, b, a1, b1, bar/limit, direction (y = ax + b < bar, y1 = ax1 + b1 < bar )
+    shark_fin (f32, f32, Option <f32>, Option <f32>), // width, hight 
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct universum_vox_morph {
     pub type_: Option < String >,
     pub alg0: u8,
