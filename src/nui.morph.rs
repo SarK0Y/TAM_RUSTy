@@ -201,6 +201,21 @@ pub fn mk_morph_alg14_abval (samples: &mut [f32], uv: &crate::enums::universum_v
         samples [i] = samples [i].abs () * sign
     }
 }
+pub fn mk_morph_alg17_geom (uv: &crate::enums::universum_vox_morph ) {
+    use crate::enums::geom;
+    let geoms = if let Some (shapes ) = &uv.geoms { shapes.clone() }else {err_msg_morph();  return;};
+    let mut shaped_frame = Vec::<f32>::new();
+    for j in geoms{
+        match j {
+            geom::half_ellipse { from, to, lb, n } => {shaped_frame = half_ellipse_like(from, to, lb, n as usize);},
+            geom::tria { a, b, bar, step, direct } => {shaped_frame = if direct {tria(a, b, step, bar)} else {
+                tria(a, b, step, bar).into_iter().rev().collect()
+            }},
+            geom::tria_full { a, b, a1, b1, step, bar } => {shaped_frame = trias_full(a, b, a1, b1, step, bar)},
+            _ => {}
+        }
+    }
+}
 pub fn mk_morph_alg15_rot_ampl (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut roll = i32__();
     for i in 0..samples.len (){
@@ -558,6 +573,29 @@ pub fn shark_fin2 (width: i32, amplitude: f32) -> Vec <f32> {
     dbg!(&amplitude0);
     fin
 }
+pub fn shark_fin3 (width: i32, amplitude: f32, lb: Option < f32>) -> Vec <f32> {
+    let mut fin: Vec <f32> = Vec::new ();
+    let fst_part = 2 * width / 3; 
+    let nd_part = width / 3; 
+    let mut amplitude0 = amplitude / 3.0;
+    let base = if let Some (lb0) = lb { lb0 } else {17.0}; 
+    let mut growing = log_grow_up_to(amplitude0, amplitude, 17.0, fst_part as usize);
+    let mut step = amplitude / 6.0;
+    for s in growing{
+        fin.push ( s );
+        
+    }
+    //fin = fin.into_iter().rev().collect();
+    let mut amplitude0 = amplitude;
+    let mut fading = calc_fading_coef(0.001, amplitude0, 0.006, nd_part);
+    for s in 0..nd_part {
+        amplitude0 *= fading;
+        fin.push (amplitude0);
+    }
+    dbg!(&amplitude0);
+    fin
+}
+
 pub fn half_ellipse_like (from: f32, to: f32, base: f32, range: usize) -> Vec <f32> {
 let mut ret = Vec::<f32>::new();
 let fst_4th: Vec <f32> = log_grow_up_to (from, to, base, range); 
@@ -623,6 +661,7 @@ pub fn calc_fading_coef (bar: f32, amplitude: f32, err: f32, pow: i32 ) -> f32 {
     dbg!( &fading );
     fading
 }
+
 pub fn calc_fading_step (bar: f32, amplitude: f32, err: f32 ) -> f32 {
     let mut fading = amplitude / bar;
     fading
