@@ -133,7 +133,8 @@ pub struct universum_vox_stub {
 pub enum geom {
     tria (f32, f32, f32, bool), //a, b, bar/limit, direction (y = ax + b < bar )
     tria_full (f32, f32, f32, f32, f32), //a, b, a1, b1, bar/limit, direction (y = ax + b < bar, y1 = ax1 + b1 < bar )
-    shark_fin (f32, f32, Option <f32>, Option <f32>), // width, hight 
+    shark_fin (f32, f32, Option <f32>, Option <f32>), // width, hight, log base (for rear side), a (for front side: y = a ^ n, 0.0 < a < 1.0)
+    half_ellipse (f32, f32, f32, f32), // *from*, *to*, log base, number of points (1..n)  
 }
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct universum_vox_morph {
@@ -156,6 +157,7 @@ pub struct universum_vox_morph {
     pub scale: Option <f32 >,
     pub coef: Option <Vec <f32> >,
     pub plus_minus_freq: Option < bool >,
+    pub geoms: Option <Vec <geom> >,
     pub dbg_from: Option <u32>,
     pub dbg_to: Option <u32>,
     pub sub_config: Option <String>,
