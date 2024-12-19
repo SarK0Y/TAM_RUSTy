@@ -653,6 +653,7 @@ pub fn err_msg_morph (){
             \"range\":75.8,\n
             \"coef\":[1.97,0.94],\n
             \"plus_minus_freq\":false,\n
+            \"geom\":[\"tria\",\"a\",1.2,\"b\",0.1,\"bar\",0.94,\"direct\",false],
             \"sub_config\":\"/tst/sub_config01.uv(or null)\",\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
