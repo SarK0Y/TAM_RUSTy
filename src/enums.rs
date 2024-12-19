@@ -133,7 +133,7 @@ pub struct universum_vox_stub {
 pub enum geom {
     tria {a: f32, b: f32, bar: f32, step: f32, direct: bool }, // (y = a*(x + step * (0..n) ) + b < bar )
     tria_full {a: f32, b: f32, a1: f32, b1: f32, step: f32, bar: f32 }, //a, b, a1, b1, bar/limit (y = ax + b < bar, y1 = ax1 + b1 < bar )
-    shark_fin {w: f32, h: f32, lb: Option <f32>}, // width, hight, log base (for rear side)
+    shark_fin {w: i32, h: f32, lb: Option <f32>}, // width, hight, log base (for rear side)
     half_ellipse {from: f32, to: f32, lb: f32, n: f32}, // *from*, *to*, log base, number of points (1..n)  
 }
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]

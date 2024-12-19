@@ -201,7 +201,7 @@ pub fn mk_morph_alg14_abval (samples: &mut [f32], uv: &crate::enums::universum_v
         samples [i] = samples [i].abs () * sign
     }
 }
-pub fn mk_morph_alg17_geom (uv: &crate::enums::universum_vox_morph ) {
+pub fn mk_geom (uv: &crate::enums::universum_vox_morph ) {
     use crate::enums::geom;
     let geoms = if let Some (shapes ) = &uv.geoms { shapes.clone() }else {err_msg_morph();  return;};
     let mut shaped_frame = Vec::<f32>::new();
@@ -212,6 +212,9 @@ pub fn mk_morph_alg17_geom (uv: &crate::enums::universum_vox_morph ) {
                 tria(a, b, step, bar).into_iter().rev().collect()
             }},
             geom::tria_full { a, b, a1, b1, step, bar } => {shaped_frame = trias_full(a, b, a1, b1, step, bar)},
+            geom::shark_fin { w, h, lb } => {shaped_frame = if lb.is_some() {shark_fin3(w, h, lb ) } else {
+                shark_fin2(w, h) }
+            }
             _ => {}
         }
     }
