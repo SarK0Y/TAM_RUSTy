@@ -10,6 +10,7 @@ use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_input;
 use crate::custom_traits::STRN;
+use crate::faav::read_saved_geom;
 use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
 use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
@@ -218,6 +219,7 @@ pub fn mk_geom (uv: &crate::enums::universum_vox_morph ) {
             _ => {}
         }
     }
+    crate::faav::pocket_geom( &shaped_frame );
 }
 pub fn mk_morph_alg15_rot_ampl (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut roll = i32__();
@@ -248,6 +250,31 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
     ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
+}
+pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let len = uv.step_factor as usize;
+    let sign: f32 = if uv.plus_minus_freq.unwrap_or (true) == true { 1.0 }else { -1.0 };
+    dbg!(&sign);
+    let to = uv.bar_sample;
+    let base = uv.scale.unwrap();
+    mk_geom(uv);
+    let frame = read_saved_geom(); 
+    let frame_len = frame.len();
+    let num_of_channels = 2usize;
+    let ch_num = 0usize;
+    let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
+    for i in 0..samples.len() {
+        if samples [i] * sign < 0.0 { continue;}
+        samples [i] *= frame [i % frame_len ];
+    }
+    write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
+    let ch_num = 1usize;
+    let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
+    for i in 0..samples.len() {
+        if samples [i] * sign < 0.0 { continue;}
+        samples [i] *= frame [i % frame_len ];
+    }
+    write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
 }
 pub fn mk_morph_alg16_half_elliptic_sound (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let len = uv.step_factor as usize;
