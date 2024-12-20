@@ -57,7 +57,7 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
         } state0 
     }
 }
-pub fn geom_status (data: &Option < Vec <f32> >, unset: bool ) -> Vec <f32> {
+pub fn geom_status (data: Option < Vec <f32> >, unset: bool ) -> Vec <f32> {
     static mut state: Lazy< Vec <f32> > = Lazy::new(||{Vec::new () });
     unsafe {
         if data.is_some() {
@@ -69,6 +69,15 @@ pub fn geom_status (data: &Option < Vec <f32> >, unset: bool ) -> Vec <f32> {
         //dbg!(state.is_some() );
         state.clone()
     }
+}
+pub fn pocket_geom (data: &Vec <f32> ){
+    geom_status(Some (data.clone() ), false);
+}
+pub fn read_saved_geom() -> Vec <f32> {
+    geom_status(None, false)
+}
+pub fn unset_geom (){
+    geom_status(None, true);
 }
 pub fn morph_status (data: &Option < ( wavers::Samples <f32>, i32)>, unset: bool ) -> Option < ( wavers::Samples <f32>, i32)> {
     static mut state: Lazy< Option < ( wavers::Samples <f32>, i32)> > = Lazy::new(||{None});
