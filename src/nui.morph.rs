@@ -55,6 +55,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         14 => {mk_morph_alg14_abval( &mut samples, &uv_morph ); },
         15 => {mk_morph_alg15_rot_ampl( &mut samples, &uv_morph ); },
         16 => {mk_morph_alg16_half_elliptic_sound( &mut samples, &uv_morph ); },
+        17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); return; },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -204,7 +205,8 @@ pub fn mk_morph_alg14_abval (samples: &mut [f32], uv: &crate::enums::universum_v
 }
 pub fn mk_geom (uv: &crate::enums::universum_vox_morph ) {
     use crate::enums::geom;
-    let geoms = if let Some (shapes ) = &uv.geoms { shapes.clone() }else {err_msg_morph();  return;};
+    let geoms = if let Some (shapes ) = &uv.geoms { shapes.clone() }else {
+        dbg! (&uv.geoms); err_msg_morph();  return;};
     let mut shaped_frame = Vec::<f32>::new();
     for j in geoms{
         match j {
@@ -254,21 +256,20 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let len = uv.step_factor as usize;
     let sign: f32 = if uv.plus_minus_freq.unwrap_or (true) == true { 1.0 }else { -1.0 };
+    let mut tst = uv.clone();
+    tst.geoms = Some( vec![crate::enums::geom::tria {a:1.5, b: 0.7, bar: 0.97, step: 0.04, direct: false}] );
+    println!("{}", serde_json::to_string (&tst).unwrap() );
     dbg!(&sign);
     let to = uv.bar_sample;
     let base = uv.scale.unwrap();
     mk_geom(uv);
     let frame = read_saved_geom(); 
     let frame_len = frame.len();
+    if frame_len == 0 {return;}
     let num_of_channels = 2usize;
-    let ch_num = 0usize;
-    let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
-    for i in 0..samples.len() {
-        if samples [i] * sign < 0.0 { continue;}
-        samples [i] *= frame [i % frame_len ];
-    }
-    write_chan_f32(samples, ch_num, num_of_channels, 0, &ch0);
-    let ch_num = 1usize;
+    let ch_num = uv.select_channel.unwrap_or (0) as usize;
+    let frame_tst = frame.clone();
+    wav_write_("/tst/shapes.wav", &Samples::from (frame_tst).convert::<f32>(), uv.sample_rate, num_of_channels as u16);
     let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
     for i in 0..samples.len() {
         if samples [i] * sign < 0.0 { continue;}
@@ -703,8 +704,8 @@ pub fn wav_write(file_out: &String, samples: &[f32], sample_rate: i32, num_of_ch
 }
 pub fn err_msg_morph (){
     errMsg0( "Dear user, You need to set json properly.. Look example: {
-            \"type_\":\"wav\",\n
-            \"alg0\":1,\n
+            \"type_\":\"morph\",\n
+            \"alg0\":17,\n
             \"num_of_channels\":2,\n
             \"num_of_rnd_samples\":233(null),\n
             \"sound_duration\":150,\n
@@ -722,7 +723,7 @@ pub fn err_msg_morph (){
             \"range\":75.8,\n
             \"coef\":[1.97,0.94],\n
             \"plus_minus_freq\":false,\n
-            \"geom\":[\"tria\",\"a\",1.2,\"b\",0.1,\"bar\",0.94,\"direct\",false],
+            \"geoms\":[\"tria\",\"a\",1.2,\"b\",0.1,\"bar\",0.94,\"direct\",false],
             \"sub_config\":\"/tst/sub_config01.uv(or null)\",\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
