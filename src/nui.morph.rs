@@ -208,19 +208,21 @@ pub fn mk_geom (uv: &crate::enums::universum_vox_morph ) {
     let geoms = if let Some (shapes ) = &uv.geoms { shapes.clone() }else {
         dbg! (&uv.geoms); err_msg_morph();  return;};
     let mut shaped_frame = Vec::<f32>::new();
+    let mut shape = Vec::<f32>::new();
     for j in geoms{
         match j {
-            geom::half_ellipse { from, to, lb, n } => {shaped_frame = half_ellipse_like(from, to, lb, n as usize);},
-            geom::tria { a, b, bar, step, direct } => {shaped_frame = if direct {tria(a, b, step, bar)} else {
+            geom::half_ellipse { from, to, lb, n } => {shape = half_ellipse_like(from, to, lb, n as usize);},
+            geom::tria { a, b, bar, step, direct } => {shape = if direct {tria(a, b, step, bar)} else {
                 tria(a, b, step, bar).into_iter().rev().collect()
             }},
-            geom::tria_full { a, b, a1, b1, step, bar } => {shaped_frame = trias_full(a, b, a1, b1, step, bar)},
-            geom::shark_fin { w, h, lb } => {shaped_frame = if lb.is_some() {shark_fin3(w, h, lb ) } else {
+            geom::tria_full { a, b, a1, b1, step, bar } => {shape = trias_full(a, b, a1, b1, step, bar)},
+            geom::shark_fin { w, h, lb } => {shape = if lb.is_some() {shark_fin3(w, h, lb ) } else {
                 shark_fin2(w, h) }
             }
             _ => {}
         }
-    }
+        for s in &shape{ shaped_frame.push(*s); }
+       }
     crate::faav::pocket_geom( &shaped_frame );
 }
 pub fn mk_morph_alg15_rot_ampl (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
@@ -257,7 +259,8 @@ pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::univ
     let len = uv.step_factor as usize;
     let sign: f32 = if uv.plus_minus_freq.unwrap_or (true) == true { 1.0 }else { -1.0 };
     let mut tst = uv.clone();
-    tst.geoms = Some( vec![crate::enums::geom::tria {a:1.5, b: 0.7, bar: 0.97, step: 0.04, direct: false}] );
+    tst.geoms = Some( vec![crate::enums::geom::tria {a:1.5, b: 0.7, bar: 0.97, step: 0.04, direct: false},
+                            crate::enums::geom::shark_fin{w:150, h:0.9, lb:Some(19.1) }] );
     println!("{}", serde_json::to_string (&tst).unwrap() );
     dbg!(&sign);
     let to = uv.bar_sample;
@@ -723,7 +726,9 @@ pub fn err_msg_morph (){
             \"range\":75.8,\n
             \"coef\":[1.97,0.94],\n
             \"plus_minus_freq\":false,\n
-            \"geoms\":[\"tria\",\"a\",1.2,\"b\",0.1,\"bar\",0.94,\"direct\",false],
+            \"geoms\":[{\"tria\":{\"a\":1.2,\"b\":0.1,\"step\":0.04,\"bar\":0.94,\"direct\":false}},
+                       {\"shark_fin\":{\"w\":541,\"h\":0.91,\"lb\":16.4} }],
+
             \"sub_config\":\"/tst/sub_config01.uv(or null)\",\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n
