@@ -10,7 +10,7 @@ use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::custom_input;
 use crate::custom_traits::STRN;
-use crate::faav::read_saved_geom;
+use crate::faav::{read_saved_geom, unset_geom};
 use crate::{errMsg0, getkey, helpful_math_ops};
 use serde::{Deserialize, Serialize, Serializer};
 use spectrum_analyzer::{samples_fft_to_spectrum, FrequencyLimit};
@@ -265,6 +265,7 @@ pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::univ
     dbg!(&sign);
     let to = uv.bar_sample;
     let base = uv.scale.unwrap();
+    unset_geom();
     mk_geom(uv);
     let frame = read_saved_geom(); 
     let frame_len = frame.len();
@@ -726,6 +727,7 @@ pub fn err_msg_morph (){
             \"range\":75.8,\n
             \"coef\":[1.97,0.94],\n
             \"plus_minus_freq\":false,\n
+            \"select_channel\":1,\n
             \"geoms\":[{\"tria\":{\"a\":1.2,\"b\":0.1,\"step\":0.04,\"bar\":0.94,\"direct\":false}},
                        {\"shark_fin\":{\"w\":541,\"h\":0.91,\"lb\":16.4} }],
 
