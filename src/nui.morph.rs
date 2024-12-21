@@ -55,7 +55,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         14 => {mk_morph_alg14_abval( &mut samples, &uv_morph ); },
         15 => {mk_morph_alg15_rot_ampl( &mut samples, &uv_morph ); },
         16 => {mk_morph_alg16_half_elliptic_sound( &mut samples, &uv_morph ); },
-        17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); return; },
+        17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -258,10 +258,10 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let len = uv.step_factor as usize;
     let sign: f32 = if uv.plus_minus_freq.unwrap_or (true) == true { 1.0 }else { -1.0 };
-    let mut tst = uv.clone();
+    /*let mut tst = uv.clone();
     tst.geoms = Some( vec![crate::enums::geom::tria {a:1.5, b: 0.7, bar: 0.97, step: 0.04, direct: false},
                             crate::enums::geom::shark_fin{w:150, h:0.9, lb:Some(19.1) }] );
-    println!("{}", serde_json::to_string (&tst).unwrap() );
+    println!("{}", serde_json::to_string (&tst).unwrap() ); */
     dbg!(&sign);
     let to = uv.bar_sample;
     let base = uv.scale.unwrap();
@@ -272,7 +272,7 @@ pub fn mk_morph_alg17_shaped_frame (samples: &mut [f32], uv: &crate::enums::univ
     let num_of_channels = 2usize;
     let ch_num = uv.select_channel.unwrap_or (0) as usize;
     let frame_tst = frame.clone();
-    wav_write_("/tst/shapes.wav", &Samples::from (frame_tst).convert::<f32>(), uv.sample_rate, num_of_channels as u16);
+    //wav_write_("/tst/shapes.wav", &Samples::from (frame_tst).convert::<f32>(), uv.sample_rate, num_of_channels as u16);
     let ch0 = read_chan_f32(samples, ch_num, num_of_channels, 0, samples.len() );
     for i in 0..samples.len() {
         if samples [i] * sign < 0.0 { continue;}
