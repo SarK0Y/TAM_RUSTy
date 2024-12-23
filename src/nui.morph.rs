@@ -264,10 +264,12 @@ pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::univer
     let mut freq_step = uv.coef.clone().unwrap_or(vec![0.77, 0.0])[1];
     if freq_step == 0.0 {
         
-        if main_freq == 1 {freq_step = 1.0 / (1.0 - 1.0 / main_freq as f32);} else {
+        if main_freq > 1 {freq_step = 1.0 / (1.0 - 1.0 / main_freq as f32);} else {
             freq_step = 1.0 / (1.0 - 1.0 / 1.1);
         }
     }
+    let mut sign = 1.0f32;
+    let ampl: [f32; 2] = [freq_step, 1.0 / freq_step ];
     let mut up_domain_complete_on = 0usize;
     let mut down_domain_complete_on = 0usize;
     let mut prev_up_down = false;
@@ -278,7 +280,21 @@ pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::univer
         for j in 0..main_freq {
             let adr = i * main_freq + j;
             if adr >= samples.len() {break;}
-            if samples [adr ] < 0.0 { down_domain_complete_on.inc(); cur_up_down = false; } else {up_domain_complete_on.inc(); cur_up_down=true;}
+            if samples [adr ] < 0.0 { down_domain_complete_on.inc(); } else {up_domain_complete_on.inc();}
+        }
+        if down_domain_complete_on > up_domain_complete_on { sign = -1.0; } else {sign = 1.0; }
+        for j in 0..main_freq {
+            let adr = i * main_freq + j;
+            if adr >= samples.len() {break;}
+            match sign {
+                -1.0 => {
+                    samples [adr] *= ampl [samples[adr].is_sign_negative() as usize ];
+                },
+                1.0 => {
+                    samples [adr] *= ampl [samples[adr].is_sign_negative() as usize ];
+                },
+                _ => {}
+            }
         }
         
     }
