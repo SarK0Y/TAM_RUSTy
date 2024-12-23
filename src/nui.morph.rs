@@ -288,10 +288,12 @@ pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::univer
             if adr >= samples.len() {break;}
             match sign {
                 -1.0 => {
-                    samples [adr] *= ampl [samples[adr].is_sign_negative() as usize ];
+                    if samples[adr].is_sign_positive() {continue; };
+                    samples [adr] *= ampl [adr % 2 ];
                 },
                 1.0 => {
-                    samples [adr] *= ampl [samples[adr].is_sign_negative() as usize ];
+                    if samples[adr].is_sign_negative() {continue; };
+                    samples [adr] *= ampl [adr % 2 ];
                 },
                 _ => {}
             }
