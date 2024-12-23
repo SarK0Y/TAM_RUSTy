@@ -257,19 +257,28 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 }
 pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let main_freq = if let Some (x) = uv.old_freq {x} else {err_msg_morph(); return;};
-    let main_freq = if uv.sample_rate <= main_freq as i32 {errMsg0("You need to set frequency less than sample rate."); return;} 
+    let mut main_freq = if uv.sample_rate <= main_freq as i32 {errMsg0("You need to set frequency less than sample rate."); return;} 
     else {uv.sample_rate as usize / main_freq as usize};
     let ch_num = uv.select_channel.unwrap_or(0) as usize;
-    let domain_complete_on = uv.coef.clone().unwrap_or(vec![0.77])[0];
+    let domain_complete_on = uv.coef.clone().unwrap_or(vec![0.77, 0.0])[0];
+    let mut freq_step = uv.coef.clone().unwrap_or(vec![0.77, 0.0])[1];
+    if freq_step == 0.0 {
+        
+        if main_freq == 1 {freq_step = 1.0 / (1.0 - 1.0 / main_freq as f32);} else {
+            freq_step = 1.0 / (1.0 - 1.0 / 1.1);
+        }
+    }
     let mut up_domain_complete_on = 0usize;
     let mut down_domain_complete_on = 0usize;
+    let mut prev_up_down = false;
+    let mut cur_up_down = false;
     let ch0 = read_chan_f32(samples, ch_num, uv.num_of_channels.into(), 0, samples.len() );
     for i in 0..samples.len() / main_freq  {
 
         for j in 0..main_freq {
             let adr = i * main_freq + j;
             if adr >= samples.len() {break;}
-            if samples [adr ] < 0.0 { down_domain_complete_on.inc(); } else {up_domain_complete_on.inc();}
+            if samples [adr ] < 0.0 { down_domain_complete_on.inc(); cur_up_down = false; } else {up_domain_complete_on.inc(); cur_up_down=true;}
         }
         
     }
