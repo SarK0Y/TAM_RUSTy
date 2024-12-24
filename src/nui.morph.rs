@@ -56,6 +56,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         15 => {mk_morph_alg15_rot_ampl( &mut samples, &uv_morph ); },
         16 => {mk_morph_alg16_half_elliptic_sound( &mut samples, &uv_morph ); },
         17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); },
+        18 => {mk_morph_alg18_acute_freq( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -257,6 +258,7 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 }
 pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let main_freq = if let Some (x) = uv.old_freq {x} else {err_msg_morph(); return;};
+    if main_freq < 1.0 {errMsg0("You need to set old_freq in config greater than 0."); return;}
     let mut main_freq = if uv.sample_rate <= main_freq as i32 {errMsg0("You need to set frequency less than sample rate."); return;} 
     else {uv.sample_rate as usize / main_freq as usize};
     let ch_num = uv.select_channel.unwrap_or(0) as usize;
