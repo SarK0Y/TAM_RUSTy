@@ -33,6 +33,8 @@ use std::os::unix::io::{AsRawFd, RawFd};
 mod kcode01;
 #[path = "snd.rs"]
 mod snd;
+#[path = "custom.dft_idft.rs"]
+mod cdsp;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "atomic.rs"]

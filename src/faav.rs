@@ -57,6 +57,15 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
         } state0 
     }
 }
+pub fn freq_range_status (data: Option <crate::enums::freq_range>, unset: bool ) -> Option <crate::enums::freq_range> {
+    static mut state: Lazy< Option <crate::enums::freq_range> > = Lazy::new(||{None});
+    unsafe {
+        if data.is_some() {*state = data.clone();}
+        if unset == true {*state = None; return None;}
+        dbg!(state.is_some() );
+        state.clone()
+    }
+}
 pub fn geom_status (data: Option < Vec <f32> >, unset: bool ) -> Vec <f32> {
     static mut state: Lazy< Vec <f32> > = Lazy::new(||{Vec::new () });
     unsafe {

@@ -129,6 +129,19 @@ pub enum SampleFormat {
 pub struct universum_vox_stub {
     pub type_: Option < String >
 }
+#[derive(Debug, Clone, PartialEq)]
+pub struct  custom_dft {
+   pub amplitude: Vec <f32>,
+   pub freq: Vec<f32>,
+   pub phase: Vec <f32>
+}
+#[derive(Debug, Clone, PartialEq)]
+pub struct  freq_range {
+   pub from: f32,
+   pub to: f32,
+   pub step: f32
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub enum geom {
     tria {a: f32, b: f32, bar: f32, step: f32, direct: bool }, // (y = a*(x + step * (0..n) ) + b < bar )

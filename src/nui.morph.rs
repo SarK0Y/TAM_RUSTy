@@ -291,11 +291,13 @@ pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::univer
             match sign {
                 -1.0 => {
                     if samples[adr].is_sign_positive() {continue; };
-                    samples [adr] *= ampl [adr % 2 ];
+                    let prev = if adr > 0 {adr - 1} else {1};
+                    samples [adr] *= ampl [adr % 2 ] + samples[prev].abs();
                 },
                 1.0 => {
                     if samples[adr].is_sign_negative() {continue; };
-                    samples [adr] *= ampl [adr % 2 ];
+                    let prev = if adr > 0 {adr - 1} else {1};
+                    samples [adr] *= ampl [adr % 2 ] + samples[prev].abs();
                 },
                 _ => {}
             }
