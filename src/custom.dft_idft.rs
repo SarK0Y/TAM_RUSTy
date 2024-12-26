@@ -17,10 +17,11 @@ pub fn custom_dft (samples: &mut [f32],
     let norm_to = to - from;
     let j = Complex::new (0.0, 1.0);
     for freq0 in 0..1_000_000_000 {
-        let freq = spectre.from + spectre.step * freq0 as f32;
+        let freq = (spectre.from + spectre.step * freq0 as f32) * norm_to as f32;
         if freq > spectre.to {break;}
-        for k in 0..norm_to {
-            let coef = alt_const.powc (2.0 * PI * freq * k as f32 * j/ norm_to as f32 );
+        for t in 0..norm_to {
+            let coef = alt_const.powc (-2.0 * PI * freq * t as f32 * j/ norm_to as f32 );
+            z_sample += samples[from + t] * coef;
         }
     }
 cdft
