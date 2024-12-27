@@ -781,7 +781,7 @@ pub fn err_msg_morph (){
             \"select_channel\":1,\n
             \"geoms\":[{\"tria\":{\"a\":1.2,\"b\":0.1,\"step\":0.04,\"bar\":0.94,\"direct\":false}},
                        {\"shark_fin\":{\"w\":541,\"h\":0.91,\"lb\":16.4} }],
-
+            \"bandwidth\":[{\"from\":7000.0,\"to\":9000.0,\"step\":50.0}],
             \"sub_config\":\"/tst/sub_config01.uv(or null)\",\n
             \"file_in\":\"/tmp/in.wav\",\n
             \"file_out\":\"/tmp/out.wav\",\n

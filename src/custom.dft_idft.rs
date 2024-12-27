@@ -43,3 +43,5 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         samples
     }
 //fn
+// https://www.ece.virginia.edu/~ffh8x/moi/compression.html
+//https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html

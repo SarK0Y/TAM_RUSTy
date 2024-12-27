@@ -135,7 +135,7 @@ pub struct  custom_dft {
    pub freq: Vec<f32>,
    pub phase: Vec <f32>
 }
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct  freq_range {
    pub from: f32,
    pub to: f32,
@@ -172,6 +172,7 @@ pub struct universum_vox_morph {
     pub plus_minus_freq: Option < bool >,
     pub geoms: Option <Vec <geom> >,
     pub select_channel: Option <u8>, 
+    pub bandwidth: Option <Vec <freq_range> >, 
     pub dbg_from: Option <u32>,
     pub dbg_to: Option <u32>,
     pub sub_config: Option <String>,
