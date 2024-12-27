@@ -29,4 +29,17 @@ pub fn custom_dft (samples: &mut [f32],
     }
 cdft
 }
+pub fn custom_idft (cdft: crate::enums::custom_dft,
+    frame_len: usize, // im samples 
+    alt_const_e: Option <f32>) -> Vec <f32> {
+        let alt_const = if let Some (e) = alt_const_e {e} else {E};
+        let mut samples = Vec::<f32>::new();
+        for i in 0..frame_len { samples.push (0.0); }
+        for t in 0..frame_len {
+            for s in 0..cdft.phase.len() {
+                samples[t] += (2.0 *PI * cdft.freq [s] * t as f32 + cdft.phase [s]).sin () * cdft.amplitude[s];
+            }
+        }
+        samples
+    }
 //fn
