@@ -139,7 +139,8 @@ pub struct  custom_dft {
 pub struct  freq_range {
    pub from: f32,
    pub to: f32,
-   pub step: f32
+   pub step: f32,
+   pub overlap: Option <f32>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
