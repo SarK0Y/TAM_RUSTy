@@ -256,6 +256,9 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
 }
+pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+
+}
 pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let main_freq = if let Some (x) = uv.old_freq {x} else {err_msg_morph(); return;};
     if main_freq < 1.0 {errMsg0("You need to set old_freq in config greater than 0."); return;}

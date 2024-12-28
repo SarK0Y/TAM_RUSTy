@@ -1,8 +1,10 @@
 use num::complex::Complex;
 use std::f32::consts::PI;
 use std::f32::consts::E;
+use once_cell::sync::Lazy;
 use num::complex::ComplexFloat;
 use crate::enums::freq_range;
+use crate::errMsg0;
 pub fn custom_dft (samples: &mut [f32], 
     from: usize,
     to: usize,
@@ -42,6 +44,17 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         }
         samples
     }
+pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) -> Option <f32> {
+    static mut base0: Option <f32> = None;
+    let mut base = 0.0f32;
+    unsafe {
+        if let Some (x) = init_freq {base0 = Some (x); }
+        if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return None;}
+        else {base = base0.unwrap();}
+    }
+    
+    None
+} 
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
