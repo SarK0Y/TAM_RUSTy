@@ -45,7 +45,7 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         }
         samples
     }
-pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) 
+pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
     -> Option <Vec<f32> > {
     static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
     static mut base0: Option <f32> = None;
@@ -53,6 +53,7 @@ pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f3
     let mut precalc_len =0usize;
     unsafe {
         if let Some (x) = init_freq {base0 = Some (x); }
+        else {return Some (precalc.clone() ); }
         if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return None;}
         else {base = base0.unwrap();}
         match precalc.len() {
@@ -81,6 +82,7 @@ pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f3
 
     }
     mem_sample_rate(sample_rate);
+    mem_init_freq(init_freq.unwrap() );
 Some (new_sine)
 }
 pub fn mem_sample_rate (set_sample_rate: u32 ) -> u32 {
@@ -89,7 +91,28 @@ pub fn mem_sample_rate (set_sample_rate: u32 ) -> u32 {
         if set_sample_rate > 0 {sample_rate = set_sample_rate;} sample_rate
     }
 } 
-pub fn mock_sine () {
+pub fn mem_init_freq (set_init_freq: f32 ) -> f32 {
+    static mut init_freq: f32 = 0.0;
+    unsafe {
+        if init_freq > 0.0 {init_freq = set_init_freq;} init_freq
+    }
+} 
+pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
+    static mut sine_approx: Vec <f32> = Vec::new();
+    let sample_rate = mem_sample_rate(0);
+    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate");}
+    let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
+        mem_init_freq(0.0)
+    }; 
+    unsafe {
+        if let Some (approx) = init_speedy_sine(None, sample_rate, out_freq) {sine_approx = approx;}
+        else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
+        if time >= sample_rate {errMsg0("Dear User, var time must be < sample rate");} 
+    };
+    let mut coef_to_scale = (init_freq / out_freq);
+    if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
+    let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
+    0.0
 } 
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
