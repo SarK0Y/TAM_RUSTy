@@ -70,9 +70,14 @@ pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, va
     let mut coef_to_scale = (base / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let fill_num = coef_to_scale - 2.0;
-    new_sine.push ( get_precalc (0));
     for s in 1..precalc_len {
-        let step = get_precalc (s) - get_precalc (s - 1);
+        let mut from = get_precalc (s - 1);
+        new_sine.push ( from );
+        let step = (get_precalc (s) - get_precalc (s - 1) ) / fill_num;
+        for f in 0..fill_num as usize{
+            from += step;
+            new_sine.push ( from );
+        }
 
     }
     (None, None)
