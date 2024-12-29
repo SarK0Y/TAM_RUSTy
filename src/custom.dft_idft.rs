@@ -1,4 +1,5 @@
 use num::complex::Complex;
+use num::Float;
 use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
@@ -44,16 +45,37 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         }
         samples
     }
-pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) -> Option <f32> {
+pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) 
+    -> (Option <f32>, Option <Vec<f32> > ) {
+    static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
     static mut base0: Option <f32> = None;
     let mut base = 0.0f32;
+    let mut precalc_len =0usize;
     unsafe {
         if let Some (x) = init_freq {base0 = Some (x); }
-        if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return None;}
+        if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return (None, None);}
         else {base = base0.unwrap();}
+        match precalc.len() {
+            0 => {
+                for s in 0..sample_rate{
+                    precalc.push ( 2.0 * PI * base * s as f32 / sample_rate as f32);
+                }
+            },
+            _ => {}
+        }
+        precalc_len = precalc.len();
     }
-    
-    None
+    let mut get_precalc = |s: usize| -> f32 {unsafe {return precalc[s] } };
+    let mut new_sine: Vec <f32> = Vec::new();
+    let mut coef_to_scale = (base / out_freq);
+    if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
+    let fill_num = coef_to_scale - 2.0;
+    new_sine.push ( get_precalc (0));
+    for s in 1..precalc_len {
+        let step = get_precalc (s) - get_precalc (s - 1);
+
+    }
+    (None, None)
 } 
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
