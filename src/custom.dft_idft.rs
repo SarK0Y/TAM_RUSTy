@@ -45,15 +45,15 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         }
         samples
     }
-pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) 
-    -> (Option <f32>, Option <Vec<f32> > ) {
+pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, value: f32) 
+    -> Option <Vec<f32> > {
     static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
     static mut base0: Option <f32> = None;
     let mut base = 0.0f32;
     let mut precalc_len =0usize;
     unsafe {
         if let Some (x) = init_freq {base0 = Some (x); }
-        if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return (None, None);}
+        if base0.is_none() {errMsg0("speedy_sine needs an init freq. Thanks."); return None;}
         else {base = base0.unwrap();}
         match precalc.len() {
             0 => {
@@ -80,7 +80,16 @@ pub fn speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32, va
         }
 
     }
-    (None, None)
+    mem_sample_rate(sample_rate);
+Some (new_sine)
+}
+pub fn mem_sample_rate (set_sample_rate: u32 ) -> u32 {
+    static mut sample_rate: u32 = 0;
+    unsafe {
+        if set_sample_rate > 0 {sample_rate = set_sample_rate;} sample_rate
+    }
+} 
+pub fn mock_sine () {
 } 
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
