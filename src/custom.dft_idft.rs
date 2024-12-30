@@ -85,6 +85,23 @@ pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f3
     mem_init_freq(init_freq.unwrap() );
 Some (new_sine)
 }
+pub fn init_speedy_sine_1hz ( sample_rate: u32 ) 
+    -> Option <Vec<f32> > {
+    static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
+    let mut precalc_len =0usize;
+    unsafe {
+        match precalc.len() {
+            0 => {
+                for s in 0..sample_rate{
+                    precalc.push ( 2.0 * PI * s as f32 / sample_rate as f32);
+                }
+            },
+            _ => {}
+        }
+    }
+    mem_sample_rate(sample_rate);
+unsafe { Some (precalc.clone() ) }
+}
 pub fn mem_sample_rate (set_sample_rate: u32 ) -> u32 {
     static mut sample_rate: u32 = 0;
     unsafe {
@@ -105,14 +122,16 @@ pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
         mem_init_freq(0.0)
     }; 
     unsafe {
-        if let Some (approx) = init_speedy_sine(None, sample_rate, out_freq) {sine_approx = approx;}
+        if let Some (approx) = init_speedy_sine_1hz(sample_rate ) {sine_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
         if time >= sample_rate {errMsg0("Dear User, var time must be < sample rate");} 
     };
     let mut coef_to_scale = (init_freq / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
-    0.0
+    let mut sample_id = time * coef_to_scale as u32;
+    if sample_id >= sample_rate {sample_id = 0}
+    csin (sample_id as usize)
 } 
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
