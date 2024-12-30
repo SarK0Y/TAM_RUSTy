@@ -142,7 +142,6 @@ pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
     unsafe {
         if let Some (approx) = init_speedy_sine_1hz(sample_rate ) {sine_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
-        if time >= sample_rate {errMsg0("Dear User, var time must be < sample rate");} 
     };
     let mut coef_to_scale = (init_freq / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
@@ -160,7 +159,6 @@ pub fn table_cos ( out_freq: f32, time: u32) -> f32 {
     unsafe {
         if let Some (approx) = init_speedy_cos_1hz(sample_rate ) {cos_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
-        if time >= sample_rate {errMsg0("Dear User, var time must be < sample rate");} 
     };
     let mut coef_to_scale = (init_freq / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
