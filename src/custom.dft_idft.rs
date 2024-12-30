@@ -93,7 +93,7 @@ pub fn init_speedy_sine_1hz ( sample_rate: u32 )
         match precalc.len() {
             0 => {
                 for s in 0..sample_rate{
-                    precalc.push ( 2.0 * PI * s as f32 / sample_rate as f32);
+                    precalc.push ( (2.0 * PI * s as f32 / sample_rate as f32).sin() );
                 }
             },
             _ => {}
@@ -102,6 +102,24 @@ pub fn init_speedy_sine_1hz ( sample_rate: u32 )
     mem_sample_rate(sample_rate);
 unsafe { Some (precalc.clone() ) }
 }
+pub fn init_speedy_cos_1hz ( sample_rate: u32 ) 
+    -> Option <Vec<f32> > {
+    static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
+    let mut precalc_len =0usize;
+    unsafe {
+        match precalc.len() {
+            0 => {
+                for s in 0..sample_rate{
+                    precalc.push ( (2.0 * PI * s as f32 / sample_rate as f32).cos() );
+                }
+            },
+            _ => {}
+        }
+    }
+   mem_sample_rate(sample_rate);
+unsafe { Some (precalc.clone() ) }
+}
+
 pub fn mem_sample_rate (set_sample_rate: u32 ) -> u32 {
     static mut sample_rate: u32 = 0;
     unsafe {
@@ -130,9 +148,27 @@ pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
     let mut sample_id = time * coef_to_scale as u32;
-    if sample_id >= sample_rate {sample_id = 0}
-    csin (sample_id as usize)
+    csin ((sample_id as usize) % sample_rate as usize)
+}
+pub fn table_cos ( out_freq: f32, time: u32) -> f32 {
+    static mut cos_approx: Vec <f32> = Vec::new();
+    let sample_rate = mem_sample_rate(0);
+    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate");}
+    let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
+        mem_init_freq(0.0)
+    }; 
+    unsafe {
+        if let Some (approx) = init_speedy_cos_1hz(sample_rate ) {cos_approx = approx;}
+        else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
+        if time >= sample_rate {errMsg0("Dear User, var time must be < sample rate");} 
+    };
+    let mut coef_to_scale = (init_freq / out_freq);
+    if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
+    let mut ccos = |s: usize| -> f32 {unsafe {return cos_approx[s] } };
+    let mut sample_id = time * coef_to_scale as u32;
+    ccos ((sample_id as usize) % sample_rate as usize)
 } 
+
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
