@@ -45,6 +45,44 @@ pub fn custom_idft (cdft: crate::enums::custom_dft,
         }
         samples
     }
+pub fn simple_n_fast_dft (samples: &mut [f32], 
+    from: usize,
+    to: usize,
+    spectre: freq_range ) -> crate::enums::custom_dft{
+    let mut cdft = crate::enums::custom_dft {
+        amplitude: Vec::<f32>::new(),
+        freq: Vec::<f32>::new(),
+        phase: Vec::<f32>::new(),
+    };
+    let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
+    let norm_to = to - from;
+    let j: Complex<f32> = Complex::new (0.0, 1.0);
+    for freq0 in 0..1_000_000_000 {
+        let freq = (spectre.from + spectre.step * freq0 as f32);
+        if freq > spectre.to {break;}
+        for t in 0..norm_to {
+            let coef = alt_e2jx(freq, t);      
+            z_sample += samples[from + t] * coef;
+        }
+        cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
+        cdft.phase.push ((z_sample.im / z_sample.re).atan() );
+        cdft.freq.push(freq);
+    }
+cdft
+}
+pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
+    frame_len: usize, // im samples 
+    alt_const_e: Option <f32>) -> Vec <f32> {
+        let alt_const = if let Some (e) = alt_const_e {e} else {E};
+        let mut samples = Vec::<f32>::new();
+        for i in 0..frame_len { samples.push (0.0); }
+        for t in 0..frame_len {
+            for s in 0..cdft.phase.len() {
+                samples[t] += (2.0 *PI * cdft.freq [s] * t as f32 + cdft.phase [s]).sin () * cdft.amplitude[s];
+            }
+        }
+        samples
+    }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
     -> Option <Vec<f32> > {
     static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
@@ -132,10 +170,10 @@ pub fn mem_init_freq (set_init_freq: f32 ) -> f32 {
         if init_freq > 0.0 {init_freq = set_init_freq;} init_freq
     }
 } 
-pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
+pub fn mock_sine ( out_freq: f32, time: usize) -> f32 {
     static mut sine_approx: Vec <f32> = Vec::new();
     let sample_rate = mem_sample_rate(0);
-    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate");}
+    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate"); return 0.0 }
     let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
         mem_init_freq(0.0)
     }; 
@@ -146,13 +184,13 @@ pub fn mock_sine ( out_freq: f32, time: u32) -> f32 {
     let mut coef_to_scale = (init_freq / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
-    let mut sample_id = time * coef_to_scale as u32;
+    let mut sample_id = time * coef_to_scale as usize;
     csin ((sample_id as usize) % sample_rate as usize)
 }
-pub fn table_cos ( out_freq: f32, time: u32) -> f32 {
+pub fn table_cos ( out_freq: f32, time: usize) -> f32 {
     static mut cos_approx: Vec <f32> = Vec::new();
     let sample_rate = mem_sample_rate(0);
-    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate");}
+    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate"); return 0.0 }
     let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
         mem_init_freq(0.0)
     }; 
@@ -163,10 +201,10 @@ pub fn table_cos ( out_freq: f32, time: u32) -> f32 {
     let mut coef_to_scale = (init_freq / out_freq);
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut ccos = |s: usize| -> f32 {unsafe {return cos_approx[s] } };
-    let mut sample_id = time * coef_to_scale as u32;
+    let mut sample_id = time * coef_to_scale as usize;
     ccos ((sample_id as usize) % sample_rate as usize)
 } 
-pub fn alt_e2jx ( out_freq: f32, time: u32) -> Complex<f32> {
+pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
     Complex::new( table_cos(out_freq, time), mock_sine(out_freq, time) )
 }
 //fn
