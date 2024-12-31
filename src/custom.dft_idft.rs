@@ -166,7 +166,9 @@ pub fn table_cos ( out_freq: f32, time: u32) -> f32 {
     let mut sample_id = time * coef_to_scale as u32;
     ccos ((sample_id as usize) % sample_rate as usize)
 } 
-
+pub fn alt_e2jx ( out_freq: f32, time: u32) -> Complex<f32> {
+    Complex::new( table_cos(out_freq, time), mock_sine(out_freq, time) )
+}
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
