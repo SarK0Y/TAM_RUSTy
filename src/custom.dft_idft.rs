@@ -61,7 +61,7 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
         for t in 0..norm_to {
-            let coef = alt_e2jx(freq, t);      
+            let coef = 1.0 / alt_e2jx(freq, t);      
             z_sample += samples[from + t] * coef;
         }
         cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
