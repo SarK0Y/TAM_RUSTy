@@ -195,7 +195,7 @@ pub fn phi_sine ( out_freq: f32, time: usize, phi: f32) -> f32 {
     let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
-    let phi_to_sample_num = (phi / (2.0 * PI)).round() as usize * sample_rate as usize;
+    let phi_to_sample_num = (phi * sample_rate as f32 / (2.0 * PI * out_freq )).round() as usize;
     let mut sample_id = time * coef_to_scale as usize + phi_to_sample_num;
     csin ((sample_id as usize) % sample_rate as usize)
 }
