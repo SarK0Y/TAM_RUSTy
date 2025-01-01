@@ -141,6 +141,7 @@ pub struct  freq_range {
    pub to: f32,
    pub step: f32,
    pub overlap: Option <f32>,
+   pub frame_len: Option <usize>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
