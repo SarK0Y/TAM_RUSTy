@@ -78,7 +78,7 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         for i in 0..frame_len { samples.push (0.0); }
         for t in 0..frame_len {
             for s in 0..cdft.phase.len() {
-                samples[t] += (2.0 *PI * cdft.freq [s] * t as f32 + cdft.phase [s]).sin () * cdft.amplitude[s];
+                samples[t] += phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
             }
         }
         samples
@@ -174,31 +174,43 @@ pub fn mock_sine ( out_freq: f32, time: usize) -> f32 {
     static mut sine_approx: Vec <f32> = Vec::new();
     let sample_rate = mem_sample_rate(0);
     if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate"); return 0.0 }
-    let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
-        mem_init_freq(0.0)
-    }; 
     unsafe {
         if let Some (approx) = init_speedy_sine_1hz(sample_rate ) {sine_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
     };
-    let mut coef_to_scale = (init_freq / out_freq);
+    let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
     let mut sample_id = time * coef_to_scale as usize;
+    csin ((sample_id as usize) % sample_rate as usize)
+}
+pub fn phi_sine ( out_freq: f32, time: usize, phi: f32) -> f32 {
+    static mut sine_approx: Vec <f32> = Vec::new();
+    let sample_rate = mem_sample_rate(0);
+    if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate"); return 0.0 }
+    unsafe {
+        if let Some (approx) = init_speedy_sine_1hz(sample_rate ) {sine_approx = approx;}
+        else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
+    };
+    let mut coef_to_scale = out_freq;
+    if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
+    let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
+    let phi_to_sample_num = (phi / (2.0 * PI)).round() as usize * sample_rate as usize;
+    let mut sample_id = time * coef_to_scale as usize + phi_to_sample_num;
     csin ((sample_id as usize) % sample_rate as usize)
 }
 pub fn table_cos ( out_freq: f32, time: usize) -> f32 {
     static mut cos_approx: Vec <f32> = Vec::new();
     let sample_rate = mem_sample_rate(0);
     if sample_rate == 0 {errMsg0("Dear User, Please, set sample rate"); return 0.0 }
-    let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
+    /*let init_freq = if mem_init_freq(0.0 ) <= 0.0 {errMsg0("Dear User, init freq must be set."); return 0.0;} else {
         mem_init_freq(0.0)
-    }; 
+    };*/ 
     unsafe {
         if let Some (approx) = init_speedy_cos_1hz(sample_rate ) {cos_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
     };
-    let mut coef_to_scale = (init_freq / out_freq);
+    let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut ccos = |s: usize| -> f32 {unsafe {return cos_approx[s] } };
     let mut sample_id = time * coef_to_scale as usize;
