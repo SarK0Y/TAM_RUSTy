@@ -8,7 +8,7 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
-use crate::custom_input;
+use crate::{check_substr_, custom_input};
 use crate::custom_traits::STRN;
 use crate::faav::{read_saved_geom, unset_geom};
 use crate::{errMsg0, getkey, helpful_math_ops};
@@ -259,7 +259,13 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
 pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut check_freq = uv.bandwidth.as_ref();
     if check_freq.is_none() {errMsg0("Dear User, You need to set bandwidth option in Vox Universum's config. Thanks"); return;}
-    
+    let check_freq = check_freq.unwrap();
+    let mut cdft = Vec::<crate::enums::custom_dft>::new();
+    for range in check_freq {
+        let overlap = range.overlap.unwrap_or(0.0);
+        let frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
+
+    }
 }
 pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let main_freq = if let Some (x) = uv.old_freq {x} else {err_msg_morph(); return;};
