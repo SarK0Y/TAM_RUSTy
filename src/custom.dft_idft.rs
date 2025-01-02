@@ -72,8 +72,7 @@ cdft
 }
 pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
     frame_len: usize, // im samples 
-    alt_const_e: Option <f32>) -> Vec <f32> {
-        let alt_const = if let Some (e) = alt_const_e {e} else {E};
+    ) -> Vec <f32> {
         let mut samples = Vec::<f32>::new();
         for i in 0..frame_len { samples.push (0.0); }
         for t in 0..frame_len {
@@ -195,7 +194,7 @@ pub fn phi_sine ( out_freq: f32, time: usize, phi: f32) -> f32 {
     let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
     let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
-    let phi_to_sample_num = (phi * out_freq / (2.0 * PI ) ).round() as usize;
+    let phi_to_sample_num = (phi * out_freq / (2.0 * PI ) ).round() as usize * sample_rate as usize;
     let mut sample_id = time * coef_to_scale as usize + phi_to_sample_num;
     csin ((sample_id as usize) % sample_rate as usize)
 }

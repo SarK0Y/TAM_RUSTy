@@ -8,6 +8,7 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
+use crate::cdsp::simple_n_fast_idft;
 use crate::{check_substr_, custom_input, freq_range};
 use crate::custom_traits::STRN;
 use crate::faav::{read_saved_geom, unset_geom};
@@ -57,6 +58,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         16 => {mk_morph_alg16_half_elliptic_sound( &mut samples, &uv_morph ); },
         17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); },
         18 => {mk_morph_alg18_acute_freq( &mut samples, &uv_morph ); },
+        19 => {mk_morph_alg19_exclude_freqs( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -264,10 +266,11 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut from = 0usize;
     let mut samples_len = samples.len();
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
+    let mut frame_len = 0usize;
     for range in check_freq {
         while from < samples_len {
             let overlap = range.overlap.unwrap_or(0.0);
-            let frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
+            frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
             let spectre = freq_range{
                 from: range.from,
                 to: range.to,
@@ -275,13 +278,17 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 overlap: Some (overlap),
                 frame_len: Some (frame_len)
             };
-            let cdft_item = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre);
+            let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre);
             cdft.push (cdft_item);
             from += frame_len;
         }
     }
+    from = 0;
     for frame in cdft {
-        for freq in frame.freq {
+        let samples_: Vec <f32> = simple_n_fast_idft(frame, frame_len);
+        for sample in samples_ {
+            samples [from] -= sample; from.inc();
+            if from >= samples_len { return }
         }
     }
 }
