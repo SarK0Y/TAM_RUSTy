@@ -46,6 +46,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         crate::faav::set_morph_state(&Some(data.clone() ) );
         data
     } else { crate::faav::get_morph_state().unwrap() };
+    //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
@@ -279,6 +280,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 frame_len: Some (frame_len)
             };
             let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre);
+           // dbg!(&cdft_item);
             cdft.push (cdft_item);
             from += frame_len;
         }

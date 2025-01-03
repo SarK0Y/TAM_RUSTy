@@ -49,6 +49,7 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
     from: usize,
     to: usize,
     spectre: freq_range ) -> crate::enums::custom_dft{
+        println!("run func simple_n_fast_dft", );
     let mut cdft = crate::enums::custom_dft {
         amplitude: Vec::<f32>::new(),
         freq: Vec::<f32>::new(),
@@ -63,16 +64,21 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
         for t in 0..norm_to {
             let coef = 1.0 / alt_e2jx(freq, t);      
             z_sample += samples[from + t] * coef;
+         /*   dbg! (&coef);
+            dbg!(&samples[from + t]);
+            dbg!(from + t);*/
         }
         cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
-        cdft.phase.push ((z_sample.im / z_sample.re).atan() );
+        if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
         cdft.freq.push(freq);
     }
+    println!("end func simple_n_fast_dft", );
 cdft
 }
 pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
     frame_len: usize, // im samples 
     ) -> Vec <f32> {
+        println!("run func simple_n_fast_idft", );
         let mut samples = Vec::<f32>::new();
         for i in 0..frame_len { samples.push (0.0); }
         for t in 0..frame_len {
@@ -80,6 +86,7 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
                 samples[t] += phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
             }
         }
+        println!("end func simple_n_fast_idft", );
         samples
     }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
