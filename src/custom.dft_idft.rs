@@ -1,5 +1,6 @@
 use num::complex::Complex;
 use num::Float;
+use num_traits::ops::overflowing::OverflowingAdd;
 use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
@@ -56,7 +57,9 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
         phase: Vec::<f32>::new(),
     };
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
-    let norm_to = to - from;
+    //let mut unit: usize = if samples.len () == to {1} else {0};
+    let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
+    let norm_to = to - from - unit;
     let j: Complex<f32> = Complex::new (0.0, 1.0);
   //  dbg!(&spectre);
     for freq0 in 0..1_000_000_000 {
@@ -80,15 +83,16 @@ cdft
 pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
     frame_len: usize, // im samples 
     ) -> Vec <f32> {
-        println!("run func simple_n_fast_idft", );
+        //println!("run func simple_n_fast_idft", );
         let mut samples = Vec::<f32>::new();
-        for i in 0..frame_len { samples.push (0.0); }
+        //for i in 0..frame_len { samples.push (0.0); }
         for t in 0..frame_len {
+            samples.push (0.0);
             for s in 0..cdft.phase.len() {
                 samples[t] += phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
             }
         }
-        println!("end func simple_n_fast_idft", );
+        //println!("end func simple_n_fast_idft", );
         samples
     }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
@@ -230,3 +234,20 @@ pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
+/*
+X0,...,N−1 ← ditfft2(x, N, s):             DFT of (x0, xs, x2s, ..., x(N-1)s):
+    if N = 1 then
+        X0 ← x0                                     trivial size-1 DFT base case
+    else
+        X0,...,N/2−1 ← ditfft2(x, N/2, 2s)             DFT of (x0, x2s, x4s, ..., x(N-2)s)
+        XN/2,...,N−1 ← ditfft2(x+s, N/2, 2s)           DFT of (xs, xs+2s, xs+4s, ..., x(N-1)s)
+        k ← 0
+        while k < N/2 do                            combine DFTs of two halves into full DFT:
+            p ← Xk
+            q ← exp(−2πi/N k) Xk+N/2
+            Xk ← p + q 
+            Xk+N/2 ← p − q
+            k ← k+s
+        end for
+    end if
+*/

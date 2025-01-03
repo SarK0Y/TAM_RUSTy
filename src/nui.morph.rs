@@ -266,6 +266,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut cdft = Vec::<crate::enums::custom_dft>::new();
     let mut from = 0usize;
     let mut samples_len = samples.len();
+    dbg! (samples_len);
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
     let mut frame_len = 0usize;
     for range in check_freq {
@@ -279,7 +280,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 frame_len: Some (frame_len)
             };
         while from < samples_len {
-            
+           // dbg!(&from);
             let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre.clone() );
            // dbg!(&cdft_item);
             cdft.push (cdft_item);
