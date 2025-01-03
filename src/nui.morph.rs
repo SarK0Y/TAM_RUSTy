@@ -269,8 +269,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
     let mut frame_len = 0usize;
     for range in check_freq {
-        while from < samples_len {
-            let overlap = range.overlap.unwrap_or(0.0);
+        let overlap = range.overlap.unwrap_or(0.0);
             frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
             let spectre = freq_range{
                 from: range.from,
@@ -279,7 +278,9 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 overlap: Some (overlap),
                 frame_len: Some (frame_len)
             };
-            let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre);
+        while from < samples_len {
+            
+            let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre.clone() );
            // dbg!(&cdft_item);
             cdft.push (cdft_item);
             from += frame_len;

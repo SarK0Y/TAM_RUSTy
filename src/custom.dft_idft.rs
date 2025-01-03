@@ -49,7 +49,7 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
     from: usize,
     to: usize,
     spectre: freq_range ) -> crate::enums::custom_dft{
-        println!("run func simple_n_fast_dft", );
+    //    println!("run func simple_n_fast_dft", );
     let mut cdft = crate::enums::custom_dft {
         amplitude: Vec::<f32>::new(),
         freq: Vec::<f32>::new(),
@@ -58,9 +58,11 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     let norm_to = to - from;
     let j: Complex<f32> = Complex::new (0.0, 1.0);
+  //  dbg!(&spectre);
     for freq0 in 0..1_000_000_000 {
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
+        //dbg! (&freq);
         for t in 0..norm_to {
             let coef = 1.0 / alt_e2jx(freq, t);      
             z_sample += samples[from + t] * coef;
@@ -72,7 +74,7 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
         if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
         cdft.freq.push(freq);
     }
-    println!("end func simple_n_fast_dft", );
+ //   println!("end func simple_n_fast_dft", );
 cdft
 }
 pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
