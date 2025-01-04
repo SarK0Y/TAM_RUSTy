@@ -1,5 +1,6 @@
 use num::complex::Complex;
 use num::Float;
+use num::Zero;
 use num_traits::ops::overflowing::OverflowingAdd;
 use std::f32::consts::PI;
 use std::f32::consts::E;
@@ -110,13 +111,14 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
 pub fn dft_recursion (samples: &mut [f32], 
     from: usize,
     to: usize,
-    spectre: &freq_range ) -> crate::enums::custom_dft{
+    spectre: &freq_range ) -> (Complex<f32>, crate::enums::custom_dft){
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
     phase: Vec::<f32>::new(),
     };
-    if samples.len() == 1 {return cdft}
+    let mut ret:(Complex<f32>, crate::enums::custom_dft) = (Complex::zero(), cdft.clone() ); 
+    if samples.len() == 1 {return ret}
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     let mut samples_odd: Vec <f32> = Vec::new();
     let mut samples_even: Vec <f32> = Vec::new();
@@ -152,7 +154,9 @@ pub fn dft_recursion (samples: &mut [f32],
     }
 
  //   println!("end func simple_n_fast_dft", );
-cdft
+ret.0 = Complex::zero();
+ret.1 = cdft;
+ret
 }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
     -> Option <Vec<f32> > {
