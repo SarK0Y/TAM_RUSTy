@@ -95,6 +95,65 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         //println!("end func simple_n_fast_idft", );
         samples
     }
+pub fn hybrid_dft_recursion (samples: &mut [f32], 
+    from: usize,
+    to: usize,
+    spectre: &freq_range ) -> crate::enums::custom_dft{
+    let mut cdft = crate::enums::custom_dft {
+    amplitude: Vec::<f32>::new(),
+    freq: Vec::<f32>::new(),
+    phase: Vec::<f32>::new(),
+    };
+    let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
+    cdft
+}
+pub fn dft_recursion (samples: &mut [f32], 
+    from: usize,
+    to: usize,
+    spectre: &freq_range ) -> crate::enums::custom_dft{
+    let mut cdft = crate::enums::custom_dft {
+    amplitude: Vec::<f32>::new(),
+    freq: Vec::<f32>::new(),
+    phase: Vec::<f32>::new(),
+    };
+    if samples.len() == 1 {return cdft}
+    let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
+    let mut samples_odd: Vec <f32> = Vec::new();
+    let mut samples_even: Vec <f32> = Vec::new();
+    for i in 0..samples.len () / 2 {
+        let indx = 2 * i;
+        samples_odd [indx + 1] = samples [indx + 1];
+        samples_even [indx] = samples [indx];
+    }
+    let len = samples_odd.len();
+    dft_recursion( &mut samples_odd, 0, len, spectre);
+    let len = samples_even.len();
+    dft_recursion(&mut samples_even, 0, len, spectre);
+    let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
+    let norm_to = to - from - unit;
+    let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
+  //  dbg!(&spectre);
+    for freq0 in 0..1_000_000_000 {
+        let freq = (spectre.from + spectre.step * freq0 as f32);
+        if freq > spectre.to {break;}
+        //dbg! (&freq);
+        for t in 0..norm_to / 2 {
+            let indx = 2 * t;    
+            let coef = 1.0 / alt_e2jx(freq, t);        
+            z_sample += samples[from + indx] * coef;
+            z_sample_odd += samples[from + indx + 1] * coef;
+         
+        }      
+        let coef = 1.0 / alt_e2jx(freq, 1);
+        z_sample += z_sample_odd * coef;
+        cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
+        if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
+        cdft.freq.push(freq);
+    }
+
+ //   println!("end func simple_n_fast_dft", );
+cdft
+}
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
     -> Option <Vec<f32> > {
     static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
