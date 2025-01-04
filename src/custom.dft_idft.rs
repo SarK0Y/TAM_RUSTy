@@ -235,19 +235,34 @@ pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
 /*
-X0,...,N−1 ← ditfft2(x, N, s):             DFT of (x0, xs, x2s, ..., x(N-1)s):
-    if N = 1 then
-        X0 ← x0                                     trivial size-1 DFT base case
-    else
-        X0,...,N/2−1 ← ditfft2(x, N/2, 2s)             DFT of (x0, x2s, x4s, ..., x(N-2)s)
-        XN/2,...,N−1 ← ditfft2(x+s, N/2, 2s)           DFT of (xs, xs+2s, xs+4s, ..., x(N-1)s)
-        k ← 0
-        while k < N/2 do                            combine DFTs of two halves into full DFT:
-            p ← Xk
-            q ← exp(−2πi/N k) Xk+N/2
-            Xk ← p + q 
-            Xk+N/2 ← p − q
-            k ← k+s
-        end for
-    end if
+https://www.w3computing.com/articles/how-to-implement-a-fast-fourier-transform-fft-in-cpp/
+using namespace std;
+using Complex = complex<double>;
+using CArray = vector<Complex>;
+
+const double PI = acos(-1);
+
+void fft(CArray &x) {
+    const size_t N = x.size();
+    if (N <= 1) return;
+
+    // Divide
+    CArray even(N / 2);
+    CArray odd(N / 2);
+    for (size_t i = 0; i < N / 2; ++i) {
+        even[i] = x[i * 2];
+        odd[i] = x[i * 2 + 1];
+    }
+
+    // Conquer
+    fft(even);
+    fft(odd);
+
+    // Combine
+    for (size_t k = 0; k < N / 2; ++k) {
+        Complex t = polar(1.0, -2 * PI * k / N) * odd[k];
+        x[k] = even[k] + t;
+        x[k + N / 2] = even[k] - t;
+    }
+}
 */
