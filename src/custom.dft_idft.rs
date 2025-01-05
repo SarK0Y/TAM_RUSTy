@@ -108,10 +108,10 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     cdft
 }
-pub fn dft_recursion (samples: &mut [f32], 
-    from: usize,
+/*pub fn dft_recursion (samples: &mut [f32], 
+    from: *mut f32,
     to: usize,
-    spectre: &freq_range, orig_len: usize ) -> (Complex<f32>, crate::enums::custom_dft){
+    spectre: &freq_range, __step: usize ) -> (Complex<f32>, crate::enums::custom_dft){
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
@@ -120,13 +120,13 @@ pub fn dft_recursion (samples: &mut [f32],
     let mut ret:(Complex<f32>, crate::enums::custom_dft) = (Complex::zero(), cdft.clone() ); 
     if samples.len() == 1 {return ret}
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
-    let mut samples_odd: Vec <f32> = Vec::new();
-    let mut samples_even: Vec <f32> = Vec::new();
     for i in 0..samples.len () / 2 {
         let indx = 2 * i;
         samples_odd [indx + 1] = samples [indx + 1];
         samples_even [indx] = samples [indx];
     }
+    let tst: *mut f32 = from.add(1);
+    let tst1 = from.sub( 1);
     let len = samples_odd.len();
     let z_odd: Complex<f32> = dft_recursion( &mut samples_odd, 0, len, spectre, orig_len).0;
     let len = samples_even.len();
@@ -137,6 +137,7 @@ pub fn dft_recursion (samples: &mut [f32],
     for freq0 in 0..1_000_000_000 {
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
+        let coef1 = 1.0 / alt_e2jx(freq, 1);
         //dbg! (&freq);
         for t in 0..norm_to / 2 {
             let indx = 2 * t;    
@@ -145,7 +146,6 @@ pub fn dft_recursion (samples: &mut [f32],
                 z_sample += samples[from + indx] * coef;
                 z_sample_odd += samples[from + indx + 1] * coef;
             } else {
-                let coef1 = 1.0 / alt_e2jx(freq, 1);
                 z_sample = z_even + z_odd * coef1 }
          
         }      
@@ -160,7 +160,7 @@ pub fn dft_recursion (samples: &mut [f32],
 ret.0 = z_sample;
 ret.1 = cdft;
 ret
-}
+} */ //faulty -- needs a lot of fixes
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
     -> Option <Vec<f32> > {
     static mut precalc: Lazy< Vec<f32> > = Lazy::new(|| {Vec::new()});
