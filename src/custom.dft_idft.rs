@@ -111,7 +111,7 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
 pub fn dft_recursion (samples: &mut [f32], 
     from: usize,
     to: usize,
-    spectre: &freq_range ) -> (Complex<f32>, crate::enums::custom_dft){
+    spectre: &freq_range, orig_len: usize ) -> (Complex<f32>, crate::enums::custom_dft){
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
@@ -128,13 +128,12 @@ pub fn dft_recursion (samples: &mut [f32],
         samples_even [indx] = samples [indx];
     }
     let len = samples_odd.len();
-    dft_recursion( &mut samples_odd, 0, len, spectre);
+    let z_odd: Complex<f32> = dft_recursion( &mut samples_odd, 0, len, spectre, orig_len).0;
     let len = samples_even.len();
-    dft_recursion(&mut samples_even, 0, len, spectre);
+    let z_even = dft_recursion(&mut samples_even, 0, len, spectre, orig_len).0;
     let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
     let norm_to = to - from - unit;
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
-  //  dbg!(&spectre);
     for freq0 in 0..1_000_000_000 {
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
@@ -142,8 +141,12 @@ pub fn dft_recursion (samples: &mut [f32],
         for t in 0..norm_to / 2 {
             let indx = 2 * t;    
             let coef = 1.0 / alt_e2jx(freq, t);        
-            z_sample += samples[from + indx] * coef;
-            z_sample_odd += samples[from + indx + 1] * coef;
+            if norm_to < 2 {
+                z_sample += samples[from + indx] * coef;
+                z_sample_odd += samples[from + indx + 1] * coef;
+            } else {
+                let coef1 = 1.0 / alt_e2jx(freq, 1);
+                z_sample = z_even + z_odd * coef1 }
          
         }      
         let coef = 1.0 / alt_e2jx(freq, 1);
@@ -154,7 +157,7 @@ pub fn dft_recursion (samples: &mut [f32],
     }
 
  //   println!("end func simple_n_fast_dft", );
-ret.0 = Complex::zero();
+ret.0 = z_sample;
 ret.1 = cdft;
 ret
 }
