@@ -167,8 +167,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
                 z_sample = z_even + z_odd * coef1 }
          
         }      
-        let coef = 1.0 / alt_e2jx(freq, 1);
-        z_sample += z_sample_odd * coef;
+        z_sample += z_sample_odd * coef1;
         cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
         if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
         cdft.freq.push(freq);
