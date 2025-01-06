@@ -123,7 +123,9 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
     if subset.len () == 0{
-        for t in 0..samples.len() /2 {
+        let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
+        let norm_to = to - from - unit; // possible error
+        for t in 0..norm_to /2 {
             let indx = 2 * t;
             let even: *mut f32 = &mut samples [indx ];
             let odd: *mut f32 = &mut samples [indx + 1];
@@ -144,11 +146,11 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let z_odd: Complex<f32> = dft_recursion( samples, samples_odd, 0, len, spectre).0;
     let len = samples_even.len();
     let z_even = dft_recursion( samples, samples_even, 0, len, spectre ).0;
-    let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
-    let norm_to = to - from - unit;
     let zero_point: *mut f32 = &mut samples [0];
     let sample_rate = mem_sample_rate( 0 ) as usize;
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
+    let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
+    let norm_to = to - from - unit;
     for freq0 in 0..1_000_000_000 {
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
