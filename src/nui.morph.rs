@@ -282,10 +282,12 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 overlap: Some (overlap),
                 frame_len: Some (frame_len)
             };
-        while from < samples_len {
+        loop {
            // dbg!(&from);
+           let to = frame_len + from;
+           if to >= samples_len {break;}
            unsafe {
-            let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, from + frame_len, &spectre );
+            let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, to, &spectre );
            cdft.push (cdft_item);
            }
            // dbg!(&cdft_item);

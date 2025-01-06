@@ -2,6 +2,7 @@ use num::complex::Complex;
 use num::Float;
 use num::Zero;
 use num_traits::ops::overflowing::OverflowingAdd;
+use num_traits::ops::overflowing::OverflowingSub;
 use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
@@ -9,6 +10,7 @@ use num::complex::ComplexFloat;
 use crate::custom_dft;
 use crate::enums::freq_range;
 use crate::errMsg0;
+use crate::ret0;
 pub fn custom_dft (samples: &mut [f32], 
     from: usize,
     to: usize,
@@ -139,8 +141,13 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut samples_odd = Vec::<*mut f32>::new();
     if subset.len () == 0{
         let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
-        let norm_to = to - from - unit; // possible error
-        for t in 0..norm_to /2 {
+        let from = from + unit;
+        let norm_to = to.overflowing_sub( from ); // possible error
+        if to == 0 {return ret}
+        /*if norm_to.1 == true {
+            dbg!(&from); dbg!(&to);
+        }*/
+        for t in 0..norm_to.0 /2 {
             let indx = 2 * t;
             let even: *mut f32 = &mut samples [indx ];
             let odd: *mut f32 = &mut samples [indx + 1];
@@ -156,16 +163,17 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
             samples_odd.push (odd);
         }
     }
-    
+    let z_const = Complex::new(0.83, 0.14);
     let len = samples_odd.len();
-    let z_odd: Complex<f32> = dft_recursion( samples, samples_odd, 0, len, spectre).0;
+    let z_odd: Complex<f32> = if len > 1 {dft_recursion( samples, samples_odd, 0, len, spectre).0} else { z_const };
     let len = samples_even.len();
-    let z_even = dft_recursion( samples, samples_even, 0, len, spectre ).0;
+    let z_even = if len > 1 {dft_recursion( samples, samples_even, 0, len, spectre ).0} else {z_const };
     let zero_point: *mut f32 = &mut samples [0];
     let sample_rate = mem_sample_rate( 0 ) as usize;
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
     let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
     let norm_to = to - from - unit;
+    if subset.len() <=1 {return ret;}
     for freq0 in 0..1_000_000_000 {
         let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
