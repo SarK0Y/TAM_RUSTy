@@ -266,6 +266,9 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut cdft = Vec::<crate::enums::custom_dft>::new();
     let mut from = 0usize;
     let mut samples_len = samples.len();
+     let mut over_samples: *mut [f32] = samples;
+    crate::faav::over_samples( Some (over_samples) );
+    let samples_ = crate::faav::over_samples( None ).unwrap();
     dbg! (samples_len);
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
     let mut frame_len = 0usize;
@@ -281,9 +284,11 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
             };
         while from < samples_len {
            // dbg!(&from);
-            let cdft_item: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(samples, from, from + frame_len, spectre.clone() );
+           unsafe {
+            let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, from + frame_len, &spectre );
+           cdft.push (cdft_item);
+           }
            // dbg!(&cdft_item);
-            cdft.push (cdft_item);
             from += frame_len;
         }
     }

@@ -97,10 +97,10 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         //println!("end func simple_n_fast_idft", );
         samples
     }
-pub fn hybrid_dft_recursion (samples: &'static mut [f32], 
+pub fn hybrid_dft_recursion (samples: &mut [f32], 
     from: usize,
     to: usize,
-    spectre: &'static freq_range ) -> crate::enums::custom_dft{
+    spectre: &freq_range ) -> crate::enums::custom_dft{
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
@@ -108,10 +108,14 @@ pub fn hybrid_dft_recursion (samples: &'static mut [f32],
     };
     let mut over_cdft: *mut custom_dft = & mut cdft;
     crate::faav::over_cdft( Some (over_cdft ));
+    let mut over_samples: *mut [f32] = samples;
+    crate::faav::over_samples( Some (over_samples) );
+    let spectre_ = spectre.clone();
     let mut dft = crate::thread::spawn ( move || {
         unsafe {
             let over_cdft_ = crate::faav::over_cdft( None).unwrap();
-            *over_cdft_ = dft_recursion(samples, Vec::<*mut f32>::new() , from, to, &spectre.clone() ).1;
+            let over_samples: *mut [f32] = crate::faav::over_samples( None).unwrap();
+            *over_cdft_ = dft_recursion(&mut *over_samples, Vec::<*mut f32>::new() , from, to, &spectre_ ).1;
         }
       }
     );

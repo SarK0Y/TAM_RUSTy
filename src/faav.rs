@@ -112,4 +112,10 @@ pub fn over_cdft (pointer: Option <*mut crate::enums::custom_dft>) -> Option <*m
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
+pub fn over_samples (pointer: Option <*mut [f32]>) -> Option <*mut [f32]> {
+    static mut state: Lazy < Option <*mut [f32] > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
 //fn
