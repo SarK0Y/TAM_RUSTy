@@ -106,4 +106,10 @@ pub fn set_morph_state (data: &Option < ( wavers::Samples <f32>, i32) > )  {
 pub fn unset_morph_state () {
     morph_status(&None, true);
 }
+pub fn over_cdft (pointer: Option <*mut crate::enums::custom_dft>) -> Option <*mut crate::enums::custom_dft> {
+    static mut state: Lazy < Option <*mut crate::enums::custom_dft > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
 //fn

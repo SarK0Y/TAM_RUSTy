@@ -6,6 +6,7 @@ use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
 use num::complex::ComplexFloat;
+use crate::custom_dft;
 use crate::enums::freq_range;
 use crate::errMsg0;
 pub fn custom_dft (samples: &mut [f32], 
@@ -96,15 +97,25 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         //println!("end func simple_n_fast_idft", );
         samples
     }
-pub fn hybrid_dft_recursion (samples: &mut [f32], 
+pub fn hybrid_dft_recursion (samples: &'static mut [f32], 
     from: usize,
     to: usize,
-    spectre: &freq_range ) -> crate::enums::custom_dft{
+    spectre: &'static freq_range ) -> crate::enums::custom_dft{
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
     phase: Vec::<f32>::new(),
     };
+    let mut over_cdft: *mut custom_dft = & mut cdft;
+    crate::faav::over_cdft( Some (over_cdft ));
+    let mut dft = crate::thread::spawn ( move || {
+        unsafe {
+            let over_cdft_ = crate::faav::over_cdft( None).unwrap();
+            *over_cdft_ = dft_recursion(samples, Vec::<*mut f32>::new() , from, to, &spectre.clone() ).1;
+        }
+      }
+    );
+    dft.join();
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     cdft
 }
