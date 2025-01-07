@@ -117,7 +117,7 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
         unsafe {
             let over_cdft_ = crate::faav::over_cdft( None).unwrap();
             let over_samples: *mut [f32] = crate::faav::over_samples( None).unwrap();
-            *over_cdft_ = dft_recursion(&mut *over_samples, Vec::<*mut f32>::new() , from, to, &spectre_ ).1;
+            *over_cdft_ = dft_recursion(&mut *over_samples, Vec::<*mut f32>::new() , from, to, &spectre_ , 0).1;
         }
       }
     );
@@ -128,7 +128,7 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
 pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>, 
     from: usize,
     to: usize,
-    spectre: &freq_range ) -> (Complex<f32>, crate::enums::custom_dft){
+    spectre: &freq_range, depth: usize ) -> (Complex<f32>, crate::enums::custom_dft){
     let mut cdft = crate::enums::custom_dft {
     amplitude: Vec::<f32>::new(),
     freq: Vec::<f32>::new(),
@@ -140,6 +140,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
     if subset.len () == 0{
+        dbg!(&depth);
         let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
         let from = from + unit;
         let norm_to = to.overflowing_sub( from ); // possible error
@@ -165,20 +166,21 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     }
     let z_const = Complex::new(0.83, 0.14);
     let len = samples_odd.len();
-    let z_odd: Complex<f32> = if len > 1 {dft_recursion( samples, samples_odd, 0, len, spectre).0} else { z_const };
+    let depth_ = depth + 1;
+    let z_odd: Complex<f32> = if len > 1 {dft_recursion( samples, samples_odd, 0, len, spectre, depth_).0} else { z_const };
     let len = samples_even.len();
-    let z_even = if len > 1 {dft_recursion( samples, samples_even, 0, len, spectre ).0} else {z_const };
+    let z_even = if len > 1 {dft_recursion( samples, samples_even, 0, len, spectre, depth_ ).0} else {z_const };
     let zero_point: *mut f32 = &mut samples [0];
     let sample_rate = mem_sample_rate( 0 ) as usize;
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
     let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
     let norm_to = to - from - unit;
     if subset.len() <=1 {return ret;}
+    let mut freq: f32 = spectre.from;
     for freq0 in 0..1_000_000_000 {
-        let freq = (spectre.from + spectre.step * freq0 as f32);
         if freq > spectre.to {break;}
         let coef1 = 1.0 / alt_e2jx(freq, 1);
-        //dbg! (&freq);
+      //  dbg! (&freq);
         for t in 0..norm_to / 2 {
             let indx = 2 * t;
             let time_odd = unsafe {subset [indx + 1].offset_from (zero_point ) as usize % sample_rate};    
@@ -196,11 +198,13 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
         cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
         if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
         cdft.freq.push(freq);
+        freq += spectre.step;
     }
 
  //   println!("end func simple_n_fast_dft", );
 ret.0 = z_sample;
 ret.1 = cdft;
+dbg! (&depth);
 ret
 }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
