@@ -118,6 +118,7 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
             let over_cdft_ = crate::faav::over_cdft( None).unwrap();
             let over_samples: *mut [f32] = crate::faav::over_samples( None).unwrap();
             *over_cdft_ = dft_recursion(&mut *over_samples, Vec::<*mut f32>::new() , from, to, &spectre_ , 0).1;
+           println!("{:?}", *(over_cdft_.clone() ) );
         }
       }
     );
@@ -136,6 +137,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     };
     let mut ret:(Complex<f32>, crate::enums::custom_dft) = (Complex::zero(), cdft.clone() ); 
     if samples.len() == 1 {return ret}
+    //dbg! (samples.len() );
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
@@ -164,10 +166,12 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
             samples_odd.push (odd);
         }
     }
+   // dbg! (subset.len());
     let z_const = Complex::new(0.83, 0.14);
     let len = samples_odd.len();
     let depth_ = depth + 1;
-    let z_odd: Complex<f32> = if len > 1 {dft_recursion( samples, samples_odd, 0, len, spectre, depth_).0} else { z_const };
+    let ret_odd = if len > 1 {dft_recursion( samples, samples_odd, 0, len, spectre, depth_)} else { ret.clone()};
+    let z_odd: Complex<f32> = ret_odd.0;
     let len = samples_even.len();
     let z_even = if len > 1 {dft_recursion( samples, samples_even, 0, len, spectre, depth_ ).0} else {z_const };
     let zero_point: *mut f32 = &mut samples [0];
@@ -175,7 +179,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
     let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
     let norm_to = to - from - unit;
-    if subset.len() <=1 {return ret;}
+    if subset.len() == 1 {return ret;}
     let mut freq: f32 = spectre.from;
     for freq0 in 0..1_000_000_000 {
         if freq > spectre.to {break;}
@@ -203,8 +207,8 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
 
  //   println!("end func simple_n_fast_dft", );
 ret.0 = z_sample;
-ret.1 = cdft;
-//dbg! (&depth);
+ret.1 = cdft.clone();
+if depth == 0 {dbg! (&cdft); }
 ret
 }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 
