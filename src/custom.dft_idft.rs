@@ -118,12 +118,12 @@ pub fn hybrid_dft_recursion (samples: &mut [f32],
             let over_cdft_ = crate::faav::over_cdft( None).unwrap();
             let over_samples: *mut [f32] = crate::faav::over_samples( None).unwrap();
             *over_cdft_ = dft_recursion(&mut *over_samples, Vec::<*mut f32>::new() , from, to, &spectre_ , 0).1;
-           println!("{:?}", *(over_cdft_.clone() ) );
         }
       }
     );
     dft.join();
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
+   // println!("{:?}", cdft.clone() );
     cdft
 }
 pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>, 
@@ -207,8 +207,8 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
 
  //   println!("end func simple_n_fast_dft", );
 ret.0 = z_sample;
-ret.1 = cdft.clone();
-if depth == 0 {dbg! (&cdft); }
+ret.1 = cdft; //.clone();
+//if depth == 0 {dbg! (&cdft); }
 ret
 }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 

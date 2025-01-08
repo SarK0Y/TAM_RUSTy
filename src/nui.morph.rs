@@ -274,6 +274,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut frame_len = 0usize;
     let mut samples1_: Vec <f32> = samples.into_iter().map (|x| *x ).collect();
     for range in check_freq {
+        let gap_ratio: f32 = range.gap_ratio.unwrap_or (0.015625);  
         let overlap = range.overlap.unwrap_or(0.0);
             frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
             let spectre = freq_range{
@@ -281,7 +282,8 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 to: range.to,
                 step: range.step,
                 overlap: Some (overlap),
-                frame_len: Some (frame_len)
+                frame_len: Some (frame_len),
+                gap_ratio: Some (gap_ratio),
             };
         loop {
            //dbg!(&from);
