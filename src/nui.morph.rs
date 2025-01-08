@@ -289,10 +289,12 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
            if to >= samples_len {break;}
            unsafe {
             let from: usize = 255_267;
-            let to = from + 256;
+            let to = from;
             let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, to, &spectre );
             let cdft_item1: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(&mut *samples1_, from, to, spectre.clone() );
             if cdft_item != cdft_item1 {errMsg0("results are different");}
+            dbg!(&cdft_item); dbg!(&cdft_item1);
+            return;
            cdft.push (cdft_item);
            }
            // dbg!(&cdft_item);
