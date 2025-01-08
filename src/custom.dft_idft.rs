@@ -140,7 +140,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
     if subset.len () == 0{
-        dbg!(&depth);
+  //      dbg!(&depth);
         let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
         let from = from + unit;
         let norm_to = to.overflowing_sub( from ); // possible error
@@ -204,7 +204,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
  //   println!("end func simple_n_fast_dft", );
 ret.0 = z_sample;
 ret.1 = cdft;
-dbg! (&depth);
+//dbg! (&depth);
 ret
 }
 pub fn init_speedy_sine (init_freq: Option <f32>, sample_rate: u32, out_freq: f32) 

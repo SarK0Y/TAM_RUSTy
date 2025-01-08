@@ -272,6 +272,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     dbg! (samples_len);
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
     let mut frame_len = 0usize;
+    let mut samples1_: Vec <f32> = samples.into_iter().map (|x| *x ).collect();
     for range in check_freq {
         let overlap = range.overlap.unwrap_or(0.0);
             frame_len = range.frame_len.unwrap_or ((uv.sample_rate as f32 * 0.028) as usize );
@@ -283,11 +284,15 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
                 frame_len: Some (frame_len)
             };
         loop {
-           dbg!(&from);
+           //dbg!(&from);
            let to = frame_len + from;
            if to >= samples_len {break;}
            unsafe {
+            let from: usize = 255_267;
+            let to = from + 256;
             let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, to, &spectre );
+            let cdft_item1: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(&mut *samples1_, from, to, spectre.clone() );
+            if cdft_item != cdft_item1 {errMsg0("results are different");}
            cdft.push (cdft_item);
            }
            // dbg!(&cdft_item);
