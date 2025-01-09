@@ -272,7 +272,9 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     dbg! (samples_len);
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
     let mut frame_len = 0usize;
-    let mut samples1_: Vec <f32> = samples.into_iter().map (|x| *x ).collect();
+    //let mut samples1_: Vec <f32> = samples.into_iter().map (|x| *x ).collect();
+    let display_stat_if = 1_200usize;
+    let mut count_frames = 0usize;
     for range in check_freq {
         let gap_ratio: f32 = range.gap_ratio.unwrap_or (0.015625);  
         let overlap = range.overlap.unwrap_or(0.0);
@@ -290,16 +292,18 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
            let to = frame_len + from;
            if to >= samples_len {break;}
            unsafe {
-            let from: usize = 255_267;
-            let to = from + 32;
-            let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples_, from, to, &spectre );
-            let cdft_item1: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(&mut *samples1_, from, to, spectre.clone() );
+            let sub_frame = crate::cdsp::calc_sub_range(from, to, gap_ratio);
+            let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples, sub_frame.0, sub_frame.1, &spectre );
+           /* let cdft_item1: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(&mut *samples1_, from, to, spectre.clone() );
             if cdft_item != cdft_item1 {errMsg0("results are different");}
             dbg!(&cdft_item); dbg!(&cdft_item1);
-            return;
+            return;*/
            cdft.push (cdft_item);
            }
            // dbg!(&cdft_item);
+           if count_frames == display_stat_if {
+                print!("\r{}", from); count_frames = 0;
+           } else {count_frames.inc(); }
             from += frame_len;
         }
     }
@@ -309,6 +313,9 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
         for sample in samples_ {
             samples [from] -= sample; from.inc();
             if from >= samples_len { return }
+            if count_frames == display_stat_if {
+                print!("\r{}", from); count_frames = 0;
+           } else {count_frames.inc(); }
         }
     }
 }
