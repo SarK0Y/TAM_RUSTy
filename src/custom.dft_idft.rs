@@ -347,6 +347,13 @@ pub fn table_cos ( out_freq: f32, time: usize) -> f32 {
 pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
     Complex::new( table_cos(out_freq, time), mock_sine(out_freq, time) )
 }
+pub fn calc_sub_range (from: usize, to: usize, gap_ratio: f32) -> (usize, usize) {
+    let width = ((to - from) as f32 * gap_ratio).round() as usize;
+    let centre: usize = (to - from) / 2;
+    let from_ = centre - width / 2;
+    let to_ = centre + width / 2;
+    (from_, to_ )
+}
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
