@@ -70,7 +70,7 @@ pub(crate) fn Enter() -> String {
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH {
         mode = crate::swtch::SWTCH_RUN_VIEWER
     }
-    crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
+    crate::C!(crate::swtch::swtch_fn(mode, "".to_string(), -59974151));
     history_buffer(Some(prnt), 0, false);
     if crate::lst::edit_mode_lst(None) {
         stop_term_msg();
@@ -517,7 +517,7 @@ pub(crate) fn F3_key() -> String {
         prnt = prnt.replace("/", "");
         prnt = format! ("{}{}", prnt, prnt0.substring(prnt.chars().count().inc(), prnt0.chars().count() ) );
         set_prnt(&prnt, -2317712);
-        crate::C!(crate::swtch::swtch_fn(0, "".to_string()));
+        crate::C!(crate::swtch::swtch_fn(0, "".to_string(), -8452197));
         crate::from_ls_2_front(ls_mode);
         "".to_string()
     };

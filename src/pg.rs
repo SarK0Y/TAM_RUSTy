@@ -712,7 +712,7 @@ pub(crate) fn exec_cmd(cmd: String) {
             change_dir(cmd, true);
             return;
         }
-        crate::C!(swtch_fn(-1, cmd));
+        crate::C!(swtch_fn(-1, cmd, -60141));
         return;
     }
     if cmd.as_str().substring(0, 2) == "fp" {
@@ -753,7 +753,7 @@ pub(crate) fn exec_cmd(cmd: String) {
             merge(cmd);
             return;
         }
-        crate::C!(swtch_fn(-1, cmd));
+        crate::C!(swtch_fn(-1, cmd, -198451));
         return;
     }
     if cmd == "cl mrg" || cmd == "clear merge" {
@@ -926,7 +926,7 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::decrypt_copy(&cmd);
         return;
     }
-    crate::C!(swtch_fn(-1, cmd));
+    crate::C!(swtch_fn(-1, cmd, -291581));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String {
     let len_cmd = cmd.chars().count();

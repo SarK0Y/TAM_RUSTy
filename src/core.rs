@@ -1825,7 +1825,7 @@ pub(crate) fn from_ls_2_front(ls_mode: String) {
     //let ls_mode = take_list_adr("ls.mode");
     rm_file(&ls_mode);
     set_front_list(front.as_str());
-    C!(crate::swtch::swtch_fn(0, "".to_string()));
+    C!(crate::swtch::swtch_fn(0, "".to_string(), -7456241041));
 }
 pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool {
     let len = strn.chars().count();
