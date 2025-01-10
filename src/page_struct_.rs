@@ -169,6 +169,7 @@ bkp0.to_string()
   }
 pub(crate) fn get_prnt(func_id: i64) -> String{return unsafe{page_struct("", PRNT_, func_id).str_}}
 pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
+  #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "set_prnt");
   file_prnt(val.to_string());
   return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
 pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
@@ -468,7 +469,10 @@ pub(crate) fn where_is_last_pg() -> i64{
 }
 pub fn correct_prnt () {
   let func_id = -937851;
-  let prnt_len = crate::get_prnt(func_id).len();
+  let prnt = crate::get_prnt(func_id);
+  let prnt_trimmed = prnt.trim_end().strn();
+  let prnt_len = prnt_trimmed.len();
+  if prnt_trimmed.len() == prnt.len() { crate::faav::one_time_sav_prnt( Some (prnt) ); return;}
   if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { 
     if prnt_len > x.len () + 1 { set_prnt( x.as_str(), func_id); }
    }
