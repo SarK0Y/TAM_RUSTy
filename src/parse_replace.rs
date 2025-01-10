@@ -39,7 +39,7 @@ impl parse_replace for crate::basic{
         let msg = format!("Short link {tag0} is wrong");
         prnt = prnt.replace(&tag0, "");
         crate::ps18::set_cur_cur_pos(prnt.len().i640(), 17510086);
-        crate::set_prnt(&prnt, -48721112507);
+        crate::set_prnt(&prnt, -487211120807);
        // crate::update18::fix_screen_count(1);
         return None;
     }
@@ -48,7 +48,7 @@ impl parse_replace for crate::basic{
     let tag = self.mk_shol_from_strn(&tag, tag_at);
     prnt = prnt.replace(&tag0, &tag);
     crate::ps18::set_cur_cur_pos(prnt.len().i640(), 17510086);
-    crate::set_prnt(&prnt, -48721112507);
+    crate::set_prnt(&prnt, -487211120807);
     Some(tag)
 }
 fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{

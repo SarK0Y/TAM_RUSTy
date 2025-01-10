@@ -284,20 +284,20 @@ pub(crate) fn hotKeys(
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-        let mut pos = unsafe { shift_cursor_of_prnt(0, None, func_id) };
-        let pos0= unsafe { shift_cursor_of_prnt(-2, None, func_id) };
+        let mut pos = unsafe { shift_cursor_of_prnt(0, None, 9011) };
+        let pos0= unsafe { shift_cursor_of_prnt(-2, None, -3167) };
         let len = read_prnt().chars().count();
         if pos0.shift == len { return "dontPass".strn(); }
-        {unsafe { shift_cursor_of_prnt(-1, None, func_id).shift }; }
+        {unsafe { shift_cursor_of_prnt(-1, None, -894).shift }; }
         //if pos.shift == 1 { unsafe { shift_cursor_of_prnt(-1, Some( len ), func_id).shift }; }
         cursor_direction(Some(true));
-        set_cur_cur_pos(usize_2_i64(pos.shift.dec() ), func_id);
+        set_cur_cur_pos(usize_2_i64(pos.shift.dec() ), -61);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
-        unsafe { shift_cursor_of_prnt(1, None, func_id).shift };
-        let pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
-        set_cur_cur_pos(usize_2_i64(pos), func_id);
+        unsafe { shift_cursor_of_prnt(1, None, -1).shift };
+        let pos = unsafe { shift_cursor_of_prnt(0, None, -6).shift };
+        set_cur_cur_pos(usize_2_i64(pos), -779017);
         cursor_direction(Some(false));
         return "dontPass".to_string();
     }
@@ -343,8 +343,8 @@ pub(crate) fn hotKeys(
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
        let home_pos = read_prnt().chars().count();
-        unsafe { shift_cursor_of_prnt(0, Some( 0 ), func_id).shift };
-        set_cur_cur_pos(0, func_id);
+        unsafe { shift_cursor_of_prnt(0, Some( 0 ), -13).shift };
+        set_cur_cur_pos(0, -19715);
         return "dontPass".strn();
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
@@ -377,17 +377,17 @@ pub(crate) fn hotKeys(
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0 {
-        key_f12(func_id);
+        key_f12(-641);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::DELETE, Key.as_str()) == 0 {
-        let shift = unsafe { shift_cursor_of_prnt(1, None, func_id).shift };
-        let mut indx = get_prnt(func_id).chars().count();
+        let shift = unsafe { shift_cursor_of_prnt(1, None, -114).shift };
+        let mut indx = get_prnt(-4).chars().count();
         if shift <= indx {
             indx -= shift;
         }
-        let prnt = rm_char_from_string(indx, &get_prnt(func_id));
-        set_prnt(prnt.as_str(), func_id);
+        let prnt = rm_char_from_string(indx, &get_prnt(6478));
+        set_prnt(prnt.as_str(), -417);
         return "dontPass".to_string();
     }
     let ansiKey: u8 = match Key.as_str().bytes().next() {
@@ -400,7 +400,7 @@ pub(crate) fn hotKeys(
                 return "dontPass".to_string();
             }
         }
-        return crate::get_prnt(func_id);
+        return crate::get_prnt(-8871);
     }
     if crate::dirty!() {
         println!("ansi {}, Key {:?}", ansiKey, Key);
@@ -480,7 +480,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String) {
     io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default() {
-    let func_id = crate::func_id18::form_cmd_line_default_;
+    let func_id = crate::func_id18::form_cmd_newline_default_;
     let prompt = crate::get_prompt(func_id);
     let mut ret = unsafe { crate::shift_cursor_of_prnt(3, None, func_id) };
     let shift = ret.str__;
