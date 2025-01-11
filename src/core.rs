@@ -876,7 +876,7 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool) {
         set_prnt(&prnt, -47);
         let prnt = read_prnt();
         set_ask_user(&prnt, -47);
-        rewrite_user_written_path(&full_path);
+        rewrite_user_written_path(&full_path, -729451);
         //unsafe{crate::swtch::path_completed(true, false);}
         let proper_dir = crate::full_escape(&full_path.to_string());
         update_dir_list(&proper_dir, opts, no_grep);
@@ -897,7 +897,8 @@ pub(crate) fn update_user_written_path(e: std::io::Error) -> File {
         .open(user_written_path)
         .expect(&err_msg)
 }
-pub(crate) fn rewrite_user_written_path(new_path: &String) {
+pub(crate) fn rewrite_user_written_path(new_path: &String, func_id: i64) {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "rewrite_user_written_path");
     let user_written_path = user_wrote_path();
     let err_msg = format!(
         "update_user_written_path() can't create {}",

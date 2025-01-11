@@ -381,7 +381,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     //let fn_ptr_get_string: fn(&str) -> String = get_string;
     let no_val: i32 = 'no_val: {
    if id_of_caller == __INS{
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), 178541);
     }
     if val != "prnt" {break 'no_val 101;}
     if id_of_caller == __BKSP{
@@ -391,10 +391,10 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
       //loop {
         let mut new_prnt = crate::globs18::bksp();
         let new_path = get_path_from_strn(crate::cpy_str(&new_prnt));
-        rewrite_user_written_path(&new_path);
+        rewrite_user_written_path(&new_path, -61754);
         crate::set_prnt(&new_prnt, func_id);
       set_cur_cur_pos(len as i64, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), -9782);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     if id_of_caller == __DEL{
@@ -406,7 +406,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
           set_prnt(&new_string, func_id);
       let left_shift_4_cur = get_left_shift_4_cur(func_id) - 1;
       set_left_shift_4_cur(left_shift_4_cur, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), -579631451);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     11    

@@ -542,7 +542,7 @@ pub(crate) fn F3_key() -> String {
     /*let user_wrote_path = user_wrote_path();
     rm_file(&user_wrote_path);*/
     set_proper_num_pg(0);
-    crate::swtch::set_user_written_path_from_strn(path.to_string());
+    crate::swtch::set_user_written_path_from_strn(path.to_string(), 7890014);
     prnt
 }
 pub fn tab_key() {

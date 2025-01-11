@@ -573,7 +573,8 @@ pub(crate) fn user_wrote_path_prnt() -> String {
     .unwrap()
     .to_string();
 }
-pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool {
+pub(crate) fn set_user_written_path_from_strn(strn: String, func_id: i64) -> bool {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "set_user_written_path_from_strn");
     let save_path = user_wrote_path();
     let save_path1 = user_wrote_path();
     let save_path2 = user_wrote_path();
