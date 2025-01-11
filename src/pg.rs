@@ -423,7 +423,7 @@ pub(crate) fn hotKeys(
     // enter();
     let path = get_path_from_prnt();
     if path != "" {
-        crate::core18::complete_path(&path, "-maxdepth 1", false)
+        crate::core18::complete_path(&path, "-maxdepth 1", false, -37581) // err: needs to be blocked by shol
     }
     // if path.len() == 0{return "dontPass".to_string();}
     if ext_is_alive {

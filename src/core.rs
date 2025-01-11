@@ -846,7 +846,9 @@ pub(crate) fn no_other_getkey() -> String {
 pub(crate) fn cpy_str(in_str: &String) -> String {
     in_str.to_string()
 }
-pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool) {
+pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool, func_id: i64) {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "complete_path");
+    if crate::swtch_ls(false, false) == false {return;}
     let dir = dir.trim_end().trim_start();
     let proper_dir = crate::full_escape(&dir.to_string());
     update_dir_list(&proper_dir, opts, no_grep);

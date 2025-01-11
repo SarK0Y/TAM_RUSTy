@@ -644,14 +644,14 @@ pub(crate) fn user_writing_path(key: String, func_id: i64) -> bool {
     let written_path_from_prnt = get_path_from_prnt();
     if written_path_from_prnt.chars().count() > written_path.chars().count() {
         written_path = written_path_from_prnt;
-        complete_path(&written_path, "-maxdepth 1", false);
+        complete_path(&written_path, "-maxdepth 1", false, -3871459);
         form_cmd_line_default();
         return true;
     }
     if key == "/" && written_path == written_path_from_prnt {
         written_path = format!("{written_path}/")
     }
-    complete_path(&written_path, "-maxdepth 1", false);
+    complete_path(&written_path, "-maxdepth 1", false, -9074581);
     form_cmd_line_default();
     true
 }
