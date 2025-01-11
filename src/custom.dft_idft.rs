@@ -320,12 +320,11 @@ pub fn phi_sine ( out_freq: f32, time: usize, phi: f32) -> f32 {
         if let Some (approx) = init_speedy_sine_1hz(sample_rate ) {sine_approx = approx;}
         else {errMsg0( "Dear User, no init freq has been set."); return 0.0;}
     };
-    let mut coef_to_scale = out_freq;
-    if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
-    let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
-    let phi_to_sample_num = (phi * out_freq / (2.0 * PI ) ).round() as usize * sample_rate as usize;
-    let mut sample_id = time * coef_to_scale as usize + phi_to_sample_num;
-    csin ((sample_id as usize) % sample_rate as usize)
+    let mut coef_to_scale = out_freq.round () as usize;
+    //let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
+    let phi_to_sample_num = ( (phi * out_freq / (2.0 * PI ) ) * sample_rate as f32 ).round () as usize;
+    let mut sample_id = time * coef_to_scale + phi_to_sample_num;
+    crate::C!( sine_approx [(sample_id as usize) % sample_rate as usize ] )
 }
 pub fn table_cos ( out_freq: f32, time: usize) -> f32 {
     static mut cos_approx: Vec <f32> = Vec::new();
