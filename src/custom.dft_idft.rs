@@ -199,7 +199,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
          
         }      
         z_sample += z_sample_odd * coef1;
-        cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() );
+        cdft.amplitude.push ((z_sample.re.powi(2) + z_sample.im.powi (2) ).sqrt() / norm_to as f32 );
         if z_sample.re ==0.0 {cdft.phase.push (0.0) } else { cdft.phase.push ((z_sample.im / z_sample.re).atan() );}
         cdft.freq.push(freq);
         freq += spectre.step;

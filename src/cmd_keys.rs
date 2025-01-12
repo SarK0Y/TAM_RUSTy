@@ -45,6 +45,7 @@ pub(crate) fn switch_cmd_keys(cmd: &String){
     }
 }
 pub(crate) fn dont_scrn_fix(roll: bool) -> (bool, bool){
+    return (false, false);
     static mut state: bool = false;
     static mut fst_run: bool = false;
     static mut local_set: bool = false;
