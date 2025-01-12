@@ -88,7 +88,7 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
     frame_len: usize, // im samples 
     ) -> Vec <f32> {
         //println!("run func simple_n_fast_idft", );
-        let mut samples = Vec::<f32>::new();
+        let mut samples = Vec::<f32>::with_capacity( frame_len );
         //for i in 0..frame_len { samples.push (0.0); }
         for t in 0..frame_len {
             samples.push (0.0);
@@ -308,9 +308,9 @@ pub fn mock_sine ( out_freq: f32, time: usize) -> f32 {
     };
     let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
-    let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
+    //let mut csin = |s: usize| -> f32 {unsafe {return sine_approx[s] } };
     let mut sample_id = time * coef_to_scale as usize;
-    csin ((sample_id as usize) % sample_rate as usize)
+    crate::C!( sine_approx [(sample_id as usize) % sample_rate as usize ] )
 }
 pub fn phi_sine ( out_freq: f32, time: usize, phi: f32) -> f32 {
     static mut sine_approx: Vec <f32> = Vec::new();
@@ -339,9 +339,9 @@ pub fn table_cos ( out_freq: f32, time: usize) -> f32 {
     };
     let mut coef_to_scale = out_freq;
     if 1.0 - (coef_to_scale - coef_to_scale.floor() ) > 0.5 {coef_to_scale = coef_to_scale.ceil(); } else {coef_to_scale = coef_to_scale.floor(); }
-    let mut ccos = |s: usize| -> f32 {unsafe {return cos_approx[s] } };
+//    let mut ccos = |s: usize| -> f32 {unsafe {return cos_approx[s] } };
     let mut sample_id = time * coef_to_scale as usize;
-    ccos ((sample_id as usize) % sample_rate as usize)
+    crate::C!( cos_approx [(sample_id as usize) % sample_rate as usize ] )
 } 
 pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
     Complex::new( table_cos(out_freq, time), mock_sine(out_freq, time) )

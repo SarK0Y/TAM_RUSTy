@@ -9,7 +9,7 @@ use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
 use crate::cdsp::simple_n_fast_idft;
-use crate::{check_substr_, custom_input, freq_range};
+use crate::{check_substr_, custom_input, freq_range, wipe_cmd_line};
 use crate::custom_traits::STRN;
 use crate::faav::{read_saved_geom, unset_geom};
 use crate::{errMsg0, getkey, helpful_math_ops};
@@ -302,21 +302,25 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
            }
            // dbg!(&cdft_item);
            if count_frames == display_stat_if {
-                print!("\r{}", from); count_frames = 0;
+                crate::pg18::wipe_line(200);
+                print!("\rfrom {} mark {}", from, to); count_frames = 0;
            } else {count_frames.inc(); }
             from += frame_len;
         }
     }
     from = 0;
+    let num_of_frames = cdft.len();
     for frame in cdft {
         let samples_: Vec <f32> = simple_n_fast_idft(frame, frame_len);
         for sample in samples_ {
-            samples [from] -= sample; from.inc();
-            if from >= samples_len { return }
-            if count_frames == display_stat_if {
-                print!("\r{}", from); count_frames = 0;
-           } else {count_frames.inc(); }
+            samples [from] -= sample;
+            from.inc();
         }
+        if from >= samples_len { return }
+            if count_frames == display_stat_if {
+                crate::pg18::wipe_line(200);
+                print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
+           } else {count_frames.inc(); }
     }
 }
 pub fn mk_morph_alg18_acute_freq (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {

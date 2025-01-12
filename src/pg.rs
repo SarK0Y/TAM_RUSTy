@@ -470,6 +470,10 @@ pub(crate) fn wipe_cmd_line(len_2_wipe: usize) {
     let many_spaces = repeat_char(len_2_wipe, " ");
     println!("\r{}", many_spaces);
 }
+pub(crate) fn wipe_line(len_2_wipe: usize) {
+    let many_spaces = repeat_char(len_2_wipe, " ");
+    print!("\r\r{}", many_spaces);
+}
 pub(crate) fn form_cmd_line(prompt: String, prnt: String) {
     //let whole_line_len = prompt.len() + prnt.len() + 2;
     let print_whole_line = format!("\r{}{}", prompt, prnt);
