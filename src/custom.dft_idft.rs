@@ -96,10 +96,14 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
                 let sample = phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
                 let sample_phi = mock_sine(cdft.freq[s], t ) * cdft.amplitude[s];
                 samples[t] += sample; 
-                let z_sample = samples [t].powc (-2.0 * Complex::<f32>::i() * PI * cdft.freq[s] * t as f32);
-                let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt();
-                dbg! (sample / amplitude );
-                dbg! (sample_phi / amplitude );
+                let z_sample = samples [t] * E.powc (-2.0 * Complex::<f32>::i() * PI * cdft.freq[s] * t as f32);
+                let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt() ;
+                dbg! (cdft.amplitude[s] );
+                dbg! (cdft.freq[s] );
+                dbg! (t);
+                dbg! (z_sample );
+                dbg! (sample );
+                dbg! (amplitude );
             }
         }
         //println!("end func simple_n_fast_idft", );
@@ -195,7 +199,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
             if norm_to < 2 {
                 let indx = 2 * t;
                 let time_odd = unsafe {subset [indx + 1].offset_from (zero_point ) as usize % sample_rate};    
-                let coef_odd = 1.0 / alt_e2jx(freq, time_odd);        
+                let coef_odd = E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time_odd as f32);//1.0 / alt_e2jx(freq, time_odd);        
                 let time_even = unsafe {subset [indx ].offset_from (zero_point ) as usize % sample_rate};    
                 let coef_even = 1.0 / alt_e2jx(freq, time_even);        
                 z_sample += unsafe { *subset[indx] * coef_even };
