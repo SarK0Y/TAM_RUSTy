@@ -71,7 +71,7 @@ pub fn simple_n_fast_dft (samples: &mut [f32],
         if freq > spectre.to {break;}
         //dbg! (&freq);
         for t in 0..norm_to {
-            let coef = 1.0 / alt_e2jx(freq, t);      
+            let coef =  E.powc (-2.0 * Complex::<f32>::i() * PI * freq * t as f32);//1.0 / alt_e2jx(freq, t);      
             z_sample += samples[from + t] * coef;
          /*   dbg! (&coef);
             dbg!(&samples[from + t]);
@@ -94,10 +94,12 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
             samples.push (0.0);
             for s in 0..cdft.phase.len() {
                 let sample = phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
+                let sample_phi = mock_sine(cdft.freq[s], t ) * cdft.amplitude[s];
                 samples[t] += sample; 
                 let z_sample = samples [t].powc (-2.0 * Complex::<f32>::i() * PI * cdft.freq[s] * t as f32);
                 let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt();
                 dbg! (sample / amplitude );
+                dbg! (sample_phi / amplitude );
             }
         }
         //println!("end func simple_n_fast_idft", );
