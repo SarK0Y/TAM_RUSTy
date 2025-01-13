@@ -93,7 +93,11 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         for t in 0..frame_len {
             samples.push (0.0);
             for s in 0..cdft.phase.len() {
-                samples[t] += phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
+                let sample = phi_sine(cdft.freq[s], t, cdft.phase[s]) * cdft.amplitude[s];
+                samples[t] += sample; 
+                let z_sample = samples [t].powc (-2.0 * Complex::<f32>::i() * PI * cdft.freq[s] * t as f32);
+                let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt();
+                dbg! (sample / amplitude );
             }
         }
         //println!("end func simple_n_fast_idft", );

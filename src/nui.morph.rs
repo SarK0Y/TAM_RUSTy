@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 use std::i16;
 use hound; 
+use num::complex::Complex32;
 use once_cell::sync::Lazy;
 use wavers::Samples;
 use wavers::{Wav, read as wav_read, ConvertTo, write as wav_write_};
