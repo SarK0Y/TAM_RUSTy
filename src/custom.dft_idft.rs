@@ -187,16 +187,17 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let zero_point: *mut f32 = &mut samples [0];
     let sample_rate = mem_sample_rate( 0 ) as usize;
     let mut z_sample_odd: Complex<f32> = Complex::new (0.0, 0.0);
-    let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
-    let norm_to = to - from - unit;
-    if subset.len() == 1 {return ret;}
+    //let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
+    let norm_to = to - from; //- unit;
+   // dbg! (&norm_to);
+    if subset.len() <= 1 {return ret;}
     let mut freq: f32 = spectre.from;
     for freq0 in 0..1_000_000_000 {
         if freq > spectre.to {break;}
         let coef1 = 1.0 / alt_e2jx(freq, 1);
       //  dbg! (&freq);
         for t in 0..norm_to / 2 {
-            if norm_to <= 2 {
+            if norm_to == 2 {
                 let indx = 2 * t;
                 let time_odd = unsafe {subset [indx + 1].offset_from (zero_point ) as usize % sample_rate};    
                 let coef_odd = E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time_odd as f32);//1.0 / alt_e2jx(freq, time_odd);        
@@ -361,6 +362,7 @@ pub fn calc_sub_range (from: usize, to: usize, gap_ratio: f32) -> (usize, usize)
     let centre: usize = (to - from) / 2;
     let from_ = centre - width / 2;
     let to_ = centre + width / 2;
+    if to_ - from_ == 0 {return (from, to );}
     (from_, to_ )
 }
 //fn
