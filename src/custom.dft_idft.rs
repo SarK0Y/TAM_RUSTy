@@ -196,7 +196,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
         let coef1 = 1.0 / alt_e2jx(freq, 1);
       //  dbg! (&freq);
         for t in 0..norm_to / 2 {
-            if norm_to < 2 {
+            if norm_to <= 2 {
                 let indx = 2 * t;
                 let time_odd = unsafe {subset [indx + 1].offset_from (zero_point ) as usize % sample_rate};    
                 let coef_odd = E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time_odd as f32);//1.0 / alt_e2jx(freq, time_odd);        
