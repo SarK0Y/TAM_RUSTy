@@ -300,6 +300,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
             if cdft_item != cdft_item1 {errMsg0("results are different");}
             dbg!(&cdft_item); dbg!(&cdft_item1);
             return;*/
+            dbg!(&cdft_item);
            cdft.push (cdft_item);
            }
            // dbg!(&cdft_item);
@@ -314,6 +315,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     dbg! (&frame_len);
     let num_of_frames = cdft.len();
     for frame in cdft {
+        dbg! (&frame);
         let samples_: Vec <f32> = simple_n_fast_idft(frame, frame_len);
         for sample in samples_ {
             samples [from] -= sample;
