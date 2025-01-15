@@ -105,7 +105,6 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
                 dbg! (z_sample );
                 dbg! (sample );
                 dbg! (amplitude );
-                panic!("kk", );
             }
         }
         //println!("end func simple_n_fast_idft", );
@@ -153,7 +152,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
-    dbg! (&subset);
+  //  dbg! (&subset);
     if subset.len () == 0{
   //      dbg!(&depth);
         let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
@@ -163,14 +162,14 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
         /*if norm_to.1 == true {
             dbg!(&from); dbg!(&to);
         }*/
-        dbg! (&norm_to);
+      //  dbg! (&norm_to);
         for t in 0..norm_to.0 /2 {
             let indx = from + 2 * t;
             let even: *mut f32 = &mut samples [indx ];
             let odd: *mut f32 = &mut samples [indx + 1];
             samples_even.push (even);
             samples_odd.push (odd);
-            unsafe { dbg! (*samples_odd [ t ] ); };
+          //  unsafe { dbg! (*samples_odd [ t ] ); dbg! (indx ) };
 
         }
     } else {
@@ -205,7 +204,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
         for t in 0..norm_to / 2 {
             if norm_to == 2 {
                 let indx = 2 * t;
-               unsafe { dbg! (*subset [indx + 1] ); dbg! (subset [indx ] ) };
+               //unsafe { dbg! (*subset [indx + 1] ); dbg! (subset [indx ] ) };
                 let time_odd = unsafe {subset [indx + 1].offset_from (zero_point ) as usize % sample_rate};    
                 let coef_odd = E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time_odd as f32);//1.0 / alt_e2jx(freq, time_odd);        
                 let time_even = unsafe {subset [indx ].offset_from (zero_point ) as usize % sample_rate};    
