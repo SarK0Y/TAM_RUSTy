@@ -153,21 +153,25 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
     let mut z_sample: Complex<f32> = Complex::new (0.0, 0.0);
     let mut samples_even: Vec <*mut f32> = Vec::new();
     let mut samples_odd = Vec::<*mut f32>::new();
+    dbg! (&subset);
     if subset.len () == 0{
   //      dbg!(&depth);
         let unit: usize = 1_usize.overflowing_shr( (samples.len() ^ to) as u32).0;
         let from = from + unit;
         let norm_to = to.overflowing_sub( from ); // possible error
-        if to == 0 {return ret}
+        //if to == 0 {return ret}
         /*if norm_to.1 == true {
             dbg!(&from); dbg!(&to);
         }*/
+        dbg! (&norm_to);
         for t in 0..norm_to.0 /2 {
             let indx = 2 * t;
             let even: *mut f32 = &mut samples [indx ];
             let odd: *mut f32 = &mut samples [indx + 1];
             samples_even.push (even);
             samples_odd.push (odd);
+            unsafe { dbg! (*samples_odd [ t ] ); };
+
         }
     } else {
         for t in 0..subset.len() /2 {
