@@ -264,6 +264,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut check_freq = uv.bandwidth.as_ref();
     if check_freq.is_none() {errMsg0("Dear User, You need to set bandwidth option in Vox Universum's config. Thanks"); return;}
     let check_freq = check_freq.unwrap();
+    let mut frame_len = 0usize;
     let mut cdft = Vec::<crate::enums::custom_dft>::new();
     let mut from = 0usize;
     let mut samples_len = samples.len();
@@ -272,7 +273,6 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let samples_ = crate::faav::over_samples( None ).unwrap();
     dbg! (samples_len);
     crate::cdsp::init_speedy_sine_1hz( uv.sample_rate as u32 ); crate::cdsp::init_speedy_cos_1hz( uv.sample_rate as u32); 
-    let mut frame_len = 0usize;
     //let mut samples1_: Vec <f32> = samples.into_iter().map (|x| *x ).collect();
     let display_stat_if = 1_200usize;
     let mut count_frames = 0usize;
@@ -294,6 +294,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
            if to >= samples_len {break;}
            unsafe {
             let sub_frame = crate::cdsp::calc_sub_range(from, to, gap_ratio);
+           // dbg! (&sub_frame);
             let cdft_item: crate::enums::custom_dft = crate::cdsp::hybrid_dft_recursion(&mut *samples, sub_frame.0, sub_frame.1, &spectre );
            /* let cdft_item1: crate::enums::custom_dft = crate::cdsp::simple_n_fast_dft(&mut *samples1_, from, to, spectre.clone() );
             if cdft_item != cdft_item1 {errMsg0("results are different");}
@@ -310,6 +311,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
         }
     }
     from = 0;
+    dbg! (&frame_len);
     let num_of_frames = cdft.len();
     for frame in cdft {
         let samples_: Vec <f32> = simple_n_fast_idft(frame, frame_len);

@@ -90,6 +90,7 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
         //println!("run func simple_n_fast_idft", );
         let mut samples = Vec::<f32>::with_capacity( frame_len );
         //for i in 0..frame_len { samples.push (0.0); }
+     //   dbg! (&cdft);
         for t in 0..frame_len {
             samples.push (0.0);
             for s in 0..cdft.phase.len() {
@@ -104,6 +105,7 @@ pub fn simple_n_fast_idft (cdft: crate::enums::custom_dft,
                 dbg! (z_sample );
                 dbg! (sample );
                 dbg! (amplitude );
+                panic!("kk", );
             }
         }
         //println!("end func simple_n_fast_idft", );
@@ -360,8 +362,8 @@ pub fn alt_e2jx ( out_freq: f32, time: usize) -> Complex<f32> {
 pub fn calc_sub_range (from: usize, to: usize, gap_ratio: f32) -> (usize, usize) {
     let width = ((to - from) as f32 * gap_ratio).round() as usize;
     let centre: usize = (to - from) / 2;
-    let from_ = centre - width / 2;
-    let to_ = centre + width / 2;
+    let from_ = from + centre - width / 2;
+    let to_ = from + centre + width / 2;
     if to_ - from_ == 0 {return (from, to );}
     (from_, to_ )
 }
