@@ -165,7 +165,7 @@ pub fn dft_recursion (samples: &mut [f32], subset: Vec <*mut f32>,
         }*/
         dbg! (&norm_to);
         for t in 0..norm_to.0 /2 {
-            let indx = 2 * t;
+            let indx = from + 2 * t;
             let even: *mut f32 = &mut samples [indx ];
             let odd: *mut f32 = &mut samples [indx + 1];
             samples_even.push (even);
