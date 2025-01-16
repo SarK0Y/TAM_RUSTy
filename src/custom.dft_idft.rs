@@ -17,6 +17,12 @@ pub fn get_freq_component_of_sample (sample: f32, time: usize, freq: f32) -> f32
     let phase = (z_sample.re / amplitude).acos();
     phi_sine(freq, time, phase ) * amplitude
 }
+pub fn exclude_freq_component_from_sample (sample: f32, time: usize, freq: f32) -> f32 {
+    let z_sample = sample * E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time as f32);
+    let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt() ;
+    let phase = (z_sample.re / amplitude).acos();
+    sample - phi_sine(freq, time, phase ) * amplitude
+}
 pub fn custom_dft (samples: &mut [f32], 
     from: usize,
     to: usize,
