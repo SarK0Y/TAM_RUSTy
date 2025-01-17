@@ -61,6 +61,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         17 => {mk_morph_alg17_shaped_frame( &mut samples, &uv_morph ); },
         18 => {mk_morph_alg18_acute_freq( &mut samples, &uv_morph ); },
         19 => {mk_morph_alg19_exclude_freqs( &mut samples, &uv_morph ); },
+        20 => {mk_morph_alg20_exclude_freqs( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -259,6 +260,28 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
     ch0 [i ] = ch0 [i] * alpha * uv.fading_step + (1.0 - alpha ) * ch0 [i - 1] * uv.fading_step;
   }
   write_chan_f32(samples, 1, 2, 0, &ch0 );
+}
+pub fn mk_morph_alg20_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let mut check_freq = uv.bandwidth.as_ref();
+    if check_freq.is_none() {errMsg0("Dear User, You need to set bandwidth option in Vox Universum's config. Thanks"); return;}
+    let check_freq = check_freq.unwrap();
+    let mut frame_len = 0usize;
+    let mut cdft = Vec::<crate::enums::custom_dft>::new();
+    let mut from = 0usize;
+    let mut samples_len = samples.len();
+    let display_stat_if = 1_200usize;
+    let mut count_frames = 0usize;
+    let num_of_frames = cdft.len();
+    for frame in cdft {
+        for from in 0..samples.len() {
+            samples [from] = crate::cdsp::exclude_freqs_component_from_sample(samples [from], from, &frame.freq);
+        }
+        if from >= samples_len { return }
+            if count_frames == display_stat_if {
+                crate::pg18::wipe_line(200);
+                print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
+           } else {count_frames.inc(); }
+    }
 }
 pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut check_freq = uv.bandwidth.as_ref();
