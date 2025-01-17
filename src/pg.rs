@@ -1011,4 +1011,39 @@ pub(crate) fn go2pg(cmd: &String) {
     return;
 }
 //fn
+/* 
+struct Handler {
+    next: Option<Box<dyn Fn() -> ()>>,
+}
+
+struct HandlerChain {
+    current: Option<Handler>,
+}
+
+impl Iterator for HandlerChain {
+    type Item = Box<dyn Fn() -> ()>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(handler) = self.current.take() {
+            self.current = handler.next;
+            Some(Box::new(handler.next.unwrap()))
+        } else {
+            None
+        }
+    }
+}
+let mut chain = HandlerChain {
+    current: Some(Handler {
+        next: Some(Box::new(|| println!("Handler 1"))),
+    }),
+};
+
+// Add more handlers to the chain
+chain.current.as_mut().unwrap().next = Some(Box::new(|| println!("Handler 2")));
+
+// Iterate through the handlers
+for handler in chain {
+    handler();
+}
+*/
 
