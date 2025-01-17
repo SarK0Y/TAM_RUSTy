@@ -32,6 +32,17 @@ pub fn exclude_freqs_component_from_sample (sample: f32, time: usize, freqs: &Ve
     ret -= phi_sine(*freq, time, phase ) * amplitude;
     }  ret
 }
+pub fn replace_freqs_component_from_sample (sample: f32, time: usize, freqs: &Vec <f32>, new_freqs: &Vec<f32>) -> f32 {
+    if new_freqs.len() != freqs.len() {errMsg0("Dear User, lists of old & new freqs should have the same length. Thanks"); return f32::nan() }
+    let mut ret = sample;
+    for j in 0..freqs.len() {
+        let z_sample = sample * E.powc (-2.0 * Complex::<f32>::i() * PI * freqs[j] * time as f32);
+        let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt() ;
+        let phase = (z_sample.re / amplitude).acos();
+    ret -= phi_sine(freqs[j], time, phase ) * amplitude;
+    ret += phi_sine(new_freqs[j], time, phase ) * amplitude;
+    }  ret
+}
 pub fn custom_dft (samples: &mut [f32], 
     from: usize,
     to: usize,
