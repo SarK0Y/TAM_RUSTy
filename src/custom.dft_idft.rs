@@ -36,7 +36,7 @@ pub fn exclude_freqs_component_from_sample (sample: f32, time: usize, freqs: &Ve
 }
 pub fn replace_freqs_component_from_sample_ (
     sample: &mut f32, time: usize, 
-    freqs: &crate::enums::freq_range, new_freqs: &crate::enums::freq_range) {
+    freqs: &crate::enums::freq_range, new_freqs: &crate::enums::freq_range, coef_amplitude: f32) {
     //if new_freqs.len() != freqs.len() {errMsg0("Dear User, lists of old & new freqs should have the same length. Thanks"); return f32::nan() }
     let mut new_freq: f32 = new_freqs.from;
     let mut freq: f32 = freqs.from;
@@ -44,10 +44,14 @@ pub fn replace_freqs_component_from_sample_ (
     while freq <= freqs.to {
         let z_sample = *sample * E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time as f32);
         let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt() ;
+        if amplitude == f32::nan() || amplitude == 0.0 {
+            new_freq += new_freqs.step;
+            freq += freqs.step;
+            continue;}
         let phase = (z_sample.re / amplitude).acos();
     *sample -=  (Pi2 * freq * time as f32 + phase).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
    // *sample += phi_sine(new_freq, time, phase ) * amplitude;
-   *sample +=  (Pi2 * new_freq * time as f32 + phase).sin() * amplitude;
+   *sample +=  (Pi2 * new_freq * time as f32).sin() * amplitude * coef_amplitude;
     new_freq += new_freqs.step;
     freq += freqs.step;
     }
