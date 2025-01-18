@@ -295,6 +295,7 @@ pub fn mk_morph_alg20_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let display_stat_if = 1_200usize;
     let mut count_frames = 0usize;
     let mut freq = 0.0_f32;
+    crate::cdsp::mem_sample_rate( uv.sample_rate as u32 );
     for frame in check_freq {
         freq = frame.from;
         for from in 0..samples.len() {
