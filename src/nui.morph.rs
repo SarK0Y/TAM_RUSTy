@@ -272,9 +272,10 @@ pub fn mk_morph_alg21_replace_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let display_stat_if = 1_200usize;
     let mut count_frames = 0usize;
     let num_of_frames = cdft.len();
-    for frame in cdft {
+    if num_of_frames & 1 == 1 {errMsg0("Dear User, bandwidth option in Vox Universum's config must contain 2n items. Thanks"); return;}
+    for j in 0..num_of_frames {
         for from in 0..samples.len() {
-            samples [from] = crate::cdsp::exclude_freqs_component_from_sample(samples [from], from, &frame.freq);
+           // samples [from] = crate::cdsp::replace_freqs_component_from_sample(samples [from], from, &frame.freq);
         }
         if from >= samples_len { return }
             if count_frames == display_stat_if {
