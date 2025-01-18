@@ -269,7 +269,7 @@ pub fn mk_morph_alg21_replace_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut frame_len = 256usize;
     let mut from = 0usize;
     let mut samples_len = samples.len();
-    let display_stat_if = 1_200usize;
+    let display_stat_if = 120_000usize;
     let mut count_frames = 0usize;
     crate::cdsp::mem_sample_rate( uv.sample_rate as u32 );
     if check_freq.len() & 1 == 1 {errMsg0("Dear User, bandwidth option in Vox Universum's config must contain 2n items. Thanks"); return;}
@@ -278,9 +278,9 @@ pub fn mk_morph_alg21_replace_freqs(samples: &mut [f32], uv: &crate::enums::univ
         let old_range = &check_freq[indx];
         let new_range = &check_freq[indx + 1];
         for from in 0..samples.len() {
-            samples [from] = crate::cdsp::replace_freqs_component_from_sample_(samples [from], from, old_range, new_range);
+            crate::cdsp::replace_freqs_component_from_sample_(&mut samples [from], from, old_range, new_range);
             if from >= samples_len { return }
-                if count_frames / frame_len == display_stat_if {
+                if count_frames == display_stat_if {
                     crate::pg18::wipe_line(200);
                     print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
             } else {count_frames.inc(); }
