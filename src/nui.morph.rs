@@ -297,18 +297,23 @@ pub fn mk_morph_alg20_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut freq = 0.0_f32;
     crate::cdsp::mem_sample_rate( uv.sample_rate as u32 );
     for frame in check_freq {
-        freq = frame.from;
+        let frame_len = frame.frame_len.unwrap_or (32);
         for from in 0..samples.len() {
+            freq = frame.from;
             while freq < frame.to { 
+            //    dbg! (samples [from]);
                 samples [from] = crate::cdsp::exclude_freq_component_from_sample(samples [from], from, freq);
+                /*dbg! (samples [from]);
+                dbg! (freq);
+                dbg! (from); */
                 freq += frame.step;
             }
-        }
         if from >= samples_len { return }
-            if count_frames == display_stat_if {
+            if count_frames / frame_len == display_stat_if {
                 crate::pg18::wipe_line(200);
                 print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
            } else {count_frames.inc(); }
+        }
     }
 }
 pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
