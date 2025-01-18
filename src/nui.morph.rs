@@ -266,26 +266,25 @@ pub fn mk_morph_alg21_replace_freqs(samples: &mut [f32], uv: &crate::enums::univ
     let mut check_freq = uv.bandwidth.as_ref();
     if check_freq.is_none() {errMsg0("Dear User, You need to set bandwidth option in Vox Universum's config. Thanks"); return;}
     let check_freq = check_freq.unwrap();
-    let mut frame_len = 0usize;
-    let mut cdft = Vec::<crate::enums::custom_dft>::new();
+    let mut frame_len = 256usize;
     let mut from = 0usize;
     let mut samples_len = samples.len();
     let display_stat_if = 1_200usize;
     let mut count_frames = 0usize;
-    let num_of_frames = cdft.len();
-    if num_of_frames & 1 == 1 {errMsg0("Dear User, bandwidth option in Vox Universum's config must contain 2n items. Thanks"); return;}
+    crate::cdsp::mem_sample_rate( uv.sample_rate as u32 );
+    if check_freq.len() & 1 == 1 {errMsg0("Dear User, bandwidth option in Vox Universum's config must contain 2n items. Thanks"); return;}
     for j in 0..check_freq.len() / 2 {
         let indx = 2 * j;
         let old_range = &check_freq[indx];
         let new_range = &check_freq[indx + 1];
         for from in 0..samples.len() {
             samples [from] = crate::cdsp::replace_freqs_component_from_sample_(samples [from], from, old_range, new_range);
+            if from >= samples_len { return }
+                if count_frames / frame_len == display_stat_if {
+                    crate::pg18::wipe_line(200);
+                    print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
+            } else {count_frames.inc(); }
         }
-        if from >= samples_len { return }
-            if count_frames == display_stat_if {
-                crate::pg18::wipe_line(200);
-                print!("\rFilter {} of {}", from, samples_len); count_frames = 0;
-           } else {count_frames.inc(); }
     }
 }
 pub fn mk_morph_alg20_exclude_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
