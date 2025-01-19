@@ -49,7 +49,7 @@ pub fn replace_freqs_component_from_sample_ (
             freq += freqs.step;
             continue;}
         let phase = (z_sample.re / amplitude).acos();
-    *sample -=  (Pi2 * freq * time as f32 + phase).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
+    *sample -=  (Pi2 * freq * time as f32 ).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
    // *sample += phi_sine(new_freq, time, phase ) * amplitude;
    *sample +=  (Pi2 * new_freq * time as f32).sin() * amplitude * coef_amplitude;
     new_freq += new_freqs.step;
