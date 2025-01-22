@@ -41,6 +41,7 @@ pub fn replace_freqs_component_from_sample_ (
     let mut new_freq: f32 = new_freqs.from;
     let mut freq: f32 = freqs.from;
     let Pi2: f32 = 2.0 * PI;
+    let mut tmp = 0.0f32;
     while freq <= freqs.to {
         let z_sample = *sample * E.powc (-2.0 * Complex::<f32>::i() * PI * freq * time as f32);
         let amplitude = (z_sample.re.powi (2) + z_sample.im.powi (2) ).sqrt() ;
@@ -49,10 +50,15 @@ pub fn replace_freqs_component_from_sample_ (
             freq += freqs.step;
             continue;}
         let phase = (z_sample.re / amplitude).acos();
-    *sample -=  (Pi2 * freq * time as f32 + phase).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
+        tmp = *sample;
+        if tmp.abs() < bar_amplitude {
+            tmp -=  (Pi2 * freq * time as f32 + phase).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
    // *sample += phi_sine(new_freq, time, phase ) * amplitude;
-   *sample +=  (Pi2 * new_freq * time as f32 + phase).cos() * amplitude * scale;
-   if *sample > bar_amplitude {*sample = bar_amplitude };
+            tmp +=  (Pi2 * new_freq * time as f32 + phase).sin() * amplitude * scale;
+        }
+        if tmp.abs() < bar_amplitude {*sample = tmp;}
+        
+   //if *sample > bar_amplitude {*sample = bar_amplitude };
     new_freq += new_freqs.step;
     freq += freqs.step;
     }
