@@ -60,6 +60,7 @@ pub fn replace_freqs_component_from_sample_ (
             freq += freqs.step; return;
         }
         if tmp.abs() < bar_amplitude {*sample = tmp;}
+        else {*sample *= -1.0;}
         new_freq += new_freqs.step;
         freq += freqs.step;
    //if *sample > bar_amplitude {*sample = bar_amplitude };
@@ -470,4 +471,28 @@ void fft(CArray &x) {
         x[k + N / 2] = even[k] - t;
     }
 }
+E= 0.5 * ρ * v * ω2 * A2
+ 
+where:
+ρ = density of the medium (kg/m³),
+v = speed of sound in the medium (m/s),
+ω = angular frequency ( ω = 2πf),
+A = amplitude of the wave.
+
+I= P / A 
+where:
+I = intensity (measured in watts per square meter, W/m2),
+P = power (energy per unit time, measured in watts, W),
+A = area (measured in square meters, m2).
+Intensity is also proportional to the square of the amplitude: I∝A2
+
+For a single sound wave, the energy is also proportional to the square of its frequency: E∝f2
+where 
+f is frequency.
+
+dB=10 * log 10 (I / I0 )
+where:
+I = intensity of the sound,
+I0 = reference intensity (usually the threshold of human hearing, 10E−12 W/m2 ).
+A 10 dB increase represents a 10-fold increase in sound intensity, but humans perceive this as roughly a doubling of loudness.
 */

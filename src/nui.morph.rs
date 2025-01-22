@@ -263,6 +263,9 @@ pub fn mk_morph_alg5_simple_lpf (samples: &mut [f32], uv: &crate::enums::univers
   write_chan_f32(samples, 1, 2, 0, &ch0 );
 }
 pub fn mk_morph_alg21_replace_freqs(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+}
+pub fn mk_morph_alg21_replace_freqs_(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut check_freq = uv.bandwidth.as_ref();
     if check_freq.is_none() {errMsg0("Dear User, You need to set bandwidth option in Vox Universum's config. Thanks"); return;}
     let check_freq = check_freq.unwrap();
