@@ -55,12 +55,14 @@ pub fn replace_freqs_component_from_sample_ (
             tmp -=  (Pi2 * freq * time as f32 + phase).sin() * amplitude;//phi_sine(freq, time, phase ) * amplitude;
    // *sample += phi_sine(new_freq, time, phase ) * amplitude;
             tmp +=  (Pi2 * new_freq * time as f32 + phase).sin() * amplitude * scale;
+        } else {
+            new_freq += new_freqs.step;
+            freq += freqs.step; return;
         }
         if tmp.abs() < bar_amplitude {*sample = tmp;}
-        
+        new_freq += new_freqs.step;
+        freq += freqs.step;
    //if *sample > bar_amplitude {*sample = bar_amplitude };
-    new_freq += new_freqs.step;
-    freq += freqs.step;
     }
 }
 pub fn replace_freqs_component_from_sample (sample: f32, time: usize, freqs: &Vec <f32>, new_freqs: &Vec<f32>) -> f32 {
