@@ -118,4 +118,16 @@ pub fn over_samples (pointer: Option <*mut [f32]>) -> Option <*mut [f32]> {
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
+pub fn over_samples0 (pointer: Option <*mut [f32]>) -> Option <*mut [f32]> {
+    static mut state: Lazy < Option <*mut [f32] > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+pub fn over_uv (pointer: Option <*const crate::enums::universum_vox_morph>) -> Option <*const crate::enums::universum_vox_morph> {
+    static mut state: Lazy < Option <*const crate::enums::universum_vox_morph > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
 //fn

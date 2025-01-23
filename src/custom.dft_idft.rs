@@ -471,6 +471,7 @@ void fft(CArray &x) {
         x[k + N / 2] = even[k] - t;
     }
 }
+------------------
 E= 0.5 * ρ * v * ω2 * A2
  
 where:
@@ -495,4 +496,5 @@ where:
 I = intensity of the sound,
 I0 = reference intensity (usually the threshold of human hearing, 10E−12 W/m2 ).
 A 10 dB increase represents a 10-fold increase in sound intensity, but humans perceive this as roughly a doubling of loudness.
+
 */
