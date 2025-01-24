@@ -496,5 +496,10 @@ where:
 I = intensity of the sound,
 I0 = reference intensity (usually the threshold of human hearing, 10E−12 W/m2 ).
 A 10 dB increase represents a 10-fold increase in sound intensity, but humans perceive this as roughly a doubling of loudness.
+------------
+dK = (1/2) * μ * dx * (∂y/∂t)^2
+K = (1/2) * μ * ∫[0 to L] (∂y/∂t)^2 dx
+dU = (1/2) * T * dx * (∂y/∂x)^2
+U = (1/2) * T * ∫[0 to L] (∂y/∂x)^2 dx
 
 */
