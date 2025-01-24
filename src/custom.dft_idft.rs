@@ -501,5 +501,133 @@ dK = (1/2) * μ * dx * (∂y/∂t)^2
 K = (1/2) * μ * ∫[0 to L] (∂y/∂t)^2 dx
 dU = (1/2) * T * dx * (∂y/∂x)^2
 U = (1/2) * T * ∫[0 to L] (∂y/∂x)^2 dx
+Frequencies of standing waves on a string fixed at both ends:
+f_n = (n / (2L)) * sqrt(T / μ)
+where:
+    n = mode number (1, 2, 3, ...),
+    L = length of the string,
+    T = tension in the string,
+    μ = linear mass density.
+Speed of waves on the string:
+    v = sqrt(T / μ)
+Sure! Here are the formulas for the energy of a vibrating string, written in a simple, typable format that you can easily use in text editors or notes:
+
+---
+
+### 1. **Kinetic Energy (K)**
+For a small segment of the string:
+```
+dK = (1/2) * μ * dx * (∂y/∂t)^2
+```
+Total kinetic energy of the string:
+```
+K = (1/2) * μ * ∫[0 to L] (∂y/∂t)^2 dx
+```
+
+---
+
+### 2. **Potential Energy (U)**
+For a small segment of the string:
+```
+dU = (1/2) * T * dx * (∂y/∂x)^2
+```
+Total potential energy of the string:
+```
+U = (1/2) * T * ∫[0 to L] (∂y/∂x)^2 dx
+```
+
+---
+
+### 3. **Total Energy (E)**
+Total energy of the vibrating string:
+```
+E = K + U
+```
+Substituting the expressions for K and U:
+```
+E = (1/2) * μ * ∫[0 to L] (∂y/∂t)^2 dx + (1/2) * T * ∫[0 to L] (∂y/∂x)^2 dx
+```
+
+---
+
+### 4. **Standing Wave Frequencies**
+Frequencies of standing waves on a string fixed at both ends:
+```
+f_n = (n / (2L)) * sqrt(T / μ)
+```
+where:
+- `n` = mode number (1, 2, 3, ...),
+- `L` = length of the string,
+- `T` = tension in the string,
+- `μ` = linear mass density.
+
+---
+
+### 5. **Wave Speed on the String**
+Speed of waves on the string:
+```
+v = sqrt(T / μ)
+
+### 6. **Energy in Terms of Amplitude**
+For a sinusoidal wave with amplitude `A` and frequency `f`, the total energy per unit length is approximately:
+```
+E ≈ (1/2) * μ * (2πfA)^2
+
+### Summary of Variables
+- `μ` = linear mass density (mass per unit length, kg/m),
+- `T` = tension in the string (newtons, N),
+- `L` = length of the string (meters, m),
+- `y` = displacement of the string (meters, m),
+- `∂y/∂t` = transverse velocity of the string (m/s),
+- `∂y/∂x` = slope of the string (dimensionless),
+- `f` = frequency of vibration (Hz),
+- `A` = amplitude of vibration (meters, m).
+. Total Energy of a Vibrating String (Approximation)
+The total energy 
+𝐸
+E of a vibrating string can be approximated as:
+E ≈ 2 * π² * μ * f² * A² * L
+where:
+    μ = linear mass density of the string (mass per unit length, kg/m),
+    f = frequency of vibration (Hz),
+    A = amplitude of vibration (maximum displacement, meters),
+    L = length of the string (meters).
+
+3. Example Calculation
+Let’s say you have a guitar string with:
+
+Linear mass density, μ=0.01kg/m,
+Frequency, f=440Hz (A4 note),
+
+Amplitude, A=0.001m (1 mm),
+Length, L=0.65m.
+Plugging into the formula:
+E ≈ 2 * π² * (0.01) * (440)² * (0.001)² * (0.65)
+E ≈ 2 * 9.87 * 0.01 * 193600 * 0.000001 * 0.65
+E ≈ 0.025 Joules
+So, the string has roughly 0.025 Joules of energy.
+
+4. Energy Proportionality
+The energy of the string is proportional to:
+
+Square of the amplitude (A2): Doubling the amplitude quadruples the energy.
+
+Square of the frequency (f2): Doubling the frequency quadruples the energy.
+Length (L): Doubling the length doubles the energy.
+Linear mass density (μ): Doubling the mass density doubles the energy.
+
+5. Wave Speed
+The wave speed 
+
+v on the string is given by:
+v = sqrt(T / μ)
+where 
+𝑇
+T is the tension in the string.
+
+Summary
+For a rough approximation of the energy of a vibrating string:
+
+E ≈ 2 * π2 * μ * f2 * A2 * L
 
 */
