@@ -437,6 +437,15 @@ pub fn calc_sub_range (from: usize, to: usize, gap_ratio: f32) -> (usize, usize)
     if to_ - from_ == 0 {return (from, to );}
     (from_, to_ )
 }
+pub fn tune_wave_energy (samples: &mut [f32], energy_dt: f32) {
+    let mut base = samples [0];
+    let mut base1 = samples [ 1 ];
+    for j in 1..samples.len() {
+        base1 = samples [ j ];
+        samples [j] = base - base1 + energy_dt;
+        base = base1;
+    }
+}
 //fn
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
