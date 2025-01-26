@@ -282,7 +282,7 @@ pub fn mk_morph_alg23_wave_energy(samples: &mut [f32], uv: &crate::enums::univer
      over_samples0(Some (over_ch1) );
      let mut thr2 = std::thread::spawn (move|| {
         crate::cdsp::tune_wave_energy1 (
-           unsafe { &mut *over_samples(None).unwrap() },
+           unsafe { &mut *over_samples0(None).unwrap() },
            unsafe { (*over_uv(None).unwrap()).scale.unwrap_or(0.23) } ); });
     thr1.join();
     thr2.join();
