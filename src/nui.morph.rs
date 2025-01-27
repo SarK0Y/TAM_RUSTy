@@ -119,6 +119,25 @@ pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_v
         switch = !switch & 1;
     }
 }
+pub fn mk_morph_alg24_rev ( samples: &mut [f32], uv: &crate::enums::universum_vox_morph ){
+    let mut ch:  Vec < Vec <f32> > = Vec::new (); ch.push ( vec! () ); ch.push ( vec! () );
+    let mut count_steps = 0usize; 
+    let mut switch = 0usize;
+    let range = uv.step_factor as usize;
+    let half_range = range >> 1;
+    loop {
+        let mut samples_to_morph: Vec <_> = read_chan_f32(samples, switch, 2, count_steps, range)
+            .into_iter()
+            .rev()
+            .collect();
+        let written = write_chan_f32(samples, switch, 2, count_steps, &samples_to_morph );
+        dbg!(&written);
+        if written < half_range { return; }
+        count_steps += range;
+        dbg! (&count_steps);
+        switch = !switch & 1;
+    }
+}
 pub fn mk_morph_alg3_warp (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
   if uv.old_freq.is_none() || uv.new_freq.is_none() || uv.range.is_none() || uv.step_freq.is_none() {err_msg_morph(); return;}
   let mut step = 0.0f32;
