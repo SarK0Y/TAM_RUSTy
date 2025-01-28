@@ -308,6 +308,32 @@ pub fn mk_morph_alg23_wave_energy(samples: &mut [f32], uv: &crate::enums::univer
     write_chan_f32(samples, 0, 2, 0, &ch0 );
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
+pub fn mk_morph_alg25_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    use crate::faav::over_uv;
+    use crate::faav::over_samples;
+    use crate::faav::over_samples0;
+    let over_uv_: *const crate::enums::universum_vox_morph = uv;
+    crate::faav::over_uv( Some (over_uv_ ) );
+     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+     let mut over_ch0: *mut [f32] = &mut *ch0;
+     over_samples(Some (over_ch0) );
+    let mut thr1 = std::thread::spawn (move|| 
+        {crate::cdsp::tune_wave_energy2 (
+           unsafe { &mut *over_samples(None).unwrap() },
+           unsafe { &*over_uv(None).unwrap() } ); });
+     let mut ch1: Vec <_> = read_chan_f32(samples, 1, 2, 0, samples.len() );
+     let mut over_ch1: *mut [f32] = &mut *ch1;
+     over_samples0(Some (over_ch1) );
+     let mut thr2 = std::thread::spawn (move|| {
+        crate::cdsp::tune_wave_energy2_ (
+           unsafe { &mut *over_samples0(None).unwrap() },
+           unsafe { &*over_uv(None).unwrap() } ); });
+    thr1.join();
+    thr2.join();
+    write_chan_f32(samples, 0, 2, 0, &ch0 );
+    write_chan_f32(samples, 1, 2, 0, &ch1 );
+}
+
 pub fn mk_morph_alg22_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     use crate::faav::over_uv;
     use crate::faav::over_samples;
