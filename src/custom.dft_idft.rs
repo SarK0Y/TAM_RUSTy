@@ -475,7 +475,7 @@ pub fn tune_wave_energy1 (samples: &mut [f32], energy_dt: f32) {
     let mut base1 = samples [ 1 ];
     for j in 1..samples.len() {
         base1 = samples [ j ];
-        samples [j] = (base - base1) * base / base1 + energy_dt;
+        samples [j] = (base - base1) * base + energy_dt + base1;
         base = base1;
     }
 }
