@@ -480,6 +480,7 @@ pub fn tune_wave_energy1 (samples: &mut [f32], energy_dt: f32) {
     }
 }
 //fn
+// Зри в Корень (с) Козьма Прутков ;D
 // https://www.ece.virginia.edu/~ffh8x/moi/compression.html
 //https://alg0z.blogspot.com/2024/12/very-flaw-of-fft.html
 /*
