@@ -122,7 +122,7 @@ pub(crate) fn Ins_key() -> String {
     let cmd0 = ":+";
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::globs18::sieve_list(file_indx.trim_end().strn()); return empty; }
     let cmd0 = "calc tst pi";
-    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::extra_math::simple_Pi_vs_std_Pi(file_indx.trim_end().strn()); return empty; }
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::extra_math::tst_Pi_vs_std_Pi(file_indx.trim_end().strn()); return empty; }
     let cmd0 = "no default view";
     if file_indx.trim_end() == cmd0 { crate::swtch::mode_default_viewers(Some(false)); return empty; }
     let cmd0 = "en default view";
