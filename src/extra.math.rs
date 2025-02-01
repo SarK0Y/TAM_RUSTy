@@ -48,3 +48,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     crate::errMsg0( &msg);
     (tst_Pi, std_Pi - tst_Pi )
 }
+//fn
+/*
+((x - 1) * sqrt(-(x - 2) * x) + asin(x - 1)) / 2
+ */
