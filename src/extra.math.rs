@@ -23,7 +23,21 @@ pub fn simple_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     crate::errMsg0( &msg);
     (tst_Pi, std_Pi - tst_Pi )
 }
-pub fn tst_Pi (error: f64) -> f64 { // failed
+pub fn tst_Pi (ceil: f64) -> f64 {
+    let mut x = 1.0_f64;
+    let mut y = x - x;
+    let ret: f64 = Gauss_Legendre_Pi(ceil); 
+    dbg! (y);
+    ret
+}
+pub fn arc_val (from: f64, to: f64) -> f64 {
+    let x = from;
+    let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;    
+    let x = to;
+    let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
+    To - From
+}
+pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
     let mut y = x - x;
     while (x - y).abs() > error {
@@ -40,7 +54,7 @@ pub fn tst_Pi (error: f64) -> f64 { // failed
 pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     dbg!(&step);
     let (_, step) = crate::split_once(&step, ":");
-    let error = step.parse::<f64>().unwrap_or(0.001);
+    let error = step.parse::<f64>().unwrap_or(0.99);
     let std_Pi = std::f64::consts::PI;
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
@@ -48,7 +62,59 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     crate::errMsg0( &msg);
     (tst_Pi, std_Pi - tst_Pi )
 }
+pub fn Gauss_Legendre_Pi (error: f64) -> f64 {
+    let mut a = 1.0f64;
+    let mut b: f64 =1.0 / 2.0.sqrt();
+    let mut t: f64 = 1.0 / 4.0;
+    let mut p = 1.0 as f64;
+    let mut a_nxt = a;
+    let mut b_nxt = a;
+    let mut t_nxt = a;
+    let mut p_nxt = a;
+    for _ in 0..31 {
+        a_nxt = (a + b) / 2.0;
+        b_nxt = (a * b).sqrt();
+        t_nxt = t - p * (a - a_nxt).powi(2);
+        p_nxt = 2.0 * p;
+        a = a_nxt;
+        b = b_nxt;
+        t = t_nxt;
+        p = p_nxt;
+    }
+(a + b).powi(2) / (4.0 * t)
+}
+
 //fn
 /*
-((x - 1) * sqrt(-(x - 2) * x) + asin(x - 1)) / 2
+from decimal import Decimal, getcontext
+
+def gauss_legendre_pi(precision):
+    # Set the precision (number of decimal places)
+    getcontext().prec = precision + 2  # Add extra digits to avoid rounding errors
+
+    # Initial values
+    a = Decimal(1)
+    b = Decimal(1) / Decimal(2).sqrt()
+    t = Decimal(1) / Decimal(4)
+    p = Decimal(1)
+
+    # Iterate until convergence
+    for _ in range(precision):
+        a_next = (a + b) / 2
+        b_next = (a * b).sqrt()
+        t_next = t - p * (a - a_next) ** 2
+        p_next = 2 * p
+
+        # Update values
+        a, b, t, p = a_next, b_next, t_next, p_next
+
+    # Calculate π
+    pi_estimate = (a + b) ** 2 / (4 * t)
+    return pi_estimate
+
+# Example usage
+precision = 100  # Number of decimal places
+pi_estimate = gauss_legendre_pi(precision)
+print(f"Estimated value of π to {precision} decimal places:\n{pi_estimate}")
+
  */
