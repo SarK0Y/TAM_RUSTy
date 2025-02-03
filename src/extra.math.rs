@@ -54,15 +54,16 @@ pub fn tst_Pi_ (error: f64) -> f64 { // failed
 pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     dbg!(&step);
     let (_, step) = crate::split_once(&step, ":");
-    let error = step.parse::<f64>().unwrap_or(0.99);
+    let error = step.parse::<f64>().unwrap_or(31.0);
     let std_Pi = std::f64::consts::PI;
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
-    let msg = format! ("deviation from std Pi {}\ntst Pi {}", &(std_Pi - tst_Pi).to_string(), tst_Pi);
+    let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {} ", 
+    &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), tst_Pi.cos() );
     crate::errMsg0( &msg);
     (tst_Pi, std_Pi - tst_Pi )
 }
-pub fn Gauss_Legendre_Pi (error: f64) -> f64 {
+pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
     let mut a = 1.0f64;
     let mut b: f64 =1.0 / 2.0.sqrt();
     let mut t: f64 = 1.0 / 4.0;
@@ -71,7 +72,7 @@ pub fn Gauss_Legendre_Pi (error: f64) -> f64 {
     let mut b_nxt = a;
     let mut t_nxt = a;
     let mut p_nxt = a;
-    for _ in 0..31 {
+    for _ in 0..rounds as usize {
         a_nxt = (a + b) / 2.0;
         b_nxt = (a * b).sqrt();
         t_nxt = t - p * (a - a_nxt).powi(2);
@@ -83,7 +84,22 @@ pub fn Gauss_Legendre_Pi (error: f64) -> f64 {
     }
 (a + b).powi(2) / (4.0 * t)
 }
-
+pub fn tst_Cos (x: f64) -> f64 {
+// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) 
+    1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
+}
+pub trait Factorial {
+    fn factorial (&mut self) -> f64;
+}
+impl Factorial for u64 {
+    fn factorial (&mut self) -> f64 {
+        let mut ret = 1u64;
+        while *self > 1{
+            ret *= *self;
+            *self -= 1;
+        } ret as f64
+    }
+}
 //fn
 /*
 from decimal import Decimal, getcontext
