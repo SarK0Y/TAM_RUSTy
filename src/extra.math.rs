@@ -1,3 +1,4 @@
+use chrono::round;
 use num::Float;
 
 pub fn simple_Pi (step: f64) -> f64 {
@@ -55,11 +56,15 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     dbg!(&step);
     let (_, step) = crate::split_once(&step, ":");
     let error = step.parse::<f64>().unwrap_or(31.0);
+    println!("rounds: {error}\n");
     let std_Pi = std::f64::consts::PI;
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
-    let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {} ", 
-    &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), tst_Pi.cos() );
+    let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {}\n
+    std_Cos(800 000*tst): {}\nCos(800 000*tst): {}\ntricked_Cos(800 000*tst): {}\ntricked_Cos(811 000*tst): {}   ", 
+    &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
+    tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
+    tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
     crate::errMsg0( &msg);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -72,7 +77,7 @@ pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
     let mut b_nxt = a;
     let mut t_nxt = a;
     let mut p_nxt = a;
-    for _ in 0..rounds as usize {
+    for r in 0..rounds as usize {
         a_nxt = (a + b) / 2.0;
         b_nxt = (a * b).sqrt();
         t_nxt = t - p * (a - a_nxt).powi(2);
@@ -87,6 +92,16 @@ pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
 pub fn tst_Cos (x: f64) -> f64 {
 // cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) 
     1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
+}
+pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
+    let pi = Gauss_Legendre_Pi(rounds_to_calc_pi);
+    let rounds = x / pi;
+    let x = x % pi;
+// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) 
+    let ret = 1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() );
+    if rounds.floor() as usize % 2 == 1 {return -1.0 * ret ;}
+    ret
+
 }
 pub trait Factorial {
     fn factorial (&mut self) -> f64;
