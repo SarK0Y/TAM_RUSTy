@@ -96,7 +96,7 @@ pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
     let pi = Gauss_Legendre_Pi(rounds_to_calc_pi);
     let rotations = x / pi;
     if rotations.floor() == rotations {
-        if (rotations as usize) % 2 == 0 {return 0.0}
+        if (rotations as usize) % 2 == 0 {return 1.0}
     }
     let x = x % pi;
 // cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) - 0(9) - 1(10) 
