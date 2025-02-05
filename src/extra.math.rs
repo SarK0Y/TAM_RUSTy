@@ -88,6 +88,13 @@ pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
     }
 (a + b).powi(2) / (4.0 * t)
 }
+pub fn sigma_ln (from: f64, to: f64) -> f64 {
+    let x = from;
+    let From = x * (x.ln() - 1.0);
+    let x = to;
+    let To = x * (x.ln() - 1.0);
+    To - From
+}
 pub fn tst_Cos (x: f64) -> f64 {
 // cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) 
     1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
