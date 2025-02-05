@@ -164,5 +164,28 @@ def gauss_legendre_pi(precision):
 precision = 100  # Number of decimal places
 pi_estimate = gauss_legendre_pi(precision)
 print(f"Estimated value of π to {precision} decimal places:\n{pi_estimate}")
+----------------
+import numpy as np
+import matplotlib.pyplot as plt
 
+# Define the interval
+x = np.linspace(1, np.e, 100)
+
+# Logarithm function
+y_log = np.log(x)
+
+# Quarter-circle approximation
+h, k = 1, -1.97625  # Center of the circle
+r = 2.97625         # Radius of the circle
+y_circle = k + np.sqrt(r**2 - (x - h)**2)
+
+# Plot
+plt.plot(x, y_log, label="log(x)")
+plt.plot(x, y_circle, label="Quarter-circle approximation")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.title("Approximating log(x) as a Quarter-Circle")
+plt.grid()
+plt.show()
  */
