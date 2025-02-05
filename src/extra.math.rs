@@ -94,12 +94,15 @@ pub fn tst_Cos (x: f64) -> f64 {
 }
 pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
     let pi = Gauss_Legendre_Pi(rounds_to_calc_pi);
-    let rounds = x / pi;
+    let rotations = x / pi;
+    if rotations.floor() == rotations {
+        if (rotations as usize) % 2 == 0 {return 0.0}
+    }
     let x = x % pi;
 // cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) - 0(9) - 1(10) 
     let ret = 1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
     - (x.powi(10) / 10.factorial() ) + (x.powi(12) / 12.factorial() );
-    if rounds.floor() as usize % 2 == 1 {return -1.0 * ret ;}
+    if rotations.floor() as usize % 2 == 1 {return -1.0 * ret ;}
     ret
 
 }
