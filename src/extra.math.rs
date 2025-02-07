@@ -82,6 +82,9 @@ pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
         b_nxt = (a * b).sqrt();
         t_nxt = t - p * (a - a_nxt).powi(2);
         p = 2.0 * p;
+        if a == a_nxt {dbg! (a_nxt);}
+        if b == b_nxt {dbg! (b_nxt);}
+        if t == a_nxt {dbg! (t_nxt); break;}
         a = a_nxt;
         b = b_nxt;
         t = t_nxt;
