@@ -65,7 +65,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
-    crate::errMsg0( &msg);
+    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}", msg, simple_Pi (0.05.powf(1.0 / 11.0) ));
+    crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
 pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
