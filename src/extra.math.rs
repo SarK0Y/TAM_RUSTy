@@ -28,7 +28,6 @@ pub fn tst_Pi (ceil: f64) -> f64 {
     let mut x = 1.0_f64;
     let mut y = x - x;
     let ret: f64 = Gauss_Legendre_Pi(ceil); 
-    dbg! (y);
     ret
 }
 pub fn arc_val (from: f64, to: f64) -> f64 {
@@ -58,6 +57,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     let error = step.parse::<f64>().unwrap_or(31.0);
     println!("rounds: {error}\n");
     let std_Pi = std::f64::consts::PI;
+    let control_tst_Pi = tst_Pi (error + 1.0);
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
     let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {}\n
@@ -65,7 +65,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
-    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}", msg, simple_Pi (0.05.powf(1.0 / 11.0) ));
+    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}"
+    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -85,11 +86,12 @@ pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
         p = 2.0 * p;
         if a == a_nxt {dbg! (a_nxt); dbg!(r);}
         if b == b_nxt {dbg! (b_nxt); dbg!(r);}
-        if t == a_nxt {dbg! (t_nxt); break;}
+        if t == t_nxt {dbg! (t_nxt); dbg!(r); break;}
         a = a_nxt;
         b = b_nxt;
         t = t_nxt;
     }
+    dbg!(t); dbg!(t_nxt);
 (a + b).powi(2) / (4.0 * t)
 }
 pub fn sigma_ln (from: f64, to: f64) -> f64 {
