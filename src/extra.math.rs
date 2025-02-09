@@ -194,4 +194,21 @@ plt.legend()
 plt.title("Approximating log(x) as a Quarter-Circle")
 plt.grid()
 plt.show()
+--------------
+import math
+def arcsin_taylor(x, terms=10):
+    """Compute arcsin(x) using a Taylor series expansion."""
+    result = 0
+    for n in range(terms):
+        numerator = math.factorial(2 * n)
+        denominator = (4**n) * (math.factorial(n)**2) * (2 * n + 1)
+        result += (numerator / denominator) * (x ** (2 * n + 1))
+    return result
+
+# Example usage
+x = 0.5
+approx = arcsin_taylor(x, terms=10)
+exact = math.asin(x)
+print(f"Approximation: {approx}")
+print(f"Exact value:   {exact}")
  */
