@@ -126,6 +126,15 @@ pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
     ret
 
 }
+pub fn tst_asin (x: f64, rounds: usize) -> f64 {
+     let mut ret = 0f64;
+    for n in 0..rounds{
+        let numerator = (2 * n as u64).factorial();
+        let denominator:f64 = (4.0.powi(n as i32) ) * ( n.pow (2) * (2 * n + 1) ) as f64;
+        ret += (numerator as f64 / denominator as f64) * (x.powi (2 * n as i32 + 1) );
+    }
+    ret
+}
 pub trait Factorial {
     fn factorial (&mut self) -> f64;
 }
