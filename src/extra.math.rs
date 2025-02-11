@@ -66,7 +66,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
     let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}"
-    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 10) );
+    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11) );
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -127,12 +127,13 @@ pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
 
 }
 pub fn tst_asin (x: f64, rounds: usize) -> f64 {
-     let mut ret = 0f64;
-    for n in 0..rounds{
+     let mut ret = 1f64;
+    for n in 1..rounds{
         let numerator = (2 * n).factorial_();
-        let denominator:f64 = (4.0.powi(n as i32) ) * ( n.factorial_().powi (2) * (2. * n as f64 + 1.0) );
+        let denominator:f64 = 4.0.powi(n as i32) * n.factorial_().powi (2) * (2.0 * n as f64 + 1.0);
         ret += (numerator as f64 / denominator as f64) * (x.powi (2 * n as i32 + 1) );
     }
+    dbg!(ret);
     ret
 }
 pub trait Factorial {
@@ -192,6 +193,7 @@ impl Factorial for i32 {
 }
 
 //fn
+// https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 /*
 from decimal import Decimal, getcontext
 
