@@ -136,6 +136,19 @@ pub fn tst_asin (x: f64, rounds: usize) -> f64 {
     dbg!(ret);
     ret
 }
+pub trait fuzzy_Factorial {
+    fn fuzzy_factorial (&self) -> f64;
+}
+impl fuzzy_Factorial for f64 {
+    fn fuzzy_factorial (&self) -> f64 {
+        let mut ret = 1.0f64;
+        let mut x = *self;
+        while x > 1.0{
+            ret *= x;
+            x -= 1.0;
+        } ret
+    }
+}
 pub trait Factorial {
     fn factorial (&mut self) -> f64;
     fn factorial_ (&self) -> f64;
