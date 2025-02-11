@@ -266,4 +266,28 @@ approx = arcsin_taylor(x, terms=10)
 exact = math.asin(x)
 print(f"Approximation: {approx}")
 print(f"Exact value:   {exact}")
+---------
+import math
+
+def double_factorial(n):
+    """Compute the double factorial of n."""
+    if n <= 0:
+        return 1
+    return n * double_factorial(n - 2)
+
+def arcsin_double_factorial(x, terms=10):
+    """Compute arcsin(x) using the double factorial series."""
+    result = 0
+    for n in range(terms):
+        numerator = double_factorial(2 * n - 1)
+        denominator = double_factorial(2 * n) * (2 * n + 1)
+        result += (numerator / denominator) * (x ** (2 * n + 1))
+    return result
+
+# Example usage
+x = 0.5
+approx = arcsin_double_factorial(x, terms=10)
+exact = math.asin(x)
+print(f"Approximation: {approx}")
+print(f"Exact value:   {exact}")
  */
