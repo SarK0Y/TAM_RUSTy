@@ -65,8 +65,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
-    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}"
-    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11) );
+    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}"
+    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
+     std_Pi - 2.0 * almost_asin(1.0, 75));
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -125,6 +126,17 @@ pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
     if rotations.floor() as usize % 2 == 1 {return -1.0 * ret ;}
     ret
 
+}
+pub fn almost_asin (x: f64, rounds: usize) -> f64 {
+     let mut ret = 1f64;
+    for n in 1..rounds{
+        let n = n as f64;
+        let numerator = (2.0 * n).fuzzy_factorial();
+        let denominator:f64 = 4.0.powi(n as i32) * n.fuzzy_factorial().powi (2) * (2.0 * n as f64 + 1.0);
+        ret += (numerator as f64 / denominator as f64) * (x.powi (2 * n as i32 + 1) );
+    }
+    dbg!(ret);
+    ret
 }
 pub fn tst_asin (x: f64, rounds: usize) -> f64 {
      let mut ret = 1f64;
