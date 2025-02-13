@@ -219,6 +219,7 @@ impl Factorial for i32 {
 
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
+// n=587124671 m=768614336.
 /*
 from decimal import Decimal, getcontext
 
