@@ -1,6 +1,6 @@
 use chrono::round;
 use num::Float;
-
+use std::f64::consts::E; 
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -65,9 +65,10 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
-    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}"
+    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
+    \nstd_Pi - epi {}"
     , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
-     std_Pi - 2.0 * almost_asin(1.0, 75));
+     std_Pi - 2.0 * almost_asin(1.0, 75), std_Pi - epi() );
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -216,7 +217,12 @@ impl Factorial for i32 {
         } ret as f64
     }
 }
-
+pub fn epi () -> f64 {
+   let n=587124671.0;
+   let m=768614336.0;
+   let ret = E.powf( (m/n).sqrt() );
+   ret
+}
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 // n=587124671 m=768614336.
