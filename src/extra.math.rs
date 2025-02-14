@@ -1,9 +1,9 @@
 use chrono::round;
 use num::Float;
 use std::f64::consts::E; 
-use malachite_base::num::arithmetic::traits::{Pow, PowerOf2};
-use malachite_base::num::float::NiceFloat;
-use malachite_q::Rational;
+use malachite::num::arithmetic::traits::{Pow, PowerOf2};
+use malachite::num::float::NiceFloat;
+use malachite::Rational;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
