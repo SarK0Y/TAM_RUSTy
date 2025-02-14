@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.33"
+version = "13.11.34"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -38,6 +38,7 @@ midly = {version = "0.5.3", feature="std"}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
+malachite = {version = "4.2.2"}
 spectrum-analyzer = {version = "1.5.0"}
 num = {version = "0.4.3"}
 serde_json = {version = "1.0.32", feature="std"}
