@@ -4,6 +4,7 @@ use std::f64::consts::E;
 use malachite::num::arithmetic::traits::{Pow, PowerOf2};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
+use malachite_float::Float as BigFloat;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -233,6 +234,18 @@ pub fn __epi () -> Rational {
    let ret = Rational::from_unsigneds(1u64, 1u64);
    ret
 }
+/*fn exp_taylor(x: f64, terms: usize) -> BigFloat {
+    let mut sum = BigFloat::from(1.0); // Start with the first term of the series
+    let mut term = BigFloat::from(1.0); // This will hold each term value
+
+    for n in 1..=terms {
+        term *= BigFloat::from(x) / BigFloat::from(n); // Calculate x^n / n!
+        sum += term; // Add the current term to the sum
+    }
+
+    sum
+}*/
+
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 /*
