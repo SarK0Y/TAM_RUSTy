@@ -226,10 +226,20 @@ pub fn epi () -> f64 {
    let ret = E.powf( (m/n).sqrt() );
    ret
 }
+pub fn __epi () -> Rational {
+   let n: u64 =587124671;
+   let m: u64 =768614336;
+   let coef: Rational = Rational::const_from_unsigneds(m, n);
+   let ret = Rational::from_unsigneds(1u64, 1u64);
+   ret
+}
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
-// n=587124671 m=768614336.
 /*
+use malachite_q::Rational;
+
+let e = Rational::from_sci_string("2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427").unwrap();
+-----------
 from decimal import Decimal, getcontext
 
 def gauss_legendre_pi(precision):
