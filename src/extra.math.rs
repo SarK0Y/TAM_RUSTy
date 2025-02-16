@@ -234,18 +234,34 @@ pub fn __epi () -> Rational {
    let ret = Rational::from_unsigneds(1u64, 1u64);
    ret
 }
-/*fn exp_taylor(x: f64, terms: usize) -> BigFloat {
+fn exp_taylor(x: f64, terms: usize) -> BigFloat {
     let mut sum = BigFloat::from(1.0); // Start with the first term of the series
     let mut term = BigFloat::from(1.0); // This will hold each term value
-
+    let mut over_term: *mut BigFloat = &mut term;
+    over_bigfloat( Some (over_term ) );
+    over_bigfloat1( Some (over_term ) );
     for n in 1..=terms {
-        term *= BigFloat::from(x) / BigFloat::from(n); // Calculate x^n / n!
-        sum += term; // Add the current term to the sum
+        let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
+        let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
+       unsafe { *over_term *= BigFloat::from(x) / BigFloat::from(n); } // Calculate x^n / n!
+//       unsafe { sum += *unsafe { over_term1 } }; // Add the current term to the sum
     }
 
     sum
-}*/
-
+}
+use once_cell::sync::Lazy;
+pub fn over_bigfloat (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
+    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+pub fn over_bigfloat1 (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
+    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 /*
