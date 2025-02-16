@@ -235,16 +235,18 @@ pub fn __epi () -> Rational {
    let ret = Rational::from_unsigneds(1u64, 1u64);
    ret
 }
-fn exp_taylor(x: f64, terms: usize) -> BigFloat {
-    let mut sum = BigFloat::from(1.0); // Start with the first term of the series
-    let mut term = BigFloat::from(1.0); // This will hold each term value
+fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
+    let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
+    let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
     let mut over_term: *mut BigFloat = &mut term;
     over_bigfloat( Some (over_term ) );
-    over_bigfloat1( Some (over_term ) );
+    let mut x = BigFloat::from_float_prec(BigFloat::from(x), PREC).0;
+    let mut __x: *mut BigFloat = &mut x;
+    over_bigfloat1( Some (__x ) );
     for n in 1..=terms {
         let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
         let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       unsafe { *over_term *= BigFloat::from(x) / BigFloat::from(n); } // Calculate x^n / n!
+       unsafe { *over_term *= x.clone() / BigFloat::from(n); } // Calculate x^n / n!
        sum.add_prec_assign( over_term.clone(), PREC);
     }
 
