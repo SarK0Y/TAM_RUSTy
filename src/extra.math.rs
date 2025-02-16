@@ -244,10 +244,10 @@ fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
     let mut __x: *mut BigFloat = &mut x;
     over_bigfloat1( Some (__x ) );
     for n in 1..=terms {
-        let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
-        let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       unsafe { *over_term *= x.clone() / BigFloat::from(n); } // Calculate x^n / n!
-       sum.add_prec_assign( over_term.clone(), PREC);
+     //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
+       // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
+       term *= x.clone() / BigFloat::from(n); // Calculate x^n / n!
+       sum.add_prec_assign( term.clone(), PREC);
     }
 
     sum
