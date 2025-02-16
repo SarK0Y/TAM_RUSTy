@@ -5,6 +5,7 @@ use malachite::num::arithmetic::traits::{Pow, PowerOf2};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
 use malachite_float::Float as BigFloat;
+const PREC: u64 = 1024;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -244,12 +245,25 @@ fn exp_taylor(x: f64, terms: usize) -> BigFloat {
         let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
         let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
        unsafe { *over_term *= BigFloat::from(x) / BigFloat::from(n); } // Calculate x^n / n!
-//       unsafe { sum += *unsafe { over_term1 } }; // Add the current term to the sum
+       sum.add_prec_assign( over_term.clone(), PREC);
     }
 
     sum
 }
 use once_cell::sync::Lazy;
+pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
+    static mut sum: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
+    static mut term: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
+    unsafe {
+        if set.is_some() { 
+            *sum = set.unwrap().0;
+            *term = set.unwrap().1;
+            return;
+         }
+       //  BigFloat::
+         //sum.as_mut().expect("extra.math 264").add_prec_assign( *term.as_mut().expect("extra.math 264"), PREC);
+    }
+}
 pub fn over_bigfloat (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
     static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
     unsafe {
