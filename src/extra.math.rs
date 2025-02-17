@@ -233,8 +233,8 @@ pub fn __epi (terms: usize) -> BigFloat {
    let n  = BigFloat::from_natural_prec(Natural::from(587124671u64), PREC).0;
    let m =BigFloat::from_natural_prec(Natural::from(768614336u64), PREC).0;
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let coef = BigFloat::from_float_prec( m / n, PREC).0;
-   let ret =exp_Taylor(1.0, terms);
+   let x = BigFloat::from_float_prec( m / n, PREC).0;
+   let ret =big_exp_Taylor(x, terms);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
@@ -249,6 +249,20 @@ fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
        term *= x.clone() / BigFloat::from(n); // Calculate x^n / n!
+       sum.add_prec_assign( term.clone(), PREC);
+    }
+
+    sum
+}
+fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
+    let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
+    let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
+    let mut over_term: *mut BigFloat = &mut term;
+    over_bigfloat( Some (over_term ) );
+    for n in 1..=terms {
+     //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
+       // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
+       term.mul_prec_assign(x.clone() / BigFloat::from(n), PREC); // Calculate x^n / n!
        sum.add_prec_assign( term.clone(), PREC);
     }
 
