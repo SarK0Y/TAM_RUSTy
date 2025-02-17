@@ -4,6 +4,7 @@ use std::f64::consts::E;
 use malachite::num::arithmetic::traits::{Pow, PowerOf2};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
+use malachite::Natural;
 use malachite_float::Float as BigFloat;
 const PREC: u64 = 1024;
 pub fn simple_Pi (step: f64) -> f64 {
@@ -228,11 +229,12 @@ pub fn epi () -> f64 {
    let ret = E.powf( (m/n).sqrt() );
    ret
 }
-pub fn __epi () -> Rational {
-   let n: u64 =587124671;
-   let m: u64 =768614336;
-   let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let ret = Rational::from_unsigneds(1u64, 1u64);
+pub fn __epi (terms: usize) -> BigFloat {
+   let n  = BigFloat::from_natural_prec(Natural::from(587124671u64), PREC).0;
+   let m =BigFloat::from_natural_prec(Natural::from(768614336u64), PREC).0;
+   //let coef: Rational = Rational::const_from_unsigneds(m, n);
+   let coef = BigFloat::from_float_prec( m / n, PREC).0;
+   let ret =exp_Taylor(1.0, terms);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
