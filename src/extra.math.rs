@@ -1,4 +1,5 @@
 use chrono::round;
+use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
 use malachite::num::arithmetic::traits::{Pow, PowerOf2};
@@ -63,6 +64,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     let error = step.parse::<f64>().unwrap_or(31.0);
     println!("rounds: {error}\n");
     let std_Pi = std::f64::consts::PI;
+    let _std_Pi = BigFloat::from( std_Pi);
     let control_tst_Pi = tst_Pi (error + 1.0);
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
@@ -72,9 +74,10 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
     let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
-    \nstd_Pi - epi {}"
+    \nstd_Pi - __epi {}"
     , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
-     std_Pi - 2.0 * almost_asin(1.0, 75), std_Pi - epi() );
+     std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - __epi(100)  );
+     __epi(10);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -234,7 +237,7 @@ pub fn __epi (terms: usize) -> BigFloat {
    let m =BigFloat::from_natural_prec(Natural::from(768614336u64), PREC).0;
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
    let x = BigFloat::from_float_prec( m / n, PREC).0;
-   let ret =big_exp_Taylor(x, terms);
+   let ret =big_exp_Taylor(BigFloat::from(1.0), terms);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
@@ -262,10 +265,10 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
     for n in 1..=terms {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       term.mul_prec_assign(x.clone() / BigFloat::from(n), PREC); // Calculate x^n / n!
-       sum.add_prec_assign( term.clone(), PREC);
+       term.mul_prec_round_assign(x.clone() / BigFloat::from(n), PREC, RoundingMode::Floor); // Calculate x^n / n!
+       sum.add_prec_round_assign( term.clone(), PREC, RoundingMode::Exact);
     }
-
+dbg!(&sum);
     sum
 }
 use once_cell::sync::Lazy;
