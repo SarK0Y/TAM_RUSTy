@@ -804,7 +804,7 @@ pub(crate) fn exec_cmd(cmd: String) {
     }
     let cmd0 = "cl all cache";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
-        full_clean_cache();
+        full_clean_cache(); //needs some more testing
         return;
     }
     let cmd0 = "nvr";

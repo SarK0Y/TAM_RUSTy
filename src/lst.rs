@@ -181,6 +181,7 @@ pub(crate) fn term_rm(cmd: &String){
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_interactive_basic(cmd); 
+    std::fs::remove_file (all_files); // seems here should be more sophisticated mechanism :)
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
