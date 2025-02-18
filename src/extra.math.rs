@@ -1,4 +1,5 @@
 use chrono::round;
+use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
@@ -7,6 +8,13 @@ use malachite::num::float::NiceFloat;
 use malachite::Rational;
 use malachite::Natural;
 use malachite_float::Float as BigFloat;
+use malachite::num::conversion::string::options::ToSciOptions;
+use malachite::num::conversion::traits::{RoundingFrom, ToSci};
+use malachite::num::conversion::traits::ConvertibleFrom;
+use malachite_float::conversion::from_rational;
+use malachite_float::conversion::from_natural;
+use malachite_q::conversion::from_float_simplest;
+use malachite_q::conversion::to_numerator_and_denominator;
 const PREC: u64 = 1024;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
@@ -275,6 +283,12 @@ pub fn fast_real_e (exp: BigFloat) -> BigFloat {
     let mut num = Rational::const_from_unsigned(1);
     let mut den = Rational::const_from_unsigned(1);
     BigFloat::from(1.0)
+}
+pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
+    let nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
+    let floor = BigFloat::from_natural_prec(nat, PREC).0;
+    let mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
+    (BigFloat::from(1.0), BigFloat::from (0.0))
 }
 use once_cell::sync::Lazy;
 pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){

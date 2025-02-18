@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.46"
+version = "13.11.47"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -40,6 +40,7 @@ hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
 malachite = {version = "0.4.22"}
 malachite-float = {version = "0.4.22"}
+malachite-q = {version = "0.4.22"}
 spectrum-analyzer = {version = "1.5.0"}
 num = {version = "0.4.3"}
 serde_json = {version = "1.0.32", feature="std"}
