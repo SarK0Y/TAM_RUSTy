@@ -271,6 +271,11 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
 dbg!(&sum);
     sum
 }
+pub fn fast_real_e (exp: BigFloat) -> BigFloat {
+    let mut num = Rational::const_from_unsigned(1);
+    let mut den = Rational::const_from_unsigned(1);
+    BigFloat::from(1.0)
+}
 use once_cell::sync::Lazy;
 pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
     static mut sum: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
