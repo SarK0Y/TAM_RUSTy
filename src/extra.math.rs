@@ -285,9 +285,12 @@ pub fn fast_real_e (exp: BigFloat) -> BigFloat {
     BigFloat::from(1.0)
 }
 pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
-    let nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
-    let floor = BigFloat::from_natural_prec(nat, PREC).0;
-    let mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
+    let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
+    let mut floor = BigFloat::from_natural_prec(nat, PREC).0;
+    let mut mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
+    let mut den = BigFloat::from(10u64);
+    let mut num = BigFloat::from(1u64);
+    
     (BigFloat::from(1.0), BigFloat::from (0.0))
 }
 use once_cell::sync::Lazy;
