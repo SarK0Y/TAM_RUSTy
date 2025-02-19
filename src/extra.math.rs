@@ -288,10 +288,17 @@ pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
     let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
     let mut floor = BigFloat::from_natural_prec(nat, PREC).0;
     let mut mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
-    let mut den = BigFloat::from(10u64);
-    let mut num = BigFloat::from(1u64);
-    
-    (BigFloat::from(1.0), BigFloat::from (0.0))
+    let mut den = BigFloat::from_float_prec(BigFloat::from(10u64), PREC).0;
+    let mut num = BigFloat::from_float_prec(BigFloat::from(1u64), PREC).0;
+    let one = BigFloat::from(1.0);
+    let ten = BigFloat::from(10.0);
+    while mantissa != num.clone() /den.clone() {
+        num = (den.clone() - one.clone() ) * mantissa.clone();
+        nat = Natural::rounding_from(&num, RoundingMode::Floor).0;
+        num = BigFloat::from_natural_prec(nat, PREC).0;
+        den *= ten.clone(); 
+    }
+    (num, den)
 }
 use once_cell::sync::Lazy;
 pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
