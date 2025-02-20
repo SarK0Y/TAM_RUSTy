@@ -280,8 +280,14 @@ dbg!(&sum);
     sum
 }
 pub fn fast_real_e (exp: BigFloat) -> BigFloat {
-    let mut num = Rational::const_from_unsigned(1);
-    let mut den = Rational::const_from_unsigned(1);
+    let (mut num, mut den) = num_n_den_from_float( exp );
+    let one = BigFloat::from(1.0);
+    let exponent: i64 = PREC as i64 - 1;
+    let mut options = ToSciOptions::default();
+    options.set_precision( PREC );
+    //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
+    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC, RoundingMode::Exact).0;
+    const_e_base += one;
     BigFloat::from(1.0)
 }
 pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
@@ -330,6 +336,9 @@ pub fn over_bigfloat1 (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFlo
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 /*
+ let mut options = ToSciOptions::default();
+    options.set_precision(30);
+    println!("{}", Rational::from(3).pow(-1_000_000i64).to_sci_with_options(options));
 use malachite_q::Rational;
 
 let e = Rational::from_sci_string("2.718281828459045235360287471352662497757247093699959574966967627724076630353547594571382178525166427").unwrap();
