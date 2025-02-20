@@ -3,7 +3,7 @@ use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
-use malachite::num::arithmetic::traits::{Pow, PowerOf2};
+use malachite::num::arithmetic::traits::{Floor, Pow, PowerOf2};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
 use malachite::Natural;
@@ -279,16 +279,28 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
 dbg!(&sum);
     sum
 }
-pub fn fast_real_e (exp: BigFloat) -> BigFloat {
-    let (mut num, mut den) = num_n_den_from_float( exp );
+pub fn fast_real_e (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
     let exponent: i64 = PREC as i64 - 1;
     let mut options = ToSciOptions::default();
     options.set_precision( PREC );
     //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
     let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC, RoundingMode::Exact).0;
+    let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
     const_e_base += one;
     BigFloat::from(1.0)
+}
+pub fn num_n_den_from_float64 (x: f64) -> (f64, f64) {
+    let mut floor = x.floor();
+    let mut mantissa = x - floor;
+    let mut den = 1.0f64;
+    let mut num = den;
+    while mantissa != num / (den - 1.0 ) {
+        num = (den - 1.0 ) * mantissa;
+        den *= 10.0; 
+    }
+    den -= 1.0;
+    (num, den)
 }
 pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
     let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
