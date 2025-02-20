@@ -3,7 +3,7 @@ use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
-use malachite::num::arithmetic::traits::{Floor, Pow, PowerOf2};
+use malachite::num::arithmetic::traits::{Floor, Pow, PowerOf2, PowAssign};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
 use malachite::Natural;
@@ -283,14 +283,17 @@ pub fn fast_real_e (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
     let exponent: i64 = PREC as i64 - 1;
     let mut options = ToSciOptions::default();
+    let rm = RoundingMode::Exact;
     options.set_precision( PREC );
     //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
-    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC, RoundingMode::Exact).0;
+    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC, rm).0;
     let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
+    const_e_base.div_prec_round_assign(BigFloat::from(canceled_coef), exponent as u64, rm);
     const_e_base += one;
-    BigFloat::from(1.0)
+    let const_e = const_e_base.pow(exponent * new_coef );
+    const_e
 }
-pub fn num_n_den_from_float64 (x: f64) -> (f64, f64) {
+pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     let mut floor = x.floor();
     let mut mantissa = x - floor;
     let mut den = 1.0f64;
@@ -300,7 +303,7 @@ pub fn num_n_den_from_float64 (x: f64) -> (f64, f64) {
         den *= 10.0; 
     }
     den -= 1.0;
-    (num, den)
+    (num as i64, den as i64)
 }
 pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
     let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
@@ -343,6 +346,22 @@ pub fn over_bigfloat1 (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFlo
     static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+pub trait PowItFloat {
+    fn pow (&self, exp: i64) -> BigFloat;
+}
+impl PowItFloat for BigFloat {
+    fn pow (&self, exp: i64) -> BigFloat {
+        let mut norm_exp = exp as u64;
+        let mut ret = BigFloat::from (1u64);
+        let mut sq = self.clone();
+        while norm_exp > 0 {
+            if norm_exp & 1 == 1 {
+                ret *= sq.clone();
+            } sq *= sq.clone();
+            norm_exp /= 2;
+        } ret
     }
 }
 //fn
