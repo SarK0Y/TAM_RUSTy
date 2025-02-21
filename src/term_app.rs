@@ -488,10 +488,13 @@ pub fn indxs_to_cmd (cmd: &String) -> String {
         file_indx = app_indx;
         app_indx = "0".strn();
     }
-    let app_indx = crate::globs18::strn_2_usize(&app_indx).unwrap_or(0);
-    let file_indx = crate::globs18::strn_2_i64(&file_indx).unwrap_or(0);
-    let app_name = get_viewer(app_indx, -2795411, true);
-    let file_name = get_item_from_front_list(file_indx, true);
+    let app_indx0 = crate::globs18::strn_2_usize(&app_indx);
+    let file_indx0 = crate::globs18::strn_2_i64(&file_indx);
+    let app_name = if let Some (x) = app_indx0 {
+        get_viewer(x, -2795411, true)
+    } else { app_indx };
+    let file_name = if let Some (x) = file_indx0 { get_item_from_front_list(x, true) }
+    else { file_indx };
     let cmd = format! ("{app_name} {file_name}");
     cmd
 }
