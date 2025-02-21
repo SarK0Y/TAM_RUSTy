@@ -433,7 +433,7 @@ fn main (){
         if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
         let name = String::from_iter(get_arg_in_cmd("-mk-dummy-file").s).trim().strn();
         let len = String::from_iter(get_arg_in_cmd("-len").s).trim().trim_matches('\0').strn();
-        let len = strn_2_usize(len.strn());
+        let len = strn_2_usize(&len.strn());
         let content = String::from_iter(get_arg_in_cmd("-content").s).trim().strn();
  #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
  SYS();

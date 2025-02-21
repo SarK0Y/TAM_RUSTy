@@ -13,7 +13,7 @@ pub(crate) trait STRN_usize {
 #[cfg(feature="tam")] 
 impl STRN_usize for String{
     fn usize0(&self) -> usize {
-        strn_2_usize(self.strn() ).unwrap_or(0)
+        strn_2_usize(&self.strn() ).unwrap_or(0)
     }
 }
 pub(crate) trait turn_2_i64 {

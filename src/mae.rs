@@ -10,10 +10,10 @@ pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
     let mut file = match help_funcs::get_file(&format!("{file_to_encrypt}.mae")){Ok(f) => f, 
                                                             Err(e) => return println!("Sorry, can't open {file_to_encrypt}.mae: {e:?}")};
     let IK_len = crate::globs18::strn_2_usize(
-        open_typing(Some("\rPlease, enter a size of IK".strn()) )
+        &open_typing(Some("\rPlease, enter a size of IK".strn()) )
        ).unwrap_or(256);
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
+        &open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.encrypt(&fst_pswd, IK_len, buf_size);
     crate::save_file0(format!("{}.mae", file_to_encrypt), "mae".strn());
@@ -29,7 +29,7 @@ pub(crate) fn decrypt_copy(cmd: &String){
         &format!("{}", file_to_decrypt.replace(".mae", "") )
     ){Ok(f) => f, Err(e) => return println!("Sorry, can't open {file_to_decrypt}: {e:?}")};
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
+        &open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.decrypt(&fst_pswd, buf_size);
     crate::save_file0(file_to_decrypt.replace(".mae", ""), "decrypted".strn());

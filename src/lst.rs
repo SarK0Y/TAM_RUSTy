@@ -462,7 +462,7 @@ pub(crate) fn manage_lst(cmd: &String){
     }
     }
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
-    let ret = strn_2_usize(cmd);
+    let ret = strn_2_usize(&cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
@@ -500,7 +500,7 @@ pub(crate) fn manage_lst_sub(cmd: &String){
     }
     }
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
-    let ret = strn_2_usize(cmd);
+    let ret = strn_2_usize(&cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);

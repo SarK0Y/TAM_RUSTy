@@ -32,7 +32,7 @@ impl basic{
      let mut seg_size_new = 150usize;
      if checkArg("-cache-seg-size"){
             seg_size_new_strn = String::from_iter(get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
-            let ret = crate::globs18::strn_2_usize(seg_size_new_strn);
+            let ret = crate::globs18::strn_2_usize(&seg_size_new_strn);
             if ret != None{seg_size_new = ret.unwrap()}
         }
     Self{

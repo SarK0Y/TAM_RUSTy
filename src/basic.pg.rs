@@ -240,7 +240,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
         fst_run = true;
         if checkArg("-cache-seg-size"){
             let seg_size_new = String::from_iter(get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
-            let ret = strn_2_usize(seg_size_new);
+            let ret = strn_2_usize(&seg_size_new);
             if ret != None{seg_size = ret.unwrap()}
         }
     }
@@ -260,7 +260,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     let path_2_msg_forming = format!("{}/msgs/basic/cache/forming", tmp_dir).replace("//", "/");
     let forming = read_file_abs_adr(&path_2_msg_forming);
     if op == cache_state::ready{if state == cache_state::ready{state = cache_state::taken; return (Some(cache.to_vec()), cache_state::ready);}
-     let mut lst_len = match crate::globs18::strn_2_usize(crate::globs18::len_of_front_list_wc()){Some(i) => i, _ => 0};
+     let mut lst_len = match crate::globs18::strn_2_usize(&crate::globs18::len_of_front_list_wc()){Some(i) => i, _ => 0};
      
     if lst_len == 0{return (None, cache_state::no_data_to_add);}
     count += 1;
