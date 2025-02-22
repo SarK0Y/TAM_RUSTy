@@ -16,6 +16,7 @@ use malachite_float::conversion::from_natural;
 use malachite_q::conversion::from_float_simplest;
 use malachite_q::conversion::to_numerator_and_denominator;
 const PREC: u64 = 1024;
+const PREC0: u64 = 12_000;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -282,17 +283,22 @@ dbg!(&sum);
 }
 pub fn fast_real_e (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
-    let exponent: i64 = PREC as i64 / 2;
+    let exponent: i64 = PREC0 as i64 / 2;
     let mut options = ToSciOptions::default();
     let rm = RoundingMode::Floor;
     options.set_precision( PREC );
     //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
-    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, exponent, rm).0;
+    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, exponent as u64, rm).0;
     let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
-    const_e_base.div_prec_round_assign(BigFloat::from(canceled_coef), PREC as u64, rm);
+    const_e_base.mul_prec_round_assign(BigFloat::from(canceled_coef), PREC0 as u64, rm);
     dbg! (&const_e_base);
+    const_e_base = one.clone() / const_e_base;
     const_e_base += one;
-    let const_e = const_e_base.pow(exponent * new_coef );
+    let fin_exp = exponent * new_coef;
+    dbg! (&fin_exp);
+    dbg! (&exponent);
+    dbg! (&new_coef);
+    let const_e = const_e_base.pow( fin_exp );
     dbg! (&const_e_base);
     dbg!(&const_e);
     const_e
@@ -300,7 +306,8 @@ pub fn fast_real_e (exp: f64) -> BigFloat {
 pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     let mut floor = x.floor();
     let mut mantissa = x - floor;
-    let mut den = 1.0f64;
+    if mantissa == 0.0 { return (9, 9)}
+    let mut den = 10.0f64;
     let mut num = den;
     while mantissa != num / (den - 1.0 ) {
         num = (den - 1.0 ) * mantissa;
@@ -357,10 +364,12 @@ pub trait PowItFloat {
 }
 impl PowItFloat for BigFloat {
     fn pow (&self, exp: i64) -> BigFloat {
+        dbg!(&exp);
         let mut norm_exp = exp as u64;
         let mut ret = BigFloat::from (1u64);
         let mut sq = self.clone();
         while norm_exp > 0 {
+            dbg!(&norm_exp);
             if norm_exp & 1 == 1 {
                 ret *= sq.clone();
             } sq *= sq.clone();
