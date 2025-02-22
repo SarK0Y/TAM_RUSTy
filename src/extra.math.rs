@@ -15,8 +15,8 @@ use malachite_float::conversion::from_rational;
 use malachite_float::conversion::from_natural;
 use malachite_q::conversion::from_float_simplest;
 use malachite_q::conversion::to_numerator_and_denominator;
-const PREC: u64 = 1024;
-const PREC0: u64 = 12_000;
+const PREC: u64 = 16;
+const PREC0: u64 = 256;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -88,6 +88,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - __epi(100)  );
      __epi(10);
      fast_real_e(1.0);
+     dbg! (BigFloat::from(2.0).pow(5));
+     dbg!(calc_e(256));
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -276,23 +278,26 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
        term.mul_prec_round_assign(x.clone() / BigFloat::from(n), PREC, RoundingMode::Floor); // Calculate x^n / n!
-       sum.add_prec_round_assign( term.clone(), PREC, RoundingMode::Exact);
+       sum.add_prec_round_assign( term.clone(), PREC, RoundingMode::Floor);
     }
 dbg!(&sum);
     sum
 }
 pub fn fast_real_e (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
+    let mut one_div_by = one.clone();
     let exponent: i64 = PREC0 as i64 / 2;
     let mut options = ToSciOptions::default();
     let rm = RoundingMode::Floor;
     options.set_precision( PREC );
     //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
-    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, exponent as u64, rm).0;
+    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC0, rm).0;
+    dbg! (&const_e_base);
     let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
     const_e_base.mul_prec_round_assign(BigFloat::from(canceled_coef), PREC0 as u64, rm);
     dbg! (&const_e_base);
-    const_e_base = one.clone() / const_e_base;
+    one_div_by.div_prec_assign(const_e_base.clone(), PREC0);
+    const_e_base = one_div_by;
     const_e_base += one;
     let fin_exp = exponent * new_coef;
     dbg! (&fin_exp);
@@ -303,10 +308,16 @@ pub fn fast_real_e (exp: f64) -> BigFloat {
     dbg!(&const_e);
     const_e
 }
+fn calc_e(n: u64) -> Rational {
+    let one = Rational::from(1);
+    let n_rational = Rational::from(n);   
+    let base = one.clone() + (one / n_rational);
+    base.pow(n)
+}
 pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     let mut floor = x.floor();
     let mut mantissa = x - floor;
-    if mantissa == 0.0 { return (9, 9)}
+    if mantissa == 0.0 { return (x as i64, 1)}
     let mut den = 10.0f64;
     let mut num = den;
     while mantissa != num / (den - 1.0 ) {
@@ -372,7 +383,9 @@ impl PowItFloat for BigFloat {
             dbg!(&norm_exp);
             if norm_exp & 1 == 1 {
                 ret *= sq.clone();
-            } sq *= sq.clone();
+                dbg! (&ret);
+            } sq.mul_prec_assign(sq.clone(), PREC0);
+            dbg! (&sq);
             norm_exp /= 2;
         } ret
     }
