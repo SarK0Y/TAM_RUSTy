@@ -86,6 +86,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
      std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - __epi(100)  );
      __epi(10);
+     fast_real_e(1.0);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -281,16 +282,19 @@ dbg!(&sum);
 }
 pub fn fast_real_e (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
-    let exponent: i64 = PREC as i64 - 1;
+    let exponent: i64 = PREC as i64 / 2;
     let mut options = ToSciOptions::default();
-    let rm = RoundingMode::Exact;
+    let rm = RoundingMode::Floor;
     options.set_precision( PREC );
     //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
-    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC, rm).0;
+    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, exponent, rm).0;
     let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
-    const_e_base.div_prec_round_assign(BigFloat::from(canceled_coef), exponent as u64, rm);
+    const_e_base.div_prec_round_assign(BigFloat::from(canceled_coef), PREC as u64, rm);
+    dbg! (&const_e_base);
     const_e_base += one;
     let const_e = const_e_base.pow(exponent * new_coef );
+    dbg! (&const_e_base);
+    dbg!(&const_e);
     const_e
 }
 pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
