@@ -19,6 +19,28 @@ pub(crate) fn key_slash() {
     }
     save_file0(front_list, "prev_list".to_string());
 }
+pub fn Space () -> String {
+    let prnt = get_prnt( 766831795);
+    let cmd0 = "surprise me dry run ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
+        let item = prnt.replace(cmd0, "");
+        let (_, item) = crate::split_once_or_ret_null_strns(&item, " ");
+        let cmd = format!("0 {item}");
+        crate::swtch::run_viewer(cmd, 6737908104);
+        crate::faav::lock_surprise_me( Some (true) );
+        return "".strn()
+    }
+    let cmd0 = "surprise me ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
+        let item = prnt.replace(cmd0, "");
+        let (_, item) = crate::split_once_or_ret_null_strns(&item, " ");
+        let cmd = format!("0 {item}");
+        crate::swtch::run_viewer(cmd, 6737908104);
+        crate::faav::lock_surprise_me( Some (true) );
+        return "".strn()
+    }
+    " ".strn()
+}
 pub fn capture_key (cmd: &String) {
     static mut state: Lazy < String > = Lazy::new (|| {"".strn() });
     dbg!(&cmd);

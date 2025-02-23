@@ -84,6 +84,7 @@ pub(crate) fn mk_empty_fil0(name: &str ){
     let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
 }
 pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
+    if crate::faav::lock_surprise_me( None ) {crate::faav::lock_surprise_me( Some (false) ); return None}
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
@@ -129,6 +130,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
 }
 //#[cfg(feature = "in_dbg")]
 pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
+    if crate::faav::lock_surprise_me( None ) {crate::faav::lock_surprise_me( Some (false) ); return None}
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;

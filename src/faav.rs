@@ -48,6 +48,12 @@ pub fn lock_control_c (state: Option < bool >) -> bool {
         if let Some ( x ) = state {state0 = x; } state0
     }
 }
+pub fn lock_surprise_me (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        if let Some ( x ) = state {state0 = x; } state0
+    }
+}
 pub fn count_getkey (state: Option < i64 >) -> i64 {
     static mut state0: i64 = 0;
     unsafe {

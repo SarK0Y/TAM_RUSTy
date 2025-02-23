@@ -272,6 +272,7 @@ pub(crate) fn hotKeys(
             return "dontPass".to_string();
         }
     }
+    if *Key == " " { *Key = crate::key_handlers::Space(); }
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::key_handlers::F1_key();
     }
