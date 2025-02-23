@@ -393,6 +393,40 @@ impl PowItFloat for BigFloat {
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 /*
+ use rug::{Assign, Integer};
+let mut buffer = Integer::new();
+// ... buffer can be used and reused ...
+let (a, b) = (Integer::from(10), Integer::from(20));
+let incomplete = &a - &b;
+buffer.assign(incomplete);
+assert_eq!(buffer, -10);
+-------
+use rug::float::Constant;
+use rug::Float;
+// x has a precision of 10 bits
+let x = Float::with_val(10, 180);
+// y has a precision of 50 bits
+let y = Float::with_val(50, Constant::Pi);
+let incomplete = &x / &y;
+// z has a precision of 45 bits
+let z = Float::with_val(45, incomplete);
+assert!(57.295 < z && z < 57.296);
+------
+use rug::ops::SubFrom;
+use rug::Integer;
+let mut rhs = Integer::from(10);
+// set rhs = 100 - rhs
+rhs.sub_from(100);
+assert_eq!(rhs, 90);
+-----
+There are two main reasons why operations like &a - &b do not perform a complete computation and return a Rug type:
+
+Sometimes we need to assign the result to an object that already exists. Since Rug types require memory allocations, this can help reduce the number of allocations. (While the allocations might not affect performance noticeably for computationally intensive functions, they can have a much more significant effect on faster functions like addition.)
+For the Float and Complex number types, we need to know the precision when we create a value, and the operation itself does not convey information about what precision is desired for the result.
+There are two things that can be done with incomplete-computation values:
+
+Assign them to an existing object without unnecessary allocations. This is usually achieved using the Assign trait or a similar method, for example int.assign(incomplete) and float.assign_round(incomplete, Round::Up).
+Convert them to the final value using the Complete trait, the From trait or a similar method. For example incomplete integers can be completed using incomplete.complete() or Integer::from(incomplete). Incomplete floating-point numbers can be completed using incomplete.complete(53) or Float::with_val(53, incomplete) since the precision has to be specified.
  let mut options = ToSciOptions::default();
     options.set_precision(30);
     println!("{}", Rational::from(3).pow(-1_000_000i64).to_sci_with_options(options));
