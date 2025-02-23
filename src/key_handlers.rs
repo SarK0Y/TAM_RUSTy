@@ -21,6 +21,8 @@ pub(crate) fn key_slash() {
 }
 pub fn Space () -> String {
     let prnt = get_prnt( 766831795);
+    let cmd0 = "|surprise me dry run ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run ", 159137003);}
     let cmd0 = "surprise me dry run ";
     if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
         let item = prnt.replace(cmd0, "");
