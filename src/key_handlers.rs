@@ -19,6 +19,16 @@ pub(crate) fn key_slash() {
     }
     save_file0(front_list, "prev_list".to_string());
 }
+pub fn capture_key (cmd: &String) {
+    static mut state: Lazy < String > = Lazy::new (|| {"".strn() });
+    dbg!(&cmd);
+    unsafe {
+        if cmd == "en capture key" {*state = "en capture key".strn(); dbg!(&cmd); }
+        if cmd == "no capture key" {*state = "".strn() }
+        if *state == "en capture key" { errMsg0(&cmd); return}
+
+    }
+}
 pub(crate) fn pre_Enter() {
     let front_list = read_front_list();
     let ls = std::path::PathBuf::from("ls0");
