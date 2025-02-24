@@ -528,6 +528,7 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
     }
 }
 pub(crate) fn print_viewers() {
+    if mode_default_viewers( None ) {println!("System viwwers: ON", ); return}
     if !crate::cmd_keys::screen_state(None) {
         return;
     }
