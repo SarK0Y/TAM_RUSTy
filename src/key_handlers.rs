@@ -22,7 +22,7 @@ pub(crate) fn key_slash() {
 pub fn Space () -> String {
     let prnt = get_prnt( 766831795);
     let cmd0 = "|surprise me dry run ";
-    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run ", 159137003);}
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
     let cmd0 = "surprise me dry run ";
     if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
         let item = prnt.replace(cmd0, "");
@@ -97,6 +97,8 @@ pub(crate) fn Enter() -> String {
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
     }*/
+    let cmd0 = "|surprise me dry run";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
     crate::cmd_keys::dont_run_file(Some(false));
     drop_ls_mode();
     let mut mode = 0i64;
