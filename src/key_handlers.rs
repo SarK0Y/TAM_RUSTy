@@ -487,6 +487,7 @@ pub fn scroll_surprise_me_lst () {
     let last_ln: usize = crate::ln_of_list(usize::MAX, "randomly_picked.files").1;
     let last_ln = last_ln.checked_sub (1).unwrap_or (0);
     let mut count_out = last_ln;
+    if indx == last_ln {crate::faav::count_ln_in_surprise_me_lst(false, false, false);}
     dbg! (&count_out);
     let mut ln = "".strn();
     ln = crate::ln_of_list(indx, "randomly_picked.files").0;
@@ -495,10 +496,10 @@ pub fn scroll_surprise_me_lst () {
     dbg! (&indx);
     let mut prnt = get_prnt(1140191);
     if prnt.find ("surprise me dry run").is_some () {
-        prnt = format! ("surprise me dry run {}", ln);
+        prnt = format! ("surprise me dry run 0 {}", ln);
     } else {
         if prnt.find ("surprise me").is_some () {
-            prnt = format! ("surprise me {}", ln);
+            prnt = format! ("surprise me 1 {}", ln);
         }
     }
     set_prnt(&prnt, -90011675697);
