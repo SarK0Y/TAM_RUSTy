@@ -8,6 +8,7 @@ use crate::{
     }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
+use malachite::num::arithmetic::traits::CheckedAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use once_cell::sync::Lazy;
 use std::{default, io};
@@ -20,6 +21,7 @@ pub(crate) fn key_slash() {
     save_file0(front_list, "prev_list".to_string());
 }
 pub fn Space () -> String {
+    count_ln_in_surprise_me_lst(false, false, false);
     let prnt = get_prnt( 766831795);
     let cmd0 = "|surprise me dry run ";
     if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
@@ -480,29 +482,28 @@ pub(crate) fn F8_key() {
     }
     set_prnt(&ln, 999714);
 }
-/*
 pub fn scroll_surprise_me_lst () {
-    let mut ln_indx0 = count_ln_in_surprise_me_lst(true, true, false);
-    let mut count_out = 93usize;
+    let mut indx: usize = crate::faav::count_ln_in_surprise_me_lst(true, true, true);
+    let last_ln: usize = crate::ln_of_list(usize::MAX, "randomly_picked.files").1;
+    let last_ln = last_ln.checked_sub (1).unwrap_or (0);
+    let mut count_out = last_ln;
+    dbg! (&count_out);
     let mut ln = "".strn();
-    while count_out > 0 {
-        ln = crate::ln_of_list(indx, "randomly_picked.files").0;
-        if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!()) {
-            indx.dec();
-        } else {
-            break;
+    ln = crate::ln_of_list(indx, "randomly_picked.files").0;
+    indx = crate::faav::count_ln_in_surprise_me_lst(true, true, false);
+    indx = last_ln.checked_sub (indx ).unwrap_or(0);
+    dbg! (&indx);
+    let mut prnt = get_prnt(1140191);
+    if prnt.find ("surprise me dry run").is_some () {
+        prnt = format! ("surprise me dry run {}", ln);
+    } else {
+        if prnt.find ("surprise me").is_some () {
+            prnt = format! ("surprise me {}", ln);
         }
-        count_out.dec();
     }
-        let mut ln0 = crate::ln_of_found_files01(indx + ringbuf_size);
-        let mut count_out = 93usize;
-        while ln0.1 < indx + ringbuf_size && count_out > 0 {
-            indx = indx.dec();
-            ln0 = crate::ln_of_found_files01(indx + ringbuf_size);
-            count_out.dec();
-        }
+    set_prnt(&prnt, -90011675697);
+    errMsg0(&"".strn() );
 }
-*/
 pub fn shift_f3_cut_off_tail_of_prnt() {
     let func_id = 78444418691;
     let cur_cur_pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
@@ -607,6 +608,9 @@ pub(crate) fn F3_key() -> String {
     prnt
 }
 pub fn tab_key() {
+    let prnt = get_prnt(-9871);
+    let cmd0 = "surprise me";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { scroll_surprise_me_lst();}
     let cur_lst = crate::name_of_front_list("", false);
     match cur_lst.as_str() {
         "lst" => {
