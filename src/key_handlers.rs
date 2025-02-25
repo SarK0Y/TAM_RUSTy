@@ -485,7 +485,7 @@ pub(crate) fn F8_key() {
 pub fn scroll_surprise_me_lst () {
     let mut indx: usize = crate::faav::count_ln_in_surprise_me_lst(true, true, true);
     let last_ln: usize = crate::ln_of_list(usize::MAX, "randomly_picked.files").1;
-    let last_ln = last_ln.checked_sub (1).unwrap_or (0);
+    //let last_ln = last_ln.checked_sub (1).unwrap_or (0);
     if indx > last_ln {crate::faav::count_ln_in_surprise_me_lst(false, false, false); indx = 0; }
     let mut ln = "".strn();
     ln = crate::ln_of_list(indx, "randomly_picked.files").0;
