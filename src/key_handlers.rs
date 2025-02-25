@@ -1,7 +1,7 @@
 use crate::{
     __get_arg_in_cmd, add_cmd_in_history, checkArg, clear_screen, count_ln, custom_traits::{
         find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize,  vec_tools, STRN_usize, STRN,
-    }, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{
+    }, drop_ls_mode, errMsg0, faav::count_ln_in_surprise_me_lst, get_cur_cur_pos, get_prnt, getkey, globs18::{
         drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to,
         get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front,
         take_list_adr, take_list_adr_env,
@@ -480,6 +480,29 @@ pub(crate) fn F8_key() {
     }
     set_prnt(&ln, 999714);
 }
+/*
+pub fn scroll_surprise_me_lst () {
+    let mut ln_indx0 = count_ln_in_surprise_me_lst(true, true, false);
+    let mut count_out = 93usize;
+    let mut ln = "".strn();
+    while count_out > 0 {
+        ln = crate::ln_of_list(indx, "randomly_picked.files").0;
+        if (ln == "" || ln == "no str gotten" || ln == crate::getStop_code__!()) {
+            indx.dec();
+        } else {
+            break;
+        }
+        count_out.dec();
+    }
+        let mut ln0 = crate::ln_of_found_files01(indx + ringbuf_size);
+        let mut count_out = 93usize;
+        while ln0.1 < indx + ringbuf_size && count_out > 0 {
+            indx = indx.dec();
+            ln0 = crate::ln_of_found_files01(indx + ringbuf_size);
+            count_out.dec();
+        }
+}
+*/
 pub fn shift_f3_cut_off_tail_of_prnt() {
     let func_id = 78444418691;
     let cur_cur_pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };

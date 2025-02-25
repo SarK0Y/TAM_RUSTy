@@ -54,6 +54,15 @@ pub fn lock_surprise_me (state: Option < bool >) -> bool {
         if let Some ( x ) = state {state0 = x; } state0
     }
 }
+pub fn count_ln_in_surprise_me_lst(yes: bool, inc: bool, get_size: bool) -> usize{
+    static mut count: usize = 0;
+    if get_size {return unsafe { count } }
+    if !yes {unsafe { count = 0 }; return 0;}
+    let ret = unsafe { count };
+    if yes && inc{unsafe { count.inc() };}
+    if yes && !inc{unsafe { count.dec() };}
+    ret
+}
 pub fn count_getkey (state: Option < i64 >) -> i64 {
     static mut state0: i64 = 0;
     unsafe {
