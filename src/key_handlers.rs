@@ -488,8 +488,8 @@ pub fn scroll_surprise_me_lst () {
     //let last_ln = last_ln.checked_sub (1).unwrap_or (0);
     if indx > last_ln {crate::faav::count_ln_in_surprise_me_lst(false, false, false); indx = 0; }
     let mut ln = "".strn();
+    indx = last_ln.checked_sub (indx ).unwrap_or(0);
     ln = crate::ln_of_list(indx, "randomly_picked.files").0;
-    //indx = last_ln.checked_sub (indx ).unwrap_or(0);
     //dbg! (&indx);
     let mut prnt = get_prnt(1140191);
     if prnt.find ("surprise me dry run").is_some () {
