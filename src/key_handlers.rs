@@ -89,7 +89,7 @@ pub(crate) fn pre_Enter() {
 pub fn Shift_Enter () -> String {
     let viewer_mode = crate::swtch::mode_default_viewers( None );
     crate::swtch::mode_default_viewers(Some( !viewer_mode ) );
-    return Enter();
+    return "".strn();
 }
 pub(crate) fn Enter() -> String {
     let func_id = -881454;
@@ -99,7 +99,7 @@ pub(crate) fn Enter() -> String {
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
     }*/
-    let cmd0 = "|surprise me dry run";
+    let cmd0 = "|surprise me";
     if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
     crate::cmd_keys::dont_run_file(Some(false));
     drop_ls_mode();
