@@ -436,7 +436,7 @@ pub(crate) fn F8_key() {
         block_ring_buffer = true;
         crate::calc_num_files_up2_cur_pg01().usize0()
     }; // + ln_indx0 };
-    let ln_indx = lst_size.overflowing_sub(ln_indx0); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
+    let ln_indx = lst_size.overflowing_sub(ln_indx0 ); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
