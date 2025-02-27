@@ -1,6 +1,6 @@
 use num_traits::bounds;
 
-use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, kcode01, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -135,7 +135,8 @@ impl ManageLists for basic{
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
-        if num_pg < num_pgs {self.build_page( &mut ps);}
+        let prnt = get_prnt( 620119718);
+        if num_pg < num_pgs && prnt.find(kcode01::UP_ARROW).is_none() {self.build_page( &mut ps);}
         self.cut_prnt();
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));
