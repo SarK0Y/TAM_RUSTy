@@ -281,10 +281,14 @@ pub(crate) fn hotKeys(
         return "pp".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::UP_ARROW, Key.as_str()) == 0 {
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
         no_print0(Some(kcode::UP_ARROW.strn()), 0);
+
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
+        no_print0(Some(kcode::UP_ARROW.strn()), 0);
         let mut pos = unsafe { shift_cursor_of_prnt(0, None, 9011) };
         let pos0= unsafe { shift_cursor_of_prnt(-2, None, -3167) };
         let len = read_prnt().chars().count();
@@ -296,6 +300,8 @@ pub(crate) fn hotKeys(
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
+        no_print0(Some(kcode::UP_ARROW.strn()), 0);
         unsafe { shift_cursor_of_prnt(1, None, -1).shift };
         let pos = unsafe { shift_cursor_of_prnt(0, None, -6).shift };
         set_cur_cur_pos(usize_2_i64(pos), -779017);
