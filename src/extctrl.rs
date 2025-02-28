@@ -123,12 +123,11 @@ impl ManageLists for basic{
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
-    crate::smart_lags::screen_lag ( Some (200) );
+    crate::smart_lags::screen_lag ( Some (20_000) );
     crate::clear_screen();
     loop{
        if enums::smart_lags::failed != crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
              crate::clear_screen(); } else { 
-            if name_of_front_list("", false) == "ls"{fix_num_files(97481);}
             let num_pg = crate::get_num_page(-55541555121);
             let num_pgs = crate::where_is_last_pg();
             crate::swtch::print_viewers();
