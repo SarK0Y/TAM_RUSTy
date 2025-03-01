@@ -1,6 +1,6 @@
 use num_traits::bounds;
 
-use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, kcode01, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, kcode01, name_of_front_list, no_print0, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -132,6 +132,8 @@ impl ManageLists for basic{
             let num_pgs = crate::where_is_last_pg();
             crate::swtch::print_viewers();
             crate::swtch::print_pg_info();
+            no_print0(Some (crate::kcode01::UP_ARROW.strn() ), 0); 
+            no_print0(Some (crate::kcode01::DOWN_ARROW.strn() ), 0);
               continue; }
         //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};

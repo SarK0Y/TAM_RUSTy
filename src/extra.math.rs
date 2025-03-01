@@ -1,4 +1,6 @@
 use chrono::round;
+use rug::float::Round;
+use rug::ops::{MulAssignRound, PowAssignRound, DivAssignRound};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
@@ -284,7 +286,33 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
 dbg!(&sum);
     sum
 }
-pub fn fast_real_e (exp: f64) -> BigFloat {
+pub fn fast_real_e (exp: f64) -> rugfloat {
+    let PREC_ = PREC as u32;
+    let PREC0_ = PREC0 as u32;
+    let one = rugfloat::with_val(PREC as u32, 1.0);
+    let mut one_div_by = one.clone();
+    let rm = Round::Nearest;
+    let exponent: i64 = PREC0 as i64 / 2;
+    let mut const_e_base = rugfloat::with_val(PREC0_, 2.0);
+    const_e_base.pow_assign_round(exponent, rm);
+    dbg! (&const_e_base);
+    let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
+    const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , canceled_coef), rm);
+    dbg! (&const_e_base);
+    one_div_by.div_assign_round(const_e_base, rm);
+    const_e_base = one_div_by;
+    const_e_base += one;
+    let fin_exp = exponent * new_coef;
+    dbg! (&fin_exp);
+    dbg! (&exponent);
+    dbg! (&new_coef);
+    let mut const_e = const_e_base.clone();
+    const_e.pow_assign_round( fin_exp, rm );
+    dbg! (&const_e_base );
+    dbg!(&const_e);
+    const_e.clone()
+}
+pub fn fast_real_e_ (exp: f64) -> BigFloat {
     let one = BigFloat::from(1.0);
     let mut one_div_by = one.clone();
     let exponent: i64 = PREC0 as i64 / 2;
