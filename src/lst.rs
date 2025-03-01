@@ -337,8 +337,8 @@ pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> S
     for ln in vec_strn{
         let ln = ln.trim_end().trim_start().trim_end_matches('\\');
         if len == 0 {break;}
-        let ln = full_escape(&ln.strn());
-        ret.push_str(format!("\\{nl} {ln}").as_str());
+        //let ln = full_escape(&ln.strn());
+        ret.push_str(format!("\\{nl} '{ln}'").as_str());
         len.dec();
     } ret
 }
