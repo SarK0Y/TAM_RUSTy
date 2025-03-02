@@ -314,31 +314,6 @@ pub fn fast_real_e (exp: f64) -> rugfloat {
     dbg!(&const_e);
     const_e.clone()
 }
-pub fn fast_real_e_ (exp: f64) -> BigFloat {
-    let one = BigFloat::from(1.0);
-    let mut one_div_by = one.clone();
-    let exponent: i64 = PREC0 as i64 / 2;
-    let mut options = ToSciOptions::default();
-    let rm = RoundingMode::Floor;
-    options.set_precision( PREC );
-    //let const_e_base = Rational::from(2).pow(-1i64 * exponent ).to_sci_with_options(options);
-    let mut const_e_base = BigFloat::power_of_2_prec_round(exponent, PREC0, rm).0;
-    dbg! (&const_e_base);
-    let (new_coef, canceled_coef) = num_n_den_from_float64( exp );
-    const_e_base.mul_prec_round_assign(BigFloat::from(canceled_coef), PREC0 as u64, rm);
-    dbg! (&const_e_base);
-    one_div_by.div_prec_assign(const_e_base.clone(), PREC0);
-    const_e_base = one_div_by;
-    const_e_base += one;
-    let fin_exp = exponent * new_coef;
-    dbg! (&fin_exp);
-    dbg! (&exponent);
-    dbg! (&new_coef);
-    let const_e = const_e_base.pow( fin_exp );
-    dbg! (&const_e_base);
-    dbg!(&const_e);
-    const_e
-}
 fn calc_e(n: u64) -> Rational {
     let one = Rational::from(1);
     let n_rational = Rational::from(n);   
