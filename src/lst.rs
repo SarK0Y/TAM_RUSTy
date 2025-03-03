@@ -588,6 +588,7 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
         if indx == ln_num.0 {continue;}
         save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
     }
+    if crate::Path::new (&front_lst_tmp).exists() == false {save_file_append_newline_abs_adr_fast(&"".strn(), &front_lst_tmp);}
     let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
     let front_lst = read_tail( &take_list_adr("found_files").unreel_link_to_depth(1), "/" );
