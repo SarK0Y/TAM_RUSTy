@@ -1,6 +1,6 @@
 use chrono::round;
 use rug::float::Round;
-use rug::ops::{MulAssignRound, PowAssignRound, DivAssignRound, PowAssign as rugPowAssign };
+use rug::ops::{MulAssignRound, PowAssignRound, DivAssignRound, PowAssign as rugPowAssign, AddAssignRound };
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
@@ -76,8 +76,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     let error = step.parse::<f64>().unwrap_or(31.0);
     println!("rounds: {error}\n");
     let std_Pi = std::f64::consts::PI;
-    let _std_Pi = BigFloat::from( std_Pi);
-    let control_tst_Pi = tst_Pi (error + 1.0);
+    let _std_Pi: rugfloat = rugfloat::with_val_64(PREC0, rugconst::Pi);    let control_tst_Pi = tst_Pi (error + 1.0);
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
     let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {}\n
@@ -247,12 +246,14 @@ pub fn epi () -> f64 {
    let ret = E.powf( (m/n).sqrt() );
    ret
 }
-pub fn __epi (terms: usize) -> BigFloat {
-   let n  = BigFloat::from_natural_prec(Natural::from(587124671u64), PREC).0;
-   let m =BigFloat::from_natural_prec(Natural::from(768614336u64), PREC).0;
+pub fn __epi (terms: usize) -> rugfloat {
+   let PREC_ = PREC as u32;
+   let PREC0_ = PREC0 as u32;
+   let n  = rugfloat::with_val_64(PREC0,587124671u64);
+   let m =rugfloat::with_val_64(PREC0,768614336u64);
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let x = BigFloat::from_float_prec( m / n, PREC).0;
-   let ret =big_exp_Taylor(BigFloat::from(1.0), terms);
+   let x =  m / n;
+   let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
@@ -272,7 +273,7 @@ fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
 
     sum
 }
-fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
+fn big_exp_Taylor_(x: BigFloat, terms: usize) -> BigFloat {
     let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
     let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
     let mut over_term: *mut BigFloat = &mut term;
@@ -286,6 +287,28 @@ fn big_exp_Taylor(x: BigFloat, terms: usize) -> BigFloat {
 dbg!(&sum);
     sum
 }
+fn big_exp_Taylor(x: rugfloat, terms: usize) -> rugfloat {
+    let PREC_ = PREC as u32;
+    let PREC0_ = PREC0 as u32;
+    let mut sum = rugfloat::with_val(PREC0_, 1.0); // Start with the first term of the series
+    let mut term = sum.clone(); // This will hold each term value
+    let mut __factorial = sum.clone();
+    let mut xn = sum.clone();
+    let rm = Round::Down;
+    //let mut over_term: *mut BigFloat = &mut term;
+    //over_bigfloat( Some (over_term ) );
+    for n in 1..=terms {
+     //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
+       // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
+       xn.mul_assign_round (rugfloat::with_val(PREC0_, x.clone() ), rm); 
+       __factorial.mul_assign_round (rugfloat::with_val(PREC0_, n.clone() ), rm); 
+       term = rugfloat::with_val_64 (PREC0, xn.clone() / __factorial.clone() ); // Calculate x^n / n!
+       sum.add_assign_round( term.clone(), rm);
+    }
+dbg!(&sum);
+    sum
+}
+
 pub fn fast_real_e (exp: f64) -> rugfloat {
     let PREC_ = PREC as u32;
     let PREC0_ = PREC0 as u32;
