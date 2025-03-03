@@ -593,6 +593,7 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
     let front_lst = read_tail( &take_list_adr("found_files").unreel_link_to_depth(1), "/" );
     crate::cache::set_uid_cache(&front_lst);
     crate::update18::upd_screen_or_not((-1, "".strn() ) );
+    set_prnt("", 385415986);
 }
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
