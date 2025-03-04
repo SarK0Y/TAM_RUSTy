@@ -79,6 +79,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     let _std_Pi: rugfloat = rugfloat::with_val_64(PREC0, rugconst::Pi);    let control_tst_Pi = tst_Pi (error + 1.0);
     let tst_Pi = tst_Pi (error);
     crate::krunner (Some (&tst_Pi.to_string()) );
+    let epi__ = __epi(100);
     let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {}\n
     std_Cos(800 000*tst): {}\nCos(800 000*tst): {}\ntricked_Cos(800 000*tst): {}\ntricked_Cos(811 000*tst): {}   ", 
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
@@ -87,9 +88,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
     \nstd_Pi - __epi {}"
     , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
-     std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - __epi(100)  );
-     __epi(10);
+     std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - epi__.clone()  );
+     dbg!( __epi(10) );
+     dbg! (&epi__);
      fast_real_e(1.0);
+     dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
      dbg! (BigFloat::from(2.0).pow(5));
      dbg!(calc_e(256));
     crate::errMsg0( &msg1);
@@ -354,6 +357,7 @@ pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
         den *= 10.0; 
     }
     den -= 1.0;
+    num += floor * den;
     (num as i64, den as i64)
 }
 pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
