@@ -254,11 +254,11 @@ pub fn __epi (terms: usize) -> rugfloat {
    let n  = rugfloat::with_val_64(PREC0,587124671u64);
    let m =rugfloat::with_val_64(PREC0,768614336u64);
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-  // let x =  m / n;
-   //let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
-   let n0: f64 =587124671.0;
+   let x =  (m / n).sqrt();
+   let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
+  /* let n0: f64 =587124671.0;
    let m0=768614336.0;
-   let ret = fast_real_e_orig( m0, n0);
+   let ret = fast_real_e_orig( m0, n0);*/
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
