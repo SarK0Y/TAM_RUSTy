@@ -94,7 +94,6 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
      dbg! (BigFloat::from(2.0).pow(5));
-     dbg!(calc_e(256));
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -255,8 +254,11 @@ pub fn __epi (terms: usize) -> rugfloat {
    let n  = rugfloat::with_val_64(PREC0,587124671u64);
    let m =rugfloat::with_val_64(PREC0,768614336u64);
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let x =  m / n;
-   let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
+  // let x =  m / n;
+   //let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
+   let n0: f64 =587124671.0;
+   let m0=768614336.0;
+   let ret = fast_real_e_orig( m0, n0);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
@@ -340,19 +342,45 @@ pub fn fast_real_e (exp: f64) -> rugfloat {
     dbg!(&const_e);
     const_e.clone()
 }
-fn calc_e(n: u64) -> Rational {
-    let one = Rational::from(1);
-    let n_rational = Rational::from(n);   
-    let base = one.clone() + (one / n_rational);
-    base.pow(n)
+pub fn fast_real_e_orig (num: f64, den: f64) -> rugfloat {
+    let PREC_ = PREC as u32;
+    let PREC0_ = PREC0 as u32;
+    let one = rugfloat::with_val(PREC0_, 1.0);
+    let mut one_div_by = one.clone();
+    let rm = Round::Down;
+    let exponent: u32 = PREC0_ / 2; 
+    let mut const_e_base = rugfloat::with_val(PREC0_, 2.0);
+    //const_e_base.pow_assign_round(exponent, rm);
+    const_e_base.pow_assign(exponent);
+    dbg! (&const_e_base);
+    let new_coef = num;
+    let canceled_coef = den;
+    let mut big_exp = const_e_base.clone ();
+    big_exp *= rugfloat::with_val(PREC0_, new_coef);
+    const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , canceled_coef), rm);
+    dbg! (&const_e_base);
+    one_div_by.div_assign_round(const_e_base, rm);
+    const_e_base = one_div_by;
+    const_e_base += one;
+    dbg! (&big_exp);
+    dbg! (&exponent);
+    dbg! (&new_coef);
+    let mut const_e = const_e_base.clone();
+    const_e.pow_assign_round( big_exp, rm );
+    dbg! (&const_e_base );
+    dbg!(&const_e);
+    const_e.clone()
 }
+
 pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     let mut floor = x.floor();
     let mut mantissa = x - floor;
     if mantissa == 0.0 { return (x as i64, 1)}
     let mut den = 10.0f64;
     let mut num = den;
-    while mantissa != num / (den - 1.0 ) {
+    let mut epsilon = 2.0f64;
+    epsilon = epsilon.powi (40);
+    while (mantissa - num / (den - 1.0 ) ).abs() > epsilon {
         num = (den - 1.0 ) * mantissa;
         den *= 10.0; 
     }
