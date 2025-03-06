@@ -470,7 +470,10 @@ impl PowItFloat for BigFloat {
 }
 //fn
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
+//https://gitlab.com/tspiteri/gmp-mpfr-sys/-/blob/master/build.rs?ref_type=heads
 /*
+e^(x^2) = sum_{n=0}^∞ (x^(2n)) / (n!)
+∫ e^(x^2) dx = sum_{n=0}^∞ (x^(2n+1)) / ((2n+1) * n!) + C
  use rug::{Assign, Integer};
 let mut buffer = Integer::new();
 // ... buffer can be used and reused ...
