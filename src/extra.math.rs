@@ -254,8 +254,9 @@ pub fn __epi (terms: usize) -> rugfloat {
    let n  = rugfloat::with_val_64(PREC0,587124671u64);
    let m =rugfloat::with_val_64(PREC0,768614336u64);
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let x =  (m / n).sqrt();
-   let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
+   let x =  rugfloat::with_val_64(PREC0,(m / n).sqrt());
+ //  let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
+    let ret = __fast_real_e( x );
   /* let n0: f64 =587124671.0;
    let m0=768614336.0;
    let ret = fast_real_e_orig( m0, n0);*/
@@ -434,21 +435,32 @@ pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
     (num, den)
 }
 pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
-    let mut floor = rugfloat::with_val_64( PREC0, &x);
+    let mut floor = rugfloat::with_val_64(PREC0, x.to_integer().unwrap_or(rugint::new()) );
+    dbg!(&floor);
     let mut mantissa = rugfloat::with_val_64(PREC0, &x - &floor );
+    dbg! (&mantissa);
     let mut den = rugfloat::with_val_64(PREC0, 10u64);
     let mut num = rugfloat::with_val_64(PREC0, 1u64);
     let one = rugfloat::with_val_64(PREC0, 1u64);
     let ten = rugfloat::with_val_64(PREC0, 10u64);
-    while mantissa != num.clone() / (den.clone() - one.clone() ) {
+    let mut err = rugfloat::with_val_64(PREC0, 0.5);
+    let mut mid_res = rugfloat::with_val_64(PREC0, 1.0);
+    err.pow_assign(PREC0 / 2u64);
+    while mid_res.clone() > err.clone() {
+        mid_res = mantissa.clone() - num.clone() / (den.clone() - one.clone() );
         num = (den.clone() - one.clone() ) * mantissa.clone();
+        num = rugfloat::with_val_64(PREC0, num.to_integer().unwrap_or (rugint::new() ) );
         den *= ten.clone(); 
+        dbg! (&num);
+        dbg!(&den);
     }
     den -= one;
     num += rugfloat::with_val_64(PREC0, &floor * &den );
     (num, den)
 }
 use once_cell::sync::Lazy;
+
+use crate::errMsg0;
 pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
     static mut sum: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
     static mut term: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
