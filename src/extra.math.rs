@@ -1,6 +1,6 @@
 use chrono::round;
 use rug::float::Round;
-use rug::ops::{MulAssignRound, PowAssignRound, DivAssignRound, PowAssign as rugPowAssign, AddAssignRound };
+use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
@@ -256,10 +256,12 @@ pub fn __epi (terms: usize) -> rugfloat {
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
    let x =  rugfloat::with_val_64(PREC0,(m / n).sqrt());
  //  let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
-    let ret = __fast_real_e( x );
+    let ret = __fast_real_e( x.clone() );
   /* let n0: f64 =587124671.0;
    let m0=768614336.0;
    let ret = fast_real_e_orig( m0, n0);*/
+   let orig_epi = __fast_real_e (rugfloat::with_val (PREC0_, 1.0 ) ).pow(x);
+   dbg!(orig_epi);
    ret
 }
 fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
@@ -357,13 +359,13 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     let (new_coef, canceled_coef) = num_n_den_from_rugfloat( exp );
     let mut big_exp = const_e_base.clone ();
     big_exp *= rugfloat::with_val_64(PREC0, &new_coef);
-    const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , canceled_coef), rm);
+    const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , &canceled_coef), rm);
     dbg! (&const_e_base);
     one_div_by.div_assign_round(const_e_base, rm);
     const_e_base = one_div_by;
     const_e_base += one;
     dbg! (&big_exp);
-    dbg! (&exponent);
+    dbg! (&canceled_coef);
     dbg! (&new_coef);
     let mut const_e = const_e_base.clone();
     const_e.pow_assign_round( big_exp, rm );
@@ -446,16 +448,19 @@ pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
     let mut err = rugfloat::with_val_64(PREC0, 0.5);
     let mut mid_res = rugfloat::with_val_64(PREC0, 1.0);
     err.pow_assign(PREC0 / 2u64);
-    while mid_res.clone() > err.clone() {
-        mid_res = mantissa.clone() - num.clone() / (den.clone() - one.clone() );
+    let mut cnt = 50;
+    den.pow_assign( cnt );
+    //while mid_res.clone( ) != err.clone() {
+   // for _ in 0..=cnt {
+        //mid_res = mantissa.clone() - num.clone() / (den.clone() - one.clone() );
         num = (den.clone() - one.clone() ) * mantissa.clone();
         num = rugfloat::with_val_64(PREC0, num.to_integer().unwrap_or (rugint::new() ) );
         den *= ten.clone(); 
-        dbg! (&num);
-        dbg!(&den);
-    }
-    den -= one;
-    num += rugfloat::with_val_64(PREC0, &floor * &den );
+    //}
+    den.sub_assign_round(1.0, Round::Down);
+    dbg! (&den);
+    let num0 = rugfloat::with_val_64(PREC0,  (&den - &one) );
+    num += rugfloat::with_val_64(PREC0,  &floor * &num0 );
     (num, den)
 }
 use once_cell::sync::Lazy;
@@ -507,6 +512,7 @@ impl PowItFloat for BigFloat {
     }
 }
 //fn
+// 9999999999999999999999999999999
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x
 //https://gitlab.com/tspiteri/gmp-mpfr-sys/-/blob/master/build.rs?ref_type=heads
 /*
