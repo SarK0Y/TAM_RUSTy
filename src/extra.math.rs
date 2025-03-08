@@ -18,8 +18,8 @@ use malachite_float::conversion::from_rational;
 use malachite_float::conversion::from_natural;
 use malachite_q::conversion::from_float_simplest;
 use malachite_q::conversion::to_numerator_and_denominator;
-const PREC: u64 = 16;
-const PREC0: u64 = 256;
+const PREC: u64 = 1024;
+const PREC0: u64 = 3072;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -361,7 +361,8 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     big_exp *= rugfloat::with_val_64(PREC0, &new_coef);
     const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , &canceled_coef), rm);
     dbg! (&const_e_base);
-    one_div_by.div_assign_round(const_e_base, rm);
+    one_div_by.div_assign_round(&const_e_base, rm);
+    dbg! (&const_e_base);
     const_e_base = one_div_by;
     const_e_base += one;
     dbg! (&big_exp);
