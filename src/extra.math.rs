@@ -449,14 +449,14 @@ pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
     let mut err = rugfloat::with_val_64(PREC0, 0.5);
     let mut mid_res = rugfloat::with_val_64(PREC0, 1.0);
     err.pow_assign(PREC0 / 2u64);
-    let mut cnt = 50;
+    let mut cnt = 200;
     den.pow_assign( cnt );
     //while mid_res.clone( ) != err.clone() {
    // for _ in 0..=cnt {
         //mid_res = mantissa.clone() - num.clone() / (den.clone() - one.clone() );
         num = (den.clone() - one.clone() ) * mantissa.clone();
         num = rugfloat::with_val_64(PREC0, num.to_integer().unwrap_or (rugint::new() ) );
-        den *= ten.clone(); 
+       // den *= ten.clone(); 
     //}
     den.sub_assign_round(1.0, Round::Down);
     dbg! (&den);
