@@ -374,9 +374,9 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     dbg!(&const_e);
     const_e.clone()
 }
-pub fn re_fast_real_e (exp: rugfloat) -> rugfloat {
-    let PREC_ = PREC as u32;
-    let PREC0_ = PREC0 as u32;
+pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u32) -> rugfloat {
+    let PREC_ = prec_;
+    let PREC0_ = prec_;
     let one = rugfloat::with_val(PREC0_, 1.0);
     let mut one_div_by = one.clone();
     let rm = Round::Down;
@@ -385,7 +385,6 @@ pub fn re_fast_real_e (exp: rugfloat) -> rugfloat {
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent);
     dbg! (&const_e_base);
-    let (new_coef, canceled_coef) = num_n_den_from_rugfloat( exp );
     let mut big_exp = const_e_base.clone ();
     big_exp *= rugfloat::with_val_64(PREC0, &new_coef);
     const_e_base.mul_assign_round(rugfloat::with_val(PREC0_ , &canceled_coef), rm);
@@ -393,7 +392,7 @@ pub fn re_fast_real_e (exp: rugfloat) -> rugfloat {
     one_div_by.div_assign_round(&const_e_base, rm);
     dbg! (&const_e_base);
     const_e_base = one_div_by;
-    const_e_base += one;
+    const_e_base += one.clone();
     dbg! (&big_exp);
     dbg! (&canceled_coef);
     dbg! (&new_coef);
@@ -401,6 +400,7 @@ pub fn re_fast_real_e (exp: rugfloat) -> rugfloat {
     const_e.pow_assign_round( big_exp, rm );
     dbg! (&const_e_base );
     dbg!(&const_e);
+    if const_e == one {}
     const_e.clone()
 }
 pub fn fast_real_e_orig (num: f64, den: f64) -> rugfloat {
