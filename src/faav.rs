@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use crate::custom_traits::STRN; use crate::custom_traits::helpful_math_ops;
+use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 pub fn one_time_sav_prnt (prnt: Option <String > ) -> Option < String > {
     static mut state: Lazy <String> = Lazy::new (|| { String::new() });
     static mut count_to_reset: u32 = 1;
@@ -70,6 +71,14 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
             if x == 0 { state0 = 0; return 0;}
             state0 += x; 
         } state0 
+    }
+}
+pub fn real_e (state: Option < rugfloat >, prec: u64) -> rugfloat {
+    static mut state0: Lazy< rugfloat > = Lazy::new (|| {rugfloat::with_val_64(300, 0.0)} );
+    unsafe {
+        if state.is_some () {
+            *state0 = rugfloat::with_val_64(prec, 0.0); return rugfloat::with_val_64(prec, 0.0);
+        } state0.clone() 
     }
 }
 pub fn freq_range_status (data: Option <crate::enums::freq_range>, unset: bool ) -> Option <crate::enums::freq_range> {

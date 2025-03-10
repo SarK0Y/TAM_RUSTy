@@ -364,7 +364,7 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     one_div_by.div_assign_round(&const_e_base, rm);
     dbg! (&const_e_base);
     const_e_base = one_div_by;
-    const_e_base += one;
+    const_e_base += one.clone();
     dbg! (&big_exp);
     dbg! (&canceled_coef);
     dbg! (&new_coef);
@@ -372,6 +372,12 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     const_e.pow_assign_round( big_exp, rm );
     dbg! (&const_e_base );
     dbg!(&const_e);
+    if const_e == one {
+        std::thread::spawn (move || {
+            let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u32;
+            re_fast_real_e(new_coef, canceled_coef, prec_);
+        }).join();
+    }
     const_e.clone()
 }
 pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u32) -> rugfloat {
@@ -400,7 +406,11 @@ pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u32) 
     const_e.pow_assign_round( big_exp, rm );
     dbg! (&const_e_base );
     dbg!(&const_e);
-    if const_e == one {}
+    if const_e == one {
+        std::thread::spawn (|| {
+            
+        });
+    }
     const_e.clone()
 }
 pub fn fast_real_e_orig (num: f64, den: f64) -> rugfloat {
