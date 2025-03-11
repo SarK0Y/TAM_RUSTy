@@ -254,7 +254,8 @@ pub fn __epi (terms: usize) -> rugfloat {
    let n  = rugfloat::with_val_64(PREC0,587124671u64);
    let m =rugfloat::with_val_64(PREC0,768614336u64);
    //let coef: Rational = Rational::const_from_unsigneds(m, n);
-   let x =  rugfloat::with_val_64(PREC0,(m / n).sqrt());
+   let _x =  rugfloat::with_val_64(PREC0,m / n );
+   let x =  rugfloat::with_val_64(PREC0, _x.sqrt());
  //  let ret =big_exp_Taylor( rugfloat::with_val(PREC0_, x), terms);
     let ret = __fast_real_e( x.clone() );
   /* let n0: f64 =587124671.0;
