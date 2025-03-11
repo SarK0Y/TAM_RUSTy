@@ -74,10 +74,10 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
     }
 }
 pub fn real_e (state: Option < rugfloat >, prec: u64) -> rugfloat {
-    static mut state0: Lazy< rugfloat > = Lazy::new (|| {rugfloat::with_val_64(300, 0.0)} );
+    static mut state0: Lazy< rugfloat > = Lazy::new (|| {rugfloat::with_val_64(3, 0.0)} );
     unsafe {
         if state.is_some () {
-            *state0 = rugfloat::with_val_64(prec, 0.0); return rugfloat::with_val_64(prec, 0.0);
+            *state0 = rugfloat::with_val_64(prec, state.unwrap() );
         } state0.clone() 
     }
 }
