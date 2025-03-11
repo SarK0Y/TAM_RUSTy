@@ -89,7 +89,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     \nstd_Pi - __epi {}"
     , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
      std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - epi__.clone()  );
-     dbg!( __epi(10) );
+     dbg!( epi() );
      dbg! (&epi__);
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
