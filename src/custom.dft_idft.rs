@@ -472,7 +472,6 @@ pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_
         base1 = samples [ j ];
         let K = (base - base1 + energy_dt) * scale;
         samples [ j ] = pi.powf ( K ) + e.powf ( K );
-
         base = base1;
     }
 }
