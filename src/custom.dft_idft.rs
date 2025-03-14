@@ -464,16 +464,22 @@ pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
     let mut base1 = samples [ 1 ];
+    let mut K1 = 1.0f32;
     let pi = std::f32::consts::PI;
     let e = std::f32::consts::E;
     let energy_dt = uv.step_freq.unwrap_or (0.23);
+    let bar = uv.bar_sample;
     let scale = uv.scale.unwrap_or (0.31);
-    for j in 1..samples.len() {
+    for j in 3..samples.len() {
         base1 = samples [ j ];
-        let K = (base + base1 + energy_dt) * scale;
+        K1 = samples [ j -2];
+        let K = (base + base1 + energy_dt).abs() * scale;
         //dbg! (&K);
         //samples [ j ] = pi.powf ( K ) + e.powf ( 2.0 * K );
-        samples [ j ] = e.powf ( 2.0 * K );
+        let shift = (K * e + K1 * pi / K + samples [ j - 1 ]); 
+        samples [ j ] += if shift.abs() < 1.0 { shift } else { energy_dt };
+        samples [ j ] %= bar;
+        //dbg! (&samples [ j ]);
         base = base1;
     }
 }
