@@ -473,12 +473,12 @@ pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_
     for j in 3..samples.len() {
         base1 = samples [ j ];
         K1 = samples [ j -2];
-        let K = (base + base1 + energy_dt).abs() * scale;
+        let K = (base + base1 + energy_dt) * scale;
         //dbg! (&K);
         //samples [ j ] = pi.powf ( K ) + e.powf ( 2.0 * K );
-        let shift = (K * e + K1 * pi / K + samples [ j - 1 ]); 
+        let shift = (K * e.powf (K1) + K1 * pi.powf ( K ) / K + samples [ j - 1 ]); 
         samples [ j ] += if shift.abs() < 1.0 { shift } else { energy_dt };
-        samples [ j ] %= bar;
+      //  samples [ j ] %= bar;
         //dbg! (&samples [ j ]);
         base = base1;
     }
