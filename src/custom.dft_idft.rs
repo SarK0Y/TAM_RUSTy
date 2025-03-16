@@ -465,8 +465,6 @@ pub fn tune_wave_energy_mix (samples: &mut [f32], uv: &crate::enums::universum_v
    
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    let mut base = samples [0];
-    let mut base1 = samples [ 1 ];
     let mut K1 = 1.0f32;
     let pi = std::f32::consts::PI;
     let e = std::f32::consts::E;
@@ -474,16 +472,15 @@ pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_
     let bar = uv.bar_sample;
     let scale = uv.scale.unwrap_or (0.31);
     for j in 3..samples.len() {
-        base1 = samples [ j ];
-        K1 = samples [ j -2];
-        let K = (base + base1 + energy_dt) * scale;
+        K1 = samples [ j ] - samples [ j - 3];
+        let K = (samples [j - 2 ] + energy_dt) * scale;
         //dbg! (&K);
         //samples [ j ] = pi.powf ( K ) + e.powf ( 2.0 * K );
-        let shift = (K * e.powf (K1) + K1 * pi.powf ( K ) / K + samples [ j - 1 ]); 
-        samples [ j ] += if shift.abs() < 1.0 { shift } else { energy_dt };
-      //  samples [ j ] %= bar;
-        //dbg! (&samples [ j ]);
-        base = base1;
+        let shift = K * samples [j - 1] + K1; 
+        if shift.abs() == std::f32::INFINITY || shift.abs() == std::f32::NAN {continue;}
+        samples [ j ] =  shift;
+        samples [ j ] %= bar;
+      // dbg! (&j); dbg! (&samples [ j ]);
     }
 }
 pub fn tune_wave_energy (samples: &mut [f32], energy_dt: f32) {
