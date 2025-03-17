@@ -490,9 +490,9 @@ pub fn tune_wave_energy4 (samples: &mut [f32], uv: &crate::enums::universum_vox_
     let energy_dt = uv.step_freq.unwrap_or (0.23);
     let bar = uv.bar_sample;
     let scale = uv.scale.unwrap_or (0.31);
-    for j in 3..samples.len() {
-        K1 = samples [ j ] - samples [ j - 3];
-        let K = (samples [j - 2 ] + energy_dt) * scale;
+    for j in 4..samples.len() {
+        K1 = samples [ j ] - samples [ j - 4];
+        let K = (samples [j - 2 ] + energy_dt) * samples [ j - 3];
         //dbg! (&K);
         //samples [ j ] = pi.powf ( K ) + e.powf ( 2.0 * K );
         let shift = K * samples [j - 1] + K1; 
