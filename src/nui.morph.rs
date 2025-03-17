@@ -68,6 +68,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         24 => {mk_morph_alg24_rev( &mut samples, &uv_morph ); },
         25 => {mk_morph_alg25_wave_energy( &mut samples, &uv_morph ); },
         26 => {mk_morph_alg26_wave_energy( &mut samples, &uv_morph ); },
+        27 => {mk_morph_alg27_wave_energy( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
