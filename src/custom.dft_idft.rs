@@ -461,8 +461,8 @@ pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_
         base = base1;
     }
 }
-pub fn tune_wave_energy_mix (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-   
+pub fn tune_wave_energy_mix (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    let mut samples0: &mut [f32] = samples.clone().as_mut_slice();
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
@@ -518,6 +518,21 @@ pub fn tune_wave_energy1 (samples: &mut [f32], energy_dt: f32) {
         base1 = samples [ j ];
         samples [j] = (base - base1) * base + energy_dt + base1;
         base = base1;
+    }
+}
+pub trait Clone_Slice <Rhs = Self> {
+    type S;
+    fn clone (&mut self) -> Vec <Self::S>;
+
+}
+impl Clone_Slice <Self> for &mut [f32] {
+    type S = f32;
+    fn clone (&mut self) -> Vec <Self::S > {
+    let mut ret: Vec <Self::S > = Vec::with_capacity (self.len() ); 
+        for item in 0..self.len() {
+            ret.push ( self[item].clone () );
+        }
+        ret
     }
 }
 //fn
