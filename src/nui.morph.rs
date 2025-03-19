@@ -1115,6 +1115,7 @@ std::fmt::Debug > (x: P) -> P {
     y
 }
 //fn
+// поспешай медленней (с) Козьма Прутков
 //let tan = (PI * uv.old_freq.unwrap() / uv.sample_rate as f32).tan();
   //  let shift_coef = (tan - 1.0) / (tan + 1.0);
     
