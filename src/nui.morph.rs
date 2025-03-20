@@ -69,6 +69,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         25 => {mk_morph_alg25_wave_energy( &mut samples, &uv_morph ); },
         26 => {mk_morph_alg26_wave_energy( &mut samples, &uv_morph ); },
         27 => {mk_morph_alg27_wave_energy( &mut samples, &uv_morph ); },
+        28 => {mk_morph_alg28_wave_energy_mix( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -321,14 +322,14 @@ pub fn mk_morph_alg28_wave_energy_mix(samples: &mut [f32], uv: &crate::enums::un
      let mut over_ch0: *mut [f32] = &mut *ch0;
      over_samples(Some (over_ch0) );
     let mut thr1 = std::thread::spawn (move|| 
-        {crate::cdsp::tune_wave_energy4 (
+        {crate::cdsp::tune_wave_energy_mix (
            unsafe { &mut *over_samples(None).unwrap() },
            unsafe { &*over_uv(None).unwrap() } ); });
      let mut ch1: Vec <_> = read_chan_f32(samples, 1, 2, 0, samples.len() );
      let mut over_ch1: *mut [f32] = &mut *ch1;
      over_samples0(Some (over_ch1) );
      let mut thr2 = std::thread::spawn (move|| {
-        crate::cdsp::tune_wave_energy3 (
+        crate::cdsp::tune_wave_energy_mix (
            unsafe { &mut *over_samples0(None).unwrap() },
            unsafe { &*over_uv(None).unwrap() } ); });
     thr1.join();
