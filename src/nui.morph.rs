@@ -49,6 +49,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     } else { crate::faav::get_morph_state().unwrap() };
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
+    println! ("\nAlgo {}", uv_morph.alg0);
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
