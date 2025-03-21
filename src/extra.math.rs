@@ -50,6 +50,7 @@ pub fn tst_Pi (ceil: f64) -> f64 {
     ret
 }
 pub fn fast_n_simple_Pi (number_of_points: u64) -> f64 {
+    type point = ( f64, f64 );
     0.0
 }
 pub fn arc_val (from: f64, to: f64) -> f64 {
