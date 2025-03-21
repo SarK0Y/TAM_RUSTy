@@ -25,6 +25,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
      let mut uv_morph: crate::enums::universum_vox_morph =
                       match load_uv_conf_morph( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
                       err_msg_morph (); return;} };
+    println! ("\nAlgo {}", uv_morph.alg0);
     match uv_morph.alg0 {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
         7 => {mk_morph_alg7_poly( &uv_morph ); return; },
@@ -49,7 +50,6 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     } else { crate::faav::get_morph_state().unwrap() };
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
-    println! ("\nAlgo {}", uv_morph.alg0);
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
