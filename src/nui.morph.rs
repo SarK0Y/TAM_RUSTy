@@ -73,8 +73,8 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
-    let full_path = format! ( "{}", uv_morph.file_out );
-    wav_write(&uv_morph.file_out, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
+    let full_path = format! ( "{}.{}.wav", uv_morph.file_out, uv_morph.alg0 );
+    wav_write(&full_path, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     if uv_morph.file_out.len() > 0 { errMsg0( &msg ); crate::faav::unset_morph_state();}
 } 
