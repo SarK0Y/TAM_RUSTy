@@ -26,6 +26,10 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
                       match load_uv_conf_morph( path_to_conf ) {Ok (json ) => json, Err (e) => {eprintln! ("{e}");
                       err_msg_morph (); return;} };
     println! ("\nAlgo {}", uv_morph.alg0);
+    let thr1 = std::thread::spawn (|| {
+        let uid = mk_uid(6);
+        crate::faav::sav_uid( Some (uid) ); 
+    });
     match uv_morph.alg0 {
         2 => {mk_morph_alg2_bin_data( &uv_morph ); return; },
         7 => {mk_morph_alg7_poly( &uv_morph ); return; },
@@ -74,7 +78,8 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
-    let full_path = format! ( "{}.{}.wav", uv_morph.file_out, uv_morph.alg0 );
+    thr1.join();
+    let full_path = format! ( "{}.{}.{}.wav", uv_morph.file_out, uv_morph.alg0, crate::faav::sav_uid( None).unwrap() );
     wav_write(&full_path, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
     let msg = format! ("Dear User, data was written to {full_path}\nPlease, hit any key to continue.. Thanks.");
     if uv_morph.file_out.len() > 0 { errMsg0( &msg ); crate::faav::unset_morph_state();}
