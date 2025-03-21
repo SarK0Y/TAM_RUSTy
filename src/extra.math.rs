@@ -49,6 +49,9 @@ pub fn tst_Pi (ceil: f64) -> f64 {
     let ret: f64 = Gauss_Legendre_Pi(ceil); 
     ret
 }
+pub fn fast_n_simple_Pi (number_of_points: u64) -> f64 {
+    0.0
+}
 pub fn arc_val (from: f64, to: f64) -> f64 {
     let x = from;
     let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;    
