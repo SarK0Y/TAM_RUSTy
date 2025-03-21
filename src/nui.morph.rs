@@ -314,7 +314,6 @@ pub fn mk_morph_alg26_wave_energy(samples: &mut [f32], uv: &crate::enums::univer
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
 pub fn mk_morph_alg28_wave_energy_mix(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
-    println!("Algo 28", );
     use crate::faav::over_uv;
     use crate::faav::over_samples;
     use crate::faav::over_samples0;
