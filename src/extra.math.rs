@@ -49,10 +49,22 @@ pub fn tst_Pi (ceil: f64) -> f64 {
     let ret: f64 = Gauss_Legendre_Pi(ceil); 
     ret
 }
-pub fn fast_n_simple_Pi (number_of_points: u64) -> f64 {
+pub fn fast_n_simple_Pi (number_of_points: u8) -> f64 {
     type point = ( f64, f64 );
-    let mut arc_point: point = (0.0, 0.0 );
+    let mut arc_point0: point = (1.0, 0.0 );
+    let mut arc_point1: point = (0.0, 1.0 );
+    let mut dx = 0.5f64;
+    let mut y = 1.0f64;
+    let mut x = 0.0f64;
+    let mut tmp = 1.0f64;
+    let mut num_of_pts = 0u8;
     let mut arc_points: Vec < point > = Vec::new();
+    while num_of_pts < number_of_points {
+        while x > arc_point1.0 {
+            x -= dx;
+            y = (1.0 - x.powi(2) ).sqrt();
+        }
+    }
     0.0
 }
 pub fn arc_val (from: f64, to: f64) -> f64 {
