@@ -51,19 +51,19 @@ pub fn tst_Pi (ceil: f64) -> f64 {
 }
 pub fn fast_n_simple_Pi (error: f64 ) -> f64 {
     let mut dx: f64 = 2.0.sqrt(); 
-    let mut x = 0.0f64;
-    
+    //let mut x = 0.0f64;
     dx = dx / 2.0;
     let mut y = (1.0 - dx.powi(2) ).sqrt();
     let mut dy = 1.0 - y;
+    dx = ( dx.powi(2) + dy.powi(2) ).sqrt();
     let mut num_of_pts = 8u64;
-   // while num_of_pts < number_of_points {
-        while x > error {
-            x -= dx;
-            y = (1.0 - x.powi(2) ).sqrt();
-        }
-    //}
-    0.0
+    while dx > error {
+        dx = dx / 2.0;
+        y = (1.0 - dx.powi(2) ).sqrt();
+        dy = 1.0 - y;
+        dx = ( dx.powi(2) + dy.powi(2) ).sqrt();
+        num_of_pts *= 2;
+    } num_of_pts as f64 * dx
 }
 pub fn arc_val (from: f64, to: f64) -> f64 {
     let x = from;
