@@ -6,7 +6,7 @@ use malachite::num::arithmetic::floor;
 use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
-use malachite::num::arithmetic::traits::{Floor, Pow, PowerOf2, PowAssign};
+use malachite::num::arithmetic::traits::{Floor, Pow, PowAssign, PowerOf2};
 use malachite::num::float::NiceFloat;
 use malachite::Rational;
 use malachite::Natural;
@@ -53,10 +53,11 @@ pub fn fast_n_simple_Pi (number_of_points: u8) -> f64 {
     type point = ( f64, f64 );
     let mut arc_point0: point = (1.0, 0.0 );
     let mut arc_point1: point = (0.0, 1.0 );
-    let mut dx = 0.5f64;
-    let mut y = 1.0f64;
     let mut x = 0.0f64;
-    let mut tmp = 1.0f64;
+    let mut side = ( (arc_point0.0 - arc_point1.0).powi(2) + (arc_point0.1 - arc_point1.1 ).powi(2) ).sqrt();
+    let mut dx = side / 2.0;
+    let mut y = (1.0 - dx.powi(2) ).sqrt();
+    let mut dy = 1.0 - y;
     let mut num_of_pts = 0u8;
     let mut arc_points: Vec < point > = Vec::new();
     while num_of_pts < number_of_points {
