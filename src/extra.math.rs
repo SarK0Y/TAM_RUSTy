@@ -56,7 +56,7 @@ pub fn fast_n_simple_Pi (error: f64 ) -> f64 {
     let mut y = (1.0 - dx.powi(2) ).sqrt();
     let mut dy = 1.0 - y;
     dx = ( dx.powi(2) + dy.powi(2) ).sqrt();
-    let mut num_of_pts = 8u64;
+    let mut num_of_pts = 4u64;
     while dx > error {
         dx = dx / 2.0;
         y = (1.0 - dx.powi(2) ).sqrt();
@@ -101,9 +101,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
     tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
-    let msg1 = format! ("{}\nSimple Pi(0.7^(1/13)): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
+    let msg1 = format! ("{}\nfast & Simple Pi(0.5^35): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
     \nstd_Pi - __epi {}"
-    , msg, simple_Pi (0.05.powf(1.0 / 11.0) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
+    , msg, std_Pi - fast_n_simple_Pi (0.5.powi(35) ), control_tst_Pi, std_Pi - 2.0 * tst_asin(1.0, 11),
      std_Pi - 2.0 * almost_asin(1.0, 75), _std_Pi - epi__.clone()  );
      dbg!( epi() );
      dbg! (&epi__);
