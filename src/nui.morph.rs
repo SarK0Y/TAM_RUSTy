@@ -328,14 +328,14 @@ pub fn mk_morph_alg29_wave_energy(samples: &mut [f32], uv: &crate::enums::univer
      let mut over_ch0: *mut [f32] = &mut *ch0;
      over_samples(Some (over_ch0) );
     let mut thr1 = std::thread::spawn (move|| 
-        {crate::cdsp::tune_wave_energy_mix (
+        {crate::cdsp::tune_wave_energy5 (
            unsafe { &mut *over_samples(None).unwrap() },
            unsafe { &*over_uv(None).unwrap() } ); });
      let mut ch1: Vec <_> = read_chan_f32(samples, 1, 2, 0, samples.len() );
      let mut over_ch1: *mut [f32] = &mut *ch1;
      over_samples0(Some (over_ch1) );
      let mut thr2 = std::thread::spawn (move|| {
-        crate::cdsp::tune_wave_energy_mix (
+        crate::cdsp::tune_wave_energy5 (
            unsafe { &mut *over_samples0(None).unwrap() },
            unsafe { &*over_uv(None).unwrap() } ); });
     thr1.join();
