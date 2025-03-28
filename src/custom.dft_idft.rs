@@ -522,11 +522,13 @@ pub fn tune_wave_energy4 (samples: &mut [f32], uv: &crate::enums::universum_vox_
 pub fn tune_wave_energy5 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut coefs: Vec <f32> = Vec::new();
     let scale = uv.scale.unwrap_or (0.31);
+    let fading_duration = uv.fading_duration as i32;
+    let fading: f32 = uv.fading_step;
     if let Some (x) = &uv.coef { coefs = x.clone();}
     else {errMsg0("Needs to set coef in json"); return}
     let len = coefs.len();
     for i in 0..samples.len(){
-        samples [ i ] *= coefs [ i % len ] * scale;
+        samples [ i ] *= coefs [ i % len ] * scale * fading.powi (i as i32 % fading_duration);
     }
 }
 pub fn tune_wave_energy (samples: &mut [f32], energy_dt: f32) {
