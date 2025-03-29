@@ -481,6 +481,26 @@ pub fn tune_wave_energy_mix (mut samples: &mut [f32], uv: &crate::enums::univers
         samples [ i ] -= samples0 [ i ];
     }
 }
+pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    use crate::faav::over_uv;
+    use crate::faav::over_samples0;
+    let mut samples0 = samples.clone();
+    let over_uv_: *const crate::enums::universum_vox_morph = uv;
+    over_samples0(Some (samples0.as_mut_slice() ) );
+    crate::faav::over_uv( Some (over_uv_ ) );
+    let mut thr1 = std::thread::spawn (move|| {
+        crate::cdsp::tune_wave_energy3 (
+           unsafe { &mut *over_samples0(None).unwrap() },
+           unsafe { &*over_uv(None).unwrap() } ); 
+        });
+    crate::cdsp::tune_wave_energy4 (
+           samples,
+           unsafe { &*over_uv(None).unwrap() } ); 
+    thr1.join();
+    for i in 0..samples0.len(){
+        samples [ i ] -= samples0 [ i ];
+    }
+}
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
     let pi = std::f32::consts::PI;
