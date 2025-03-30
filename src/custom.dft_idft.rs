@@ -492,8 +492,14 @@ pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph)
     use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
     let cursor = u32__() as usize;
     let mut tmp = cursor;
+    let mut tmp_sample = 0f32;
+    let len = samples.len();
     for i in 0..samples.len(){
-        
+        tmp %= len;
+        tmp_sample = samples [ i ];
+        samples [ i ] = samples [ tmp ];
+        samples [ tmp ] = tmp_sample;
+        tmp *= cursor;
     }
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
