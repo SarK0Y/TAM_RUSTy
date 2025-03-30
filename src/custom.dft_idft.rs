@@ -493,11 +493,21 @@ pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph)
     let cursor = u32__() as usize;
     let mut tmp = cursor;
     let mut tmp_sample = 0f32;
-    let len = samples.len();
+    let len = samples.len() - 1;
     for i in 0..samples.len(){
-        tmp %= len;
-        swap_samples(samples, tmp, i);
+       // tmp &= len; curious side-kick
+        //println! ("tst"); dbg! (&tmp);
+        tmp %= len; //tmp.rem_euclid( len );
+       // dbg! (&tmp);
+        //swap_samples(samples, tmp, i, 1);
+        tmp_sample = samples [ i ];
+        samples [ i ] = samples [ tmp ];
+        samples [ tmp ] = tmp_sample;
+        //dbg! (&tmp);
         tmp *= cursor;
+        tmp += i;
+        //dbg! (&len);
+        //dbg! (&cursor);
     }
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
@@ -568,11 +578,13 @@ pub fn tune_wave_energy1 (samples: &mut [f32], energy_dt: f32) {
         base = base1;
     }
 }
-#[inline(always)]
+#[inline(never)]
 pub fn swap_samples (samples: &mut [f32], i: usize, tmp: usize ) {    
     let tmp_sample = samples [ i ];
     samples [ i ] = samples [ tmp ];
     samples [ tmp ] = tmp_sample;
+    dbg! (&tmp);
+    dbg! (&i);
 }
 pub trait Clone_Slice <Rhs = Self> {
     type S;
