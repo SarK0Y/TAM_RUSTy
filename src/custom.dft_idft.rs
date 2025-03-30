@@ -489,10 +489,9 @@ pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::univer
     }
 }
 pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    let mut samples0 = samples.clone();
-    crate::cdsp::tune_wave_energy5 ( &mut samples0, &uv ); 
-    for i in 0..samples0.len(){
-        samples [ i ] -= samples0 [ i ];
+    use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
+    for i in 0..samples.len(){
+        
     }
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
