@@ -488,6 +488,13 @@ pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::univer
         samples [ i ] -= samples0 [ i ];
     }
 }
+pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    let mut samples0 = samples.clone();
+    crate::cdsp::tune_wave_energy5 ( &mut samples0, &uv ); 
+    for i in 0..samples0.len(){
+        samples [ i ] -= samples0 [ i ];
+    }
+}
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
     let pi = std::f32::consts::PI;
