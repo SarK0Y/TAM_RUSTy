@@ -568,6 +568,7 @@ pub fn tune_wave_energy1 (samples: &mut [f32], energy_dt: f32) {
         base = base1;
     }
 }
+#[inline(always)]
 pub fn swap_samples (a: &mut f32, b: &mut f32 ) {
     /*
     tmp_sample = samples [ i ];
