@@ -510,6 +510,25 @@ pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph)
         //dbg! (&cursor);
     }
 }
+pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    let mut K1 = 1.0f32;
+    let pi = std::f32::consts::PI;
+    let e = std::f32::consts::E;
+    let energy_dt = uv.step_freq.unwrap_or (0.23);
+    let bar = uv.bar_sample;
+    let scale = uv.scale.unwrap_or (0.31);
+    for j in 3..samples.len() {
+        K1 = samples [ j ] - samples [ j - 3];
+        let K = (samples [j - 2 ] + energy_dt) * scale;
+        //dbg! (&K);
+        //samples [ j ] = pi.powf ( K ) + e.powf ( 2.0 * K );
+        let shift = K * samples [j - 1] + K1; 
+        if shift.abs() == std::f32::INFINITY || shift.abs() == std::f32::NAN {continue;}
+        samples [ j ] =  shift;
+        samples [ j ] %= bar;
+      // dbg! (&j); dbg! (&samples [ j ]);
+    }
+}
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
     let pi = std::f32::consts::PI;
