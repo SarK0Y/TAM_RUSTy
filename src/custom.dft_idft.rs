@@ -511,8 +511,9 @@ pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph)
     }
 }
 pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    if uv.input_u64.is_none() {errMsg0("'input_64' in Universum Vox must be set"); return}
     for j in 0..samples.len() {
-        
+
     }
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
