@@ -514,9 +514,25 @@ pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_
     if uv.input_u64.is_none() {errMsg0("'input_64' in Universum Vox must be set"); return}
     let input = uv.input_u64.clone().unwrap();
     if input.len() < 2 {{errMsg0("'input_64' in Universum Vox must set two vars -- 'window_width' & 'sum'"); return}}
-    for j in 0..samples.len() {
-
+    let window_width = input [0];
+    let sum = input [1];
+    let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
+    if_keys [0] = 0;
+    for t in 1..if_keys.len() {
+        if_keys [t] = 1;
     }
+    let mut fns: Vec <fn (&String)> = Vec::new();
+    fns.push(nop);
+    fns.push(printIt);
+    let mut now_sum = 0.0_f64;
+    for j in 0..samples.len() {
+        //now_sum += 
+    }
+}
+pub fn printIt (it: &String){
+    println!("{}", it);
+}
+pub fn nop (it: &String) {
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
