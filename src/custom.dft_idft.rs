@@ -520,7 +520,7 @@ pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
     if_keys.push (0);
     for t in 1..window_width as usize {
-        if_keys [t] = 1;
+        if_keys.push(0);
     }
     let mut fns: Vec <fn (String)> = Vec::new();
     fns.push(nop);
