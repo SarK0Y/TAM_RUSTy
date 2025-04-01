@@ -516,24 +516,28 @@ pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_
     let input = uv.input_u64.clone().unwrap();
     let input_f32 = uv.input_f32.clone().unwrap();
     let window_width = input [0];
-    let sum = input [1];
+    let sum = input_f32 [0];
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
     if_keys [0] = 0;
     for t in 1..if_keys.len() {
         if_keys [t] = 1;
     }
-    let mut fns: Vec <fn (&String)> = Vec::new();
+    let mut fns: Vec <fn (String)> = Vec::new();
     fns.push(nop);
     fns.push(printIt);
-    let mut now_sum = 0.0_f64;
+    let mut now_sum = 0.0_f32;
     for j in 0..samples.len() {
-        //now_sum += 
+        let sub_j = j % if_keys.len();
+        let if_key = if_keys [ sub_j ];
+        now_sum *= if_key as f32;
+        now_sum += samples [ j ];
+        fns [ sub_j ] ( now_sum.to_string() );
     }
 }
-pub fn printIt (it: &String){
+pub fn printIt (it: String){
     println!("{}", it);
 }
-pub fn nop (it: &String) {
+pub fn nop (it: String) {
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
