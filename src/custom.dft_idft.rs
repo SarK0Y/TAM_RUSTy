@@ -511,9 +511,10 @@ pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph)
     }
 }
 pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    if uv.input_u64.is_none() {errMsg0("'input_64' in Universum Vox must be set"); return}
+    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
+    if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
     let input = uv.input_u64.clone().unwrap();
-    if input.len() < 2 {{errMsg0("'input_64' in Universum Vox must set two vars -- 'window_width' & 'sum'"); return}}
+    let input_f32 = uv.input_f32.clone().unwrap();
     let window_width = input [0];
     let sum = input [1];
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
