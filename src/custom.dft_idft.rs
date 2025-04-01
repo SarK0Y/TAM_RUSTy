@@ -518,12 +518,14 @@ pub fn tune_wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_
     let window_width = input [0];
     let sum = input_f32 [0];
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
-    if_keys.push (0);
-    for t in 1..window_width as usize {
-        if_keys.push(0);
+    for t in 0..window_width as usize - 1 {
+        if_keys.push(1);
     }
+    if_keys.push (0);
     let mut fns: Vec <fn (String)> = Vec::new();
-    fns.push(nop);
+    for t in 0..window_width as usize - 1 {
+        fns.push(nop);
+    }
     fns.push(printIt);
     let mut now_sum = 0.0_f32;
     for j in 0..samples.len() {
@@ -538,6 +540,7 @@ pub fn printIt (it: String){
     println!("{}", it);
 }
 pub fn nop (it: String) {
+   /* dbg! ("tst"); */
 }
 pub fn tune_wave_energy3 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut K1 = 1.0f32;
