@@ -1,13 +1,13 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.175"
+version = "13.11.176"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
 description = "Automation tool to make Console/Terminal more comfy. Have a great Day & Night, Dear User 💯❤️"
-crate_type = ["staticlib"]
+#crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities", "multimedia::audio"]
 [profile.release]
@@ -34,7 +34,7 @@ terminal_size = "0.3.0"
 crossterm="0.27.0"
 regex = "1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
-midly = {version = "0.5.3", feature="std"}
+midly = {version = "0.5.3", features=["std"]}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
@@ -44,7 +44,7 @@ malachite-float = {version = "0.4.22"}
 malachite-q = {version = "0.4.22"}
 spectrum-analyzer = {version = "1.5.0"}
 num = {version = "0.4.3"}
-serde_json = {version = "1.0.32", feature="std"}
+serde_json = {version = "1.0.32", features=["std"]}
 syn = "2.0.66"
 procfs = "0.15.1"
 sysinfo = "0.32.0"

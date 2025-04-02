@@ -548,7 +548,7 @@ pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_
     let input_f32 = uv.input_f32.clone().unwrap();
     let window_width = input [0];
     let from = input [1] as usize;
-    let to = if input [2] == 0 { samples.len() } else {input [2] as usize };
+    let to = if input [2] as usize > samples.len() { samples.len() } else {input [2] as usize };
     let gap = input [3] as usize;
     let sum = input_f32 [0];
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
