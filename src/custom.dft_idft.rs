@@ -550,25 +550,9 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     let window_width = input [0];
     let from = input [1] as usize;
     let to = if input [2] == 0 { samples.len() } else {input [2] as usize };
-    
-    let sum = input_f32 [0];
-    let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
-    for t in 0..window_width as usize - 1 {
-        if_keys.push(1);
-    }
-    if_keys.push (0);
-    let mut fns: Vec <fn (String)> = Vec::new();
-    for t in 0..window_width as usize - 1 {
-        fns.push(nop);
-    }
-    fns.push(printIt);
-    let mut now_sum = 0.0_f32;
     for j in from..to {
-        let sub_j = j % if_keys.len();
-        let if_key = if_keys [ sub_j ];
-        now_sum *= if_key as f32;
-        now_sum += samples [ j ];
-        fns [ sub_j ] ( now_sum.to_string() );
+        samples [ j ];
+        //fns [ sub_j ] ( now_sum.to_string() );
     }
 }
 
