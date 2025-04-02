@@ -540,6 +540,36 @@ pub fn wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_vox_m
         fns [ sub_j ] ( now_sum.to_string() );
     }
 }
+pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
+    if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
+    let input = uv.input_u64.clone().unwrap();
+    if input.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'window_width', 'from', 'to' & 'gap'"); return}
+    let input_f32 = uv.input_f32.clone().unwrap();
+    let window_width = input [0];
+    let from = input [1] as usize;
+    let to = if input [2] == 0 { samples.len() } else {input [2] as usize };
+    
+    let sum = input_f32 [0];
+    let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
+    for t in 0..window_width as usize - 1 {
+        if_keys.push(1);
+    }
+    if_keys.push (0);
+    let mut fns: Vec <fn (String)> = Vec::new();
+    for t in 0..window_width as usize - 1 {
+        fns.push(nop);
+    }
+    fns.push(printIt);
+    let mut now_sum = 0.0_f32;
+    for j in from..to {
+        let sub_j = j % if_keys.len();
+        let if_key = if_keys [ sub_j ];
+        now_sum *= if_key as f32;
+        now_sum += samples [ j ];
+        fns [ sub_j ] ( now_sum.to_string() );
+    }
+}
 pub fn printIt (it: String){
     println!("{}", it);
 }
