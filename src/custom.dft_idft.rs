@@ -548,8 +548,10 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     if input.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'window_width', 'from' & 'to'"); return}
     let input_f32 = uv.input_f32.clone().unwrap();
     let window_width = input [0];
-    let from = input [1] as usize;
+    let from = input [1] as usize + 1;
     let to = if input [2] == 0 { samples.len() } else {input [2] as usize };
+    let mut sign: f32 = 0.0;
+    let mut fns: Vec <fn (&String)> = Vec::new();
     for j in from..to {
         samples [ j ];
         //fns [ sub_j ] ( now_sum.to_string() );
