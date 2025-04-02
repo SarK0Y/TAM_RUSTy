@@ -354,7 +354,7 @@ pub fn mk_morph_alg32_stat(samples: &mut [f32], uv: &crate::enums::universum_vox
 }
 pub fn mk_morph_alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
-    crate::cdsp::wave_energy_stat(&mut ch0, uv);
+    crate::cdsp::wave_energy_stat_gaps(&mut ch0, uv);
 }
 pub fn mk_morph_alg29_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     use crate::faav::over_uv;

@@ -568,7 +568,7 @@ pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_
         let if_key = if_keys [ sub_j ];
         now_sum *= if_key as f32;
         now_sum += samples [ j ];
-        fns [ sub_j ] ( now_sum.to_string() );
+        fns [ sub_j ] ( format!("j: {j}, sum: {}",now_sum.to_string() ) );
         j += gap;
     }
 }
