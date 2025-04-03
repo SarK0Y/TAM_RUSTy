@@ -78,8 +78,9 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         29 => {mk_morph_alg29_wave_energy( &mut samples, &uv_morph ); },
         30 => {mk_morph_alg30_wave_energy_mix( &mut samples, &uv_morph ); },
         31 => {mk_morph_alg31_shuffle ( &mut samples, &uv_morph ); },
-        32 => {mk_morph_alg32_stat ( &mut samples, &uv_morph ); },
-        33 => {mk_morph_alg33_stat_gaps ( &mut samples, &uv_morph ); },
+        32 => {alg32_stat ( &mut samples, &uv_morph ); },
+        33 => {alg33_stat_gaps ( &mut samples, &uv_morph ); },
+        34 => {alg34_stat_fading ( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -348,13 +349,17 @@ pub fn mk_morph_alg31_shuffle(samples: &mut [f32], uv: &crate::enums::universum_
     write_chan_f32(samples, 0, 2, 0, &ch0 );
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
-pub fn mk_morph_alg32_stat(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn alg32_stat(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat(&mut ch0, uv);
 }
-pub fn mk_morph_alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat_gaps(&mut ch0, uv);
+}
+pub fn alg34_stat_fading(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+    crate::cdsp::wave_energy_stat_fading(&mut ch0, uv);
 }
 pub fn mk_morph_alg29_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     use crate::faav::over_uv;
