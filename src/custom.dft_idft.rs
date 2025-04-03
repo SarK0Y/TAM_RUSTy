@@ -552,18 +552,22 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     let from = input [1] as usize + 1;
     let to = if input [2] == 0 || input [2] as usize > samples.len() { samples.len() } else {input [2] as usize };
     let mut sign: usize = 0;
-    let mut count_fading_len = 0_usize;
+    let mut sign1: usize = 0;
+    let mut count_fading_len = 0_isize;
+    let mut prev_fading_len = 0_isize;
     let mut fns: Vec <fn (String)> = Vec::new();
-    let mut fn_set_max: Vec <fn (&mut f32, &mut f32)> = Vec::new();
+    let mut fn_set_max: Vec <fn (&mut isize, &mut isize)> = Vec::new();
     fn_set_max.push (set_max);
     fn_set_max.push(set_nop);
-    fns.push (nop);
-    fns.push (printIt);
+    fns.push (printIt); // 0
+    fns.push (nop); // 1
     for j in from..to {
         sign = (samples [ j ] - samples [j - 1]).is_negative() as usize;
         fns [ sign ] ( format!( "j: {j} fading length: {}", count_fading_len.to_string() ) );
         count_fading_len.inc();
-        count_fading_len *= sign;
+        count_fading_len *= sign as isize;
+        sign1 = (count_fading_len - prev_fading_len).is_positive() as usize;
+        fn_set_max [sign1] (&mut prev_fading_len, &mut count_fading_len);
     }
 }
 pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
