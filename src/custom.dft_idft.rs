@@ -554,6 +554,9 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     let mut sign: usize = 0;
     let mut count_fading_len = 0_usize;
     let mut fns: Vec <fn (String)> = Vec::new();
+    let mut fn_set_max: Vec <fn (&mut f32, &mut f32)> = Vec::new();
+    fn_set_max.push (set_max);
+    fn_set_max.push(set_nop);
     fns.push (nop);
     fns.push (printIt);
     for j in from..to {
@@ -563,7 +566,6 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
         count_fading_len *= sign;
     }
 }
-
 pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
     if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
@@ -692,6 +694,11 @@ impl Clone_Slice <Self> for &mut [f32] {
         }
         ret
     }
+}
+pub fn set_max <T: Copy>(old: &mut T, new: &mut T) {
+    *old = *new;
+}
+pub fn set_nop <T>(old: &mut T, new: &mut T) {
 }
 //fn
 // Зри в Корень (с) Козьма Прутков ;D
