@@ -4,6 +4,7 @@ use num::Zero;
 use num_traits::ops::overflowing::OverflowingAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use num_traits::Signed;
+use crate::custom_traits::helpful_math_ops;
 use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
@@ -550,13 +551,16 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     let window_width = input [0];
     let from = input [1] as usize + 1;
     let to = if input [2] == 0 || input [2] as usize > samples.len() { samples.len() } else {input [2] as usize };
-    let mut sign: f32 = 0.0;
+    let mut sign: usize = 0;
+    let mut count_fading_len = 0_usize;
     let mut fns: Vec <fn (String)> = Vec::new();
     fns.push (nop);
     fns.push (printIt);
     for j in from..to {
-        samples [ j ];
-        //fns [ sub_j ] ( now_sum.to_string() );
+        sign = (samples [ j ] - samples [j - 1]).is_negative() as usize;
+        fns [ sign ] ( format!( "j: {j} fading length: {}", count_fading_len.to_string() ) );
+        count_fading_len.inc();
+        count_fading_len *= sign;
     }
 }
 
