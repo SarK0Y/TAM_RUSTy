@@ -20,6 +20,14 @@ pub fn sav_uid (uid: Option <String > ) -> Option < String > {
         } Some ( state.clone() )
     }
 }
+pub fn log_file_printIt (name: Option <String > ) -> Option < String > {
+    static mut state: Lazy <String> = Lazy::new (|| { String::new() });
+    unsafe {
+        if let Some( x ) = name.clone() {
+            if x == "" { return None;} *state = x;
+        } Some ( state.clone() )
+    }
+}
 pub fn new_obj_id () -> u64 {
     static mut id: u64 = 0;
     unsafe {

@@ -5,6 +5,8 @@ use num_traits::ops::overflowing::OverflowingAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use num_traits::Signed;
 use crate::custom_traits::helpful_math_ops;
+use std::io::Write;
+use crate::STRN;
 use std::f32::consts::PI;
 use std::f32::consts::E;
 use once_cell::sync::Lazy;
@@ -604,6 +606,10 @@ pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_
     }
 }
 pub fn printIt (it: String){
+    let path_to_save_log = crate::faav::log_file_printIt(None).unwrap_or ("/tmp/log_printIt".strn() );
+    let mut file = match Mademoiselle_Entropia::help_funcs::get_file_append(&format!("{path_to_save_log}")){Ok(f) => f, 
+                                                            Err(e) => return println!("Sorry, can't open {path_to_save_log}: {e:?}")};
+    file.write_all (it.as_bytes() );
     println!("{}", it);
 }
 pub fn nop (it: String) {
