@@ -557,8 +557,8 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
     let mut prev_fading_len = 0_isize;
     let mut fns: Vec <fn (String)> = Vec::new();
     let mut fn_set_max: Vec <fn (&mut isize, &mut isize)> = Vec::new();
-    fn_set_max.push (set_max);
     fn_set_max.push(set_nop);
+    fn_set_max.push (set_max);
     fns.push (printIt); // 0
     fns.push (nop); // 1
     for j in from..to {
@@ -569,6 +569,7 @@ pub fn wave_energy_stat_fading (samples: &mut [f32], uv: &crate::enums::universu
         sign1 = (count_fading_len - prev_fading_len).is_positive() as usize;
         fn_set_max [sign1] (&mut prev_fading_len, &mut count_fading_len);
     }
+    println! ("max fading length: {prev_fading_len}");
 }
 pub fn wave_energy_stat_gaps (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
