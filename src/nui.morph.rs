@@ -9,6 +9,7 @@ use Mademoiselle_Entropia::true_rnd::get_true_rnd_u8 as u8__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
 use Mademoiselle_Entropia::true_rnd::__get_true_rnd_i32 as i32__;
 use Mademoiselle_Entropia::true_rnd::UID_UTF8 as mk_uid;
+use chrono::Local;
 use crate::cdsp::simple_n_fast_idft;
 use crate::{check_substr_, custom_input, freq_range, wipe_cmd_line};
 use crate::custom_traits::STRN;
@@ -52,6 +53,9 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         crate::faav::set_morph_state(&Some(data.clone() ) );
         data
     } else { crate::faav::get_morph_state().unwrap() };
+    let timestamp = Local::now();
+    let path_to_log = format!("{}.{}.log", uv_morph.file_in, timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+    crate::faav::log_file_printIt( Some (path_to_log ) );
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
     match uv_morph.alg0 {
