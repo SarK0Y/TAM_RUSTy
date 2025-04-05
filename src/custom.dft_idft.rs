@@ -453,6 +453,18 @@ pub fn tune_wave_energy2_ (samples: &mut [f32], uv: &crate::enums::universum_vox
         base = base1;
     }
 }
+pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    let mut base = samples [0];
+    let mut base1 = samples [ 1 ];
+    let energy_dt = uv.step_freq.unwrap_or (0.23);
+    let scale = uv.scale.unwrap_or (0.31) * -1.0;
+    for j in 1..samples.len() {
+        base1 = samples [ j ];
+        samples [j] = base - base1 + energy_dt;
+        samples [ j ] *= scale;
+        base = base1;
+    }
+}
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
     let mut base1 = samples [ 1 ];
