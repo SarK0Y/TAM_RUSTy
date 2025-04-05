@@ -55,6 +55,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     } else { crate::faav::get_morph_state().unwrap() };
     let timestamp = Local::now();
     let path_to_log = format!("{}.{}.log", uv_morph.file_in, timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+    crate::save_file_abs_adr0("".strn(), path_to_log.clone() );
     crate::faav::log_file_printIt( Some (path_to_log ) );
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
