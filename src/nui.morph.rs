@@ -53,10 +53,6 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         crate::faav::set_morph_state(&Some(data.clone() ) );
         data
     } else { crate::faav::get_morph_state().unwrap() };
-    let timestamp = Local::now();
-    let path_to_log = format!("{}.{}.log", uv_morph.file_in, timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
-    crate::save_file_abs_adr0("".strn(), path_to_log.clone() );
-    crate::faav::log_file_printIt( Some (path_to_log ) );
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
     let mut pre_exit = false;
@@ -371,6 +367,10 @@ pub fn alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_mor
     true
 }
 pub fn alg34_stat_fading(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) -> bool{
+    let timestamp = Local::now();
+    let path_to_log = format!("{}.{}.log", uv.file_in, timestamp.format("%Y-%mm-%dd_%H-%M-%S_%f"));
+    crate::save_file_abs_adr0("".strn(), path_to_log.clone() );
+    crate::faav::log_file_printIt( Some (path_to_log ) );
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat_fading(&mut ch0, uv);
     true
