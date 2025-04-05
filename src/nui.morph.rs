@@ -58,6 +58,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
     crate::faav::log_file_printIt( Some (path_to_log ) );
     //dbg!(&samples[0..900]);
     //let mut samples: &mut [i32] = &mut samples;
+    let mut pre_exit = false;
     match uv_morph.alg0 {
         1 => {mk_morph_alg1_async( &mut samples, &uv_morph ); },
         3 => {mk_morph_alg3_warp( &mut samples, &uv_morph ); },
@@ -82,12 +83,17 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         29 => {mk_morph_alg29_wave_energy( &mut samples, &uv_morph ); },
         30 => {mk_morph_alg30_wave_energy_mix( &mut samples, &uv_morph ); },
         31 => {mk_morph_alg31_shuffle ( &mut samples, &uv_morph ); },
-        32 => {alg32_stat ( &mut samples, &uv_morph ); },
-        33 => {alg33_stat_gaps ( &mut samples, &uv_morph ); },
-        34 => {alg34_stat_fading ( &mut samples, &uv_morph ); },
+        32 => { pre_exit = alg32_stat ( &mut samples, &uv_morph ); },
+        33 => { pre_exit = alg33_stat_gaps ( &mut samples, &uv_morph ); },
+        34 => { pre_exit = alg34_stat_fading ( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
+    if pre_exit { 
+        crate::faav::unset_morph_state();
+        let msg = format! ("Dear User, log was written to {}\nPlease, hit any key to continue.. Thanks.", 
+                                                            crate::faav::log_file_printIt (None).unwrap ());
+        return; }
     thr1.join();
     let full_path = format! ( "{}.{}.{}.wav", uv_morph.file_out, uv_morph.alg0, crate::faav::sav_uid( None).unwrap() );
     wav_write(&full_path, &samples, uv_morph.sample_rate, uv_morph.num_of_channels as u16 ).unwrap();
@@ -353,17 +359,20 @@ pub fn mk_morph_alg31_shuffle(samples: &mut [f32], uv: &crate::enums::universum_
     write_chan_f32(samples, 0, 2, 0, &ch0 );
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
-pub fn alg32_stat(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn alg32_stat(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) -> bool{
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat(&mut ch0, uv);
+    true
 }
-pub fn alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn alg33_stat_gaps(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) -> bool{
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat_gaps(&mut ch0, uv);
+    true
 }
-pub fn alg34_stat_fading(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn alg34_stat_fading(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) -> bool{
     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
     crate::cdsp::wave_energy_stat_fading(&mut ch0, uv);
+    true
 }
 pub fn mk_morph_alg29_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     use crate::faav::over_uv;
