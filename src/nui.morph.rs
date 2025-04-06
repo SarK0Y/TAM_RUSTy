@@ -83,6 +83,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         32 => { pre_exit = alg32_stat ( &mut samples, &uv_morph ); },
         33 => { pre_exit = alg33_stat_gaps ( &mut samples, &uv_morph ); },
         34 => { pre_exit = alg34_stat_fading ( &mut samples, &uv_morph ); },
+        35 => {mk_morph_alg35_wave_energy_simple_smooth( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
