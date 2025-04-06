@@ -454,8 +454,21 @@ pub fn tune_wave_energy2_ (samples: &mut [f32], uv: &crate::enums::universum_vox
     }
 }
 pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    for j in 1..samples.len() {
-        
+    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
+    //if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
+    let input_u64 = uv.input_u64.clone().unwrap();
+    if input_u64.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'step_width', 'from' & 'to'"); return}
+   // let input_f32 = uv.input_f32.clone().unwrap();
+    let step_width = input_u64 [0] as usize;
+    let from = input_u64 [1] as usize;
+    let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
+    let mut j = from + step_width;
+    let mut tmp = 0_f32;
+    while j < to {
+        tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
+        for i in j - step_width + 1..j {
+            samples [ i ] = tmp;
+        }
     }
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
@@ -528,7 +541,6 @@ pub fn wave_energy_stat (samples: &mut [f32], uv: &crate::enums::universum_vox_m
     let window_width = input [0];
     let from = input [1] as usize;
     let to = if input [2] == 0 { samples.len() } else {input [2] as usize };
-    
     let sum = input_f32 [0];
     let mut if_keys: Vec <u8> = Vec::with_capacity (window_width as usize);
     for t in 0..window_width as usize - 1 {
