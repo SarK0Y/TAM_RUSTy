@@ -463,13 +463,15 @@ pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox
     let from = input_u64 [1] as usize;
     let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
     let mut j = from + step_width;
+    let bar: f32 = uv.bar_sample;
     let mut tmp = 0_f32;
     while j < to {
         tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
-        for i in j - step_width + 1..j {
-            samples [ i ] = tmp;
-        }
-        j += step_width;
+         if samples [j - step_width ] > bar {
+            for i in j - step_width + 1..j {
+                samples [ i ] = tmp;
+            }
+        } j += step_width;
     }
 }
 pub fn smooth_wave_energy1_ (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
@@ -481,12 +483,15 @@ pub fn smooth_wave_energy1_ (samples: &mut [f32], uv: &crate::enums::universum_v
     let step_width = input_u64 [0] as usize;
     let from = input_u64 [1] as usize + 1;
     let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
+    let bar: f32 = uv.bar_sample;
     let mut j = from + step_width;
     let mut tmp = 0_f32;
     while j < to {
         tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
-        for i in j - step_width + 1..j {
-            samples [ i ] = tmp;
+        if samples [j - step_width ] > bar {
+            for i in j - step_width + 1..j {
+                samples [ i ] = tmp;
+            }
         } j += step_width;
     }
 }
