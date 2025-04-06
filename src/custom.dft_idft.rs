@@ -469,6 +469,7 @@ pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox
         for i in j - step_width + 1..j {
             samples [ i ] = tmp;
         }
+        j += step_width;
     }
 }
 pub fn smooth_wave_energy1_ (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
@@ -486,7 +487,7 @@ pub fn smooth_wave_energy1_ (samples: &mut [f32], uv: &crate::enums::universum_v
         tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
         for i in j - step_width + 1..j {
             samples [ i ] = tmp;
-        }
+        } j += step_width;
     }
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
