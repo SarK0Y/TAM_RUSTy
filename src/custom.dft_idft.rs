@@ -465,11 +465,12 @@ pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox
     let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
     let mut j = from + step_width;
     let ceil: f32 = input_f32 [ 2 ];
-
+    let scale = input_f32 [ 1 ];
+    let logic_zero = input_f32 [ 0 ];
     let mut tmp = 0_f32;
     while j < to {
         tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
-         if samples [j - step_width ].abs () > ceil {
+         if samples [j - step_width ].abs () > logic_zero {
             for i in j - step_width + 1..j {
                 samples [ i ] = tmp;
             }
