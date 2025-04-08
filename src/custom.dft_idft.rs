@@ -459,7 +459,7 @@ pub fn smooth_wave_energy (samples: &mut [f32], uv: &crate::enums::universum_vox
     let input_u64 = uv.input_u64.clone().unwrap();
     if input_u64.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'step_width', 'from' & 'to'"); return}
     let input_f32 = uv.input_f32.clone().unwrap();
-    if input_u64.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'logic_zero', 'scale' & 'ceil'"); return}
+    if input_f32.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'logic_zero', 'scale' & 'ceil'"); return}
     let step_width = input_u64 [0] as usize;
     let from = input_u64 [1] as usize;
     let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
@@ -487,7 +487,7 @@ pub fn smooth_wave_energy1_ (samples: &mut [f32], uv: &crate::enums::universum_v
     let input_u64 = uv.input_u64.clone().unwrap();
     if input_u64.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'step_width', 'from' & 'to'"); return}
     let input_f32 = uv.input_f32.clone().unwrap();
-    if input_u64.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'logic_zero', 'scale' & 'ceil'"); return}
+    if input_f32.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'logic_zero', 'scale' & 'ceil'"); return}
     let step_width = input_u64 [0] as usize + 1;
     let from = input_u64 [1] as usize;
     let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
@@ -511,26 +511,17 @@ pub fn wave_energy_norma (samples: &mut [f32], uv: &crate::enums::universum_vox_
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
     if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
     let input_u64 = uv.input_u64.clone().unwrap();
-    if input_u64.len() < 3 {errMsg0("'input_u64' in Universum Vox sets 'step_width', 'from' & 'to'"); return}
+    if input_u64.len() < 2 {errMsg0("'input_u64' in Universum Vox sets 'from' & 'to'"); return}
     let input_f32 = uv.input_f32.clone().unwrap();
-    if input_u64.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'logic_zero', 'scale' & 'ceil'"); return}
-    let step_width = input_u64 [0] as usize + 1;
-    let from = input_u64 [1] as usize;
-    let to = if input_u64 [2] == 0 { samples.len() } else {input_u64 [2] as usize };
-    let mut j = from + step_width;
-    let ceil: f32 = input_f32 [ 2 ];
-    let scale = input_f32 [ 1 ];
-    let logic_zero = input_f32 [ 0 ];
-    let mut tmp = 0_f32;
-    if samples [j - step_width ].abs () > ceil {samples [j - step_width ] *= scale }
-    while j < to {
-        if samples [ j ].abs () > ceil {samples [ j ] *= scale }
-        tmp = (samples [j - step_width ] + samples [ j ] ) / 2.0;
-         if samples [j - step_width ].abs () > logic_zero {
-            for i in j - step_width + 1..j {
-                samples [ i ] = tmp;
-            }
-        } j += step_width;
+    if input_f32.len() < 2 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'ceil'"); return}
+    let from = input_u64 [0] as usize;
+    let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
+    let scale = input_f32 [ 0 ];
+    let ceil: f32 = input_f32 [ 1 ];
+    for j in from..to {
+        while samples [ j ].abs () > ceil {
+            samples [ j ] *= scale;
+        }
     }
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
