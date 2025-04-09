@@ -49,7 +49,8 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         universum_vox_morph0(duration, uv_path);
     }
     let ( mut samples, sample_rate): (wavers::Samples< f32 >, i32) = if crate::faav::get_morph_state().is_none(){
-        let data = wav_read:: <f32, _ >( &uv_morph.file_in ).unwrap();
+        let data = wav_read:: <f32, _ >( &uv_morph.file_in );
+        let data = if data.is_ok() {data.unwrap ()} else { errMsg0( "No input file found" ); return };
         crate::faav::set_morph_state(&Some(data.clone() ) );
         data
     } else { crate::faav::get_morph_state().unwrap() };
