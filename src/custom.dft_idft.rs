@@ -538,12 +538,12 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
     let max_bottom: f32 = input_f32 [ 2 ];
     let mut new_top = min_top;
     for j in from..to {
-        if samples [ j - 1 ].abs () > new_top.abs () && samples [j].sign() == new_top.sign () {
+        if samples [ j ].abs () > new_top.abs () && samples [j].sign() == new_top.sign () {
             while samples [ j ].abs () > new_top {
                 samples [ j ] *= scale;
             } new_top = samples [j];
         } 
-        if samples [ j ].abs () < max_bottom.abs () {new_top = min_top;}
+        if samples [ j ].abs () < max_bottom.abs () || samples [j].sign () != new_top.sign () {new_top = min_top;}
     }
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
