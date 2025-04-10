@@ -538,7 +538,7 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
     let max_bottom: f32 = input_f32 [ 2 ];
     let mut new_top = min_top;
     for j in from..to {
-        if samples [ j ].abs () > new_top.abs () && samples [j].sign() == new_top.sign () {
+        if samples [ j ].abs () > new_top.abs () {
             while samples [ j ].abs () > new_top {
                 samples [ j ] *= scale;
             } new_top = samples [j];
