@@ -531,7 +531,7 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
     if input_u64.len() < 2 {errMsg0("'input_u64' in Universum Vox sets 'from' & 'to'"); return}
     let input_f32 = uv.input_f32.clone().unwrap();
     if input_f32.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'min_top', 'max_bottom'"); return}
-    let from = input_u64 [0] as usize + 1;
+    let from = input_u64 [0] as usize;
     let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
     let scale = input_f32 [ 0 ];
     let min_top: f32 = input_f32 [ 1 ];
@@ -546,6 +546,36 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
         if samples [ j ].abs () < max_bottom.abs () || samples [j].sign () != new_top.sign () {new_top = min_top;}
     }
 }
+pub fn wave_energy_min_dt (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
+    if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
+    let input_u64 = uv.input_u64.clone().unwrap();
+    if input_u64.len() < 2 {errMsg0("'input_u64' in Universum Vox sets 'from' & 'to'"); return}
+    let input_f32 = uv.input_f32.clone().unwrap();
+    if input_f32.len() < 4 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'min_top', 'max_bottom', 'ratio'"); return}
+    let from = input_u64 [0] as usize + 1;
+    let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
+    let scale = input_f32 [ 0 ];
+    if scale >= 1.0 {errMsg0("'scale' must be less than 1.0"); return;}
+    let min_top: f32 = input_f32 [ 1 ];
+    let max_bottom: f32 = input_f32 [ 2 ];
+    let ratio = input_f32 [ 3 ];
+    let mut new_top = min_top;
+    let mut cur_ratio: f32 = ratio;
+    for j in from..to {
+        if min_top == new_top.abs () {
+            while samples [ j - 1 ].abs () > new_top.abs () {
+                samples [ j - 1 ] *= scale;
+            } new_top = samples [j - 1];
+        } 
+        cur_ratio = samples [ j ].abs () / samples [j - 1].abs ();
+        while cur_ratio > ratio {
+            cur_ratio *= scale;
+        }
+        if samples [ j ].abs () < max_bottom.abs () || samples [j].sign () != samples [j - 1].sign () {new_top = min_top;}
+    }
+}
+
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
     let mut base1 = samples [ 1 ];
