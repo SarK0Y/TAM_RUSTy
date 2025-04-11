@@ -563,7 +563,7 @@ pub fn wave_energy_min_dt (samples: &mut [f32], uv: &crate::enums::universum_vox
     let scale_ratio = input_f32 [ 4 ];
     if scale_ratio <= 1.0 {errMsg0("'scale_ratio' must be greater than 1.0"); return;}
     for j in from..to {
-        if samples [j].sign () != samples [j - 1].sign () {continue;}
+        if samples [j].sign () != samples [j - 1].sign () || max_bottom > samples [ j ].abs() {continue;}
         cur_ratio = samples [ j ].abs () / samples [j - 1].abs ();
         while cur_ratio > ratio {
             cur_ratio *= scale_ratio;
