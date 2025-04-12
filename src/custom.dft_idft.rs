@@ -545,6 +545,7 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
         } 
         if samples [ j ].abs () < max_bottom.abs () || samples [j].sign () != new_top.sign () {new_top = min_top;}
     }
+    println! ("Ended wave_energy_vox");
 }
 pub fn wave_energy_max_dt (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
@@ -561,14 +562,16 @@ pub fn wave_energy_max_dt (samples: &mut [f32], uv: &crate::enums::universum_vox
     let mut new_top = min_top;
     let mut cur_ratio: f32 = ratio;
     let scale_ratio = input_f32 [ 4 ];
-    if scale_ratio <= 1.0 {errMsg0("'scale_ratio' must be greater than 1.0"); return;}
+    //if scale_ratio <= 1.0 {errMsg0("'scale_ratio' must be greater than 1.0"); return;}
     for j in from..to {
-        if samples [j].sign () != samples [j - 1].sign () || max_bottom > samples [ j ].abs() {continue;}
-        cur_ratio = samples [ j ].abs () / samples [j - 1].abs ();
-        while cur_ratio < ratio {
+        if samples [j].sign () != samples [j - 1].sign () /*|| max_bottom > samples [ j ].abs() */ || samples [j].abs() == 0.0{continue;}
+        cur_ratio = (samples [ j ].abs () / samples [j - 1].abs ()) * ratio * scale_ratio + ratio;
+       // let exp_to_scale = (ratio / scale_ratio).log( scale_ratio );  
+        /* while cur_ratio < ratio {
             cur_ratio *= scale_ratio;
-        } samples [ j ] = cur_ratio * samples [ j - 1];
+        } */ samples [ j ] = cur_ratio * samples [ j - 1];
     }
+    println! ("Ended wave_energy_max_dt");
 }
 
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
