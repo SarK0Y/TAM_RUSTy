@@ -546,7 +546,7 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
         if samples [ j ].abs () < max_bottom.abs () || samples [j].sign () != new_top.sign () {new_top = min_top;}
     }
 }
-pub fn wave_energy_min_dt (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+pub fn wave_energy_max_dt (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
     if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
     let input_u64 = uv.input_u64.clone().unwrap();
@@ -565,7 +565,7 @@ pub fn wave_energy_min_dt (samples: &mut [f32], uv: &crate::enums::universum_vox
     for j in from..to {
         if samples [j].sign () != samples [j - 1].sign () || max_bottom > samples [ j ].abs() {continue;}
         cur_ratio = samples [ j ].abs () / samples [j - 1].abs ();
-        while cur_ratio > ratio {
+        while cur_ratio < ratio {
             cur_ratio *= scale_ratio;
         } samples [ j ] = cur_ratio * samples [ j - 1];
     }
@@ -604,11 +604,17 @@ pub fn tune_wave_energy_mix (mut samples: &mut [f32], uv: &crate::enums::univers
     }
 }
 pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    use crate::faav::over_samples;
     let mut samples0 = samples.clone();
     crate::cdsp::tune_wave_energy5 ( &mut samples0, &uv ); 
     for i in 0..samples0.len(){
         samples [ i ] -= samples0 [ i ];
     }
+}
+pub fn tune_wave_energy_low_vox (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    crate::cdsp::wave_energy_vox ( samples, &uv ); 
+    crate::cdsp::wave_energy_max_dt ( samples, &uv ); 
+   
 }
 pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;

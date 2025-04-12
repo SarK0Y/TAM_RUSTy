@@ -87,6 +87,7 @@ pub fn universum_vox_morph0 (duration: u16, path_to_conf: &String) {
         35 => {mk_morph_alg35_wave_energy_simple_smooth( &mut samples, &uv_morph ); },
         36 => {mk_morph_alg36_wave_energy_norma( &mut samples, &uv_morph ); },
         37 => {mk_morph_alg37_wave_energy_vox( &mut samples, &uv_morph ); },
+        38 => {mk_morph_alg38_wave_energy_low_vox( &mut samples, &uv_morph ); },
         _ => {mk_morph_alg0( &mut samples, &uv_morph ); },
     }
     //let file_name = format! ( "Universum Vox.{}.wav", mk_uid( 24 ));
@@ -454,6 +455,32 @@ pub fn mk_morph_alg37_wave_energy_vox(samples: &mut [f32], uv: &crate::enums::un
     write_chan_f32(samples, 0, 2, 0, &ch0 );
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
+pub fn mk_morph_alg38_wave_energy_low_vox(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+    use crate::faav::over_uv;
+    use crate::faav::over_samples;
+    use crate::faav::over_samples0;
+    let over_uv_: *const crate::enums::universum_vox_morph = uv;
+    crate::faav::over_uv( Some (over_uv_ ) );
+     let mut ch0: Vec <_> = read_chan_f32(samples, 0, 2, 0, samples.len() );
+     let mut over_ch0: *mut [f32] = &mut *ch0;
+     over_samples(Some (over_ch0) );
+    let mut thr1 = std::thread::spawn (move|| 
+        {crate::cdsp::tune_wave_energy_low_vox (
+           unsafe { &mut *over_samples(None).unwrap() },
+           unsafe { &*over_uv(None).unwrap() } ); });
+     let mut ch1: Vec <_> = read_chan_f32(samples, 1, 2, 0, samples.len() );
+     let mut over_ch1: *mut [f32] = &mut *ch1;
+     over_samples0(Some (over_ch1) );
+     let mut thr2 = std::thread::spawn (move|| {
+        crate::cdsp::tune_wave_energy_low_vox (
+           unsafe { &mut *over_samples0(None).unwrap() },
+           unsafe { &*over_uv(None).unwrap() } ); });
+    thr1.join();
+    thr2.join();
+    write_chan_f32(samples, 0, 2, 0, &ch0 );
+    write_chan_f32(samples, 1, 2, 0, &ch1 );
+}
+
 pub fn mk_morph_alg29_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
     use crate::faav::over_uv;
     use crate::faav::over_samples;
