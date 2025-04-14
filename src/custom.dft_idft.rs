@@ -528,14 +528,14 @@ pub fn wave_energy_norma (samples: &mut [f32], uv: &crate::enums::universum_vox_
     }
     for j in from..to {
         if direction {
-            while ceil > samples [ j ].abs () {
-                samples [ j ] *= scale;
-            } continue;
+            samples [ j ] *= scale;
+            continue;
         }
         while samples [ j ].abs () > ceil {
             samples [ j ] *= scale;
         }
     }
+    println!("Ended wave_energy_norma");
 }
 pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
