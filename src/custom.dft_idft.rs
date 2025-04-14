@@ -547,33 +547,6 @@ pub fn wave_energy_vox (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
     }
     println! ("Ended wave_energy_vox");
 }
-pub fn wave_energy_max_dt (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
-    if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
-    let input_u64 = uv.input_u64.clone().unwrap();
-    if input_u64.len() < 2 {errMsg0("'input_u64' in Universum Vox sets 'from' & 'to'"); return}
-    let input_f32 = uv.input_f32.clone().unwrap();
-    if input_f32.len() < 5 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'min_top', 'max_bottom', 'ratio', 'scale_ratio'"); return}
-    let from = input_u64 [0] as usize + 1;
-    let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
-    let min_top: f32 = input_f32 [ 1 ];
-    let max_bottom: f32 = input_f32 [ 2 ];
-    let ratio = input_f32 [ 3 ];
-    let mut new_top = min_top;
-    let mut cur_ratio: f32 = ratio;
-    let scale_ratio = input_f32 [ 4 ];
-    let mut base_sample = samples [ from - 1 ];
-    //if scale_ratio <= 1.0 {errMsg0("'scale_ratio' must be greater than 1.0"); return;}
-    for j in from..to {
-        if samples [j].sign () != base_sample.sign () /*|| max_bottom > samples [ j ].abs() */ || samples [j].abs() == 0.0{continue;}
-       // let exp_to_scale = (ratio / scale_ratio).log( scale_ratio );  
-        /* while cur_ratio < ratio {
-            cur_ratio *= scale_ratio;
-        } */ samples [ j ] = (samples [ j ].abs () - base_sample.abs ()) * scale_ratio + base_sample * ratio;
-        base_sample = samples [ j - 1];
-    }
-    println! ("Ended wave_energy_max_dt");
-}
 pub fn wave_energy_hills (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
     if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
@@ -643,7 +616,7 @@ pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::univer
 }
 pub fn tune_wave_energy_low_vox (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     crate::cdsp::wave_energy_vox ( samples, &uv ); 
-    crate::cdsp::wave_energy_max_dt ( samples, &uv ); 
+    crate::cdsp::wave_energy_hills ( samples, &uv ); 
    
 }
 pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
