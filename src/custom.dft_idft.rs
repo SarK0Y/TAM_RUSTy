@@ -527,10 +527,11 @@ pub fn wave_energy_norma (samples: &mut [f32], uv: &crate::enums::universum_vox_
         }
     }
     for j in from..to {
-        if direction {
+        if direction && samples [ j ].abs () < ceil {
             samples [ j ] *= scale;
             continue;
         }
+        if direction {continue;}
         while samples [ j ].abs () > ceil {
             samples [ j ] *= scale;
         }
