@@ -615,7 +615,7 @@ pub fn tune_wave_energy_mix1 (mut samples: &mut [f32], uv: &crate::enums::univer
     }
 }
 pub fn tune_wave_energy_low_vox (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
-    crate::cdsp::wave_energy_vox ( samples, &uv ); 
+   // crate::cdsp::wave_energy_vox ( samples, &uv ); 
     crate::cdsp::wave_energy_hills ( samples, &uv ); 
    
 }
