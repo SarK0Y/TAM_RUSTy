@@ -174,6 +174,7 @@ pub struct universum_vox_morph {
     pub coef: Option <Vec <f32> >,
     pub input_u64: Option <Vec <u64> >,
     pub input_f32: Option <Vec <f32> >,
+    pub input_bool: Option <Vec <bool> >,
     pub plus_minus_freq: Option < bool >,
     pub geoms: Option <Vec <geom> >,
     pub select_channel: Option <u8>, 
