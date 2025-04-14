@@ -516,9 +516,22 @@ pub fn wave_energy_norma (samples: &mut [f32], uv: &crate::enums::universum_vox_
     if input_f32.len() < 2 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'ceil'"); return}
     let from = input_u64 [0] as usize;
     let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
-    let scale = input_f32 [ 0 ];
+    let mut scale = input_f32 [ 0 ];
+    if scale == 1.0 {scale += 0.01}
     let ceil: f32 = input_f32 [ 1 ];
+    let mut direction = false;
+    if let Some (__bool) = &uv.input_bool {
+        if __bool.len() >= 2 {
+            direction = __bool [1];
+            if scale < 1.0 {scale = 1.0 / scale;}
+        }
+    }
     for j in from..to {
+        if direction {
+            while ceil > samples [ j ].abs () {
+                samples [ j ] *= scale;
+            } continue;
+        }
         while samples [ j ].abs () > ceil {
             samples [ j ] *= scale;
         }
