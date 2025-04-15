@@ -37,6 +37,8 @@ mod snd;
 mod extra_math;
 #[path = "custom.dft_idft.rs"]
 mod cdsp;
+#[path = "custom_math.rs"]
+mod cmath;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "atomic.rs"]

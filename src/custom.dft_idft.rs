@@ -662,8 +662,8 @@ pub fn tune_wave_energy_low_vox (mut samples: &mut [f32], uv: &crate::enums::uni
             samples.into_iter().map (|x| *x ).collect() 
         } else { vec! [] }
     } else {vec!() };
-    crate::cdsp::wave_energy_norma ( samples, &uv );
     crate::cdsp::wave_energy_log ( samples, &uv ); 
+    crate::cdsp::wave_energy_norma ( samples, &uv );
     crate::cdsp::wave_energy_hills ( samples, &uv ); 
     if let Some (_vec) = &uv.input_bool {
         if _vec [0] {
