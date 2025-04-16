@@ -47,7 +47,7 @@ impl <T: std::ops::Mul<Output = T> +
                 std::fmt::Debug > PowIt <T> for T {
     fn pow (&self, exp: usize) -> T {
         if exp == 0 {return *self / *self;}
-        dbg!(&exp);
+ //       dbg!(&exp);
         let mut norm_exp = exp;
         let mut ret: T = *self / *self;
         let mut sq = *self;

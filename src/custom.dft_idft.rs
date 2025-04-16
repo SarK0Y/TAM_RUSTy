@@ -625,7 +625,7 @@ pub fn wave_energy_poly (samples: &mut [f32], uv: &crate::enums::universum_vox_m
     let vex: &Vec < f32 > = &uv.vex_f32.clone().unwrap() [0];
     for j in from..to {
         if samples [j].abs() == 0.0{continue;}
-        samples [ j ] = crate::cmath::poly:: < f32 >(vex, samples [j] ) % 0.9999;
+        samples [ j ] = samples [j].sign() * crate::cmath::poly:: < f32 >(vex, samples [j] ) % 0.9999;
     }
     println! ("Ended wave_energy_poly");
 }
