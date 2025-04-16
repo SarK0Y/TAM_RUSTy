@@ -5,13 +5,13 @@ pub fn poly <T: std::ops::Mul<Output = T> +
                 std::ops::MulAssign +
 //                std::ops::BitXor<Output = T> +
                 PartialEq +
-                Eq +
+            //    Eq +
                 std::ops::Div<Output = T> +
                 std::cmp::PartialOrd +
                 Copy +
                 std::fmt::Debug +
                 PowIt <T> >
-        (coefs: Vec <T>, x: T ) -> T {
+        (coefs: &Vec <T>, x: T ) -> T {
             if coefs.len () == 0 {return x}
             let mut sum: T =  x - x;
             for i in 0..coefs.len() {
@@ -25,7 +25,7 @@ pub trait PowIt <T: std::ops::Mul<Output = T> +
                 std::ops::Sub<Output = T> +
                 std::ops::Add<Output = T> +
                 PartialEq +
-                Eq +
+        //        Eq +
                 std::ops::Div<Output = T> +
   //              std::ops::BitXor<Output = T> +
                 std::cmp::PartialOrd +
@@ -39,7 +39,7 @@ impl <T: std::ops::Mul<Output = T> +
                 std::ops::Sub<Output = T> +
                 std::ops::Add<Output = T> +
                 PartialEq +
-                Eq +
+          //      Eq +
                 std::ops::Div<Output = T> +
     //            std::ops::BitXor<Output = T> +
                 std::cmp::PartialOrd +
