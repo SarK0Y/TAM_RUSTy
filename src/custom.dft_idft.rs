@@ -688,6 +688,23 @@ pub fn tune_wave_energy_low_vox (mut samples: &mut [f32], uv: &crate::enums::uni
     }
    
 }
+pub fn tune_wave_energy_mix_poly (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+   // crate::cdsp::wave_energy_vox ( samples, &uv ); 
+   let samples0: Vec < f32 > = if let Some (_vec) = &uv.input_bool {
+        if _vec [0] {
+            samples.into_iter().map (|x| *x ).collect() 
+        } else { vec! [] }
+    } else {vec!() };
+    crate::cdsp::wave_energy_poly ( samples, &uv ); 
+    if let Some (_vec) = &uv.input_bool {
+        if _vec [0] {
+            for j in 0..samples.len(){
+                samples [ j ] -= samples0 [ j ];
+            }
+        }
+    }
+   
+}
 pub fn shuffle (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     use Mademoiselle_Entropia::true_rnd::__get_true_rnd_u32 as u32__;
     let cursor = u32__() as usize;
