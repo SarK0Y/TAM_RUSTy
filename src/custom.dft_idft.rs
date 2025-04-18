@@ -634,6 +634,25 @@ pub fn wave_energy_poly (samples: &mut [f32], uv: &crate::enums::universum_vox_m
     }
     println! ("Ended wave_energy_poly");
 }
+pub fn wave_energy_log_norma (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+    if uv.input_u64.is_none() {errMsg0("'input_u64' in Universum Vox must be set"); return}
+    if uv.vex_f32.is_none() {errMsg0("'vex_f32' in Universum Vox must be set"); return}
+    if uv.input_f32.is_none() {errMsg0("'input_f32' in Universum Vox must be set"); return}
+    let input_u64 = uv.input_u64.clone().unwrap();
+    if input_u64.len() < 2 {errMsg0("'input_u64' in Universum Vox sets 'from' & 'to'"); return}
+    let from = input_u64 [0] as usize;
+    let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
+    let input_f32 = uv.input_f32.clone().unwrap();
+    if input_f32.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'min_top', 'max_bottom'"); return}
+    let min_top: f32 = input_f32 [ 1 ];
+    let max_bottom: f32 = input_f32 [ 2 ];
+    let vex: &Vec < f32 > = &uv.vex_f32.clone().unwrap() [0];
+    for j in from..to {
+        if samples [j].abs() <= max_bottom{continue;}
+        samples [ j ] = samples [j].sign () * crate::cmath::poly:: < f32 >(vex, samples [j] ).log_norma (0.9999);
+    }
+    println! ("Ended wave_energy_poly");
+}
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
     let mut base1 = samples [ 1 ];
