@@ -1,3 +1,5 @@
+use malachite::num::arithmetic::traits::Floor;
+
 pub fn poly <T: std::ops::Mul<Output = T> +
                 std::ops::Sub<Output = T> +
                 std::ops::Add<Output = T> +
@@ -74,10 +76,14 @@ impl Log_Norma for f32 {
         if ceil == ceil -ceil {return *self;}
  //       dbg!(&exp);
         let mut ret: Self::S = self.log (ceil).abs();
-        while ret > ceil {
-          //  dbg!(&ret);
+        let mut prev: Self::S = -1.0_f32;
+        while ret > ceil || prev != ret {
+           // dbg! (&*self);
+           // dbg!(&ret);
+           prev = ret;
             ret = self.log (ret).abs();
-        } return ret
+        } if ret == prev {ret -= ret.floor();} 
+        return ret
     }
 }
 //fn
