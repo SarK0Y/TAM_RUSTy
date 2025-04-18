@@ -645,12 +645,13 @@ pub fn wave_energy_log_norma (samples: &mut [f32], uv: &crate::enums::universum_
     let to = if input_u64 [1] == 0 { samples.len() } else {input_u64 [2] as usize };
     let input_f32 = uv.input_f32.clone().unwrap();
     if input_f32.len() < 3 {errMsg0("'input_f32' in Universum Vox sets 'scale' & 'min_top', 'max_bottom'"); return}
+    let scale = input_f32 [0];
     let min_top: f32 = input_f32 [ 1 ];
     let max_bottom: f32 = input_f32 [ 2 ];
     let vex: &Vec < f32 > = &uv.vex_f32.clone().unwrap() [0];
     for j in from..to {
         if samples [j].abs() <= max_bottom{continue;}
-        samples [ j ] = samples [j].sign () * crate::cmath::poly:: < f32 >(vex, samples [j] ).log_norma (0.9999);
+        samples [ j ] = samples [j].sign () * crate::cmath::poly:: < f32 >(vex, samples [j] ).log_norma (0.9999) * scale;
     }
     println! ("Ended wave_energy_log_norma");
 }
