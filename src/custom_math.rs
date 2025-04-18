@@ -77,12 +77,14 @@ impl Log_Norma for f32 {
  //       dbg!(&exp);
         let mut ret: Self::S = self.log (ceil).abs();
         let mut prev: Self::S = -1.0_f32;
-        while ret > ceil || prev != ret {
-           // dbg! (&*self);
-           // dbg!(&ret);
+        let mut count_out = 20_usize;
+        while ret > ceil && prev != ret && count_out > 0 {
+       //    dbg! (&*self);
+         //  dbg!(&ret);
            prev = ret;
-            ret = self.log (ret).abs();
-        } if ret == prev {ret -= ret.floor();} 
+           ret = self.log (ret).abs();
+           count_out -= 1;
+        } if ret > 1.0 {ret -= ret.floor();} 
         return ret
     }
 }
