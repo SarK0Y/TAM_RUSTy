@@ -16,7 +16,9 @@ pub fn poly <T: std::ops::Mul<Output = T> +
             let mut sum: T =  x - x;
             for i in 0..coefs.len() {
                 sum += x.pow ( i ) * coefs [ i ];
-            } return sum
+            } 
+      //      println!("{} {}", 2.0.log_norma(1.023), 2.0_f64.pow (11));
+            return sum
         
 }
 pub trait PowIt <T: std::ops::Mul<Output = T> +
@@ -62,3 +64,20 @@ impl <T: std::ops::Mul<Output = T> +
         } return ret
     }
 }
+pub trait Log_Norma {
+    type S;
+    fn log_norma  (&self, ceil: Self::S) -> Self::S;
+}
+impl Log_Norma for f32 {
+    type S = f32;
+    fn log_norma  (&self, ceil: Self::S) -> Self::S {
+        if ceil == ceil -ceil {return *self;}
+ //       dbg!(&exp);
+        let mut ret: Self::S = self.log (ceil).abs();
+        while ret > ceil {
+          //  dbg!(&ret);
+            ret = self.log (ret).abs();
+        } return ret
+    }
+}
+//fn
