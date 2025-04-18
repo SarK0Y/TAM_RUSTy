@@ -652,7 +652,7 @@ pub fn wave_energy_log_norma (samples: &mut [f32], uv: &crate::enums::universum_
         if samples [j].abs() <= max_bottom{continue;}
         samples [ j ] = samples [j].sign () * crate::cmath::poly:: < f32 >(vex, samples [j] ).log_norma (0.9999);
     }
-    println! ("Ended wave_energy_poly");
+    println! ("Ended wave_energy_log_norma");
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
@@ -722,6 +722,24 @@ pub fn tune_wave_energy_mix_poly (mut samples: &mut [f32], uv: &crate::enums::un
     } else {vec!() };
     //crate::cdsp::wave_energy_log ( samples, &uv ); 
     crate::cdsp::wave_energy_poly ( samples, &uv ); 
+    if let Some (_vec) = &uv.input_bool {
+        if _vec [0] {
+            for j in 0..samples.len(){
+                samples [ j ] -= samples0 [ j ];
+            }
+        }
+    }
+   
+}
+pub fn tune_wave_energy_mix_log_norma (mut samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
+   // crate::cdsp::wave_energy_vox ( samples, &uv ); 
+   let samples0: Vec < f32 > = if let Some (_vec) = &uv.input_bool {
+        if _vec [0] {
+            samples.into_iter().map (|x| *x ).collect() 
+        } else { vec! [] }
+    } else {vec!() };
+    //crate::cdsp::wave_energy_log ( samples, &uv ); 
+    crate::cdsp::wave_energy_log_norma ( samples, &uv ); 
     if let Some (_vec) = &uv.input_bool {
         if _vec [0] {
             for j in 0..samples.len(){
