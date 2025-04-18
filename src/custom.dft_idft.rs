@@ -9,6 +9,7 @@ use std::io::Write;
 use crate::STRN;
 use std::f32::consts::PI;
 use std::f32::consts::E;
+use crate::cmath::Log_Norma;
 use once_cell::sync::Lazy;
 use num::complex::ComplexFloat;
 use crate::custom_dft;
