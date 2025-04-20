@@ -1,4 +1,5 @@
 use std::ops::Mul;
+use std::ops::MulAssign;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
@@ -6,6 +7,22 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 pub struct init_form {
     pub head: rugfloat,
     pub tail: rugfloat
+}
+impl init_form {
+    fn new () -> init_form {
+        return Self {
+            head: rugfloat::with_val (2),
+            tail: rugfloat::with_val (1),
+        }
+    }
+}
+impl MulAssign for init_form {
+    fn mul_assign(&mut self, rhs: init_form) -> init_form {
+        return Self {
+            head: self.head * rhs.head,
+            tail: self.head * rhs.tail + self.tail
+        }
+    }
 }
 pub struct product_form {
     pub xy: rugfloat,
@@ -34,6 +51,7 @@ impl Mul for init_form {
     }
 }
 pub fn tst (a: &init_form, b: &init_form) -> product_form {
+    a *= b;
     return a * b;
 }
 //fn
