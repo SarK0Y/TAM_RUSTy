@@ -54,6 +54,13 @@ pub fn tst (a: &init_form, b: &init_form) -> product_form {
     a *= b;
     return a * b;
 }
+pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
+    let mut X = init_form::new ();
+    let mut Y = init_form::new ();
+    let init = init_form::new ();
+    let mut finally = product_form::new ();
+    return (rugfloat::with_val (0), rugfloat::with_val (0))
+}
 //fn
 /*
 use std::ops::MulAssign;
