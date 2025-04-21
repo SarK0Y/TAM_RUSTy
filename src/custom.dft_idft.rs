@@ -693,7 +693,7 @@ pub fn wave_energy_pow (samples: &mut [f32], uv: &crate::enums::universum_vox_mo
         //if samples [j].abs() <= max_bottom{continue;}
         samples [ j ] = samples [ j ].sign() * amp * samples [ j ].abs().powf ( scale );
     }
-    println! ("Ended wave_energy_sin_norma");
+    println! ("Ended wave_energy_pow");
 }
 pub fn tune_wave_energy2 (samples: &mut [f32], uv: &crate::enums::universum_vox_morph) {
     let mut base = samples [0];
