@@ -21,6 +21,12 @@ impl init_form {
             tail: rugfloat::with_val_u64 (tail),
         }
     }
+    fn nest (&self, rhs: init_form) -> init_form {
+        return Self {
+            head: self.head * rhs.head,
+            tail: self.head * rhs.tail + self.tail
+        }
+    }
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) -> init_form {
@@ -68,6 +74,7 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
     let mut x = rugfloat::with_val (3);
     let mut y = rugfloat::with_val (3);
     let init = init_form::new ();
+    let init0 = init_form::mk (2, 0);
     let mut finally = product_form::new ();
     return (rugfloat::with_val (0), rugfloat::with_val (0))
 }
