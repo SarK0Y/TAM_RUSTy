@@ -709,7 +709,7 @@ pub fn mk_morph_alg23_wave_energy(samples: &mut [f32], uv: &crate::enums::univer
     write_chan_f32(samples, 0, 2, 0, &ch0 );
     write_chan_f32(samples, 1, 2, 0, &ch1 );
 }
-pub fn mk_morph_alg25_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
+pub fn mk_morph_alg25_wave_energy(samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) { // no low freqs
     use crate::faav::over_uv;
     use crate::faav::over_samples;
     use crate::faav::over_samples0;

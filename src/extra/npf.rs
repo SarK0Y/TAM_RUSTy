@@ -27,6 +27,12 @@ impl init_form {
             tail: self.head * rhs.tail + self.tail
         }
     }
+    fn num1 (&self) -> rugfloat {
+        return self.head + self.tail
+    } 
+    fn num (&self, x: rugfloat) -> rugfloat {
+        return self.head * x + self.tail
+    } 
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) -> init_form {
@@ -69,13 +75,22 @@ pub fn tst (a: &init_form, b: &init_form) -> product_form {
 pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
     let mut X = init_form::mk (4, 3);
     let mut Y = init_form::mk (4, 3);
-    let mut X_prev: Vec < init_form > = Vec::new();
-    let mut Y_prev: Vec < init_form > = Vec::new();
+    let mut X_tst: Vec < init_form > = Vec::new();
+    let mut Y_tst: Vec < init_form > = Vec::new();
     let mut x = rugfloat::with_val (3);
     let mut y = rugfloat::with_val (3);
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
-    let mut finally = product_form::new ();
+    let mut finally = Vec:: <product_form>::new ();
+    while X.num1 () * Y.num1 () < n {
+        X_tst.push ( X.nest ( init0 ) );
+        X_tst.push ( X.nest ( init ) );
+        Y_tst.push ( X.nest ( init0 ) );
+        Y_tst.push ( X.nest ( init ) );
+        
+        X_tst.clear();
+        Y_tst.clear ();
+    }
     return (rugfloat::with_val (0), rugfloat::with_val (0))
 }
 //fn
