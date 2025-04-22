@@ -95,12 +95,13 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
         finally.push (X_tst [0] * Y_tst [0]); // even-even
         finally.push (X_tst [1] * Y_tst [1]); // odd-odd
         finally.push (X_tst [1] * Y_tst [0]); // odd-even
-        finally.push (X_tst [0] * Y_tst [1]); // even-odd
+        if X.tail != Y.tail { finally.push (X_tst [0] * Y_tst [1]); /* even-odd */ }
+        else { finally.push ( product_form::new() )}
         for fin in finally {
             if (n - fin.tail) % X_tst [0].head == 0 {count_positive_results += 1; mark_j = j;};
             j += 1;
         }
-        if count_positive_results > 1 {errMsg0("Simple NPF failed."); return ret};
+        if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
         match mark_j {
             0 => {X = X_tst [0]; Y = Y_tst [0]},
             1 => {X = X_tst [1]; Y = Y_tst [1]},
