@@ -3,7 +3,7 @@ use std::ops::MulAssign;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
-use crate::errMsg0;
+use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 #[derive(Debug, Clone, PartialEq)]
 pub struct init_form {
     pub head: rugfloat,
@@ -116,6 +116,9 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
     }
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
+}
+pub fn Set_NPF () {
+
 }
 //fn
 /*
