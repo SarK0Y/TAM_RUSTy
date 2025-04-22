@@ -145,10 +145,10 @@ pub fn mk_morph_alg1_async ( samples: &mut [f32], uv: &crate::enums::universum_v
             .rev()
             .collect();
         let written = write_chan_f32(samples, switch, 2, count_steps, &samples_to_morph );
-        dbg!(&written);
+        //dbg!(&written);
         if written < half_range { return; }
         count_steps += range;
-        dbg! (&count_steps);
+      //  dbg! (&count_steps);
         switch = !switch & 1;
     }
 }
@@ -164,10 +164,10 @@ pub fn mk_morph_alg24_rev ( samples: &mut [f32], uv: &crate::enums::universum_vo
             .rev()
             .collect();
         let written = write_chan_f32(samples, sel_ch, 2, count_steps, &samples_to_morph );
-        dbg!(&written);
+        //dbg!(&written);
         if written < half_range { return; }
         count_steps += range;
-        dbg! (&count_steps);
+        //dbg! (&count_steps);
     }
 }
 pub fn mk_morph_alg3_warp (samples: &mut [f32], uv: &crate::enums::universum_vox_morph ) {
@@ -895,7 +895,7 @@ pub fn mk_morph_alg19_exclude_freqs(samples: &mut [f32], uv: &crate::enums::univ
     dbg! (&frame_len);
     let num_of_frames = cdft.len();
     for frame in cdft {
-        dbg! (&frame);
+     //   dbg! (&frame);
         let samples_: Vec <f32> = simple_n_fast_idft(frame, frame_len);
         for sample in samples_ {
             samples [from] -= sample;
@@ -1105,7 +1105,7 @@ pub fn read_chan_f32 (
     let mut to = range;
     if to + start_from >= samples.len() { to = samples.len() - start_from; }
     let upto = to + start_from;
-    dbg! (&to); dbg! (&start_from);
+ //   dbg! (&to); dbg! (&start_from);
     for i in 0..to {
         let cursor = start_from + i * num_of_channels + ch_num;
         if cursor >= upto  { break;}
@@ -1129,7 +1129,7 @@ pub fn write_chan_f32 (
         samples [ cursor ] = patch [ i ];
         cnt = i;
         prev = cursor - ch_num;
-    } dbg! (&cursor); dbg!(cnt); prev
+    } /*dbg! (&cursor); dbg!(cnt); */prev
 }
 pub fn mk_morph_alg9_shark_fins (uv: &crate::enums::universum_vox_morph ) -> Result <(), Box <dyn Error> >{
     let width = uv.step_factor as i32;
