@@ -35,6 +35,8 @@ mod kcode01;
 mod snd;
 #[path = "extra/extra.math.rs"]
 mod extra_math;
+#[path = "extra/npf.rs"]
+mod npf;
 #[path = "custom.dft_idft.rs"]
 mod cdsp;
 #[path = "custom_math.rs"]

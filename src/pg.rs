@@ -636,7 +636,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         pg_at_file_indx(&cmd);
         return;
     }
-
+    let cmd0 = "npf ";
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, cmd0.len() ), cmd0) == 0 {
+        crate::npf::Set_NPF ();
+        return;
+    }
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0 {
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {

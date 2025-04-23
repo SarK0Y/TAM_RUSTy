@@ -2,85 +2,87 @@ use std::ops::Mul;
 use std::ops::MulAssign;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
-use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
+use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
+use crate::STRN;
 use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
+pub const PREC: u64 = 8192;
 #[derive(Debug, Clone, PartialEq)]
 pub struct init_form {
-    pub head: rugfloat,
-    pub tail: rugfloat
+    pub head: rugint,
+    pub tail: rugint
 }
 impl init_form {
     fn new () -> init_form {
         return Self {
-            head: rugfloat::with_val (2),
-            tail: rugfloat::with_val (1),
+            head: rugint::from ( 2 ),
+            tail: rugint::from (1),
         }
     }
     fn mk (head: u64, tail: u64) -> init_form {
         return Self {
-            head: rugfloat::with_val_u64 (head),
-            tail: rugfloat::with_val_u64 (tail),
+            head: rugint::from ( head ),
+            tail: rugint::from ( tail ),
         }
     }
     fn nest (&self, rhs: init_form) -> init_form {
         return Self {
-            head: self.head * rhs.head,
-            tail: self.head * rhs.tail + self.tail
+            head: self.head.clone() * rhs.head,
+            tail: self.head.clone() * rhs.tail + self.tail.clone()
         }
     }
-    fn num1 (&self) -> rugfloat {
-        return self.head + self.tail
+    fn num1 (&self) -> rugint {
+        return self.head.clone() + self.tail.clone()
     } 
-    fn num (&self, x: rugfloat) -> rugfloat {
-        return self.head * x + self.tail
+    fn num (&self, x: rugint) -> rugint {
+        return self.head.clone() * x + self.tail.clone()
     } 
 }
 impl MulAssign for init_form {
-    fn mul_assign(&mut self, rhs: init_form) -> init_form {
-        return Self {
-            head: self.head * rhs.head,
-            tail: self.head * rhs.tail + self.tail
-        }
+    fn mul_assign(&mut self, rhs: init_form) {
+        self.head = self.head.clone() * rhs.head;
+        self.tail = self.head.clone() * rhs.tail + self.tail.clone()
     }
 }
+#[derive(Debug, Clone, PartialEq)]
 pub struct product_form {
-    pub xy: rugfloat,
-    pub y: rugfloat,
-    pub x: rugfloat,
-    pub tail: rugfloat
+    pub xy: rugint,
+    pub y: rugint,
+    pub x: rugint,
+    pub tail: rugint
 }
 impl product_form {
     fn new () -> Self {
         return Self {
-            xy: rugfloat::with_val (0),
-            y: rugfloat::with_val(0),
-            x: rugfloat::with_val(0),
-            tail: rugfloat::with_val(0),
+            xy: rugint::from (0),
+            y: rugint::from(0),
+            x: rugint::from(0),
+            tail: rugint::from(0),
         }
     }
 }
 impl Mul for init_form {
-    fn mul(&self, rhs: init_form) -> product_form {
+    type Output = product_form;
+    fn mul(self, rhs: init_form) -> product_form {
         let mut ret: product_form = product_form::new();
-        ret.xy = self.head * rhs.head;
-        ret.x = self.x * rhs.tail;
-        ret.y = rhs.x * self.tail;
-        ret.tail = self.tail * rhs.tail;
+        ret.xy = self.head.clone() * rhs.head.clone();
+        ret.x = self.head.clone() * rhs.tail.clone();
+        ret.y = rhs.head * self.tail.clone();
+        ret.tail = self.tail.clone() * rhs.tail;
         return ret;
     }
 }
-pub fn tst (a: &init_form, b: &init_form) -> product_form {
-    a *= b;
-    return a * b;
-}
-pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
-    let mut ret = (rugfloat::with_val (0), rugfloat::with_val (0));
+/*pub fn tst (a: &init_form, b: &init_form) -> product_form {
+    *a *= *b.clone();
+    return *a * *b;
+}*/
+pub fn npf (n: rugint) -> (rugint, rugint) {
+    let mut ret = (rugint::from (0), rugint::from (0));
     let mut X = init_form::mk (4, 3);
     let mut Y = init_form::mk (4, 3);
     let mut X_tst: Vec < init_form > = Vec::new();
     let mut Y_tst: Vec < init_form > = Vec::new();
-    let mut x = rugfloat::with_val (3);
-    let mut y = rugfloat::with_val (3);
+   // let mut x = rugfloat::with_val (3);
+   // let mut y = rugfloat::with_val (3);
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
     let mut count_positive_results = 0_usize;
@@ -88,25 +90,26 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
     let mut mark_j = j;
     let mut finally = Vec:: <product_form>::new ();
     while X.num1 () * Y.num1 () < n {
-        X_tst.push ( X.nest ( init0 ) );
-        X_tst.push ( X.nest ( init ) );
-        Y_tst.push ( Y.nest ( init0 ) );
-        Y_tst.push ( Y.nest ( init ) );
-        finally.push (X_tst [0] * Y_tst [0]); // even-even
-        finally.push (X_tst [1] * Y_tst [1]); // odd-odd
-        finally.push (X_tst [1] * Y_tst [0]); // odd-even
-        if X.tail != Y.tail { finally.push (X_tst [0] * Y_tst [1]); /* even-odd */ }
+        X_tst.push ( X.nest ( init0.clone() ) );
+        X_tst.push ( X.nest ( init.clone() ) );
+        Y_tst.push ( Y.nest ( init0.clone() ) );
+        Y_tst.push ( Y.nest ( init.clone() ) );
+        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         else { finally.push ( product_form::new() )}
-        for fin in finally {
-            if (n - fin.tail) % X_tst [0].head == 0 {count_positive_results += 1; mark_j = j;};
+        for i in 0..finally.len() {
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = j;};
             j += 1;
         }
         if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
         match mark_j {
-            0 => {X = X_tst [0]; Y = Y_tst [0]},
-            1 => {X = X_tst [1]; Y = Y_tst [1]},
-            2 => {X = X_tst [1]; Y = Y_tst [0]},
-            3 => {X = X_tst [0]; Y = Y_tst [1]},
+            0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
+            1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
+            2 => {X = X_tst [1].clone(); Y = Y_tst [0].clone()},
+            3 => {X = X_tst [0].clone(); Y = Y_tst [1].clone()},
+            _ => {}
         }
         j = 0;
         count_positive_results = 0;
@@ -119,10 +122,11 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
 }
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
-    let (_, num) = split_once_alt_o_null_strns (prnt, " ");
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
     if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
-    let num = rugfloat::from (num).unwrap_or (0);
-    if num == 0 {errMsg0 ("Set proper number, Please"); return}
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let num = num.unwrap().complete ();
     let ret = npf (num);
     let ret = format! ("Q = {}, P = {}", ret.0, ret.1);
     errMsg0 (ret.as_str());
