@@ -118,7 +118,14 @@ pub fn npf (n: rugfloat) -> (rugfloat, rugfloat) {
     return ret
 }
 pub fn Set_NPF () {
-
+    let prnt = get_prnt (1001876412);
+    let (_, num) = split_once_alt_o_null_strns (prnt, " ");
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = rugfloat::from (num).unwrap_or (0);
+    if num == 0 {errMsg0 ("Set proper number, Please"); return}
+    let ret = npf (num);
+    let ret = format! ("Q = {}, P = {}", ret.0, ret.1);
+    errMsg0 (ret.as_str());
 }
 //fn
 /*
