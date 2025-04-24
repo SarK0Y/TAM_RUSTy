@@ -75,8 +75,9 @@ impl Mul for init_form {
     *a *= *b.clone();
     return *a * *b;
 }*/
-pub fn npf (n: rugint) -> (rugint, rugint) {
-    let mut ret = (rugint::from (0), rugint::from (0));
+pub fn npf (n: rugint) -> (rugint, rugint, String) {
+    let fn_name = "std".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut X = init_form::mk (4, 3);
     let mut Y = init_form::mk (4, 3);
     let mut X_tst: Vec < init_form > = Vec::new();
@@ -86,7 +87,7 @@ pub fn npf (n: rugint) -> (rugint, rugint) {
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
     let mut count_positive_results = 0_usize;
-    let mut mark_j = 0_usize;
+    let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
     errMsg0 (n_.as_str());
@@ -113,7 +114,56 @@ pub fn npf (n: rugint) -> (rugint, rugint) {
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
             2 => {X = X_tst [1].clone(); Y = Y_tst [0].clone()},
             3 => {X = X_tst [0].clone(); Y = Y_tst [1].clone()},
-            _ => {}
+            _ => {return npf_orig( n );}
+        }
+        count_positive_results = 0;
+        X_tst.clear();
+        Y_tst.clear ();
+        finally.clear ();
+    }
+    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    return ret
+}
+pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
+    let fn_name = "orig".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    let mut X = init_form::new();
+    let mut Y = init_form::new();
+    let mut X_tst: Vec < init_form > = Vec::new();
+    let mut Y_tst: Vec < init_form > = Vec::new();
+   // let mut x = rugfloat::with_val (3);
+   // let mut y = rugfloat::with_val (3);
+    let init = init_form::new ();
+    let init0 = init_form::mk (2, 0);
+    let mut count_positive_results = 0_usize;
+    let mut mark_j = 711_usize;
+    let mut finally = Vec:: <product_form>::new ();
+    let n_ = format! ("{n}");
+    errMsg0 (n_.as_str());
+    while X.num1 () * Y.num1 () < n {
+    dbg!(&X); dbg! (&Y);
+        X_tst.push ( X.nest ( init0.clone() ) );
+        X_tst.push ( X.nest ( init.clone() ) );
+        Y_tst.push ( Y.nest ( init0.clone() ) );
+        Y_tst.push ( Y.nest ( init.clone() ) );
+        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        dbg!(&finally);
+         let tst = n.clone() % X_tst[0].head.clone();
+         dbg!(&tst);
+        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+        else { finally.push ( product_form::new() )}
+        for i in 0..finally.len() {
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = i;};
+        }
+        if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        match mark_j {
+            0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
+            1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
+            2 => {X = X_tst [1].clone(); Y = Y_tst [0].clone()},
+            3 => {X = X_tst [0].clone(); Y = Y_tst [1].clone()},
+            _ => {errMsg0("Strange error."); return ret}
         }
         count_positive_results = 0;
         X_tst.clear();
@@ -131,7 +181,7 @@ pub fn Set_NPF () {
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let num = num.unwrap().complete ();
     let ret = npf (num);
-    let ret = format! ("Q = {}, P = {}", ret.0, ret.1);
+    let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
 }
 //fn
