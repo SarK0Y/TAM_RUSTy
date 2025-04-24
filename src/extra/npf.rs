@@ -208,7 +208,12 @@ pub fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugi
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (o) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        if mark_positive_results.len() > 1 {
+            while let Some(XY) = mark_positive_results.iter().next() {
+                ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                if ret.0.clone() * ret.1.clone() == n { return ret}
+            }
+        }
         match mark_j {
             0 => {*X = X_tst [0].clone(); *Y = Y_tst [0].clone()},
             1 => {*X = X_tst [1].clone(); *Y = Y_tst [1].clone()},
