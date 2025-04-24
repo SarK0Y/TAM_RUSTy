@@ -36,6 +36,12 @@ impl init_form {
     fn num (&self, x: rugint) -> rugint {
         return self.head.clone() * x + self.tail.clone()
     } 
+    fn __2x_plus_1 (&mut self) -> init_form {
+        return self.nest ( init_form::new() )
+    }
+    fn __2x (&mut self) -> init_form {
+        return self.nest ( init_form::mk (2, 0) )
+    }
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) {
@@ -157,7 +163,7 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
@@ -165,13 +171,68 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
             3 => {X = X_tst [0].clone(); Y = Y_tst [1].clone()},
             _ => {errMsg0("Strange error."); return ret}
         }
-        count_positive_results = 0;
+        mark_positive_results.clear();
         X_tst.clear();
         Y_tst.clear ();
         finally.clear ();
     }
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
+}
+pub fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
+    let fn_name = "cross road".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    let mut X_tst: Vec < init_form > = Vec::new();
+    let mut Y_tst: Vec < init_form > = Vec::new();
+    let init = init_form::new ();
+    let init0 = init_form::mk (2, 0);
+    let mut mark_positive_results = Vec:: <(init_form, init_form)>::new();
+    let mut mark_j = 711_usize;
+    let mut finally = Vec:: <product_form>::new ();
+    let n_ = format! ("{n}");
+    errMsg0 (n_.as_str());
+    while X.num1 () * Y.num1 () < n {
+    dbg!(&X); dbg! (&Y);
+        X_tst.push ( X.nest ( init0.clone() ) );
+        X_tst.push ( X.nest ( init.clone() ) );
+        Y_tst.push ( Y.nest ( init0.clone() ) );
+        Y_tst.push ( Y.nest ( init.clone() ) );
+        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        dbg!(&finally);
+         let tst = n.clone() % X_tst[0].head.clone();
+         dbg!(&tst);
+        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+        else { finally.push ( product_form::new() )}
+        for i in 0..finally.len() {
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
+        }
+        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (o) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        match mark_j {
+            0 => {*X = X_tst [0].clone(); *Y = Y_tst [0].clone()},
+            1 => {*X = X_tst [1].clone(); *Y = Y_tst [1].clone()},
+            2 => {*X = X_tst [1].clone(); *Y = Y_tst [0].clone()},
+            3 => {*X = X_tst [0].clone(); *Y = Y_tst [1].clone()},
+            _ => {errMsg0("Strange error."); return ret}
+        }
+        mark_positive_results.clear();
+        X_tst.clear();
+        Y_tst.clear ();
+        finally.clear ();
+    }
+    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    return ret
+}
+pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form) {
+    let mut ret = (X, Y);
+    match mark_j {
+                0 => {ret.0.__2x(); ret.1.__2x();}, //{X = X_tst [0].clone(); Y = Y_tst [0].clone()},
+                1 => {ret.0.__2x_plus_1(); ret.1.__2x_plus_1();}, //{X = X_tst [1].clone(); Y = Y_tst [1].clone()},
+                2 => {ret.0.__2x_plus_1(); ret.1.__2x();}, //{X = X_tst [1].clone(); Y = Y_tst [0].clone()},
+                3 => {ret.0.__2x(); ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
+                _ => {errMsg0("Strange error."); return ret}
+            } return ret
 }
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
