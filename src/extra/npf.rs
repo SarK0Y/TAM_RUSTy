@@ -135,7 +135,7 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
    // let mut y = rugfloat::with_val (3);
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
-    let mut count_positive_results = 0_usize;
+    let mut mark_positive_results = Vec:: <usize>::new();
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
@@ -155,9 +155,9 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         else { finally.push ( product_form::new() )}
         for i in 0..finally.len() {
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = i;};
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        if mark_positive_results.len() > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
