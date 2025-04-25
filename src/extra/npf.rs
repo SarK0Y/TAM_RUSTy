@@ -4,9 +4,17 @@ use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use crate::goto;
+use once_cell::sync::Lazy;
 use crate::STRN;
 use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 pub const PREC: u64 = 8192;
+type npf_output = (rugint, rugint, String);
+pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
+    static mut state: Lazy < Option <npf_output > > = Lazy::new (|| {None});
+    unsafe {
+        if ret.is_some() { *state = ret} state.clone()
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub struct init_form {
     pub head: rugint,
@@ -167,7 +175,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End_orig"); };
+        if mark_positive_results.len() > 1 {ret = npf_recursion (n.clone (), &mut X, &mut Y ); goto! ("End_orig"); };
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
@@ -247,6 +255,16 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
                 3 => {ret.0.__2x(); ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
                 _ => {errMsg0("Strange error."); return ret}
             } return ret
+}
+pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
+let mut x_ = X.clone(); let mut y_ = Y.clone();
+    let mut thr = std::thread::spawn ( move || {
+        let ret: npf_output = unsafe {
+                npf_cross_road (n.clone(), &mut x_, &mut y_ )
+        };
+        over_npf (Some (ret.clone () ));
+    });
+    thr.join(); return over_npf (None).expect ("over_npf failed");
 }
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
