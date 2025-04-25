@@ -188,6 +188,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    if crate::faav::npf_id (None).is_none () {return ret}
     let mut X_tst: Vec < init_form > = Vec::new();
     let mut Y_tst: Vec < init_form > = Vec::new();
     let init = init_form::new ();
@@ -233,6 +234,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         finally.clear ();
     }
     label!("Exit_cross_road");
+    crate::faav::npf_id (Some (-1) );
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
