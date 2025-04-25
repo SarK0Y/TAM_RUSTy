@@ -167,20 +167,20 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End"); };
+        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End_orig"); };
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
             2 => {X = X_tst [1].clone(); Y = Y_tst [0].clone()},
             3 => {X = X_tst [0].clone(); Y = Y_tst [1].clone()},
-            _ => {errMsg0("Strange error."); return ret}
+            _ => {errMsg0("Strange error."); goto!("End_orig");}
         }
         mark_positive_results.clear();
         X_tst.clear();
         Y_tst.clear ();
         finally.clear ();
     }
-    label!("End");
+    label!("End_orig");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
