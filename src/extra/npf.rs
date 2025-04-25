@@ -139,6 +139,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     }
     label! ("End_npf");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if ret.0 == 0 || ret.1 == 0 {ret = npf_orig (n);}
     return ret
 }
 #[no_mangle]
@@ -224,6 +225,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
         }
         if mark_positive_results.len() > 1 {
+            dbg! (&mark_positive_results);
             while let Some(XY) = mark_positive_results.iter().next() {
                 ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
