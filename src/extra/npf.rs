@@ -116,7 +116,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = i;};
         }
-        if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End_npf");};
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
@@ -129,6 +129,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
         Y_tst.clear ();
         finally.clear ();
     }
+    label! ("End_npf");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
