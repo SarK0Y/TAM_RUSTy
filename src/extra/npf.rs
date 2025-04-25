@@ -3,6 +3,7 @@ use std::ops::MulAssign;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
+use crate::goto;
 use crate::STRN;
 use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 pub const PREC: u64 = 8192;
@@ -81,7 +82,8 @@ impl Mul for init_form {
     *a *= *b.clone();
     return *a * *b;
 }*/
-pub fn npf (n: rugint) -> (rugint, rugint, String) {
+#[no_mangle]
+pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     let fn_name = "std".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut X = init_form::mk (4, 3);
@@ -130,7 +132,8 @@ pub fn npf (n: rugint) -> (rugint, rugint, String) {
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
-pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
+#[no_mangle]
+pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
     let fn_name = "orig".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut X = init_form::new();
@@ -163,7 +166,7 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); return ret};
+        if mark_positive_results.len() > 1 {errMsg0("Simple NPF (orig) failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End"); };
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
@@ -176,10 +179,12 @@ pub fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         Y_tst.clear ();
         finally.clear ();
     }
+    label!("End");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
-pub fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
+#[no_mangle]
+pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut X_tst: Vec < init_form > = Vec::new();
@@ -211,7 +216,7 @@ pub fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugi
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
-                if ret.0.clone() * ret.1.clone() == n { return ret}
+                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
         }
         match mark_j {
@@ -226,6 +231,7 @@ pub fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugi
         Y_tst.clear ();
         finally.clear ();
     }
+    label!("Exit_cross_road");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
@@ -246,7 +252,7 @@ pub fn Set_NPF () {
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let num = num.unwrap().complete ();
-    let ret = npf (num);
+    let ret = unsafe { npf (num) };
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
 }
