@@ -209,18 +209,20 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     dbg!(&X); dbg! (&Y);
-        X_tst.push ( X.nest ( init0.clone() ) );
-        X_tst.push ( X.nest ( init.clone() ) );
-        Y_tst.push ( Y.nest ( init0.clone() ) );
-        Y_tst.push ( Y.nest ( init.clone() ) );
+        X_tst.push ( X.__2x() );
+        X_tst.push ( X.__2x_plus_1());
+        Y_tst.push ( Y.__2x() );
+        Y_tst.push ( Y.__2x_plus_1() );
         finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
         finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
         finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        dbg!(&X_tst); dbg!(&Y_tst);
         dbg!(&finally);
          let tst = n.clone() % X_tst[0].head.clone();
          dbg!(&tst);
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         else { finally.push ( product_form::new() )}
+        if finally [2].tail == finally [3].tail { finally.pop(); }
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
         }
