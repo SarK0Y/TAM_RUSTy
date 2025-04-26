@@ -202,7 +202,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     let mut Y_tst: Vec < init_form > = Vec::new();
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
-    let mut mark_positive_results = Vec:: <(init_form, init_form)>::new();
+    let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
@@ -248,8 +248,8 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     return ret
 }
-pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form) {
-    let mut ret = (X, Y);
+pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
+    let mut ret = (X, Y, mark_j);
     match mark_j {
                 0 => {ret.0.__2x(); ret.1.__2x();}, //{X = X_tst [0].clone(); Y = Y_tst [0].clone()},
                 1 => {ret.0.__2x_plus_1(); ret.1.__2x_plus_1();}, //{X = X_tst [1].clone(); Y = Y_tst [1].clone()},
