@@ -16,6 +16,12 @@ pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
         if ret.is_some() { *state = ret} state.clone()
     }
 }
+pub fn Nstr (ret: Option < String >) -> Option <String> {
+    static mut state: Lazy < Option < String > > = Lazy::new (|| {None});
+    unsafe {
+        if ret.is_some() { *state = ret} state.clone()
+    }
+}
 #[derive(Debug, Clone, PartialEq)]
 pub struct init_form {
     pub head: rugint,
@@ -94,6 +100,7 @@ impl Mul for init_form {
 #[no_mangle]
 pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     let fn_name = "std".strn();
+    Nstr (Some (n.to_string_radix(2) ));
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut X = init_form::mk (4, 3);
     let mut Y = init_form::mk (4, 3);
@@ -169,11 +176,10 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
         finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
         finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        dbg!(&finally);
          let tst = n.clone() % X_tst[0].head.clone();
          dbg!(&tst);
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-        else { finally.push ( product_form::new() )}
+         dbg!(&finally);
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
@@ -222,14 +228,14 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
          let tst = n.clone() % X_tst[0].head.clone();
          dbg!(&tst);
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-        else { finally.push ( product_form::new() )}
-        if finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
+        if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
+        dbg! (finally.len());
         for i in 0..finally.len() {
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
         }
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
-                dbg! (&mark_positive_results);
+                //dbg! (&mark_positive_results);
                 ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
@@ -254,11 +260,12 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 }
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
     let mut ret = (X, Y, mark_j);
+    dbg! (&ret);
     match mark_j {
-                0 => {ret.0.__2x(); ret.1.__2x();}, //{X = X_tst [0].clone(); Y = Y_tst [0].clone()},
-                1 => {ret.0.__2x_plus_1(); ret.1.__2x_plus_1();}, //{X = X_tst [1].clone(); Y = Y_tst [1].clone()},
-                2 => {ret.0.__2x_plus_1(); ret.1.__2x();}, //{X = X_tst [1].clone(); Y = Y_tst [0].clone()},
-                3 => {ret.0.__2x(); ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
+                0 => {ret.0 = ret.0.__2x(); ret.1 = ret.1.__2x();}, //{X = X_tst [0].clone(); Y = Y_tst [0].clone()},
+                1 => {ret.0 = ret.0.__2x_plus_1(); ret.1 = ret.1.__2x_plus_1();}, //{X = X_tst [1].clone(); Y = Y_tst [1].clone()},
+                2 => {ret.0 = ret.0.__2x_plus_1(); ret.1 = ret.1.__2x();}, //{X = X_tst [1].clone(); Y = Y_tst [0].clone()},
+                3 => {ret.0 = ret.0.__2x(); ret.1 = ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
                 _ => {errMsg0("Strange error."); return ret}
             } dbg! (&ret); return ret
 }
