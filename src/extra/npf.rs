@@ -114,7 +114,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
-    errMsg0 (n_.as_str());
+    //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     dbg!(&X); dbg! (&Y);
         X_tst.push ( X.nest ( init0.clone() ) );
@@ -166,7 +166,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
-    errMsg0 (n_.as_str());
+   // errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     dbg!(&X); dbg! (&Y);
         X_tst.push ( X.nest ( init0.clone() ) );
@@ -213,7 +213,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
     let n_ = format! ("{n}");
-    errMsg0 (n_.as_str());
+    //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     dbg!(&X); dbg! (&Y);
         X_tst.push ( X.__2x() );
