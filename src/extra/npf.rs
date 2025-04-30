@@ -147,8 +147,8 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     }
     label! ("End_npf");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
-    if ret.0 == 0 || ret.1 == 0 {ret = npf_orig (n);}
-    return ret
+    if ret.0 == 0 || ret.1 == 0 {return npf_orig (n);}
+    return npf_orig (n);
 }
 #[no_mangle]
 pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
@@ -204,7 +204,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
-    if crate::faav::npf_id (None).is_none () {return ret}
+    if crate::faav::npf_id (None).is_none () {println! ("Dead end"); return ret}
     let mut X_tst: Vec < init_form > = Vec::new();
     let mut Y_tst: Vec < init_form > = Vec::new();
     let init = init_form::new ();
@@ -215,7 +215,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     let n_ = format! ("{n}");
     //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
-    dbg!(&X); dbg! (&Y);
+    //dbg!(&X); dbg! (&Y);
         X_tst.push ( X.__2x() );
         X_tst.push ( X.__2x_plus_1());
         Y_tst.push ( Y.__2x() );
@@ -223,10 +223,10 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
         finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
         finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        dbg!(&X_tst); dbg!(&Y_tst);
-        dbg!(&finally);
+       // dbg!(&X_tst); dbg!(&Y_tst);
+      //  dbg!(&finally);
          let tst = n.clone() % X_tst[0].head.clone();
-         dbg!(&tst);
+     //    dbg!(&tst);
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
         dbg! (finally.len());
@@ -265,14 +265,14 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 }
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
     let mut ret = (X, Y, mark_j);
-    dbg! (&ret);
+    //dbg! (&ret);
     match mark_j {
                 0 => {ret.0 = ret.0.__2x(); ret.1 = ret.1.__2x();}, //{X = X_tst [0].clone(); Y = Y_tst [0].clone()},
                 1 => {ret.0 = ret.0.__2x_plus_1(); ret.1 = ret.1.__2x_plus_1();}, //{X = X_tst [1].clone(); Y = Y_tst [1].clone()},
                 2 => {ret.0 = ret.0.__2x_plus_1(); ret.1 = ret.1.__2x();}, //{X = X_tst [1].clone(); Y = Y_tst [0].clone()},
                 3 => {ret.0 = ret.0.__2x(); ret.1 = ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
                 _ => {errMsg0("Strange error."); return ret}
-            } dbg! (&ret); return ret
+            } /*dbg! (&ret);*/ return ret
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
 let mut x_ = X.clone(); let mut y_ = Y.clone();
@@ -292,6 +292,7 @@ pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
     let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
     if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let num = num.unwrap().complete ();

@@ -326,7 +326,7 @@ pub(crate) fn initSession() -> bool {
     );
     #[cfg(feature = "mae")]
     crate::cache::lazy_cache_cleaning(None);
-    crate::faav::npf_id (Some (30) );
+    crate::faav::npf_id (Some (3) );
     crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
     crate::C! ( local_indx (true) );
     return true;
