@@ -7,6 +7,7 @@ use crate::goto;
 use once_cell::sync::Lazy;
 use crate::STRN;
 use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
+use crate::custom_traits::helpful_math_ops;
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
 pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
@@ -222,13 +223,13 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
          dbg!(&tst);
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         else { finally.push ( product_form::new() )}
-        if finally [2].tail == finally [3].tail { finally.pop(); }
+        if finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
         for i in 0..finally.len() {
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
         }
         if mark_positive_results.len() > 1 {
-            dbg! (&mark_positive_results);
             while let Some(XY) = mark_positive_results.iter().next() {
+                dbg! (&mark_positive_results);
                 ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
@@ -248,6 +249,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     label!("Exit_cross_road");
     crate::faav::npf_id (Some (-1) );
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    println! ("Exit_cross_road");
     return ret
 }
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
@@ -258,7 +260,7 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
                 2 => {ret.0.__2x_plus_1(); ret.1.__2x();}, //{X = X_tst [1].clone(); Y = Y_tst [0].clone()},
                 3 => {ret.0.__2x(); ret.1.__2x_plus_1();}, //{X = X_tst [0].clone(); Y = Y_tst [1].clone()},
                 _ => {errMsg0("Strange error."); return ret}
-            } return ret
+            } dbg! (&ret); return ret
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
 let mut x_ = X.clone(); let mut y_ = Y.clone();
