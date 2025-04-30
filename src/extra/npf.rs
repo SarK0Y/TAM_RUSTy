@@ -279,6 +279,10 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     });
     thr.join(); return over_npf (None).expect ("over_npf failed");
 }
+pub fn max_tail_match (pf: &product_form) -> usize {
+    let tail_str = pf.tail.to_string_radix (2);
+    if Nstr (None).unwrap ().contains (&tail_str) { return tail_str.len () } return 0
+}
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
     let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
