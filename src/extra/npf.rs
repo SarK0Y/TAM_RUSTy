@@ -230,8 +230,13 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
         if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
         dbg! (finally.len());
+        let mut max_tail_len: usize = 0;
         for i in 0..finally.len() {
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;};
+            let cur_tail_len: usize = max_tail_match (&finally [i]);
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+                dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+            };
         }
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
