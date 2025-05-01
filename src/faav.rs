@@ -35,17 +35,19 @@ pub fn new_obj_id () -> u64 {
         id.inc(); return id - 1;
     }
 }
-pub fn npf_id (ceil: Option < i64 >) -> Option < i64 > {
+pub fn npf_lock (ceil: Option < i64 >) -> Option < i64 > {
+    static mut lock: bool = false;
     static mut id: i64 = 0;
     static mut max_id: i64 = 0;
     unsafe {
         if let Some (x) = ceil { 
-            if x < 0 {id.dec(); return Some (id); }
+            if x < 0 {id = 0; lock = false; return Some (id); }
             max_id = x; return None;
         }
+        if lock { return None }
         if id == i64::MAX { id = 0; return Some (0); }
         id.inc(); 
-        if id >= max_id { return None; } return Some ( id - 1 );
+        if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
 pub fn kill_prox_chain (state: Option < bool >) -> bool {

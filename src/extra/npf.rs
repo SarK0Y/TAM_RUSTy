@@ -204,7 +204,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
-    if crate::faav::npf_id (None).is_none () {println! ("Dead end"); return ret}
+    if crate::faav::npf_lock (None).is_none () {println! ("Dead end"); return ret;}
     let mut X_tst: Vec < init_form > = Vec::new();
     let mut Y_tst: Vec < init_form > = Vec::new();
     let init = init_form::new ();
@@ -241,6 +241,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
+                if crate::faav::npf_lock (None).is_none () {println! ("NPF gets locked"); goto!("Exit_cross_road");}
                 ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
@@ -258,7 +259,6 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         finally.clear ();
     }
     label!("Exit_cross_road");
-    crate::faav::npf_id (Some (-1) );
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
     println! ("Exit_cross_road");
     return ret
@@ -299,6 +299,7 @@ pub fn Set_NPF () {
     let ret = unsafe { npf (num) };
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
+    crate::faav::npf_lock (Some (-1) );
 }
 //fn
 /*
