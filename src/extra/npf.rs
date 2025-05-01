@@ -16,6 +16,16 @@ pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
         if ret.is_some() { *state = ret} state.clone()
     }
 }
+pub fn max_head (head: Option < rugint >) -> Option < rugint > {
+    static mut val: Lazy <rugint > = Lazy::new (|| {rugint::from (0) });
+    let __0 = rugint::from (0);
+    unsafe {
+        if let Some (x) = head {
+            if x < 0 { *val = __0; return None }
+            if x > *val { *val = x.clone(); return Some (x) }
+        } return Some (val.clone());
+    }
+}
 pub fn Nstr (ret: Option < String >) -> Option <String> {
     static mut state: Lazy < Option < String > > = Lazy::new (|| {None});
     unsafe {
