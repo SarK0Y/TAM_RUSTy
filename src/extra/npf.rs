@@ -288,6 +288,11 @@ pub fn max_tail_match (pf: &product_form) -> usize {
     let tail_str = pf.tail.to_string_radix (2);
     if Nstr (None).unwrap ().contains (&tail_str) { return tail_str.len () } return 0
 }
+pub fn set_lock (cmd: &String) {
+use crate::custom_traits::turn_2_i64;
+    let max_id = cmd.replace ("npf lock", "").trim_start().trim_end().i640();
+    crate::faav::npf_lock (Some (max_id) );
+}
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
     let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
