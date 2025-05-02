@@ -340,6 +340,8 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
             } /*dbg! (&ret);*/ return ret
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
+let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+if crate::faav::npf_lock (None).is_none () {println! ("End npf_recursion"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         let ret: npf_output = unsafe {
@@ -350,6 +352,8 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     thr.join(); return over_npf (None).expect ("over_npf failed");
 }
 pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
+let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+if crate::faav::npf_lock (None).is_none () {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         let ret: npf_output = unsafe {
