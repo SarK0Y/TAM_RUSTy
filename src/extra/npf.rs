@@ -242,11 +242,13 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         let mut max_tail_len: usize = 0;
         for i in 0..finally.len() {
             let cur_tail_len: usize = max_tail_match (&finally [i]);
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
-                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
-                dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 /*|| cur_tail_len > max_tail_len */ {
+             //   if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+                mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); dbg!(&X_tst); }
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
@@ -306,9 +308,11 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
             let cur_tail_len: usize = max_tail_match (&finally [i]);
             if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
                 if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
-                dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+                mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); dbg!(&X_tst); }
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
