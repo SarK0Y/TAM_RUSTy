@@ -12,7 +12,8 @@ pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
 #[derive(Debug, Clone, PartialEq)]
 pub struct vec_product_form ( Vec <product_form> );
-type vec_init_form = std::vec::Vec <init_form>;
+pub struct vec_init_form ( Vec <init_form> );
+//type vec_init_form = std::vec::Vec <init_form>;
 pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
     static mut state: Lazy < Option <npf_output > > = Lazy::new (|| {None});
     unsafe {
@@ -219,10 +220,8 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
-    let mut X_tst: Vec < init_form > = Vec::new();
-    let mut Y_tst: Vec < init_form > = Vec::new();
-    let init = init_form::new ();
-    let init0 = init_form::mk (2, 0);
+    let mut X_tst = vec_init_form { 0: Vec::new() };
+    let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
     let mut mark_j = 711_usize;
     let mut finally = Vec:: <product_form>::new ();
@@ -230,24 +229,24 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     //dbg!(&X); dbg! (&Y);
-        X_tst.push ( X.__2x() );
-        X_tst.push ( X.__2x_plus_1());
-        Y_tst.push ( Y.__2x() );
-        Y_tst.push ( Y.__2x_plus_1() );
-        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
+        X_tst.0.push ( X.__2x() );
+        X_tst.0.push ( X.__2x_plus_1());
+        Y_tst.0.push ( Y.__2x() );
+        Y_tst.0.push ( Y.__2x_plus_1() );
+        finally.push (X_tst.0 [0].clone() * Y_tst.0 [0].clone()); // even-even
+        finally.push (X_tst.0 [1].clone() * Y_tst.0 [1].clone()); // odd-odd
+        finally.push (X_tst.0 [1].clone() * Y_tst.0 [0].clone()); // odd-even
+        finally.push (X_tst.0 [0].clone() * Y_tst.0 [1].clone() ); /* even-odd */
         dbg! (finally.len());
         let mut max_tail_len: usize = 0;
         for i in 0..finally.len() {
             let cur_tail_len: usize = max_tail_match (&finally [i]);
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 /*|| cur_tail_len > max_tail_len */ {
+            if (n.clone() - finally[i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 /*|| cur_tail_len > max_tail_len */ {
              //   if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
                 mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
-        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); dbg!(&X_tst); }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst ) }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
@@ -257,15 +256,15 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
             }
         }
         match mark_j {
-            0 => {*X = X_tst [0].clone(); *Y = Y_tst [0].clone()},
-            1 => {*X = X_tst [1].clone(); *Y = Y_tst [1].clone()},
-            2 => {*X = X_tst [1].clone(); *Y = Y_tst [0].clone()},
-            3 => {*X = X_tst [0].clone(); *Y = Y_tst [1].clone()},
+            0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
+            1 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [1].clone()},
+            2 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [0].clone()},
+            3 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [1].clone()},
             _ => {errMsg0("Strange error."); return ret}
         }
         mark_positive_results.clear();
-        X_tst.clear();
-        Y_tst.clear ();
+        X_tst.0.clear();
+        Y_tst.0.clear ();
         finally.clear ();
     }
     label!("Exit_cross_road");
@@ -278,10 +277,8 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     if crate::faav::npf_lock (None).is_none () {println! ("Dead end"); return ret;}
-    let mut X_tst: vec_init_form = Vec::new();
-    let mut Y_tst: vec_init_form = Vec::new();
-    let init = init_form::new ();
-    let init0 = init_form::mk (2, 0);
+    let mut X_tst = vec_init_form { 0: Vec::new() };
+    let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
     let mut mark_j = 711_usize;
     let mut finally = vec_product_form { 0: Vec::new() };
@@ -289,24 +286,24 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
     //dbg!(&X); dbg! (&Y);
-        X_tst.push ( X.__2x() );
-        X_tst.push ( X.__2x_plus_1());
-        Y_tst.push ( Y.__2x() );
-        Y_tst.push ( Y.__2x_plus_1() );
-        finally.0.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.0.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.0.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        finally.0.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
+        X_tst.0.push ( X.__2x() );
+        X_tst.0.push ( X.__2x_plus_1());
+        Y_tst.0.push ( Y.__2x() );
+        Y_tst.0.push ( Y.__2x_plus_1() );
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [0].clone()); // even-even
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [1].clone()); // odd-odd
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [0].clone()); // odd-even
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [1].clone() ); /* even-odd */
         dbg! (finally.0.len());
         let mut max_tail_len: usize = 0;
         for i in 0..finally.0.len() {
             let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
-            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 || cur_tail_len > max_tail_len {
                 if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
                 mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
-        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); dbg!(&X_tst); }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
@@ -317,15 +314,15 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
             }
         }
         match mark_j {
-            0 => {*X = X_tst [0].clone(); *Y = Y_tst [0].clone()},
-            1 => {*X = X_tst [1].clone(); *Y = Y_tst [1].clone()},
-            2 => {*X = X_tst [1].clone(); *Y = Y_tst [0].clone()},
-            3 => {*X = X_tst [0].clone(); *Y = Y_tst [1].clone()},
+            0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
+            1 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [1].clone()},
+            2 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [0].clone()},
+            3 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [1].clone()},
             _ => {errMsg0("Strange error."); return ret}
         }
         mark_positive_results.clear();
-        X_tst.clear();
-        Y_tst.clear ();
+        X_tst.0.clear();
+        Y_tst.0.clear ();
         finally.0.clear ();
     }
     label!("Exit_cross_road_lock");
@@ -397,6 +394,22 @@ impl std::fmt::Display for product_form {
     }
 }
 impl std::fmt::Display for vec_product_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let cvec = self.0.clone();
+        for j in cvec{
+            println! ("{}", j);
+        }
+        return write!(f, "");
+    }
+}
+impl std::fmt::Display for init_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let head_exp = self.head.find_one(0).unwrap();
+        let tail_bin = self.tail.to_string_radix(2);
+        return write!(f, "init_form (head: {} = 2e{} \n tail dec: {}\n tail bin: {})", self.head, head_exp, self.tail, tail_bin);
+    }
+}
+impl std::fmt::Display for vec_init_form {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let cvec = self.0.clone();
         for j in cvec{
