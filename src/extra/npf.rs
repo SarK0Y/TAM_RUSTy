@@ -232,12 +232,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
         finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
         finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-       // dbg!(&X_tst); dbg!(&Y_tst);
-      //  dbg!(&finally);
-         let tst = n.clone() % X_tst[0].head.clone();
-     //    dbg!(&tst);
-        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-        if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
+        finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
         dbg! (finally.len());
         let mut max_tail_len: usize = 0;
         for i in 0..finally.len() {
@@ -296,12 +291,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
         finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
         finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-       // dbg!(&X_tst); dbg!(&Y_tst);
-      //  dbg!(&finally);
-         let tst = n.clone() % X_tst[0].head.clone();
-     //    dbg!(&tst);
-        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-        if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
+        finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
         dbg! (finally.len());
         let mut max_tail_len: usize = 0;
         for i in 0..finally.len() {
