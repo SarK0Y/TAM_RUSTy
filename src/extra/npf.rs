@@ -250,7 +250,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
-                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_recursion_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
         }
@@ -350,6 +350,16 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         let ret: npf_output = unsafe {
                 npf_cross_road (n.clone(), &mut x_, &mut y_ )
+        };
+        over_npf (Some (ret.clone () ));
+    });
+    thr.join(); return over_npf (None).expect ("over_npf failed");
+}
+pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
+let mut x_ = X.clone(); let mut y_ = Y.clone();
+    let mut thr = std::thread::spawn ( move || {
+        let ret: npf_output = unsafe {
+                npf_cross_road_lock (n.clone(), &mut x_, &mut y_ )
         };
         over_npf (Some (ret.clone () ));
     });
