@@ -250,7 +250,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
-                ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
                 if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
             }
         }
