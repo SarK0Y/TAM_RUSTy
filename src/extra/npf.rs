@@ -10,6 +10,9 @@ use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_
 use crate::custom_traits::helpful_math_ops;
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
+#[derive(Debug, Clone, PartialEq)]
+pub struct vec_product_form ( Vec <product_form> );
+type vec_init_form = std::vec::Vec <init_form>;
 pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
     static mut state: Lazy < Option <npf_output > > = Lazy::new (|| {None});
     unsafe {
@@ -122,7 +125,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
     let init0 = init_form::mk (2, 0);
     let mut count_positive_results = 0_usize;
     let mut mark_j = 711_usize;
-    let mut finally = Vec:: <product_form>::new ();
+    let mut finally = vec_product_form { 0: Vec::new () };
     let n_ = format! ("{n}");
     //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
@@ -131,16 +134,17 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
         X_tst.push ( X.nest ( init.clone() ) );
         Y_tst.push ( Y.nest ( init0.clone() ) );
         Y_tst.push ( Y.nest ( init.clone() ) );
-        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        dbg!(&finally);
+        finally.0.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.0.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.0.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        //dbg!(&finally);
+        println! ("&&finally = \n {}", finally);
          let tst = n.clone() % X_tst[0].head.clone();
          dbg!(&tst);
-        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-        else { finally.push ( product_form::new() )}
-        for i in 0..finally.len() {
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = i;};
+        if X.tail != Y.tail { finally.0.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+        else { finally.0.push ( product_form::new() )}
+        for i in 0..finally.0.len() {
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst [0].head.clone() == 0 {count_positive_results += 1; mark_j = i;};
         }
         if count_positive_results > 1 {errMsg0("Simple NPF failed."); ret.0 = X.num1 (); ret.1 = Y.num1(); goto! ("End_npf");};
         match mark_j {
@@ -153,7 +157,7 @@ pub unsafe fn npf (n: rugint) -> (rugint, rugint, String) {
         count_positive_results = 0;
         X_tst.clear();
         Y_tst.clear ();
-        finally.clear ();
+        finally.0.clear ();
     }
     label! ("End_npf");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
@@ -174,7 +178,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
     let init0 = init_form::mk (2, 0);
     let mut mark_positive_results = Vec:: <usize>::new();
     let mut mark_j = 711_usize;
-    let mut finally = Vec:: <product_form>::new ();
+    let mut finally = vec_product_form { 0: Vec::new() };
     let n_ = format! ("{n}");
    // errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
@@ -183,15 +187,16 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         X_tst.push ( X.nest ( init.clone() ) );
         Y_tst.push ( Y.nest ( init0.clone() ) );
         Y_tst.push ( Y.nest ( init.clone() ) );
-        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        finally.0.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.0.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.0.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
          let tst = n.clone() % X_tst[0].head.clone();
          dbg!(&tst);
-        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
-         dbg!(&finally);
-        for i in 0..finally.len() {
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
+        if X.tail != Y.tail { finally.0.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+         //dbg!(&finally);
+         println! ("&&finally = \n {}", finally);
+        for i in 0..finally.0.len() {
+            if (n.clone() - finally.0[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
         if mark_positive_results.len() > 1 {ret = npf_recursion (n.clone (), &mut X, &mut Y ); goto! ("End_orig"); };
         match mark_j {
@@ -204,7 +209,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         mark_positive_results.clear();
         X_tst.clear();
         Y_tst.clear ();
-        finally.clear ();
+        finally.0.clear ();
     }
     label!("End_orig");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
@@ -273,13 +278,13 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     if crate::faav::npf_lock (None).is_none () {println! ("Dead end"); return ret;}
-    let mut X_tst: Vec < init_form > = Vec::new();
-    let mut Y_tst: Vec < init_form > = Vec::new();
+    let mut X_tst: vec_init_form = Vec::new();
+    let mut Y_tst: vec_init_form = Vec::new();
     let init = init_form::new ();
     let init0 = init_form::mk (2, 0);
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
     let mut mark_j = 711_usize;
-    let mut finally = Vec:: <product_form>::new ();
+    let mut finally = vec_product_form { 0: Vec::new() };
     let n_ = format! ("{n}");
     //errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
@@ -288,15 +293,15 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         X_tst.push ( X.__2x_plus_1());
         Y_tst.push ( Y.__2x() );
         Y_tst.push ( Y.__2x_plus_1() );
-        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-        finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
-        dbg! (finally.len());
+        finally.0.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.0.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.0.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+        finally.0.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */
+        dbg! (finally.0.len());
         let mut max_tail_len: usize = 0;
-        for i in 0..finally.len() {
-            let cur_tail_len: usize = max_tail_match (&finally [i]);
-            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+        for i in 0..finally.0.len() {
+            let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
                 if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
                 mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
@@ -321,7 +326,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         mark_positive_results.clear();
         X_tst.clear();
         Y_tst.clear ();
-        finally.clear ();
+        finally.0.clear ();
     }
     label!("Exit_cross_road_lock");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
@@ -384,6 +389,21 @@ pub fn Set_NPF () {
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
     crate::faav::npf_lock (Some (-1) );
+}
+impl std::fmt::Display for product_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let tail_bin = self.tail.to_string_radix(2);
+        return write!(f, "product_form (xy: {}, x: {}\n y: {}\n tail dec: {}\n tail bin: {})", self.xy, self.x, self.y, self.tail, tail_bin);
+    }
+}
+impl std::fmt::Display for vec_product_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let cvec = self.0.clone();
+        for j in cvec{
+            println! ("{}", j);
+        }
+        return write!(f, "");
+    }
 }
 //fn
 /*
