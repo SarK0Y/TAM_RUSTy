@@ -214,6 +214,67 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    let mut X_tst: Vec < init_form > = Vec::new();
+    let mut Y_tst: Vec < init_form > = Vec::new();
+    let init = init_form::new ();
+    let init0 = init_form::mk (2, 0);
+    let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
+    let mut mark_j = 711_usize;
+    let mut finally = Vec:: <product_form>::new ();
+    let n_ = format! ("{n}");
+    //errMsg0 (n_.as_str());
+    while X.num1 () * Y.num1 () < n {
+    //dbg!(&X); dbg! (&Y);
+        X_tst.push ( X.__2x() );
+        X_tst.push ( X.__2x_plus_1());
+        Y_tst.push ( Y.__2x() );
+        Y_tst.push ( Y.__2x_plus_1() );
+        finally.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
+        finally.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
+        finally.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
+       // dbg!(&X_tst); dbg!(&Y_tst);
+      //  dbg!(&finally);
+         let tst = n.clone() % X_tst[0].head.clone();
+     //    dbg!(&tst);
+        if X.tail != Y.tail { finally.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+        if finally.len() == 4 && finally [2].tail == finally [3].tail { dbg!("trim vec");finally.pop(); /*finally.remove (finally.len().dec());*/ }
+        dbg! (finally.len());
+        let mut max_tail_len: usize = 0;
+        for i in 0..finally.len() {
+            let cur_tail_len: usize = max_tail_match (&finally [i]);
+            if (n.clone() - finally[i].tail.clone() ) % X_tst [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+                dbg! (&mark_positive_results); dbg!(&X_tst);mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+            };
+        }
+        if mark_positive_results.len() > 1 {
+            while let Some(XY) = mark_positive_results.iter().next() {
+                //dbg! (&mark_positive_results);
+                ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
+            }
+        }
+        match mark_j {
+            0 => {*X = X_tst [0].clone(); *Y = Y_tst [0].clone()},
+            1 => {*X = X_tst [1].clone(); *Y = Y_tst [1].clone()},
+            2 => {*X = X_tst [1].clone(); *Y = Y_tst [0].clone()},
+            3 => {*X = X_tst [0].clone(); *Y = Y_tst [1].clone()},
+            _ => {errMsg0("Strange error."); return ret}
+        }
+        mark_positive_results.clear();
+        X_tst.clear();
+        Y_tst.clear ();
+        finally.clear ();
+    }
+    label!("Exit_cross_road");
+    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    println! ("Exit_cross_road");
+    return ret
+}
+#[no_mangle]
+pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
+    let fn_name = "cross road lock".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     if crate::faav::npf_lock (None).is_none () {println! ("Dead end"); return ret;}
     let mut X_tst: Vec < init_form > = Vec::new();
     let mut Y_tst: Vec < init_form > = Vec::new();
@@ -251,9 +312,9 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
-                if crate::faav::npf_lock (None).is_none () {println! ("NPF gets locked"); goto!("Exit_cross_road");}
-                ret = npf_cross_road (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
-                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
+                if crate::faav::npf_lock (None).is_none () {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road_lock");}
             }
         }
         match mark_j {
@@ -268,9 +329,9 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         Y_tst.clear ();
         finally.clear ();
     }
-    label!("Exit_cross_road");
+    label!("Exit_cross_road_lock");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
-    println! ("Exit_cross_road");
+    println! ("Exit_cross_road_lock");
     return ret
 }
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
