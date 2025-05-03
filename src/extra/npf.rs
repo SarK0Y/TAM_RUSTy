@@ -10,7 +10,7 @@ use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_
 use crate::custom_traits::helpful_math_ops;
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct vec_product_form ( Vec <product_form> );
 pub struct vec_init_form ( Vec <init_form> );
 //type vec_init_form = std::vec::Vec <init_form>;
@@ -36,7 +36,7 @@ pub fn Nstr (ret: Option < String >) -> Option <String> {
         if ret.is_some() { *state = ret} state.clone()
     }
 }
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct init_form {
     pub head: rugint,
     pub tail: rugint
@@ -79,7 +79,7 @@ impl MulAssign for init_form {
         self.tail = self.head.clone() * rhs.tail + self.tail.clone()
     }
 }
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Clone, PartialEq)]
 pub struct product_form {
     pub xy: rugint,
     pub y: rugint,
@@ -410,6 +410,37 @@ impl std::fmt::Display for init_form {
     }
 }
 impl std::fmt::Display for vec_init_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let cvec = self.0.clone();
+        for j in cvec{
+            println! ("{}", j);
+        }
+        return write!(f, "");
+    }
+}
+impl std::fmt::Debug for product_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let tail_bin = self.tail.to_string_radix(2);
+        return write!(f, "product_form (xy: {}, x: {}\n y: {}\n tail dec: {}\n tail bin: {})", self.xy, self.x, self.y, self.tail, tail_bin);
+    }
+}
+impl std::fmt::Debug for vec_product_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let cvec = self.0.clone();
+        for j in cvec{
+            println! ("{}", j);
+        }
+        return write!(f, "");
+    }
+}
+impl std::fmt::Debug for init_form {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        let head_exp = self.head.find_one(0).unwrap();
+        let tail_bin = self.tail.to_string_radix(2);
+        return write!(f, "init_form (head: {} = 2e{} \n tail dec: {}\n tail bin: {})", self.head, head_exp, self.tail, tail_bin);
+    }
+}
+impl std::fmt::Debug for vec_init_form {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let cvec = self.0.clone();
         for j in cvec{
