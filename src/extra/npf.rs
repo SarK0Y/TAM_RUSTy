@@ -374,6 +374,22 @@ use crate::custom_traits::turn_2_i64;
     let max_id = cmd.replace ("npf lock", "").trim_start().trim_end().i640();
     crate::faav::npf_lock (Some (max_id) );
 }
+pub fn check_match_div (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint) {
+    let __1 = rugint::from (1);
+    let div = check_div (&n, X.tail.clone() ); 
+    if div > 1 { return (div.clone(), X.tail.clone() )}
+    let div = check_div (&n, X.num1().clone() ); 
+    if div > 1 { return (div.clone(), X.num1().clone() )}
+    let div = check_div (&n, Y.tail.clone() ); 
+    if div > 1 { return (div.clone(), Y.tail.clone() )}
+    let div = check_div (&n, Y.num1().clone() ); 
+    if div > 1 { return (div.clone(), Y.num1().clone() )}
+    return (__1.clone(), __1)
+}
+pub fn check_div (n: &rugint, div: rugint ) -> rugint {
+    let __1 = rugint::from (1);
+    if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
+}
 pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
     let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
