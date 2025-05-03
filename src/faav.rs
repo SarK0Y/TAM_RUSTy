@@ -56,7 +56,7 @@ pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
         if let Some (x) = ceil { 
             max_id = x; return true;
         }
-        if id > max_id { return false; } return true;
+        if bit_id > max_id { return false; } return true;
     }
 }
 pub fn kill_prox_chain (state: Option < bool >) -> bool {
