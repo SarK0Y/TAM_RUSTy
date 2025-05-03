@@ -50,6 +50,15 @@ pub fn npf_lock (ceil: Option < i64 >) -> Option < i64 > {
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
+pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
+    static mut max_id: usize = 0;
+    unsafe {
+        if let Some (x) = ceil { 
+            max_id = x; return true;
+        }
+        if id > max_id { return false; } return true;
+    }
+}
 pub fn kill_prox_chain (state: Option < bool >) -> bool {
     static mut state0: bool = false;
     unsafe {
