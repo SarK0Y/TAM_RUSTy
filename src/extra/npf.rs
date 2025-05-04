@@ -250,12 +250,15 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
             };
         }
         if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst ) }
-        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
-                //dbg! (&mark_positive_results);
-                ret = npf_recursion_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
-                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road");}
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road");}
+                let cur_ret = check_match_div (&n, &XY.0, &XY.1 );
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_cross_road");}
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
             }
         }
         match mark_j {
@@ -279,7 +282,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
-    if crate::faav::npf_lock (None).is_none () {println! ("Dead end"); return ret;}
+    if crate::faav::npf_bar (X.log2_head().try_into().unwrap_or(u32::MAX as usize), None) {println! ("Dead end"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -311,9 +314,12 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
-                if crate::faav::npf_lock (None).is_none () {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                let cur_ret = check_match_div (&n, &XY.0, &XY.1 );
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_cross_road_lock");}
                 ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
-                if ret.0.clone() * ret.1.clone() == n { goto!("Exit_cross_road_lock");}
             }
         }
         match mark_j {
@@ -346,7 +352,7 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
 let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
-if crate::faav::npf_lock (None).is_none () {println! ("End npf_recursion"); return ret0;}
+if crate::faav::npf_lock (None) {println! ("End npf_recursion"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         let ret: npf_output = unsafe {
@@ -358,7 +364,7 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
 }
 pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
 let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
-if crate::faav::npf_lock (None).is_none () {println! ("End npf_recursion_lock"); return ret0;}
+if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         let ret: npf_output = unsafe {
@@ -372,12 +378,12 @@ pub fn max_tail_match (pf: &product_form) -> usize {
     let tail_str = pf.tail.to_string_radix (2);
     if Nstr (None).unwrap ().contains (&tail_str) { return tail_str.len () } return 0
 }
-pub fn set_lock (cmd: &String) {
-use crate::custom_traits::turn_2_i64;
-    let max_id = cmd.replace ("npf lock", "").trim_start().trim_end().i640();
-    crate::faav::npf_lock (Some (max_id) );
+pub fn set_bar (cmd: &String) {
+use crate::custom_traits::STRN_usize;
+    let max_id = cmd.replace ("npf lock", "").trim_start().trim_end().strn().usize0();
+    crate::faav::npf_bar (0, Some (max_id) );
 }
-pub fn check_match_div (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint) {
+pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
     let __1 = rugint::from (1);
     let div = check_div (&n, X.tail.clone() ); 
     if div > 1 { return (div.clone(), X.tail.clone() )}
@@ -404,7 +410,7 @@ pub fn Set_NPF () {
     let ret = unsafe { npf (num) };
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
-    crate::faav::npf_lock (Some (-1) );
+    crate::faav::npf_lock (Some (false) );
 }
 impl std::fmt::Display for product_form {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

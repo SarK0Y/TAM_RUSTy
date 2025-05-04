@@ -35,7 +35,7 @@ pub fn new_obj_id () -> u64 {
         id.inc(); return id - 1;
     }
 }
-pub fn npf_lock (ceil: Option < i64 >) -> Option < i64 > {
+pub fn npf_lock_ (ceil: Option < i64 >) -> Option < i64 > {
     static mut lock: bool = false;
     static mut id: i64 = 0;
     static mut max_id: i64 = 0;
@@ -50,7 +50,7 @@ pub fn npf_lock (ceil: Option < i64 >) -> Option < i64 > {
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
-pub fn npf_lock_ (state: Option < bool >) -> bool {
+pub fn npf_lock (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {
         if let Some (x) = state { 
