@@ -397,7 +397,7 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
         div = check_div (&n, Y.num1().clone() ); 
         if div > 1 && div < *n { res = 3; break } break;
     }
-    crate::faav::npf_lock (Some (true));
+    if div > 1 && div < *n { crate::faav::npf_lock (Some (true)); }
     match res {
         0 => {return (div.clone(), X.tail.clone() );},
         1 => {return (div.clone(), X.num1().clone() )},
