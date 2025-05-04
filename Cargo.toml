@@ -9,7 +9,7 @@ repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
 description = "Automation tool to make Console/Terminal more comfy. Have a great Day & Night, Dear User 💯❤️"
 #crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
-categories = ["filesystem", "command-line-utilities", "multimedia::audio", "math"]
+categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics"]
 [profile.release]
 debug = true
 [dependencies]
