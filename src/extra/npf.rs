@@ -72,6 +72,9 @@ impl init_form {
     fn __2x (&mut self) -> init_form {
         return self.nest ( init_form::mk (2, 0) )
     }
+    fn log2_head (&self) -> rugint {
+        return self.head.find_one (0).unwrap ()
+    }
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) {
