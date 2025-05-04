@@ -254,7 +254,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.iter().next() {
                 if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road");}
-                let cur_ret = check_match_div (&n, &XY.0, &XY.1 );
+                let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road");}
@@ -315,7 +315,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
             while let Some(XY) = mark_positive_results.iter().next() {
                 //dbg! (&mark_positive_results);
                 if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
-                let cur_ret = check_match_div (&n, &XY.0, &XY.1 );
+                let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road_lock");}
@@ -380,20 +380,8 @@ pub fn max_tail_match (pf: &product_form) -> usize {
 }
 pub fn set_bar (cmd: &String) {
 use crate::custom_traits::STRN_usize;
-    let max_id = cmd.replace ("npf lock", "").trim_start().trim_end().strn().usize0();
+    let max_id = cmd.replace ("npf bar", "").trim_start().trim_end().strn().usize0();
     crate::faav::npf_bar (0, Some (max_id) );
-}
-pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
-    let __1 = rugint::from (1);
-    let div = check_div (&n, X.tail.clone() ); 
-    if div > 1 { return (div.clone(), X.tail.clone() )}
-    let div = check_div (&n, X.num1().clone() ); 
-    if div > 1 { return (div.clone(), X.num1().clone() )}
-    let div = check_div (&n, Y.tail.clone() ); 
-    if div > 1 { return (div.clone(), Y.tail.clone() )}
-    let div = check_div (&n, Y.num1().clone() ); 
-    if div > 1 { return (div.clone(), Y.num1().clone() )}
-    return (__1.clone(), __1)
 }
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     let __1 = rugint::from (1);
@@ -474,6 +462,55 @@ impl std::fmt::Debug for vec_init_form {
         return write!(f, "");
     }
 }
+pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+    let __1 = rugint::from (1);
+    let mut res= 700usize;
+    let mut div = __1.clone();
+    loop {
+        div = check_div (&n, X.tail.clone() ); 
+        if div > 1 { res = 0; break }
+        div = check_div (&n, X.num1().clone() ); 
+        if div > 1 { res = 1; break }
+        div = check_div (&n, Y.tail.clone() ); 
+        if div > 1 { res = 2; break }
+        div = check_div (&n, Y.num1().clone() ); 
+        if div > 1 { res = 3; break } break;
+    }
+    crate::faav::npf_lock (Some (true));
+    match res {
+        0 => {return (div.clone(), X.tail.clone() );},
+        1 => {return (div.clone(), X.num1().clone() )},
+        2 => {return (div.clone(), Y.tail.clone() )},
+        3 => {return (div.clone(), Y.num1().clone() )},
+        _ => {return (__1.clone(), __1) }
+    }
+}
+/*#[no_mangle]
+pub unsafe fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+    let __1 = rugint::from (1);
+    let mut res= 700usize;
+    let div = check_div (&n, X.tail.clone() ); 
+    if div > 1 { res = 0; goto!("ok_done")}
+    let div = check_div (&n, X.num1().clone() ); 
+    if div > 1 { res = 1; goto!("ok_done") }
+    let div = check_div (&n, Y.tail.clone() ); 
+    if div > 1 { res = 2; goto!("ok_done") }
+    let div = check_div (&n, Y.num1().clone() ); 
+    if div > 1 { res = 3; goto!("ok_done") }
+    goto! ("no_divisor_found");
+    label! ("ok_done");
+    crate::faav::npf_lock (Some (true));
+    match res {
+        0 => {return (div.clone(), X.tail.clone() );},
+        1 => {return (div.clone(), X.num1().clone() )},
+        2 => {return (div.clone(), Y.tail.clone() )},
+        3 => {return (div.clone(), Y.num1().clone() )},
+        _ => {return (__1.clone(), __1) }
+    }
+    label! ("no_divisor_found");
+    return (__1.clone(), __1);
+    goto! ("no_divisor_found");
+}*/
 //fn
 /*
 use std::ops::MulAssign;
