@@ -389,13 +389,13 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
     let mut div = __1.clone();
     loop {
         div = check_div (&n, X.tail.clone() ); 
-        if div > 1 { res = 0; break }
+        if div > 1 && div < *n { res = 0; break }
         div = check_div (&n, X.num1().clone() ); 
-        if div > 1 { res = 1; break }
+        if div > 1 && div < *n { res = 1; break }
         div = check_div (&n, Y.tail.clone() ); 
-        if div > 1 { res = 2; break }
+        if div > 1 && div < *n { res = 2; break }
         div = check_div (&n, Y.num1().clone() ); 
-        if div > 1 { res = 3; break } break;
+        if div > 1 && div < *n { res = 3; break } break;
     }
     crate::faav::npf_lock (Some (true));
     match res {
