@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.314"
+version = "13.11.315"
 edition = "2021"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -9,7 +9,7 @@ repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
 description = "Automation tool to make Console/Terminal more comfy. Have a great Day & Night, Dear User 💯❤️"
 #crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
-categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics"]
+categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics", "rust-patterns"]
 [profile.release]
 debug = true
 [dependencies]
