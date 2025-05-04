@@ -72,7 +72,7 @@ impl init_form {
     fn __2x (&mut self) -> init_form {
         return self.nest ( init_form::mk (2, 0) )
     }
-    fn log2_head (&self) -> rugint {
+    fn log2_head (&self) -> u32 {
         return self.head.find_one (0).unwrap ()
     }
 }
