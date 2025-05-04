@@ -383,11 +383,35 @@ use crate::custom_traits::STRN_usize;
     let max_id = cmd.replace ("npf bar", "").trim_start().trim_end().strn().usize0();
     crate::faav::npf_bar (0, Some (max_id) );
 }
+pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+    let __1 = rugint::from (1);
+    let mut res= 700usize;
+    let mut div = __1.clone();
+    loop {
+        div = check_div (&n, X.tail.clone() ); 
+        if div > 1 { res = 0; break }
+        div = check_div (&n, X.num1().clone() ); 
+        if div > 1 { res = 1; break }
+        div = check_div (&n, Y.tail.clone() ); 
+        if div > 1 { res = 2; break }
+        div = check_div (&n, Y.num1().clone() ); 
+        if div > 1 { res = 3; break } break;
+    }
+    crate::faav::npf_lock (Some (true));
+    match res {
+        0 => {return (div.clone(), X.tail.clone() );},
+        1 => {return (div.clone(), X.num1().clone() )},
+        2 => {return (div.clone(), Y.tail.clone() )},
+        3 => {return (div.clone(), Y.num1().clone() )},
+        _ => {return (__1.clone(), __1) }
+    }
+}
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     let __1 = rugint::from (1);
     if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
 }
 pub fn Set_NPF () {
+    crate::faav::npf_lock (Some (false) );
     let prnt = get_prnt (1001876412);
     let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
     if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
@@ -398,7 +422,6 @@ pub fn Set_NPF () {
     let ret = unsafe { npf (num) };
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
-    crate::faav::npf_lock (Some (false) );
 }
 impl std::fmt::Display for product_form {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -460,29 +483,6 @@ impl std::fmt::Debug for vec_init_form {
             println! ("{}", j);
         }
         return write!(f, "");
-    }
-}
-pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
-    let __1 = rugint::from (1);
-    let mut res= 700usize;
-    let mut div = __1.clone();
-    loop {
-        div = check_div (&n, X.tail.clone() ); 
-        if div > 1 { res = 0; break }
-        div = check_div (&n, X.num1().clone() ); 
-        if div > 1 { res = 1; break }
-        div = check_div (&n, Y.tail.clone() ); 
-        if div > 1 { res = 2; break }
-        div = check_div (&n, Y.num1().clone() ); 
-        if div > 1 { res = 3; break } break;
-    }
-    crate::faav::npf_lock (Some (true));
-    match res {
-        0 => {return (div.clone(), X.tail.clone() );},
-        1 => {return (div.clone(), X.num1().clone() )},
-        2 => {return (div.clone(), Y.tail.clone() )},
-        3 => {return (div.clone(), Y.num1().clone() )},
-        _ => {return (__1.clone(), __1) }
     }
 }
 /*#[no_mangle]
