@@ -422,6 +422,8 @@ pub fn Set_NPF () {
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let num = num.unwrap().complete ();
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
     let ret = format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2);
     errMsg0 (ret.as_str());
