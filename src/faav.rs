@@ -63,9 +63,10 @@ pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
     static mut max_id: usize = 0;
     unsafe {
         if let Some (x) = ceil { 
+            let prev = max_id;
             max_id = x; 
             let msg = format! ("max bit_id {}", x);
-            _msg (&msg); return true;
+           if prev == 0 { _msg (&msg); } return true;
         }
         if bit_id > max_id { return false; } return true;
     }

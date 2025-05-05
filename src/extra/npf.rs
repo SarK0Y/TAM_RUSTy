@@ -283,7 +283,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     dbg! (&X);
-    if crate::faav::npf_bar (X.log2_head().try_into().unwrap_or(u32::MAX as usize), None) {println! ("Dead end"); return ret;}
+    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -398,7 +398,7 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
         div = check_div (&n, Y.num1().clone() ); 
         if div > 1 && div < *n { res = 3; break } break;
     }
-    if div > 1 && div < *n { crate::faav::npf_lock (Some (true)); }
+    if div > 1 && div < *n { dbg! (&div ); crate::faav::npf_lock (Some (true)); }
     match res {
         0 => {return (div.clone(), X.tail.clone() );},
         1 => {return (div.clone(), X.num1().clone() )},
