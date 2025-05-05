@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use crate::custom_traits::STRN; use crate::custom_traits::helpful_math_ops;
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
+use crate::errMsg0 as _msg;
 pub fn one_time_sav_prnt (prnt: Option <String > ) -> Option < String > {
     static mut state: Lazy <String> = Lazy::new (|| { String::new() });
     static mut count_to_reset: u32 = 1;
@@ -62,7 +63,9 @@ pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
     static mut max_id: usize = 0;
     unsafe {
         if let Some (x) = ceil { 
-            max_id = x; return true;
+            max_id = x; 
+            let msg = format! ("max bit_id {}", x);
+            _msg (&msg); return true;
         }
         if bit_id > max_id { return false; } return true;
     }

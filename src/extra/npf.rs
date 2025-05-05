@@ -202,7 +202,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
         for i in 0..finally.0.len() {
             if (n.clone() - finally.0[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {ret = npf_recursion (n.clone (), &mut X, &mut Y ); goto! ("End_orig"); };
+        if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), &mut X, &mut Y ); goto! ("End_orig"); };
         match mark_j {
             0 => {X = X_tst [0].clone(); Y = Y_tst [0].clone()},
             1 => {X = X_tst [1].clone(); Y = Y_tst [1].clone()},
@@ -282,6 +282,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    dbg! (&X);
     if crate::faav::npf_bar (X.log2_head().try_into().unwrap_or(u32::MAX as usize), None) {println! ("Dead end"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
