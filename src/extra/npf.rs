@@ -223,6 +223,7 @@ pub unsafe fn npf_orig (n: rugint) -> (rugint, rugint, String) {
 pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -281,9 +282,9 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 #[no_mangle]
 pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
-    let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     dbg! (&X);
-    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end"); return ret;}
+    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end {fn_name}"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -313,7 +314,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
-            while let Some(XY) = mark_positive_results.iter().next() {
+            while let Some(XY) = mark_positive_results.pop() {
                 //dbg! (&mark_positive_results);
                 if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
                 let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
@@ -368,6 +369,7 @@ let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
+        println! ("Run npf_recursion_lock");
         let ret: npf_output = unsafe {
                 npf_cross_road_lock (n.clone(), &mut x_, &mut y_ )
         };
