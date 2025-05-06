@@ -1,3 +1,6 @@
+/*
+        TODO: Discrete Logarithm Possible Solution
+*/
 use std::ops::Mul;
 use std::ops::MulAssign;
 use rug::float::Round;
