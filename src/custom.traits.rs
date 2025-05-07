@@ -13,7 +13,7 @@ pub(crate) trait STRN_usize {
 #[cfg(feature="tam")] 
 impl STRN_usize for String{
     fn usize0(&self) -> usize {
-        strn_2_usize(self.strn() ).unwrap_or(0)
+        strn_2_usize(&self.strn() ).unwrap_or(0)
     }
 }
 pub(crate) trait turn_2_i64 {
@@ -205,6 +205,16 @@ impl arr2number for [u16]{
     }
 }
 impl helpful_math_ops for usize {
+    fn inc(&mut self) -> Self{
+       if *self < Self::MAX{*self = *self + 1; return *self;}
+       *self
+    }
+    fn dec(&mut self) -> Self{
+       if *self > Self::MIN{*self = *self - 1; return *self;}
+       *self
+    }
+}
+impl helpful_math_ops for isize {
     fn inc(&mut self) -> Self{
        if *self < Self::MAX{*self = *self + 1; return *self;}
        *self

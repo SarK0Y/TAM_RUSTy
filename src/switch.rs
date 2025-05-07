@@ -39,10 +39,10 @@ pub(crate) unsafe fn check_mode(mode: &mut i64) {
     }
     state = *mode;
 }
-pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String) {
+pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String, func_id: i64) {
     static mut fst_run: bool = true;
     static mut fn_indx: usize = 0;
-    static mut fn_: OnceCell<Vec<fn(String) -> bool>> = OnceCell::new();
+    static mut fn_: OnceCell<Vec<fn(String, i64) -> bool>> = OnceCell::new();
     if edit_mode_lst(None) {
         return;
     }
@@ -56,7 +56,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String) {
         }
     }
     if fst_run {
-        let fn_vec: Vec<fn(String) -> bool> = Vec::new();
+        let fn_vec: Vec<fn(String, i64) -> bool> = Vec::new();
         fn_.set(fn_vec);
         fst_run = false;
         fn_.get_mut().unwrap().push(run_viewer); // 0
@@ -69,7 +69,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String) {
             set_ask_user("indx gets out of fn_ ", -178);
             return;
         }
-        fn_.get().unwrap()[indx](cmd);
+        fn_.get().unwrap()[indx](cmd, func_id);
         let mut indx = usize_2_i64(indx);
         check_mode(&mut indx);
         return;
@@ -85,7 +85,7 @@ pub(crate) unsafe fn swtch_fn(indx: i64, cmd: String) {
     if dont_run && fn_indx == crate::swtch::SWTCH_RUN_VIEWER as usize {
         return;
     }
-    fn_.get().unwrap()[fn_indx](cmd);
+    fn_.get().unwrap()[fn_indx](cmd, func_id);
 }
 pub(crate) unsafe fn swtch_ps(indx: i64, ps: Option<crate::_page_struct>) -> crate::_page_struct {
     static mut fst_run: bool = true;
@@ -252,7 +252,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         return crate::run_cmd_viewer(cmd);
     }
-    pub(crate) fn run_viewer(cmd: String) -> bool {
+    pub(crate) fn run_viewer(cmd: String, func_id: i64) -> bool {
         let mut cmd = cmd;
         if crate::term_app::run_new_win_bool( None ) {
             cmd = cmd.substring(1, usize::MAX).strn();
@@ -528,6 +528,7 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
     }
 }
 pub(crate) fn print_viewers() {
+    if mode_default_viewers( None ) {println!("System viwwers: ON", ); return}
     if !crate::cmd_keys::screen_state(None) {
         return;
     }
@@ -573,7 +574,8 @@ pub(crate) fn user_wrote_path_prnt() -> String {
     .unwrap()
     .to_string();
 }
-pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool {
+pub(crate) fn set_user_written_path_from_strn(strn: String, func_id: i64) -> bool {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "set_user_written_path_from_strn");
     let save_path = user_wrote_path();
     let save_path1 = user_wrote_path();
     let save_path2 = user_wrote_path();
@@ -603,7 +605,7 @@ pub(crate) fn set_user_written_path_from_strn(strn: String) -> bool {
     update_dir_list(&written_path, "-maxdepth 1", false);
     true
 }
-pub(crate) fn set_user_written_path_from_prnt() -> String {
+pub(crate) fn set_user_written_path_from_prnt(func_id: i64) -> String {
     let save_path = user_wrote_path();
     let save_path1 = user_wrote_path();
     let path_from_prnt = get_path_from_prnt();
@@ -632,7 +634,8 @@ pub(crate) fn set_user_written_path_from_prnt() -> String {
     written_path
 }
 
-pub(crate) fn user_writing_path(key: String) -> bool {
+pub(crate) fn user_writing_path(key: String, func_id: i64) -> bool {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "user_writing_path");
     unsafe {
         set_ls_as_front();
         front_list_indx(crate::globs18::LS_);
@@ -642,14 +645,14 @@ pub(crate) fn user_writing_path(key: String) -> bool {
     let written_path_from_prnt = get_path_from_prnt();
     if written_path_from_prnt.chars().count() > written_path.chars().count() {
         written_path = written_path_from_prnt;
-        complete_path(&written_path, "-maxdepth 1", false);
+        complete_path(&written_path, "-maxdepth 1", false, -3871459);
         form_cmd_line_default();
         return true;
     }
     if key == "/" && written_path == written_path_from_prnt {
         written_path = format!("{written_path}/")
     }
-    complete_path(&written_path, "-maxdepth 1", false);
+    complete_path(&written_path, "-maxdepth 1", false, -9074581);
     form_cmd_line_default();
     true
 }

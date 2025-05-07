@@ -326,6 +326,7 @@ pub(crate) fn initSession() -> bool {
     );
     #[cfg(feature = "mae")]
     crate::cache::lazy_cache_cleaning(None);
+    crate::faav::npf_bar (0, Some (8) );
     crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
     crate::C! ( local_indx (true) );
     return true;
@@ -408,6 +409,8 @@ pub(crate) fn errMsg_dbg0(msg: &str) {
 pub(crate) fn errMsg0(msg: &str) {
     errMsg(msg, -1191);
     println!("{}", msg);
+    let dbg_msgs = crate::info::sav_dbg_msg( None );
+    if dbg_msgs.len() > 0 {dbg! (dbg_msgs); }
     getkey();
 }
 pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
@@ -844,7 +847,9 @@ pub(crate) fn no_other_getkey() -> String {
 pub(crate) fn cpy_str(in_str: &String) -> String {
     in_str.to_string()
 }
-pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool) {
+pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool, func_id: i64) {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "complete_path");
+    if crate::swtch_ls(false, false) == false {return;}
     let dir = dir.trim_end().trim_start();
     let proper_dir = crate::full_escape(&dir.to_string());
     update_dir_list(&proper_dir, opts, no_grep);
@@ -874,7 +879,7 @@ pub(crate) fn complete_path(dir: &str, opts: &str, no_grep: bool) {
         set_prnt(&prnt, -47);
         let prnt = read_prnt();
         set_ask_user(&prnt, -47);
-        rewrite_user_written_path(&full_path);
+        rewrite_user_written_path(&full_path, -729451);
         //unsafe{crate::swtch::path_completed(true, false);}
         let proper_dir = crate::full_escape(&full_path.to_string());
         update_dir_list(&proper_dir, opts, no_grep);
@@ -895,7 +900,8 @@ pub(crate) fn update_user_written_path(e: std::io::Error) -> File {
         .open(user_written_path)
         .expect(&err_msg)
 }
-pub(crate) fn rewrite_user_written_path(new_path: &String) {
+pub(crate) fn rewrite_user_written_path(new_path: &String, func_id: i64) {
+    #[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "rewrite_user_written_path");
     let user_written_path = user_wrote_path();
     let err_msg = format!(
         "update_user_written_path() can't create {}",
@@ -1823,7 +1829,7 @@ pub(crate) fn from_ls_2_front(ls_mode: String) {
     //let ls_mode = take_list_adr("ls.mode");
     rm_file(&ls_mode);
     set_front_list(front.as_str());
-    C!(crate::swtch::swtch_fn(0, "".to_string()));
+    C!(crate::swtch::swtch_fn(0, "".to_string(), -7456241041));
 }
 pub(crate) fn tailOFF(strn: &mut String, delim: &str) -> bool {
     let len = strn.chars().count();

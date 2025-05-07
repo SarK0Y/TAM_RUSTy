@@ -272,6 +272,7 @@ pub(crate) fn hotKeys(
             return "dontPass".to_string();
         }
     }
+    if *Key == " " { *Key = crate::key_handlers::Space(); }
     if crate::globs18::eq_ansi_str(&kcode::F1, Key.as_str()) == 0 {
         return crate::key_handlers::F1_key();
     }
@@ -280,24 +281,30 @@ pub(crate) fn hotKeys(
         return "pp".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::UP_ARROW, Key.as_str()) == 0 {
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
         no_print0(Some(kcode::UP_ARROW.strn()), 0);
+
         return "np".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::LEFT_ARROW, Key.as_str()) == 0 {
-        let mut pos = unsafe { shift_cursor_of_prnt(0, None, func_id) };
-        let pos0= unsafe { shift_cursor_of_prnt(-2, None, func_id) };
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
+        no_print0(Some(kcode::UP_ARROW.strn()), 0);
+        let mut pos = unsafe { shift_cursor_of_prnt(0, None, 9011) };
+        let pos0= unsafe { shift_cursor_of_prnt(-2, None, -3167) };
         let len = read_prnt().chars().count();
         if pos0.shift == len { return "dontPass".strn(); }
-        {unsafe { shift_cursor_of_prnt(-1, None, func_id).shift }; }
+        {unsafe { shift_cursor_of_prnt(-1, None, -894).shift }; }
         //if pos.shift == 1 { unsafe { shift_cursor_of_prnt(-1, Some( len ), func_id).shift }; }
         cursor_direction(Some(true));
-        set_cur_cur_pos(usize_2_i64(pos.shift.dec() ), func_id);
+        set_cur_cur_pos(usize_2_i64(pos.shift.dec() ), -61);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::RIGHT_ARROW, Key.as_str()) == 0 {
-        unsafe { shift_cursor_of_prnt(1, None, func_id).shift };
-        let pos = unsafe { shift_cursor_of_prnt(0, None, func_id).shift };
-        set_cur_cur_pos(usize_2_i64(pos), func_id);
+        no_print0(Some(kcode::DOWN_ARROW.strn()), 0);
+        no_print0(Some(kcode::UP_ARROW.strn()), 0);
+        unsafe { shift_cursor_of_prnt(1, None, -1).shift };
+        let pos = unsafe { shift_cursor_of_prnt(0, None, -6).shift };
+        set_cur_cur_pos(usize_2_i64(pos), -779017);
         cursor_direction(Some(false));
         return "dontPass".to_string();
     }
@@ -343,8 +350,8 @@ pub(crate) fn hotKeys(
     }
     if crate::globs18::eq_ansi_str(&kcode::HOME, Key.as_str()) == 0 {
        let home_pos = read_prnt().chars().count();
-        unsafe { shift_cursor_of_prnt(0, Some( 0 ), func_id).shift };
-        set_cur_cur_pos(0, func_id);
+        unsafe { shift_cursor_of_prnt(0, Some( 0 ), -13).shift };
+        set_cur_cur_pos(0, -19715);
         return "dontPass".strn();
     }
     if crate::globs18::eq_ansi_str(&kcode::END, Key.as_str()) == 0 {
@@ -377,17 +384,17 @@ pub(crate) fn hotKeys(
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F12, Key.as_str()) == 0 {
-        key_f12(func_id);
+        key_f12(-641);
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::DELETE, Key.as_str()) == 0 {
-        let shift = unsafe { shift_cursor_of_prnt(1, None, func_id).shift };
-        let mut indx = get_prnt(func_id).chars().count();
+        let shift = unsafe { shift_cursor_of_prnt(1, None, -114).shift };
+        let mut indx = get_prnt(-4).chars().count();
         if shift <= indx {
             indx -= shift;
         }
-        let prnt = rm_char_from_string(indx, &get_prnt(func_id));
-        set_prnt(prnt.as_str(), func_id);
+        let prnt = rm_char_from_string(indx, &get_prnt(6478));
+        set_prnt(prnt.as_str(), -417);
         return "dontPass".to_string();
     }
     let ansiKey: u8 = match Key.as_str().bytes().next() {
@@ -400,7 +407,7 @@ pub(crate) fn hotKeys(
                 return "dontPass".to_string();
             }
         }
-        return crate::get_prnt(func_id);
+        return crate::get_prnt(-8871);
     }
     if crate::dirty!() {
         println!("ansi {}, Key {:?}", ansiKey, Key);
@@ -423,7 +430,7 @@ pub(crate) fn hotKeys(
     // enter();
     let path = get_path_from_prnt();
     if path != "" {
-        crate::core18::complete_path(&path, "-maxdepth 1", false)
+        crate::core18::complete_path(&path, "-maxdepth 1", false, -37581) // err: needs to be blocked by shol
     }
     // if path.len() == 0{return "dontPass".to_string();}
     if ext_is_alive {
@@ -431,6 +438,7 @@ pub(crate) fn hotKeys(
             return "dontPass".to_string();
         }
     }
+    crate::key_handlers::capture_key(&Key);
     return "dontPath".to_string();
     //return get_prnt(func_id);
 }
@@ -470,6 +478,10 @@ pub(crate) fn wipe_cmd_line(len_2_wipe: usize) {
     let many_spaces = repeat_char(len_2_wipe, " ");
     println!("\r{}", many_spaces);
 }
+pub(crate) fn wipe_line(len_2_wipe: usize) {
+    let many_spaces = repeat_char(len_2_wipe, " ");
+    print!("\r\r{}", many_spaces);
+}
 pub(crate) fn form_cmd_line(prompt: String, prnt: String) {
     //let whole_line_len = prompt.len() + prnt.len() + 2;
     let print_whole_line = format!("\r{}{}", prompt, prnt);
@@ -480,7 +492,7 @@ pub(crate) fn form_cmd_newline(prompt: String, prnt: String) {
     io::stdout().write_all(&print_whole_line.as_bytes());
 }
 pub(crate) fn form_cmd_newline_default() {
-    let func_id = crate::func_id18::form_cmd_line_default_;
+    let func_id = crate::func_id18::form_cmd_newline_default_;
     let prompt = crate::get_prompt(func_id);
     let mut ret = unsafe { crate::shift_cursor_of_prnt(3, None, func_id) };
     let shift = ret.str__;
@@ -624,7 +636,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         pg_at_file_indx(&cmd);
         return;
     }
-
+    let cmd0 = "npf ";
+    if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, cmd0.len() ), cmd0) == 0 {
+        crate::npf::Set_NPF ();
+        return;
+    }
     if crate::globs18::eq_ansi_str(cmd.as_str().substring(0, 3), "go2") == 0 {
         let (_, opt) = split_once(cmd.as_str(), " ");
         if opt == "none" {
@@ -712,7 +728,7 @@ pub(crate) fn exec_cmd(cmd: String) {
             change_dir(cmd, true);
             return;
         }
-        crate::C!(swtch_fn(-1, cmd));
+        crate::C!(swtch_fn(-1, cmd, -60141));
         return;
     }
     if cmd.as_str().substring(0, 2) == "fp" {
@@ -753,7 +769,7 @@ pub(crate) fn exec_cmd(cmd: String) {
             merge(cmd);
             return;
         }
-        crate::C!(swtch_fn(-1, cmd));
+        crate::C!(swtch_fn(-1, cmd, -198451));
         return;
     }
     if cmd == "cl mrg" || cmd == "clear merge" {
@@ -800,7 +816,7 @@ pub(crate) fn exec_cmd(cmd: String) {
     }
     let cmd0 = "cl all cache";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
-        full_clean_cache();
+        full_clean_cache(); //needs some more testing
         return;
     }
     let cmd0 = "nvr";
@@ -926,7 +942,8 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::decrypt_copy(&cmd);
         return;
     }
-    crate::C!(swtch_fn(-1, cmd));
+    crate::key_handlers::capture_key(&cmd);
+    crate::C!(swtch_fn(-1, cmd, -291581));
 }
 fn extract_sub_cmd(cmd: &mut String) -> String {
     let len_cmd = cmd.chars().count();
@@ -1007,4 +1024,39 @@ pub(crate) fn go2pg(cmd: &String) {
     return;
 }
 //fn
+/* 
+struct Handler {
+    next: Option<Box<dyn Fn() -> ()>>,
+}
+
+struct HandlerChain {
+    current: Option<Handler>,
+}
+
+impl Iterator for HandlerChain {
+    type Item = Box<dyn Fn() -> ()>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(handler) = self.current.take() {
+            self.current = handler.next;
+            Some(Box::new(handler.next.unwrap()))
+        } else {
+            None
+        }
+    }
+}
+let mut chain = HandlerChain {
+    current: Some(Handler {
+        next: Some(Box::new(|| println!("Handler 1"))),
+    }),
+};
+
+// Add more handlers to the chain
+chain.current.as_mut().unwrap().next = Some(Box::new(|| println!("Handler 2")));
+
+// Iterate through the handlers
+for handler in chain {
+    handler();
+}
+*/
 

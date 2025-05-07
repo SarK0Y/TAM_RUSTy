@@ -8,7 +8,7 @@ use std::{ ffi::CString, env::var, num::NonZero };
 use crate::globs18::take_list_adr;
 use crate::update18::delay_secs;
 use procfs::process::all_processes;
-use crate::{dbg, errMsg0, getkey, helpful_math_ops, save_file, save_file_append, save_file_append_newline_abs_adr_fast, split_once, split_once_or_ret_null_strns, STRN};
+use crate::{dbg, errMsg0, getkey, helpful_math_ops, popup_msg, save_file, save_file_append, save_file_append_newline_abs_adr_fast, split_once, split_once_or_ret_null_strns, STRN};
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
@@ -180,7 +180,13 @@ pub fn thr_ids ( mode: crate::enums::threadpool ) {
 }
 pub fn new_thr (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); 
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            }); return Ok ( ForkResult::Parent { child } ) },
         Ok(ForkResult::Child) => { run_kid(cmd ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
@@ -239,7 +245,13 @@ pub fn run_kid (cmd: &String) {
 }
 pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
-        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) ); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            }); return Ok ( ForkResult::Parent { child } ) },
         Ok(ForkResult::Child) => { run_kid_no_bash(cmd ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    

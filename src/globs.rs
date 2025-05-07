@@ -1262,8 +1262,14 @@ pub(crate) fn strn_2_u64(strn: String) -> Option<u64> {
         _ => None,
     }
 }
-pub(crate) fn strn_2_usize(strn: String) -> Option<usize> {
+pub(crate) fn strn_2_usize(strn: &String) -> Option<usize> {
     match usize::from_str_radix(&strn, 10) {
+        Ok(num) => Some(num),
+        _ => None,
+    }
+}
+pub(crate) fn strn_2_i64(strn: &String) -> Option<i64> {
+    match i64::from_str_radix(&strn, 10) {
         Ok(num) => Some(num),
         _ => None,
     }
@@ -1279,7 +1285,7 @@ pub(crate) fn seg_size() -> usize {
             let seg_size_new = String::from_iter(crate::get_arg_in_cmd("-cache-seg-size").s)
                 .trim_end_matches('\0')
                 .to_string();
-            let ret = strn_2_usize(seg_size_new);
+            let ret = strn_2_usize(&seg_size_new);
             if ret != None {
                 unsafe {
                     seg_size = ret.unwrap();

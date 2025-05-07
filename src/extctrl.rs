@@ -1,6 +1,6 @@
 use num_traits::bounds;
 
-use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, name_of_front_list, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
+use crate::{_ext_msgs, bkp_tmp_dir, cached_data, checkArg, clean_fast_cache, custom_traits::STRN, enums, fix_num_files, free_term_msg, get_arg_in_cmd, get_cur_cur_pos, get_prnt, getkey, globs18::drop_key, kcode01, name_of_front_list, no_print0, parse_replace, popup_msg, save_file, save_file_abs_adr, stop_term_msg};
 use std::collections::{HashMap, hash_map::Entry};
 #[derive(Default)]
 #[derive(Clone)]
@@ -32,7 +32,7 @@ impl basic{
      let mut seg_size_new = 150usize;
      if checkArg("-cache-seg-size"){
             seg_size_new_strn = String::from_iter(get_arg_in_cmd("-cache-seg-size").s).trim_end_matches('\0').to_string();
-            let ret = crate::globs18::strn_2_usize(seg_size_new_strn);
+            let ret = crate::globs18::strn_2_usize(&seg_size_new_strn);
             if ret != None{seg_size_new = ret.unwrap()}
         }
     Self{
@@ -123,10 +123,18 @@ impl ManageLists for basic{
     let mut Key: String = "".to_string(); 
     let mut count: u64 = 0;
     let mut bal =String::new();
+    crate::smart_lags::screen_lag ( Some (20_000) );
     crate::clear_screen();
     loop{
        if enums::smart_lags::failed != crate::smart_lags::fork_lag_mcs_verbose(crate::smart_lags::screen_lag ( None ) ) { 
-             crate::clear_screen(); } else { continue; }
+             crate::clear_screen(); } else { 
+            let num_pg = crate::get_num_page(-55541555121);
+            let num_pgs = crate::where_is_last_pg();
+            crate::swtch::print_viewers();
+            crate::swtch::print_pg_info();
+            no_print0(Some (crate::kcode01::UP_ARROW.strn() ), 0); 
+            no_print0(Some (crate::kcode01::DOWN_ARROW.strn() ), 0);
+              continue; }
         //println!("{}", clear::BeforeCursor);
         let mut ps: crate::_page_struct = unsafe {crate::swtch::swtch_ps(-1, None)};
         let mut data = "".to_string();
@@ -135,7 +143,8 @@ impl ManageLists for basic{
         let num_pgs = crate::where_is_last_pg();
         crate::swtch::print_viewers();
         crate::swtch::print_pg_info();
-        if num_pg < num_pgs {self.build_page( &mut ps);}
+        let prnt = get_prnt( 620119718);
+        if num_pg < num_pgs && prnt.find(kcode01::UP_ARROW).is_none() {self.build_page( &mut ps);}
         self.cut_prnt();
         Key  = "".to_string(); 
         crate::pg18::exec_cmd(self.custom_input(&mut Key, false));

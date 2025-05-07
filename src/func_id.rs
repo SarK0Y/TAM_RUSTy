@@ -18,6 +18,7 @@ pub const where_is_last_pg_: i64 = 17;
 pub const calc_num_files_up2_cur_pg_: i64 = 18;
 pub const background_fixing_: i64 = 19;
 pub const full_escape_: i64 = 20;
+pub const form_cmd_newline_default_: i64 = 21;
 pub fn get_func_name(func_id: i64) -> &'static str {
     //let max = i64::MAX;
     let ret = match func_id {

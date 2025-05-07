@@ -169,6 +169,7 @@ bkp0.to_string()
   }
 pub(crate) fn get_prnt(func_id: i64) -> String{return unsafe{page_struct("", PRNT_, func_id).str_}}
 pub(crate) fn set_prnt(val: &str, func_id: i64) -> String{
+  //#[cfg(feature="in_dbg")]  crate::in_dbg0::report( &func_id.strn(), "set_prnt");
   file_prnt(val.to_string());
   return unsafe{page_struct(val, crate::set(PRNT_), func_id).str_}}
 pub(crate) fn get_ask_user(func_id: i64) -> String{return unsafe{page_struct("", ASK_USER_, func_id).str_}}
@@ -380,7 +381,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
     //let fn_ptr_get_string: fn(&str) -> String = get_string;
     let no_val: i32 = 'no_val: {
    if id_of_caller == __INS{
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), 178541);
     }
     if val != "prnt" {break 'no_val 101;}
     if id_of_caller == __BKSP{
@@ -390,10 +391,10 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
       //loop {
         let mut new_prnt = crate::globs18::bksp();
         let new_path = get_path_from_strn(crate::cpy_str(&new_prnt));
-        rewrite_user_written_path(&new_path);
+        rewrite_user_written_path(&new_path, -61754);
         crate::set_prnt(&new_prnt, func_id);
       set_cur_cur_pos(len as i64, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), -9782);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     if id_of_caller == __DEL{
@@ -405,7 +406,7 @@ pub(crate) unsafe fn page_struct(val: &str, id_of_val: i64, id_of_caller: i64) -
           set_prnt(&new_string, func_id);
       let left_shift_4_cur = get_left_shift_4_cur(func_id) - 1;
       set_left_shift_4_cur(left_shift_4_cur, func_id);
-      set_user_written_path_from_strn(cpy_str(&*PRNT.get()));
+      set_user_written_path_from_strn(cpy_str(&*PRNT.get()), -579631451);
       ps_ret.str_= "ok".to_string(); return ps_ret;
     }
     11    
@@ -468,7 +469,10 @@ pub(crate) fn where_is_last_pg() -> i64{
 }
 pub fn correct_prnt () {
   let func_id = -937851;
-  let prnt_len = crate::get_prnt(func_id).len();
+  let prnt = crate::get_prnt(func_id);
+  let prnt_trimmed = prnt.trim_end().strn();
+  let prnt_len = prnt_trimmed.len();
+  if prnt_trimmed.len() == prnt.len() { crate::faav::one_time_sav_prnt( Some (prnt) ); return;}
   if let Some ( x ) = crate::faav::one_time_sav_prnt ( None ) { 
     if prnt_len > x.len () + 1 { set_prnt( x.as_str(), func_id); }
    }

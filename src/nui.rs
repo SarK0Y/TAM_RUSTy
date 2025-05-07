@@ -391,6 +391,7 @@ pub fn universum_vox (cmd: &String) -> Result < (), Box <dyn Error > >{
                     let msg = format! ("For now, option {:?} has no algos.. Please, try {:#?}", crate::enums::SampleFormat::Int,
                             crate::enums::SampleFormat::Float);
                      errMsg0( &msg); return Ok ( () );} crate::nui_wav::universum_vox_wav0(duration, &path_to_conf); return Ok ( () );}
+            "morph" => { crate::nui_morph::universum_vox_morph0(duration, &path_to_conf); return Ok ( () ); }
             _ => { return Ok ( () );}
         }
     } else {

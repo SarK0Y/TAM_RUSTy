@@ -129,6 +129,29 @@ pub enum SampleFormat {
 pub struct universum_vox_stub {
     pub type_: Option < String >
 }
+#[derive(Debug, Clone, PartialEq)]
+pub struct  custom_dft {
+   pub amplitude: Vec <f32>,
+   pub freq: Vec<f32>,
+   pub phase: Vec <f32>
+}
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub struct  freq_range {
+   pub from: f32,
+   pub to: f32,
+   pub step: f32,
+   pub overlap: Option <f32>,
+   pub frame_len: Option <usize>,
+   pub gap_ratio: Option <f32>,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
+pub enum geom {
+    tria {a: f32, b: f32, bar: f32, step: f32, direct: bool }, // (y = a*(x + step * (0..n) ) + b < bar )
+    tria_full {a: f32, b: f32, a1: f32, b1: f32, step: f32, bar: f32 }, //a, b, a1, b1, bar/limit (y = ax + b < bar, y1 = ax1 + b1 < bar )
+    shark_fin {w: i32, h: f32, lb: Option <f32>}, // width, hight, log base (for rear side)
+    half_ellipse {from: f32, to: f32, lb: f32, n: f32}, // *from*, *to*, log base, number of points (1..n)  
+}
 #[derive(Deserialize, Serialize, Debug, Clone, PartialEq)]
 pub struct universum_vox_morph {
     pub type_: Option < String >,
@@ -136,12 +159,30 @@ pub struct universum_vox_morph {
     pub num_of_channels: u8,
     pub sample_format: String,
     pub num_of_rnd_samples: Option  <u32 >,
-    pub sample_rate: u32,
+    pub sound_duration: Option  <u32 >,
+    pub sample_rate: i32,
     pub step_factor: u32,
     pub fading_duration: u32,
     pub fading_step: f32,
     pub silent_step: u64,
     pub bar_sample: f32,
+    pub old_freq: Option <f32 >,
+    pub new_freq: Option <f32 >,
+    pub step_freq: Option <f32 >,
+    pub range: Option <f32 >,
+    pub scale: Option <f32 >,
+    pub coef: Option <Vec <f32> >,
+    pub input_u64: Option <Vec <u64> >,
+    pub input_f32: Option <Vec <f32> >,
+    pub input_bool: Option <Vec <bool> >,
+    pub vex_f32: Option <Vec < Vec <f32> > >,
+    pub plus_minus_freq: Option < bool >,
+    pub geoms: Option <Vec <geom> >,
+    pub select_channel: Option <u8>, 
+    pub bandwidth: Option <Vec <freq_range> >, 
+    pub dbg_from: Option <u32>,
+    pub dbg_to: Option <u32>,
+    pub sub_config: Option <String>,
     pub file_in: String,
     pub file_out: String,
 }

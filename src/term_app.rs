@@ -3,6 +3,7 @@ use std::io::{Write, Read}; use std::io::BufRead; use std::io::prelude::*;
 use std::thread::Builder; use std::os::fd::AsRawFd; use std::os::fd::FromRawFd;
 use std::os::unix::thread::JoinHandleExt;
 use crate::smart_lags::{mamed_mutexes, new_custom_mutex};
+use crate::swtch::get_viewer;
 use libc::SIGKILL;
 use std::panic::catch_unwind;
 use termion::raw::IntoRawMode;
@@ -14,8 +15,8 @@ use crate::prox::{check_alive_proc_by_pid, get_pid_by_name, get_ppid_n_pid_by_na
 use crate::update18::delay_mcs;
 //use close_file::Closable;
 use std::mem::drop;
-use crate::globs18::{bash_unlink, check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, take_list_adr, unblock_fd};
-use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, full_path_to_cmd, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, mk_dummy_lnk, named_mutex, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, reset_screen, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
+use crate::globs18::{bash_unlink, check_strn_in_lst, cmd_decode_mode, cur_win_id, get_item_from_front_list, instance_num, strn_2_usize, take_list_adr, unblock_fd};
+use crate::{checkArg, check_substr, clear_screen, cpy_str, default_term_4_shol_a, dont_scrn_fix, drop_ls_mode, edit_mode_lst, errMsg0, escape_symbs_no_limits, full_path_to_cmd, get_arg_in_cmd, getkey, is_dir, mk_cmd_file_dirty, mk_dummy_lnk, named_mutex, no_view, popup_msg, read_file, read_file_abs_adr, read_prnt, reset_screen, rm_file, run_cmd_out, run_cmd_out_sync, save_file, save_file0, save_file_abs_adr0, save_file_append, save_file_append_newline, set_prnt, split_once, split_once_or_ret_null_strns, tailOFF, term_mv};
 #[path = "keycodes.rs"]
 mod kcode;
 use nix::sys::signal::kill;
@@ -380,7 +381,7 @@ let fstderr = crate::File::create(stderr_path).unwrap();
 //unblock_fd(fstdin0.as_raw_fd());
 //let mut fstdout0 = io::BufReader::new(fstdout0);
 //errMsg_dbg(&in_name, func_id, -1.0);
-let pwd = read_file("env/cd");
+let pwd = escape_symbs_no_limits( &read_file("env/cd"), 1330001785);
 let cmd = format!("clear;reset;cd {pwd};{cmd} 2>&1");
 //let cmd = format!("{cmd} 0 > {fstdin_link} 1 > {fstdout}");
 let path_2_cmd = crate::mk_cmd_file(cmd);
@@ -396,10 +397,7 @@ let mut run_command = Command::new("bash").arg("-c").arg(path_2_cmd)//.arg(";ech
     .spawn()
     .expect("can't run command in run_term_app1");
 
- std::thread::spawn(move|| {
 run_command.wait();
-//save_file_append("\nexit rw_std".to_string(), "logs".to_string());
-}).join();
 println!("Dear User, Please, hit any key to continue.. Thanks.");
 getkey();
 {dont_scrn_fix(true); no_view(true, false);}
@@ -483,6 +481,23 @@ pub fn add_interactive_mode_to_cmd (cmd: &String) -> (String, String ) {
     chunk_of_op = format!("{} {}", full_path_to_cmd( &cmd ), chunk_of_op ); 
     ( chunk_of_op, nxt_ops )
 }
+pub fn indxs_to_cmd (cmd: &String) -> String {
+    let (mut app_indx, mut file_indx) = split_once_or_ret_null_strns(&cmd, " ");
+    if app_indx == "" {return "".strn() }
+    if file_indx == "" {
+        file_indx = app_indx;
+        app_indx = "0".strn();
+    }
+    let app_indx0 = crate::globs18::strn_2_usize(&app_indx);
+    let file_indx0 = crate::globs18::strn_2_i64(&file_indx);
+    let app_name = if let Some (x) = app_indx0 {
+        get_viewer(x, -2795411, true)
+    } else { app_indx };
+    let file_name = if let Some (x) = file_indx0 { get_item_from_front_list(x, true) }
+    else { file_indx };
+    let cmd = format! ("{app_name} {file_name}");
+    cmd
+}
 pub(crate) fn new0__ (cmd: &String){
     let mut cmd = cmd.trim_start().strn();
     if edit_mode_lst(None) {return; }
@@ -496,6 +511,7 @@ pub(crate) fn new0__ (cmd: &String){
     //if cmd.substring(0, 7) == "term rm"{crate::term_rm(&cmd); return;}
     if default_term_4_shol_a(&cmd){return}
     let state = dont_scrn_fix(false).0; if state {dont_scrn_fix(true);}
+    let cmd = indxs_to_cmd(&cmd);
     let (app_name, _ ) = split_once( &cmd, " " );
     let prefix = format! ( "kid.{}.{}{}.{}", id_of_child_win (), crate::globs18::id_suffix(), cur_win_id ( None ), app_name );
     let prnt_prefix_2_title = crate::mk_cmd_file_dirty( format!(r"echo -e '\033]30;{prefix}\007'"  ) );

@@ -146,7 +146,7 @@ pub(crate) fn lets_write_path(key: String){
      key0 = crate::init::user_home_dir(); prnt = prnt.replace("~", &key0);
      set_prnt(&prnt, 1198001452 );
 } else {key0 = key}
-     C!(swtch_fn(mode, "".strn() )); C!(swtch_fn( -1, key0)); 
+     C!(swtch_fn(mode, "".strn(), 58124501 )); C!(swtch_fn( -1, key0, 58124501) ); 
 
 }
 pub(crate) fn background_fixing(){ 

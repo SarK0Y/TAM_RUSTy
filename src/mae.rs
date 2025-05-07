@@ -10,10 +10,10 @@ pub(crate) fn encrypt_n_keep_orig_file(cmd: &String){
     let mut file = match help_funcs::get_file(&format!("{file_to_encrypt}.mae")){Ok(f) => f, 
                                                             Err(e) => return println!("Sorry, can't open {file_to_encrypt}.mae: {e:?}")};
     let IK_len = crate::globs18::strn_2_usize(
-        open_typing(Some("\rPlease, enter a size of IK".strn()) )
+        &open_typing(Some("\rPlease, enter a size of IK".strn()) )
        ).unwrap_or(256);
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
+        &open_typing(Some("\rPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.encrypt(&fst_pswd, IK_len, buf_size);
     crate::save_file0(format!("{}.mae", file_to_encrypt), "mae".strn());
@@ -29,7 +29,7 @@ pub(crate) fn decrypt_copy(cmd: &String){
         &format!("{}", file_to_decrypt.replace(".mae", "") )
     ){Ok(f) => f, Err(e) => return println!("Sorry, can't open {file_to_decrypt}: {e:?}")};
     let buf_size = crate::globs18::strn_2_usize(
-        open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
+        &open_typing(Some("\nPlease, enter the buffer's size ".strn()) )
     ).unwrap_or(10_000);
     file.decrypt(&fst_pswd, buf_size);
     crate::save_file0(file_to_decrypt.replace(".mae", ""), "decrypted".strn());
@@ -84,6 +84,7 @@ pub(crate) fn mk_empty_fil0(name: &str ){
     let mut file =  match help_funcs::get_file(&name.strn()){Ok(f) => f, _ => return};
 }
 pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
+    if crate::faav::lock_surprise_me( None ) {crate::faav::lock_surprise_me( Some (false) ); return None}
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
@@ -103,7 +104,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 let file_indx = state % count as u64;
                 let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
                 let cmd = format!("0 {item}");
-                crate::swtch::run_viewer(cmd);
+                crate::swtch::run_viewer(cmd, -6741158104);
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me {file_indx} {item}"), 510974534 );
                 crate::lst::add_randomly_picked_file(file_indx, &item); END_KEY();
@@ -117,7 +118,7 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
                 let file_indx = state % count as u64;
                 let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
                 let cmd = format!("0 {item}");
-                crate::swtch::run_viewer(cmd);
+                crate::swtch::run_viewer(cmd, -3147875);
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 ); END_KEY();
                 return Some( file_indx );
@@ -127,8 +128,9 @@ pub fn surprise_me(cmd: Option < amaze_me > ) -> Option <u64>{
     END_KEY();
     None
 }
-#[cfg(feature = "in_dbg")]
+//#[cfg(feature = "in_dbg")]
 pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
+    if crate::faav::lock_surprise_me( None ) {crate::faav::lock_surprise_me( Some (false) ); return None}
     if cmd == None {return None;}
     static mut state: u64 = 0;
     use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64 as u64_;
@@ -158,7 +160,7 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 let file_indx = state % count as u64;
                 let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
                 let cmd = format!("0 {item}");
-                crate::swtch::run_viewer(cmd);
+                crate::swtch::run_viewer(cmd, 984115314);
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me {file_indx}"), 510974534 ); END_KEY();
                 return Some( file_indx );

@@ -31,6 +31,19 @@ use std::os::unix::io::{AsRawFd, RawFd};
 #[cfg(feature="mae")] use mae::*;
 #[path = "keycodes.rs"]
 mod kcode01;
+#[path = "snd.rs"]
+mod snd;
+#[path = "extra/extra.math.rs"]
+mod extra_math;
+#[macro_use]
+#[path = "extra/goto.rs"]
+mod goto;
+#[path = "extra/npf.rs"]
+mod npf;
+#[path = "custom.dft_idft.rs"]
+mod cdsp;
+#[path = "custom_math.rs"]
+mod cmath;
 #[path = "switch.rs"]
 mod swtch;
 #[path = "atomic.rs"]
@@ -39,6 +52,8 @@ mod atomic_op;
 mod init;
 #[path = "nui.rs"]
 mod nui;
+#[path = "rw.rs"]
+mod rw;
 #[path = "nui.wav.rs"]
 mod nui_wav;
 #[path = "nui.morph.rs"]

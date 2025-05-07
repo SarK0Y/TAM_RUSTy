@@ -1,15 +1,16 @@
 [package]
 name = "sark0y_tam_rst"
-version = "12.0.3"
+version = "13.11.327"
 edition = "2021"
+build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy.git"
 description = "Automation tool to make Console/Terminal more comfy. Have a great Day & Night, Dear User 💯❤️"
-crate_type = ["staticlib"]
+#crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
-categories = ["filesystem", "command-line-utilities", "multimedia::audio"]
+categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics", "rust-patterns"] #"algorithms"]
 [profile.release]
 debug = true
 [dependencies]
@@ -24,6 +25,7 @@ num-traits = "0.2.17"
 libc = "0.2.152" #"0.2.149"
 termios = "=0.3.3"
 termion = "3.0.0"
+#numeric = "=0.1.3"
 #close_file ="0.1.0"
 ansi_term = "0.12.1"
 os_pipe = "1.1.5"
@@ -34,12 +36,20 @@ terminal_size = "0.3.0"
 crossterm="0.27.0"
 regex = "1.10.3"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.7", optional = true}
-midly = {version = "0.5.3", feature="std"}
+midly = {version = "0.5.3", features=["std"]}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
-serde_json = {version = "1.0.32", feature="std"}
-syn = "2.0.66"
+rug = {version = "1.2.7", features = ["integer", "float", "std"]}
+malachite = {version = "0.4.22"}
+malachite-float = {version = "0.4.22"}
+malachite-q = {version = "0.4.22"}
+spectrum-analyzer = {version = "1.5.0"}
+num = {version = "0.4.3"}
+serde_json = {version = "1.0.32", features=["std"]}
+syn = { version = "2.0.0", features = ["full"] }
+quote = "1.0.0"
+proc-macro2 = "1.0.0"
 procfs = "0.15.1"
 sysinfo = "0.32.0"
 [dependencies.nix]
@@ -53,3 +63,6 @@ tam = []
 in_dbg =[]
 dbg0=[]
 mae =["Mademoiselle_Entropia"]
+[[bin]]
+name = "sark0y_tam_rst"
+proc-macro=true

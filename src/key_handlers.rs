@@ -1,13 +1,14 @@
 use crate::{
     __get_arg_in_cmd, add_cmd_in_history, checkArg, clear_screen, count_ln, custom_traits::{
         find_substrn, helpful_math_ops, turn_2_i64, turn_2_usize,  vec_tools, STRN_usize, STRN,
-    }, drop_ls_mode, errMsg0, get_cur_cur_pos, get_prnt, getkey, globs18::{
+    }, drop_ls_mode, errMsg0, faav::count_ln_in_surprise_me_lst, get_cur_cur_pos, get_prnt, getkey, globs18::{
         drop_key, enum_not_escaped_spaces_in_strn, enum_not_escaped_spaces_in_strn_up_to,
         get_item_from_front_list, id_suffix, len_of_front_list, set_valid_list_as_front,
         take_list_adr, take_list_adr_env,
     }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
+use malachite::num::arithmetic::traits::CheckedAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use once_cell::sync::Lazy;
 use std::{default, io};
@@ -18,6 +19,41 @@ pub(crate) fn key_slash() {
         return;
     }
     save_file0(front_list, "prev_list".to_string());
+}
+pub fn Space () -> String {
+    count_ln_in_surprise_me_lst(false, false, false);
+    let prnt = get_prnt( 766831795);
+    let cmd0 = "|surprise me dry run ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
+    let cmd0 = "surprise me dry run ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
+        let item = prnt.replace(cmd0, "");
+        let (_, item) = crate::split_once_or_ret_null_strns(&item, " ");
+        let cmd = format!("0 {item}");
+        crate::swtch::run_viewer(cmd, 6737908104);
+        crate::faav::lock_surprise_me( Some (true) );
+        return "".strn()
+    }
+    let cmd0 = "surprise me ";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 {
+        let item = prnt.replace(cmd0, "");
+        let (_, item) = crate::split_once_or_ret_null_strns(&item, " ");
+        let cmd = format!("0 {item}");
+        crate::swtch::run_viewer(cmd, 6737908104);
+        crate::faav::lock_surprise_me( Some (true) );
+        return "".strn()
+    }
+    " ".strn()
+}
+pub fn capture_key (cmd: &String) {
+    static mut state: Lazy < String > = Lazy::new (|| {"".strn() });
+    dbg!(&cmd);
+    unsafe {
+        if cmd == "en capture key" {*state = "en capture key".strn(); dbg!(&cmd); }
+        if cmd == "no capture key" {*state = "".strn() }
+        if *state == "en capture key" { errMsg0(&cmd); return}
+
+    }
 }
 pub(crate) fn pre_Enter() {
     let front_list = read_front_list();
@@ -53,7 +89,7 @@ pub(crate) fn pre_Enter() {
 pub fn Shift_Enter () -> String {
     let viewer_mode = crate::swtch::mode_default_viewers( None );
     crate::swtch::mode_default_viewers(Some( !viewer_mode ) );
-    return Enter();
+    return "".strn();
 }
 pub(crate) fn Enter() -> String {
     let func_id = -881454;
@@ -63,6 +99,8 @@ pub(crate) fn Enter() -> String {
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
     }*/
+    let cmd0 = "|surprise me";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
     crate::cmd_keys::dont_run_file(Some(false));
     drop_ls_mode();
     let mut mode = 0i64;
@@ -70,7 +108,7 @@ pub(crate) fn Enter() -> String {
     if mode == crate::swtch::SWTCH_USER_WRITING_PATH {
         mode = crate::swtch::SWTCH_RUN_VIEWER
     }
-    crate::C!(crate::swtch::swtch_fn(mode, "".to_string()));
+    crate::C!(crate::swtch::swtch_fn(mode, "".to_string(), -59974151));
     history_buffer(Some(prnt), 0, false);
     if crate::lst::edit_mode_lst(None) {
         stop_term_msg();
@@ -121,6 +159,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.trim_end() == cmd0 { crate::globs18::cmd_decode_mode(Some(true)); return empty; }
     let cmd0 = ":+";
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::globs18::sieve_list(file_indx.trim_end().strn()); return empty; }
+    let cmd0 = "calc tst pi";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::extra_math::tst_Pi_vs_std_Pi(file_indx.trim_end().strn()); return empty; }
     let cmd0 = "no default view";
     if file_indx.trim_end() == cmd0 { crate::swtch::mode_default_viewers(Some(false)); return empty; }
     let cmd0 = "en default view";
@@ -135,8 +175,10 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.substring(0, 3) == "lst" { crate::lst::manage_lst_sub(&file_indx.trim_end().strn()); return empty; }
     let cmd0 = "prompt mode default";
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode( cmd0); return empty; }
-     let cmd0 = "sig 2 proc";
+    let cmd0 = "sig 2 proc";
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::prox::sig_2_proc_n_its_kids( &file_indx); return empty; }
+    let cmd0 = "npf bar";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::set_bar ( &file_indx); return empty; }
     let cmd0 = "prompt mode glee uppercases";
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode(cmd0 ); return empty; }
 
@@ -396,7 +438,7 @@ pub(crate) fn F8_key() {
         block_ring_buffer = true;
         crate::calc_num_files_up2_cur_pg01().usize0()
     }; // + ln_indx0 };
-    let ln_indx = lst_size.overflowing_sub(ln_indx0); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
+    let ln_indx = lst_size.overflowing_sub(ln_indx0 ); //if !crate::scroll_ln_in_pg(false) {lst_size.overflowing_sub( ln_indx0 )} else{lst_size.overflowing_add( 0 )};
     let mut in_history = false;
     let mut prev_indx = usize::MAX;
     let mut indx: usize = ln_indx.0;
@@ -441,6 +483,27 @@ pub(crate) fn F8_key() {
         }
     }
     set_prnt(&ln, 999714);
+}
+pub fn scroll_surprise_me_lst () {
+    let mut indx: usize = crate::faav::count_ln_in_surprise_me_lst(true, true, true);
+    let last_ln: usize = crate::ln_of_list(usize::MAX, "randomly_picked.files").1;
+    //let last_ln = last_ln.checked_sub (1).unwrap_or (0);
+    if indx > last_ln {crate::faav::count_ln_in_surprise_me_lst(false, false, false); indx = 0; }
+    let mut ln = "".strn();
+    indx = last_ln.checked_sub (indx ).unwrap_or(0);
+    ln = crate::ln_of_list(indx, "randomly_picked.files").0;
+    //dbg! (&indx);
+    let mut prnt = get_prnt(1140191);
+    if prnt.find ("surprise me dry run").is_some () {
+        prnt = format! ("surprise me dry run {indx} {}", ln);
+    } else {
+        if prnt.find ("surprise me").is_some () {
+            prnt = format! ("surprise me {indx} {}", ln);
+        }
+    }
+    set_prnt(&prnt, -90011675697);
+    crate::faav::count_ln_in_surprise_me_lst(true, true, false);
+   // errMsg0(&"".strn() );
 }
 pub fn shift_f3_cut_off_tail_of_prnt() {
     let func_id = 78444418691;
@@ -517,7 +580,7 @@ pub(crate) fn F3_key() -> String {
         prnt = prnt.replace("/", "");
         prnt = format! ("{}{}", prnt, prnt0.substring(prnt.chars().count().inc(), prnt0.chars().count() ) );
         set_prnt(&prnt, -2317712);
-        crate::C!(crate::swtch::swtch_fn(0, "".to_string()));
+        crate::C!(crate::swtch::swtch_fn(0, "".to_string(), -8452197));
         crate::from_ls_2_front(ls_mode);
         "".to_string()
     };
@@ -542,10 +605,13 @@ pub(crate) fn F3_key() -> String {
     /*let user_wrote_path = user_wrote_path();
     rm_file(&user_wrote_path);*/
     set_proper_num_pg(0);
-    crate::swtch::set_user_written_path_from_strn(path.to_string());
+    crate::swtch::set_user_written_path_from_strn(path.to_string(), 7890014);
     prnt
 }
 pub fn tab_key() {
+    let prnt = get_prnt(-9871);
+    let cmd0 = "surprise me";
+    if prnt.as_str().substring(0, cmd0.len()) == cmd0 { scroll_surprise_me_lst();}
     let cur_lst = crate::name_of_front_list("", false);
     match cur_lst.as_str() {
         "lst" => {

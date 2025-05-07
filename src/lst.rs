@@ -181,6 +181,7 @@ pub(crate) fn term_rm(cmd: &String){
     else { cmd = format!("rm {add_opts} {dummy_file} {all_files}");}
     let state = crate::dont_scrn_fix(false).0; if state {crate::dont_scrn_fix(true);}
     crate::run_term_app_interactive_basic(cmd); 
+    std::fs::remove_file (all_files); // seems here should be more sophisticated mechanism :)
 }
 pub(crate) fn default_term_4_shol_a(cmd: &String) -> bool{
     let if_shol_a: Vec<_> = cmd.match_indices("%a").map(|(i, _)|i).collect();
@@ -336,8 +337,8 @@ pub(crate) fn vec_2_strn_multilined(vec_strn: &Vec<String>, cut_off: usize) -> S
     for ln in vec_strn{
         let ln = ln.trim_end().trim_start().trim_end_matches('\\');
         if len == 0 {break;}
-        let ln = full_escape(&ln.strn());
-        ret.push_str(format!("\\{nl} {ln}").as_str());
+        //let ln = full_escape(&ln.strn());
+        ret.push_str(format!("\\{nl} '{ln}'").as_str());
         len.dec();
     } ret
 }
@@ -461,7 +462,7 @@ pub(crate) fn manage_lst(cmd: &String){
     }
     }
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
-    let ret = strn_2_usize(cmd);
+    let ret = strn_2_usize(&cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
@@ -499,7 +500,7 @@ pub(crate) fn manage_lst_sub(cmd: &String){
     }
     }
     if name_of_front_list("", false) != "lst"{errMsg0("Please, enter «lst» command, then You will be able to switch lists."); return;}
-    let ret = strn_2_usize(cmd);
+    let ret = strn_2_usize(&cmd);
     if ret == None{errMsg0("Possible variants ==>> lst; lst <<index in list>>; lst /path/to/YourExternalList"); return;}
     let item_indx = usize_2_i64(ret.unwrap());
     let item = get_item_from_front_list(item_indx, true);
@@ -587,11 +588,13 @@ pub(crate) fn del_ln_from_lst(cmd: &String){
         if indx == ln_num.0 {continue;}
         save_file_append_newline_abs_adr_fast(&ln.unwrap_or("".strn()), &front_lst_tmp);
     }
+    if crate::Path::new (&front_lst_tmp).exists() == false {save_file_append_newline_abs_adr_fast(&"".strn(), &front_lst_tmp);}
     let cmd = format!("mv {front_lst_tmp} {}", full_escape(&front_lst) );
     run_cmd_out_sync(cmd); tailOFF(&mut front_lst, "/");
     let front_lst = read_tail( &take_list_adr("found_files").unreel_link_to_depth(1), "/" );
     crate::cache::set_uid_cache(&front_lst);
     crate::update18::upd_screen_or_not((-1, "".strn() ) );
+    set_prnt("", 385415986);
 }
 pub(crate) fn edit_ln_in_lst(cmd: &String){
     let ln_num = cmd.replace("edit ", "").trim_end().trim_start().i640();
