@@ -38,8 +38,8 @@ mod extra_math;
 #[macro_use]
 //#[path = "extra/goto.rs"]
 //mod goto;
-#[path = "extra/npf.rs"]
-mod npf;
+//#[path = "extra/npf.rs"]
+//mod npf;
 #[path = "custom.dft_idft.rs"]
 mod cdsp;
 #[path = "custom_math.rs"]
