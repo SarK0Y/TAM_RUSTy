@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 edition = "2021"
-authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
-license-file = "LICENSE"
+workspsace.package.authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
+workspace.package.license-file = "LICENSE"
 readme = "README.md"
 members = [
     "main",
@@ -10,4 +10,4 @@ members = [
 ]
 [workspace.dependencies]
 ##sark0y_tam_rst = {path = "./"}
-#goto = {path = "./src/goto"}
+goto = {path = "./ext/goto"}
