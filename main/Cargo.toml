@@ -16,7 +16,7 @@ categories = ["filesystem", "command-line-utilities", "multimedia::audio", "math
 [profile.release]
 debug = true
 [dependencies]
-goto = {path = "../ext/goto"}
+goto = {version = "0.0.0", path = "../ext/goto"}
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"
