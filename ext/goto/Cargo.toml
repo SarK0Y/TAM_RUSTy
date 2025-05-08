@@ -1,0 +1,9 @@
+[package]
+name ="goto"
+edition = "2021"
+[dependencies]
+syn = { version = "2.0.0", features = ["full"] }
+quote = "1.0.0"
+proc-macro2 = "1.0.0" 
+[lib]
+proc-macro = true
