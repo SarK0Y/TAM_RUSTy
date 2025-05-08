@@ -36,8 +36,8 @@ mod snd;
 #[path = "extra/extra.math.rs"]
 mod extra_math;
 #[macro_use]
-//#[path = "extra/goto.rs"]
-//mod goto;
+#[path = "extra/lex.rs"]
+mod lex;
 //#[path = "extra/npf.rs"]
 //mod npf;
 #[path = "custom.dft_idft.rs"]

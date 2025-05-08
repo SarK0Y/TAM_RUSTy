@@ -13,6 +13,7 @@
 mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, split_once_alt_o_null_strns, strn_2_usize, take_list_adr};
+use goto::inject_after_hello;
 use syn::token::Return;
 use update18::delay_ms;
 

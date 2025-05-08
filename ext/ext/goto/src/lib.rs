@@ -18,7 +18,7 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
             let macro_tokens = expr_macro.mac.tokens.to_string();
             if macro_path.len() == 1
                 && macro_path[0].ident == "println"
-                && macro_tokens.contains("\"Hello, world!\"")
+                && macro_tokens.contains("\"hello\"")
             {
                 // Inject code after the matched println!
                 new_stmts.push(syn::parse_quote! {
