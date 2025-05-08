@@ -3,7 +3,7 @@ name ="goto"
 edition = "2021"
 version = "0.0.0"
 publish = true
-license = "free use"
+license-file = "LICENSE"
 description = "goto for Rust"
 [dependencies]
 syn = { version = "2.0.0", features = ["full"] }
