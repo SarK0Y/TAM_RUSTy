@@ -536,6 +536,7 @@ pub fn num_2(pow: u32) {
 }
 pub fn __num_x (cmd: &String) {
     let num = cmd.replace ("num x", "").trim_end().trim_start().strn();
+    let num = num.replace(",", "");
     let __1 = rugint::parse ("1" ).unwrap();
     let num = rugint::parse (num).unwrap_or(__1).complete();
     num_x( num );
