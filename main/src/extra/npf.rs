@@ -502,8 +502,16 @@ pub fn show_npf_sq_mode () {
     _msg(&msg);
 }
 pub fn en_npf_sq () {
-    crate::faav::npf_sq( Some (true) );
-    show_npf_sq_mode();
+    let prnt = get_prnt (1501876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= num.clone();
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 479541533);
 }
 pub fn no_npf_sq () {
     crate::faav::npf_sq( Some (false) );
@@ -518,7 +526,6 @@ pub fn Set_NPF () {
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let mut num = num.unwrap().complete ();
-    if crate::faav::npf_sq( None ) {num *= num.clone()}
     let num_str = format! ("npf {num}");
     set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
