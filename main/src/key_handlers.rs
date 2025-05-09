@@ -187,6 +187,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::en_npf_sq(); return empty; }
     let cmd0 = "num 2";
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::__num_2( &file_indx); return empty; }
+    let cmd0 = "num x";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::__num_x( &file_indx); return empty; }
     #[cfg(feature = "in_dbg")] let cmd0 = "prnt screen";
     #[cfg(feature = "in_dbg")]
     if file_indx.trim_end() == cmd0 { crate::lst::prnt_screen_dbg(); getkey(); return empty; }

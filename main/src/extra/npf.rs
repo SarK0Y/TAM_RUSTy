@@ -534,6 +534,24 @@ pub fn num_2(pow: u32) {
     let num_str = format! ("npf {num}");
     set_prnt (&num_str, 419541533);
 }
+pub fn __num_x (cmd: &String) {
+    let num = cmd.replace ("num x", "").trim_end().trim_start().strn();
+    let __1 = rugint::parse ("1" ).unwrap();
+    let num = rugint::parse (num).unwrap_or(__1).complete();
+    num_x( num );
+}
+pub fn num_x( x: rugint) {
+    let prnt = get_prnt (1504876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= x;
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 419541533);
+}
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
     let prnt = get_prnt (1001876412);
