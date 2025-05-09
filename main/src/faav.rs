@@ -67,6 +67,14 @@ pub fn npf_split (state: Option < bool >) -> bool {
         } return yes.clone()
     }
 }
+pub fn npf_sq (state: Option < bool >) -> bool {
+    static mut yes: bool = false;
+    unsafe {
+        if let Some (x) = state { 
+            yes = x; return yes.clone();
+        } return yes.clone()
+    }
+}
 pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
     static mut max_id: usize = 0;
     unsafe {

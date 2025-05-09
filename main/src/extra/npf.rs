@@ -495,6 +495,19 @@ pub fn no_npf_split () {
     crate::faav::npf_split( Some (false) );
     show_npf_split_mode();
 }
+pub fn show_npf_sq_mode () {
+    let status = faav::npf_sq( None );
+    let msg = format! ("npf sq state {status}");
+    _msg(&msg);
+}
+pub fn en_npf_sq () {
+    crate::faav::npf_sq( Some (true) );
+    show_npf_sq_mode();
+}
+pub fn no_npf_sq () {
+    crate::faav::npf_sq( Some (false) );
+   // show_npf_sq_mode();
+}
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
     let prnt = get_prnt (1001876412);
@@ -503,12 +516,14 @@ pub fn Set_NPF () {
     let num = num.replace(",", "");
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
-    let num = num.unwrap().complete ();
+    let mut num = num.unwrap().complete ();
+    if crate::faav::npf_sq( None ) {num *= num.clone()}
     let num_str = format! ("npf {num}");
     set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
                 {format! ("Sorry, Dear User, no solution found - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ")};
+    no_npf_sq();
     errMsg0 (ret.as_str());
 }
 impl std::fmt::Display for product_form {
