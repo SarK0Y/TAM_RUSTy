@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 use crate::faav;
 use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
-use crate::custom_traits::helpful_math_ops;
+use crate::custom_traits::{helpful_math_ops, STRN_usize};
 use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
@@ -516,6 +516,23 @@ pub fn en_npf_sq () {
 pub fn no_npf_sq () {
     crate::faav::npf_sq( Some (false) );
     show_npf_sq_mode();
+}
+pub fn __num_2 (cmd: &String) {
+    let pow = cmd.replace ("num 2", "").trim_end().trim_start().strn().usize0() as u32;
+    errMsg0(&pow.to_string() );
+    num_2(pow - 1);
+}
+pub fn num_2(pow: u32) {
+    let prnt = get_prnt (1504876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= num.clone().pow( pow );
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 419541533);
 }
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
