@@ -7,8 +7,9 @@ use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use once_cell::sync::Lazy;
+use crate::faav;
 use crate::STRN;
-use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
+use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 use crate::custom_traits::helpful_math_ops;
 use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
@@ -429,12 +430,15 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     thr.join(); return over_npf (None).expect ("over_npf failed");
 }
 pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
-let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y, 0 ) };
+let ret0: npf_output = unsafe { if !crate::faav::npf_split( None ) {
+                npf_cross_road_lock (n.clone(), X, Y, 0 )
+            }  else { npf_cross_road_split (n.clone(), X, Y, 0 ) }
+        };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         println! ("Run npf_recursion_lock");
-        let ret: npf_output = unsafe { if crate::faav::npf_split( None ) {
+        let ret: npf_output = unsafe { if !crate::faav::npf_split( None ) {
                 npf_cross_road_lock (n.clone(), &mut x_, &mut y_, 0 )
             }  else { npf_cross_road_split (n.clone(), &mut x_, &mut y_, 0 ) }
         };
@@ -477,6 +481,19 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     let __1 = rugint::from (1);
     if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
+}
+pub fn show_npf_split_mode () {
+    let status = faav::npf_split( None );
+    let msg = format! ("npf split state {status}");
+    _msg(&msg);
+}
+pub fn en_npf_split () {
+    crate::faav::npf_split( Some (true) );
+    show_npf_split_mode();
+}
+pub fn no_npf_split () {
+    crate::faav::npf_split( Some (false) );
+    show_npf_split_mode();
 }
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );

@@ -177,11 +177,12 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode( cmd0); return empty; }
     let cmd0 = "sig 2 proc";
     if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::prox::sig_2_proc_n_its_kids( &file_indx); return empty; }
-    let cmd0 = "npf bar";
-    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::set_bar ( &file_indx); return empty; }
     let cmd0 = "prompt mode glee uppercases";
     if file_indx.trim_end() == cmd0 { crate::subs::set_prompt_mode(cmd0 ); return empty; }
-
+    let cmd0 = "en npf split";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::en_npf_split(); return empty; }
+    let cmd0 = "no npf split";
+    if file_indx.as_str().substring(0, cmd0.len()) == cmd0 { crate::npf::no_npf_split(); return empty; }
     #[cfg(feature = "in_dbg")] let cmd0 = "prnt screen";
     #[cfg(feature = "in_dbg")]
     if file_indx.trim_end() == cmd0 { crate::lst::prnt_screen_dbg(); getkey(); return empty; }
