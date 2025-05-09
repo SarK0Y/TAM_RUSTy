@@ -349,6 +349,7 @@ pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_f
     let fn_name = "cross road split".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     dbg! (&X);
+    dbg! (&split);
     if !crate::faav::npf_bar (split, None) {println! ("Dead end {fn_name}"); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
@@ -506,7 +507,7 @@ pub fn en_npf_sq () {
 }
 pub fn no_npf_sq () {
     crate::faav::npf_sq( Some (false) );
-   // show_npf_sq_mode();
+    show_npf_sq_mode();
 }
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
@@ -523,7 +524,6 @@ pub fn Set_NPF () {
     let ret = unsafe { npf (num) };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
                 {format! ("Sorry, Dear User, no solution found - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ")};
-    no_npf_sq();
     errMsg0 (ret.as_str());
 }
 impl std::fmt::Display for product_form {
