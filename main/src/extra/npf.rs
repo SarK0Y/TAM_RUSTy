@@ -262,7 +262,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road");}
-                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
         }
         match mark_j {
@@ -283,7 +283,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     return ret
 }
 #[no_mangle]
-pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
+pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     dbg! (&X);
@@ -324,7 +324,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road_lock");}
-                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
         }
         match mark_j {
@@ -344,6 +344,67 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     println! ("Exit_cross_road_lock");
     return ret
 }
+pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
+    let fn_name = "cross road split".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
+    dbg! (&X);
+    if !crate::faav::npf_bar (split, None) {println! ("Dead end {fn_name}"); return ret;}
+    let mut X_tst = vec_init_form { 0: Vec::new() };
+    let mut Y_tst = vec_init_form { 0: Vec::new() };
+    let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
+    let mut mark_j = 711_usize;
+    let mut finally = vec_product_form { 0: Vec::new() };
+    let n_ = format! ("{n}");
+    //errMsg0 (n_.as_str());
+    while X.num1 () * Y.num1 () < n {
+    //dbg!(&X); dbg! (&Y);
+        X_tst.0.push ( X.__2x() );
+        X_tst.0.push ( X.__2x_plus_1());
+        Y_tst.0.push ( Y.__2x() );
+        Y_tst.0.push ( Y.__2x_plus_1() );
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [0].clone()); // even-even
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [1].clone()); // odd-odd
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [0].clone()); // odd-even
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [1].clone() ); /* even-odd */
+        dbg! (finally.0.len());
+        let mut max_tail_len: usize = 0;
+        for i in 0..finally.0.len() {
+            let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+                mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+            };
+        }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_split");} 
+        if mark_positive_results.len() > 1 {
+            while let Some(XY) = mark_positive_results.pop() {
+                //dbg! (&mark_positive_results);
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_split");}
+                let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_cross_road_split");}
+                ret = npf_cross_road_split (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), split + 1 );
+            }
+        }
+        match mark_j {
+            0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
+            1 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [1].clone()},
+            2 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [0].clone()},
+            3 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [1].clone()},
+            _ => {errMsg0("Strange error."); return ret}
+        }
+        mark_positive_results.clear();
+        X_tst.0.clear();
+        Y_tst.0.clear ();
+        finally.0.clear ();
+    }
+    label!("Exit_cross_road_split");
+    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    println! ("Exit_cross_road_split");
+    return ret
+}
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
     let mut ret = (X, Y, mark_j);
     //dbg! (&ret);
@@ -356,7 +417,7 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
             } /*dbg! (&ret);*/ return ret
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
-let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+let ret0: npf_output = unsafe { npf_cross_road (n.clone(), X, Y ) };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
@@ -368,13 +429,14 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     thr.join(); return over_npf (None).expect ("over_npf failed");
 }
 pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
-let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y, 0 ) };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         println! ("Run npf_recursion_lock");
-        let ret: npf_output = unsafe {
-                npf_cross_road_lock (n.clone(), &mut x_, &mut y_ )
+        let ret: npf_output = unsafe { if crate::faav::npf_split( None ) {
+                npf_cross_road_lock (n.clone(), &mut x_, &mut y_, 0 )
+            }  else { npf_cross_road_split (n.clone(), &mut x_, &mut y_, 0 ) }
         };
         over_npf (Some (ret.clone () ));
     });
