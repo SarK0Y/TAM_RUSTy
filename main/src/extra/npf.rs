@@ -526,7 +526,8 @@ pub fn __rdx (cmd: &String) {
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let num = num.unwrap().complete ();
     let num = num.to_string_radix (rdx);
-    errMsg0(&num );
+    let num = format! ("(len = {}) {}", num.len(), num);
+    _msg(&num );
 }
 pub fn __num_2 (cmd: &String) {
     let pow = cmd.replace ("num 2", "").trim_end().trim_start().strn().usize0() as u32;
