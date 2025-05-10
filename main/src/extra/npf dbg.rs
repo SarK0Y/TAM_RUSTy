@@ -6,12 +6,12 @@ use std::ops::MulAssign;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
-use goto;
 use once_cell::sync::Lazy;
+use crate::faav;
 use crate::STRN;
-use crate::{errMsg0, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
-use crate::custom_traits::helpful_math_ops;
-use goto::{label, goto};
+use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
+use crate::custom_traits::{helpful_math_ops, STRN_usize};
+use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
 #[derive(Clone, PartialEq)]
@@ -263,7 +263,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road");}
-                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
         }
         match mark_j {
@@ -284,7 +284,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
     return ret
 }
 #[no_mangle]
-pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> (rugint, rugint, String) {
+pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     dbg! (&X);
@@ -325,7 +325,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_cross_road_lock");}
-                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone() );
+                ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
         }
         match mark_j {
@@ -345,6 +345,68 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     println! ("Exit_cross_road_lock");
     return ret
 }
+pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
+    let fn_name = "cross road split".strn();
+    let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
+    dbg! (&X);
+    dbg! (&split);
+    if !crate::faav::npf_bar (split, None) {println! ("Dead end {fn_name}"); return ret;}
+    let mut X_tst = vec_init_form { 0: Vec::new() };
+    let mut Y_tst = vec_init_form { 0: Vec::new() };
+    let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
+    let mut mark_j = 711_usize;
+    let mut finally = vec_product_form { 0: Vec::new() };
+    let n_ = format! ("{n}");
+    //errMsg0 (n_.as_str());
+    while X.num1 () * Y.num1 () < n {
+    //dbg!(&X); dbg! (&Y);
+        X_tst.0.push ( X.__2x() );
+        X_tst.0.push ( X.__2x_plus_1());
+        Y_tst.0.push ( Y.__2x() );
+        Y_tst.0.push ( Y.__2x_plus_1() );
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [0].clone()); // even-even
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [1].clone()); // odd-odd
+        finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [0].clone()); // odd-even
+        finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [1].clone() ); /* even-odd */
+        dbg! (finally.0.len());
+        let mut max_tail_len: usize = 0;
+        for i in 0..finally.0.len() {
+            let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 || cur_tail_len > max_tail_len {
+                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+                mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
+            };
+        }
+        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_split");} 
+        if mark_positive_results.len() > 1 {
+            while let Some(XY) = mark_positive_results.pop() {
+                //dbg! (&mark_positive_results);
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_split");}
+                let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_cross_road_split");}
+                ret = npf_cross_road_split (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), split + 1 );
+            }
+        }
+        match mark_j {
+            0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
+            1 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [1].clone()},
+            2 => {*X = X_tst.0 [1].clone(); *Y = Y_tst.0 [0].clone()},
+            3 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [1].clone()},
+            _ => {errMsg0("Strange error."); return ret}
+        }
+        mark_positive_results.clear();
+        X_tst.0.clear();
+        Y_tst.0.clear ();
+        finally.0.clear ();
+    }
+    label!("Exit_cross_road_split");
+    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    println! ("Exit_cross_road_split");
+    return ret
+}
 pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init_form, usize) {
     let mut ret = (X, Y, mark_j);
     //dbg! (&ret);
@@ -357,7 +419,7 @@ pub fn take_pair (mark_j: usize, X: init_form, Y: init_form) -> (init_form, init
             } /*dbg! (&ret);*/ return ret
 }
 pub fn npf_recursion (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
-let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+let ret0: npf_output = unsafe { npf_cross_road (n.clone(), X, Y ) };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
@@ -369,13 +431,17 @@ let mut x_ = X.clone(); let mut y_ = Y.clone();
     thr.join(); return over_npf (None).expect ("over_npf failed");
 }
 pub fn npf_recursion_lock (n: rugint, X: &mut init_form, Y: &mut init_form) -> npf_output {
-let ret0: npf_output = unsafe { npf_cross_road_lock (n.clone(), X, Y ) };
+let ret0: npf_output = unsafe { if !crate::faav::npf_split( None ) {
+                npf_cross_road_lock (n.clone(), X, Y, 0 )
+            }  else { npf_cross_road_split (n.clone(), X, Y, 0 ) }
+        };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut x_ = X.clone(); let mut y_ = Y.clone();
     let mut thr = std::thread::spawn ( move || {
         println! ("Run npf_recursion_lock");
-        let ret: npf_output = unsafe {
-                npf_cross_road_lock (n.clone(), &mut x_, &mut y_ )
+        let ret: npf_output = unsafe { if !crate::faav::npf_split( None ) {
+                npf_cross_road_lock (n.clone(), &mut x_, &mut y_, 0 )
+            }  else { npf_cross_road_split (n.clone(), &mut x_, &mut y_, 0 ) }
         };
         over_npf (Some (ret.clone () ));
     });
@@ -390,7 +456,7 @@ use crate::custom_traits::STRN_usize;
     let max_id = cmd.replace ("npf bar", "").trim_start().trim_end().strn().usize0();
     crate::faav::npf_bar (0, Some (max_id) );
 }
-pub fn __check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
     let __1 = rugint::from (1);
     let mut res= 700usize;
     let mut div = __1.clone();
@@ -417,6 +483,76 @@ pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     let __1 = rugint::from (1);
     if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
 }
+pub fn show_npf_split_mode () {
+    let status = faav::npf_split( None );
+    let msg = format! ("npf split state {status}");
+    _msg(&msg);
+}
+pub fn en_npf_split () {
+    crate::faav::npf_split( Some (true) );
+    show_npf_split_mode();
+}
+pub fn no_npf_split () {
+    crate::faav::npf_split( Some (false) );
+    show_npf_split_mode();
+}
+pub fn show_npf_sq_mode () {
+    let status = faav::npf_sq( None );
+    let msg = format! ("npf sq state {status}");
+    _msg(&msg);
+}
+pub fn en_npf_sq () {
+    let prnt = get_prnt (1501876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= num.clone();
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 479541533);
+}
+pub fn no_npf_sq () {
+    crate::faav::npf_sq( Some (false) );
+    show_npf_sq_mode();
+}
+pub fn __num_2 (cmd: &String) {
+    let pow = cmd.replace ("num 2", "").trim_end().trim_start().strn().usize0() as u32;
+    errMsg0(&pow.to_string() );
+    num_2(pow - 1);
+}
+pub fn num_2(pow: u32) {
+    let prnt = get_prnt (1504876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= num.clone().pow( pow );
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 419541533);
+}
+pub fn __num_x (cmd: &String) {
+    let num = cmd.replace ("num x", "").trim_end().trim_start().strn();
+    let num = num.replace(",", "");
+    let __1 = rugint::parse ("1" ).unwrap();
+    let num = rugint::parse (num).unwrap_or(__1).complete();
+    num_x( num );
+}
+pub fn num_x( x: rugint) {
+    let prnt = get_prnt (1504876412);
+    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let mut num = num.unwrap().complete ();
+    num *= x;
+    let num_str = format! ("npf {num}");
+    set_prnt (&num_str, 419541533);
+}
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
     let prnt = get_prnt (1001876412);
@@ -425,7 +561,7 @@ pub fn Set_NPF () {
     let num = num.replace(",", "");
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
-    let num = num.unwrap().complete ();
+    let mut num = num.unwrap().complete ();
     let num_str = format! ("npf {num}");
     set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
@@ -496,7 +632,7 @@ impl std::fmt::Debug for vec_init_form {
     }
 }
 #[no_mangle]
-pub unsafe fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+pub unsafe fn __check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
     let __1 = rugint::from (1);
     let mut res= 700usize;
     let div = check_div (&n, X.tail.clone() ); 

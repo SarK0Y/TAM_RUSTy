@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 use crate::faav;
 use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
-use crate::custom_traits::{helpful_math_ops, STRN_usize};
+use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
 use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
@@ -516,6 +516,17 @@ pub fn en_npf_sq () {
 pub fn no_npf_sq () {
     crate::faav::npf_sq( Some (false) );
     show_npf_sq_mode();
+}
+pub fn __rdx (cmd: &String) {
+    let num = cmd.replace ("rdx ", "").trim_end().trim_start().strn();
+    let (rdx, num) = split_once_alt_o_null_strns (&num, &" ".strn());
+    let rdx = rdx.trim_end().trim_start().strn().i640() as i32;
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let num = num.unwrap().complete ();
+    let num = num.to_string_radix (rdx);
+    errMsg0(&num );
 }
 pub fn __num_2 (cmd: &String) {
     let pow = cmd.replace ("num 2", "").trim_end().trim_start().strn().usize0() as u32;
