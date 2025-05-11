@@ -10,7 +10,7 @@ use once_cell::sync::Lazy;
 use crate::faav;
 use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
-use crate::custom_traits::{helpful_math_ops, STRN_usize};
+use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
 use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
 type npf_output = (rugint, rugint, String);
@@ -288,7 +288,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     dbg! (&X);
-    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end {fn_name}"); return ret;}
+    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end {fn_name} {}", X.log2_head() ); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -306,12 +306,11 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [1].clone()); // odd-odd
         finally.0.push (X_tst.0 [1].clone() * Y_tst.0 [0].clone()); // odd-even
         finally.0.push (X_tst.0 [0].clone() * Y_tst.0 [1].clone() ); /* even-odd */
-        dbg! (finally.0.len());
         let mut max_tail_len: usize = 0;
         for i in 0..finally.0.len() {
-            let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
-            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 || cur_tail_len > max_tail_len {
-                if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
+           // let cur_tail_len: usize = max_tail_match (&finally.0 [i]);
+            if (n.clone() - finally.0 [i].tail.clone() ) % X_tst.0 [0].head.clone() == 0 /*|| cur_tail_len > max_tail_len */ {
+                //if cur_tail_len > max_tail_len {max_tail_len = cur_tail_len}
                 mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
@@ -327,6 +326,14 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
                 if ret.0 > 1 { goto!("Exit_cross_road_lock");}
                 ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
+        } else {
+                dbg!("one hit");
+                let XY = mark_positive_results.pop().unwrap();
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_cross_road_lock");}
         }
         match mark_j {
             0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
@@ -517,6 +524,18 @@ pub fn no_npf_sq () {
     crate::faav::npf_sq( Some (false) );
     show_npf_sq_mode();
 }
+pub fn __rdx (cmd: &String) {
+    let num = cmd.replace ("rdx ", "").trim_end().trim_start().strn();
+    let (rdx, num) = split_once_alt_o_null_strns (&num, &" ".strn());
+    let rdx = rdx.trim_end().trim_start().strn().i640() as i32;
+    let num = num.replace(",", "");
+    let num = rugint::parse (num);
+    if num.is_err() {errMsg0 ("Set proper number, Please"); return}
+    let num = num.unwrap().complete ();
+    let num = num.to_string_radix (rdx);
+    let num = format! ("(len = {}) {}", num.len(), num);
+    _msg(&num );
+}
 pub fn __num_2 (cmd: &String) {
     let pow = cmd.replace ("num 2", "").trim_end().trim_start().strn().usize0() as u32;
     errMsg0(&pow.to_string() );
@@ -566,7 +585,7 @@ pub fn Set_NPF () {
     set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
-                {format! ("Sorry, Dear User, no solution found - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ")};
+                {format! ("Sorry, Dear User, no solution found Q: {}, P: {} - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ", ret.0, ret.1)};
     errMsg0 (ret.as_str());
 }
 impl std::fmt::Display for product_form {

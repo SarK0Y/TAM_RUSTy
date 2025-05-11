@@ -287,7 +287,7 @@ pub unsafe fn npf_cross_road (n: rugint, X: &mut init_form, Y: &mut init_form) -
 pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
-    dbg! (&X);
+    //dbg! (&X);
     if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end {fn_name} {}", X.log2_head() ); return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
@@ -314,7 +314,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
                 mark_positive_results.push ( take_pair (i, X.clone(), Y.clone()) ); mark_j = i;
             };
         }
-        if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
+       // if mark_positive_results.len() > 0 { dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.pop() {
