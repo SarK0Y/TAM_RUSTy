@@ -288,7 +288,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     let fn_name = "cross road lock".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name.clone() );
     //dbg! (&X);
-    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) {println! ("Dead end {fn_name} {}", X.log2_head() ); return ret;}
+    if !crate::faav::npf_bar (X.log2_head().try_into().unwrap(), None) { /* println! ("Dead end {fn_name} {}", X.log2_head() ); */ return ret;}
     let mut X_tst = vec_init_form { 0: Vec::new() };
     let mut Y_tst = vec_init_form { 0: Vec::new() };
     let mut mark_positive_results = Vec:: <(init_form, init_form, usize)>::new();
@@ -349,7 +349,7 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
     }
     label!("Exit_cross_road_lock");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
-    println! ("Exit_cross_road_lock");
+    println! ("Exit_cross_road_lock {}", X.log2_head() );
     return ret
 }
 pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
