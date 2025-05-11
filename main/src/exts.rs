@@ -40,6 +40,8 @@ mod extra_math;
 mod goto;
 #[path = "extra/lex.rs"]
 mod lex;
+#[path = "extra/npf_ext.rs"]
+mod npf_ext;
 #[cfg(not(feature = "npf_dbg")) ]
 #[path = "extra/npf.rs"]
 mod npf;
