@@ -578,7 +578,7 @@ pub fn Set_NPF () {
     set_prnt (&num_str, 479541533);
     let ret = unsafe { npf (num) };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
-                {format! ("Sorry, Dear User, no solution found - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ")};
+                {format! ("Sorry, Dear User, no solution found Q: {}, P: {} - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ", ret.0, ret.1)};
     errMsg0 (ret.as_str());
 }
 impl std::fmt::Display for product_form {
