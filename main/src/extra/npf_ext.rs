@@ -18,6 +18,14 @@ pub const PREC: u64 = 8192;
     *a *= *b.clone();
     return *a * *b;
 }*/
+pub struct PQ {
+    pub P: init_form,
+    pub Q: init_form,
+    pub rdx: u32
+}
+impl PQ {
+    pub fn build (P: init_form, Q: init_form, rdx: u32) -> Self { return Self {P, Q, rdx} }
+}
 #[no_mangle]
 pub unsafe fn npf_ext (n: rugint) -> (rugint, rugint, String) {
     let fn_name = "npf ext".strn();
