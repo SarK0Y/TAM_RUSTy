@@ -13,10 +13,10 @@ use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18
 use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
 use crate::goto; //::{label, goto};
 pub const PREC: u64 = 8192;
-type npf_output = (rugint, rugint, String);
+pub type npf_output = (rugint, rugint, String);
 #[derive(Clone, PartialEq)]
-pub struct vec_product_form ( Vec <product_form> );
-pub struct vec_init_form ( Vec <init_form> );
+pub struct vec_product_form ( pub Vec <product_form> );
+pub struct vec_init_form ( pub Vec <init_form> );
 //type vec_init_form = std::vec::Vec <init_form>;
 pub fn over_npf (ret: Option < npf_output>) -> Option <npf_output> {
     static mut state: Lazy < Option <npf_output > > = Lazy::new (|| {None});
@@ -46,37 +46,37 @@ pub struct init_form {
     pub tail: rugint
 }
 impl init_form {
-    fn new () -> init_form {
+   pub fn new () -> init_form {
         return Self {
             head: rugint::from ( 2 ),
             tail: rugint::from (1),
         }
     }
-    fn mk (head: u64, tail: u64) -> init_form {
+   pub fn mk (head: u64, tail: u64) -> init_form {
         return Self {
             head: rugint::from ( head ),
             tail: rugint::from ( tail ),
         }
     }
-    fn nest (&self, rhs: init_form) -> init_form {
+    pub fn nest (&self, rhs: init_form) -> init_form {
         return Self {
             head: self.head.clone() * rhs.head,
             tail: self.head.clone() * rhs.tail + self.tail.clone()
         }
     }
-    fn num1 (&self) -> rugint {
+    pub fn num1 (&self) -> rugint {
         return self.head.clone() + self.tail.clone()
     } 
-    fn num (&self, x: rugint) -> rugint {
+    pub fn num (&self, x: rugint) -> rugint {
         return self.head.clone() * x + self.tail.clone()
     } 
-    fn __2x_plus_1 (&mut self) -> init_form {
+    pub fn __2x_plus_1 (&mut self) -> init_form {
         return self.nest ( init_form::new() )
     }
-    fn __2x (&mut self) -> init_form {
+    pub fn __2x (&mut self) -> init_form {
         return self.nest ( init_form::mk (2, 0) )
     }
-    fn log2_head (&self) -> u32 {
+    pub fn log2_head (&self) -> u32 {
         return self.head.find_one (0).unwrap ()
     }
 }
