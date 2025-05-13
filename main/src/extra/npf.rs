@@ -79,6 +79,7 @@ impl init_form {
     pub fn log2_head (&self) -> u32 {
         return self.head.find_one (0).unwrap ()
     }
+    fn head (&self) -> rugint { return self.head.clone() } 
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) {
@@ -102,6 +103,7 @@ impl product_form {
             tail: rugint::from(0),
         }
     }
+    fn tail(&self) -> rugint { return self.tail.clone() } 
 }
 impl Mul for init_form {
     type Output = product_form;

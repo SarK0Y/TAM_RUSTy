@@ -38,14 +38,14 @@ impl PQ {
         let Q = self.Q.nest (Q);
         return Some (Self {P, Q, nxt: nxt_tail, rdx: self.rdx} )
     }
-    pub fn _1st_iter (&self) -> Option < Self > {
+    pub fn _1st_iter (&self) -> Self {
         let cur_tail = self.nxt.clone();
         let rdx = self.rdx as u64;
         let P = init_form::mk (rdx, cur_tail._1 as u64 );
         let P = self.P.nest (P);
         let Q = init_form::mk (rdx, cur_tail._0 as u64);
         let Q = self.Q.nest (Q);
-        return Some (Self {P, Q, nxt: cur_tail, rdx: self.rdx} )
+        return Self {P, Q, nxt: cur_tail, rdx: self.rdx}
     }
     pub fn Q (&self) -> init_form {return self.Q.clone () }
     pub fn P (&self) -> init_form {return self.P.clone () }
@@ -68,31 +68,28 @@ impl iter_tail {
     pub fn reset (&mut self) { self._1 = 0; self._0 = 0; }
     pub fn null (&mut self) -> Self { self._1 = 0; self._0 = 0; return self.clone () }
 }
+#[derive(Clone, PartialEq)]
+pub struct vec_PQ ( pub Vec < PQ > );
 #[no_mangle]
 pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
     let fn_name = "npf ext".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
     let mut pq: PQ = PQ::new (rdx);
     let mut mark_j = 711_usize;
-    let mut finally = vec_product_form { 0: Vec::new() };
+    let mut finally = vec_PQ { 0: Vec::<PQ>::new() };
+    let mut mark_positive_results = Vec:: <usize>::new();
     let n_ = format! ("{n}");
    // errMsg0 (n_.as_str());
     while X.num1 () * Y.num1 () < n {
-    dbg!(&X); dbg! (&Y);
-        X_tst.push ( X.nest ( init0.clone() ) );
-        X_tst.push ( X.nest ( init.clone() ) );
-        Y_tst.push ( Y.nest ( init0.clone() ) );
-        Y_tst.push ( Y.nest ( init.clone() ) );
-        finally.0.push (X_tst [0].clone() * Y_tst [0].clone()); // even-even
-        finally.0.push (X_tst [1].clone() * Y_tst [1].clone()); // odd-odd
-        finally.0.push (X_tst [1].clone() * Y_tst [0].clone()); // odd-even
-         let tst = n.clone() % X_tst[0].head.clone();
-         dbg!(&tst);
-        if X.tail != Y.tail { finally.0.push (X_tst [0].clone() * Y_tst [1].clone() ); /* even-odd */ }
+        pq.nxt = pq.nxt.null();
+        finally.0.push ( pq._1st_iter() );
+        while let Some (next) = pq.after() { finally.0.push (next ) }
+        let head = finally.0 [0].head();
          //dbg!(&finally);
          println! ("&&finally = \n {}", finally);
         for i in 0..finally.0.len() {
-            if (n.clone() - finally.0[i].tail.clone() ) % X_tst [0].head.clone() == 0 {mark_positive_results.push ( i ); mark_j = i;};
+            let product = finally.0[i].product ();
+            if (n.clone() - product.tail() ) % head == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
         if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), &mut X, &mut Y ); goto! ("End_npf_ext"); };
         match mark_j {
