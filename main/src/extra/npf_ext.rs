@@ -22,19 +22,20 @@ pub const PREC: u64 = 8192;
 pub struct PQ {
     pub P: init_form,
     pub Q: init_form,
+    pub nxt: iter_tail,
     pub rdx: u32
 }
 impl PQ {
-    pub fn build (P: init_form, Q: init_form, rdx: u32) -> Self { return Self {P, Q, rdx} }
-    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (rdx.into(), 0), Q: init_form::mk (rdx as u64, 0), rdx} }
+    pub fn build (P: init_form, Q: init_form, rdx: u32) -> Self { return Self {P, Q, nxt: iter_tail::new (rdx), rdx} }
+    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (rdx.into(), 0), Q: init_form::mk (rdx as u64, 0), nxt: iter_tail::new(rdx), rdx} }
 }
 #[derive(Clone, PartialEq)]
-pub struct npf_tail {
+pub struct iter_tail {
     pub _0: u32,
     pub _1: u32,
     pub rdx: u32
 }
-impl npf_tail {
+impl iter_tail {
     pub fn new (rdx: u32) -> Self {return Self {_0: 0, _1: 0, rdx} }
     pub fn next (&self ) -> Option < Self > {
         if self._0 == self._1 && self._1 == self.rdx - 1 { return None }
