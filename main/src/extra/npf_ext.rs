@@ -26,8 +26,18 @@ pub struct PQ {
     pub rdx: u32
 }
 impl PQ {
-    pub fn build (P: init_form, Q: init_form, rdx: u32) -> Self { return Self {P, Q, nxt: iter_tail::new (rdx), rdx} }
+    pub fn build (P: init_form, Q: init_form, nxt: iter_tail, rdx: u32) -> Self { return Self {P, Q, nxt, rdx} }
     pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (rdx.into(), 0), Q: init_form::mk (rdx as u64, 0), nxt: iter_tail::new(rdx), rdx} }
+    pub fn after (&self) -> Option < Self > {
+        let nxt_tail = self.nxt.next();
+        let nxt_tail = if nxt_tail.is_none () { return None } else { nxt_tail.unwrap () };
+        let rdx = self.rdx as u64;
+        let P = init_form::mk (rdx, nxt_tail._1 as u64 );
+        let P = self.P.nest (P);
+        let Q = init_form::mk (rdx, nxt_tail._0 as u64);
+        let Q = self.Q.nest (Q);
+        return Some (Self {P, Q, nxt: nxt_tail, rdx: self.rdx} )
+    }
 }
 #[derive(Clone, PartialEq)]
 pub struct iter_tail {
@@ -41,7 +51,7 @@ impl iter_tail {
         if self._0 == self._1 && self._1 == self.rdx - 1 { return None }
         let mut ret = self.clone () ;
         if self._0 < self.rdx - 1 {ret._0 += 1; return Some (ret )}
-        else {ret._1 += 1; return Some (ret) }
+        else {ret._1 += 1; ret._0 = 0; return Some (ret) }
     }
 }
 #[no_mangle]
