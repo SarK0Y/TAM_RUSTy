@@ -47,6 +47,9 @@ impl PQ {
         let Q = self.Q.nest (Q);
         return Some (Self {P, Q, nxt: cur_tail, rdx: self.rdx} )
     }
+    pub fn Q (&self) -> init_form {return self.Q.clone () }
+    pub fn P (&self) -> init_form {return self.P.clone () }
+    pub fn product (&self) -> product_form { return self.P() * self.Q() }
 }
 #[derive(Clone, PartialEq)]
 pub struct iter_tail {
