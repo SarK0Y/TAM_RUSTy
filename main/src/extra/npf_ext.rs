@@ -53,6 +53,8 @@ impl iter_tail {
         if self._0 < self.rdx - 1 {ret._0 += 1; return Some (ret )}
         else {ret._1 += 1; ret._0 = 0; return Some (ret) }
     }
+    pub fn reset (&mut self) { self._1 = 0; self._0 = 0; }
+    pub fn null (&mut self) -> Self { self._1 = 0; self._0 = 0; return self.clone () }
 }
 #[no_mangle]
 pub unsafe fn npf_ext (n: rugint) -> (rugint, rugint, String) {
