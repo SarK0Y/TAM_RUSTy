@@ -315,25 +315,25 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
             };
         }
         if mark_positive_results.len() > 0 {dbg! (&mark_positive_results); println!("X_tst {}", X_tst); }
-        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock");} 
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_cross_road_lock_dbg");} 
         if mark_positive_results.len() > 1 {
             while let Some(XY) = mark_positive_results.pop() {
                 //dbg! (&mark_positive_results);
-                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock_dbg");}
                 let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
-                if ret.0 > 1 { goto!("Exit_cross_road_lock");}
+                if ret.0 > 1 { goto!("Exit_cross_road_lock_dbg");}
                 ret = npf_cross_road_lock (n.clone (), &mut XY.0.clone(), &mut XY.1.clone(), 0 );
             }
         } else {
                 dbg!("one hit");
                 let XY = mark_positive_results.pop().unwrap();
-                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock");}
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_cross_road_lock_dbg");}
                 let cur_ret = unsafe {check_match_div (&n, &XY.0, &XY.1 ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
-                if ret.0 > 1 { goto!("Exit_cross_road_lock");}
+                if ret.0 > 1 { goto!("Exit_cross_road_lock_dbg");}
         }
         match mark_j {
             0 => {*X = X_tst.0 [0].clone(); *Y = Y_tst.0 [0].clone()},
@@ -347,9 +347,9 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         Y_tst.0.clear ();
         finally.0.clear ();
     }
-    label!("Exit_cross_road_lock");
+    label!("Exit_cross_road_lock_dbg");
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
-    println! ("Exit_cross_road_lock");
+    println! ("Exit_cross_road_lock_dbg");
     return ret
 }
 pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
