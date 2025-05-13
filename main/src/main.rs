@@ -438,7 +438,16 @@ fn main (){
  #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
  SYS();
     }
-    if cfg!(feature="in_dbg"){println!("feature in_dbg been activated"); getkey();};
+    clear_screen();
+    if cfg!(feature="in_dbg"){println!("feature in_dbg been activated");};
+     for (key, value) in env::vars() {
+        if key.starts_with("npf_") {
+            println!("{}: {:?}", key, value);
+        }
+    }
+    crate::info::info1();
+    //let ft = "feature=npf_dbg".strn();
+   // if cfg!(ft.as_str()){println!("feature {ft} been activated"); getkey();};
    //initSession();
    if checkArg("-ver") || checkArg("-version") || checkArg("--version"){initSession(); info(); SYS();}
    if checkArg("-rilocan"){initSession(); rilocan(); return;}

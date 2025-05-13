@@ -46,7 +46,7 @@ my the Best Wishes to You 🙃
 #[cfg(feature = "mae")]
 const LICENSE_MAE: &str =
     "🠳 License/Agreement for Mademoiselle Entropia 🠳\n Price for Personal usage: $0.78 per month.\n
- Price for commercial usage: $7.13.\n
+ Price for commercial usage: $7.13 per month.\n
 Or just Your Soul 😇😜\n my the Best Wishes to You 🙃";
 
 const donate: &str = "Donations: https://boosty.to/alg0z/donate https://zap-hosting.com/en/shop/donation/1f0c83845d810df04ca74e56238399f7/";
@@ -86,7 +86,7 @@ pub(crate) fn info() {
     banner(280);
 }
 pub(crate) fn info1() {
-    clear_screen();
+   // clear_screen();
     {
         crate::be_silent(true, true);
         crate::dont_scrn_fix(true);

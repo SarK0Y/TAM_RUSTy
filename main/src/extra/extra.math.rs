@@ -569,6 +569,18 @@ impl PowItFloat for BigFloat {
         } ret
     }
 }
+pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
+    let mut residue = 1u32;
+    let mut conv: Vec <u32> = Vec::new();
+    let mut rdx = rdx;
+    let mut num = num;
+    while num > 0 {
+        residue = num % rdx;
+        conv.push ( residue );
+        num -= residue;
+        num /= rdx;
+    } return conv
+}
 //fn
 // 9999999999999999999999999999999
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x

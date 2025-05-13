@@ -59,6 +59,22 @@ pub fn npf_lock (state: Option < bool >) -> bool {
         } return lock.clone()
     }
 }
+pub fn npf_split (state: Option < bool >) -> bool {
+    static mut yes: bool = false;
+    unsafe {
+        if let Some (x) = state { 
+            yes = x; return yes.clone();
+        } return yes.clone()
+    }
+}
+pub fn npf_sq (state: Option < bool >) -> bool {
+    static mut yes: bool = false;
+    unsafe {
+        if let Some (x) = state { 
+            yes = x; return yes.clone();
+        } return yes.clone()
+    }
+}
 pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
     static mut max_id: usize = 0;
     unsafe {
@@ -66,7 +82,7 @@ pub fn npf_bar ( bit_id: usize, ceil: Option < usize >) -> bool {
             let prev = max_id;
             max_id = x; 
             let msg = format! ("max bit_id {}", x);
-           if prev > 0 { _msg (&msg); } return true;
+            if prev > 0 { _msg (&msg); } return true;
         }
         if bit_id > max_id { return false; } return true;
     }

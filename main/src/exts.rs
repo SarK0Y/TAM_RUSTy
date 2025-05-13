@@ -35,11 +35,19 @@ mod kcode01;
 mod snd;
 #[path = "extra/extra.math.rs"]
 mod extra_math;
-#[macro_use]
 #[path = "extra/goto.rs"]
+#[macro_use]
 mod goto;
+#[path = "extra/lex.rs"]
+mod lex;
+#[cfg(not(feature = "npf_dbg")) ]
 #[path = "extra/npf.rs"]
 mod npf;
+#[cfg(feature = "npf_dbg")]
+#[path = "extra/npf.dbg.rs"]
+mod npf;
+#[path = "extra/npf_ext.rs"]
+mod npf_ext;
 #[path = "custom.dft_idft.rs"]
 mod cdsp;
 #[path = "custom_math.rs"]
