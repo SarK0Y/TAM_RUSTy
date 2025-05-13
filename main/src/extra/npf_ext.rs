@@ -38,6 +38,15 @@ impl PQ {
         let Q = self.Q.nest (Q);
         return Some (Self {P, Q, nxt: nxt_tail, rdx: self.rdx} )
     }
+    pub fn _1st_iter (&self) -> Option < Self > {
+        let cur_tail = self.nxt.clone();
+        let rdx = self.rdx as u64;
+        let P = init_form::mk (rdx, cur_tail._1 as u64 );
+        let P = self.P.nest (P);
+        let Q = init_form::mk (rdx, cur_tail._0 as u64);
+        let Q = self.Q.nest (Q);
+        return Some (Self {P, Q, nxt: cur_tail, rdx: self.rdx} )
+    }
 }
 #[derive(Clone, PartialEq)]
 pub struct iter_tail {
