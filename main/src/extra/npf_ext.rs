@@ -180,7 +180,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
     label!("Exit_npf_long_bush");
     let X = pq.P();
     let Y = pq.Q();
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if X.tail () * Y.tail () == n {ret.0 = X.tail (); ret.1 = Y.tail () }
     return ret
 }
 pub fn npf_recursion_lock (n: rugint, pq: PQ ) -> npf_output {
