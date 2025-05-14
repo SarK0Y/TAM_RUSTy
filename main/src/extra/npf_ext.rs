@@ -122,7 +122,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), pq._a() ); goto! ("End_npf_low_bush"); };
+        if mark_positive_results.len() > 1 {ret = npf_low_bush (n.clone (), pq._a(), 0 ); goto! ("End_npf_low_bush"); };
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
@@ -152,7 +152,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), pq._a() ); goto! ("End_npf_long_bush"); };
+        if mark_positive_results.len() > 1 {ret = npf_long_bush (n.clone (), pq._a(), split + 1 ); goto! ("End_npf_long_bush"); };
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
