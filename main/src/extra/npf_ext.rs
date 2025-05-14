@@ -152,12 +152,22 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {ret = npf_long_bush (n.clone (), pq._a(), split + 1 ); goto! ("End_npf_long_bush"); };
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_npf_long_bush");} 
+        if mark_positive_results.len() > 1 {
+            while let Some(j) = mark_positive_results.iter().next() {
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_npf_long_bush");}
+                let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_npf_long_bush");}
+                ret = npf_long_bush (n.clone (), pq._a(), 0 );
+            }
+        }
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
     }
-    label!("End_npf_long_bush");
+    label!("Exit_npf_long_bush");
     let X = pq.P();
     let Y = pq.Q();
     if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
@@ -173,8 +183,8 @@ let mut pq_ =pq.clone();
     let mut thr = std::thread::spawn ( move || {
         println! ("Run npf_recursion_lock");
         let ret: npf_output = unsafe { if !crate::faav::npf_split( None ) {
-                npf_low_bush (n.clone(), pq_, 0 )
-            }  else { npf_low_bush (n.clone(), pq_, 0 ) }
+                npf_low_bush (n.clone(), pq_._a(), 0 )
+            }  else { npf_low_bush (n.clone(), pq_._a(), 0 ) }
         };
         over_npf (Some (ret.clone () ));
     });
