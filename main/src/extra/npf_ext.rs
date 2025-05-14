@@ -81,7 +81,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
     let mut mark_positive_results = Vec:: <usize>::new();
     let n_ = format! ("{n}");
    // errMsg0 (n_.as_str());
-    while pq.Q.num1 () * pq.P.num1 () < n {
+    while pq.Q.tail () * pq.P.tail () < n {
         pq.nxt = pq.nxt.null();
         finally.0.push ( pq._1st_iter() );
         while let Some (next) = pq.after() { finally.0.push (next ) }
@@ -100,7 +100,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
     label!("End_npf_ext");
     let X = pq.P();
     let Y = pq.Q();
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if X.tail () * Y.tail () == n {ret.0 = X.tail (); ret.1 = Y.tail()}
     return ret
 }
 pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rugint, String) {
@@ -111,7 +111,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
     let mut mark_positive_results = Vec:: <usize>::new();
     let n_ = format! ("{n}");
    // errMsg0 (n_.as_str());
-    while pq.Q.num1 () * pq.P.num1 () < n {
+    while pq.Q.tail () * pq.P.tail () < n {
         pq.nxt = pq.nxt.null();
         finally.0.push ( pq._1st_iter() );
         while let Some (next) = pq.after() { finally.0.push (next ) }
@@ -151,7 +151,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
     let mut mark_positive_results = Vec:: <usize>::new();
     let n_ = format! ("{n}");
    // errMsg0 (n_.as_str());
-    while pq.Q.num1 () * pq.P.num1 () < n {
+    while pq.Q.tail () * pq.P.tail () < n {
         pq.nxt = pq.nxt.null();
         finally.0.push ( pq._1st_iter() );
         while let Some (next) = pq.after() { finally.0.push (next ) }
