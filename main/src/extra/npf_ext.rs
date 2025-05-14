@@ -28,7 +28,7 @@ pub struct PQ {
 impl PQ {
     pub fn build (P: init_form, Q: init_form, nxt: iter_tail, rdx: u32) -> Self { return Self {P, Q, nxt, rdx} }
     pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (rdx.into(), 0), Q: init_form::mk (rdx as u64, 0), nxt: iter_tail::new(rdx), rdx} }
-    pub fn after (&self) -> Option < Self > {
+    pub fn after (&mut self) -> Option < Self > {
         let nxt_tail = self.nxt.next();
         let nxt_tail = if nxt_tail.is_none () { return None } else { nxt_tail.unwrap () };
         let rdx = self.rdx as u64;
@@ -60,11 +60,11 @@ pub struct iter_tail {
 }
 impl iter_tail {
     pub fn new (rdx: u32) -> Self {return Self {_0: 0, _1: 0, rdx} }
-    pub fn next (&self ) -> Option < Self > {
-        if self._0 == self._1 && self._1 == self.rdx - 1 { return None }
+    pub fn next (&mut self ) -> Option < Self > {
+        if self._0 == self._1 && self._1 == self.rdx - 1 { self.reset (); return None }
         let mut ret = self.clone () ;
-        if self._0 < self.rdx - 1 {ret._0 += 1; return Some (ret )}
-        else {ret._1 += 1; ret._0 = 0; return Some (ret) }
+        if self._0 < self.rdx - 1 {ret._0 += 1; *self = ret.clone(); return Some (ret )}
+        else {ret._1 += 1; ret._0 = 0; *self = ret.clone(); return Some (ret) }
     }
     pub fn reset (&mut self) { self._1 = 0; self._0 = 0; }
     pub fn null (&mut self) -> Self { self._1 = 0; self._0 = 0; return self.clone () }
