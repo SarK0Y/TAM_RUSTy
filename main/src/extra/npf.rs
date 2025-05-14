@@ -80,6 +80,7 @@ impl init_form {
         return self.head.find_one (0).unwrap ()
     }
     pub fn head (&self) -> rugint { return self.head.clone() } 
+    pub fn tail (&self) -> rugint { return self.tail.clone() } 
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) {

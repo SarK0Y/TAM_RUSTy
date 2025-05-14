@@ -122,15 +122,25 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
-        if mark_positive_results.len() > 1 {ret = npf_low_bush (n.clone (), pq._a(), 0 ); goto! ("End_npf_low_bush"); };
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_npf_low_bush");} 
+        if mark_positive_results.len() > 1 {
+            while let Some(j) = mark_positive_results.iter().next() {
+                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_npf_low_bush");}
+                let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
+                ret.0 = cur_ret.0;
+                ret.1 = cur_ret.1;
+                if ret.0 > 1 { goto!("Exit_npf_low_bush");}
+                ret = npf_low_bush (n.clone (), pq._a(), 0 );
+            }
+        }
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
     }
-    label!("End_npf_low_bush");
+    label!("Exit_npf_low_bush");
     let X = pq.P();
     let Y = pq.Q();
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if X.tail () * Y.tail () == n {ret.0 = X.tail (); ret.1 = Y.tail()}
     return ret
 }
 pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rugint, String) {
