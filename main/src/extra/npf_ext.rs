@@ -213,19 +213,14 @@ pub fn __check_match_div (n: &rugint, pq: &PQ) -> (rugint, rugint) {
     loop {
         div = check_div (&n, X.tail.clone() ); 
         if div > 1 && div < *n { res = 0; break }
-        div = check_div (&n, X.num1().clone() ); 
-        if div > 1 && div < *n { res = 1; break }
         div = check_div (&n, Y.tail.clone() ); 
         if div > 1 && div < *n { res = 2; break }
-        div = check_div (&n, Y.num1().clone() ); 
-        if div > 1 && div < *n { res = 3; break } break;
+        break;
     }
     if div > 1 && div < *n { dbg! (&div ); crate::faav::npf_lock (Some (true)); }
     match res {
         0 => {return (div.clone(), X.tail.clone() );},
-        1 => {return (div.clone(), X.num1().clone() )},
         2 => {return (div.clone(), Y.tail.clone() )},
-        3 => {return (div.clone(), Y.num1().clone() )},
         _ => {return (__1.clone(), __1) }
     }
 }
