@@ -12,7 +12,7 @@ use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
 use crate::goto; //::{label, goto};
-use crate::npf::{init_form, product_form, vec_product_form, vec_init_form, over_npf, npf_output, Nstr};
+use crate::npf::{init_form, product_form, vec_product_form, vec_init_form, over_npf, npf_output, Nstr, check_div};
 pub const PREC: u64 = 8192;
 /*pub fn tst (a: &init_form, b: &init_form) -> product_form {
     *a *= *b.clone();
@@ -184,7 +184,9 @@ pub fn max_tail_match (pf: &product_form) -> usize {
     let tail_str = pf.tail.to_string_radix (2);
     if Nstr (None).unwrap ().contains (&tail_str) { return tail_str.len () } return 0
 }
-pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, rugint) {
+pub fn __check_match_div (n: &rugint, pq: &PQ) -> (rugint, rugint) {
+    let X = &pq.Q;
+    let Y = &pq.P;
     let __1 = rugint::from (1);
     let mut res= 700usize;
     let mut div = __1.clone();
@@ -206,10 +208,6 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
         3 => {return (div.clone(), Y.num1().clone() )},
         _ => {return (__1.clone(), __1) }
     }
-}
-pub fn check_div (n: &rugint, div: rugint ) -> rugint {
-    let __1 = rugint::from (1);
-    if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
 }
 //fn
 /*
