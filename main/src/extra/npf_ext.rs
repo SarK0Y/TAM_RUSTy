@@ -130,7 +130,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_npf_low_bush");}
-                ret = npf_low_bush (n.clone (), pq._a(), 0 );
+                ret = npf_low_bush (n.clone (), finally.0 [*j]._a(), 0 );
             }
         }
         pq = finally.0 [mark_j]._a();
@@ -170,7 +170,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_npf_long_bush");}
-                ret = npf_long_bush (n.clone (), pq._a(), 0 );
+                ret = npf_long_bush (n.clone (), finally.0 [*j]._a() , 0 );
             }
         }
         pq = finally.0 [mark_j]._a();
