@@ -134,6 +134,10 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
             }
         }
         pq = finally.0 [mark_j]._a();
+        let cur_ret = unsafe {__check_match_div (&n, &pq ) };
+        ret.0 = cur_ret.0;
+        ret.1 = cur_ret.1;
+        if ret.0 > 1 { goto!("Exit_npf_low_bush");}
         mark_positive_results.clear();
         finally.0.clear ();
     }
@@ -174,6 +178,10 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
             }
         }
         pq = finally.0 [mark_j]._a();
+        let cur_ret = unsafe {__check_match_div (&n, &pq ) };
+        ret.0 = cur_ret.0;
+        ret.1 = cur_ret.1;
+        if ret.0 > 1 { goto!("Exit_npf_long_bush");}
         mark_positive_results.clear();
         finally.0.clear ();
     }
