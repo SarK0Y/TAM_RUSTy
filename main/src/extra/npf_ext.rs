@@ -125,7 +125,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_npf_low_bush");} 
         if mark_positive_results.len() > 1 {
             while let Some(j) = mark_positive_results.iter().next() {
-                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_npf_low_bush");}
+                if crate::faav::npf_lock (None) {println! ("NPF ext gets locked"); goto!("Exit_npf_low_bush");}
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
@@ -165,7 +165,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_npf_long_bush");} 
         if mark_positive_results.len() > 1 {
             while let Some(j) = mark_positive_results.iter().next() {
-                if crate::faav::npf_lock (None) {println! ("NPF gets locked"); goto!("Exit_npf_long_bush");}
+                if crate::faav::npf_lock (None) {println! ("NPF ext gets locked"); goto!("Exit_npf_long_bush");}
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
