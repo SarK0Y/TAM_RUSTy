@@ -490,6 +490,7 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
 }
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     let __1 = rugint::from (1);
+    if div == 0 { return __1 }
     if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
 }
 pub fn show_npf_split_mode () {
@@ -576,11 +577,13 @@ pub fn num_x( x: rugint) {
 }
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
+    use crate::npf_ext::npf_ext;
     let prnt = get_prnt (1001876412);
     let prnt = prnt.replace("npf ", "").trim_end().trim_start().strn();
-    let (base, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
-    let base = base.replace(",", "");
-    let base: u32 = if base == "" { 0 } else {
+    let (mut base, mut num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if base == "" && num == "" { num = prnt.clone(); }
+    base = base.replace(",", "");
+    let base: u32 = if num == "" { num = base; base = "".strn(); 0 } else {
         let __0 = rugint::parse ("0" ).unwrap();
         let base = rugint::parse (base).unwrap_or(__0).complete().to_u32 ().unwrap_or (0);
         base
@@ -592,7 +595,8 @@ pub fn Set_NPF () {
     let mut num = num.unwrap().complete ();
     let num_str = if base == 0 { format! ("npf {num}") } else { format! ("npf {base} {num}") };
     set_prnt (&num_str, 479541533);
-    let ret = unsafe { npf (num) };
+    dbg! (&base);
+    let ret = if base == 0 { unsafe { npf (num) } } else { unsafe { npf_ext (num, base) } };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
                 {format! ("Sorry, Dear User, no solution found Q: {}, P: {} - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ", ret.0, ret.1)};
     errMsg0 (ret.as_str());

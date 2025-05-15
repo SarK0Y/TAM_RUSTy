@@ -92,6 +92,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
+        if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("End_npf_ext");} 
         if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), pq._a() ); goto! ("End_npf_ext"); };
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
