@@ -106,6 +106,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
 pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rugint, String) {
     let fn_name = "npf low bush".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    if !crate::faav::npf_bar (pq.Q.log2_head().try_into().unwrap(), None) { return ret;}
     let mut mark_j = 711_usize;
     let mut finally = vec_PQ { 0: Vec::<PQ>::new() };
     let mut mark_positive_results = Vec:: <usize>::new();
@@ -150,6 +151,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
 pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rugint, String) {
     let fn_name = "npf long bush".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
+    if !crate::faav::npf_bar (split, None) { return ret;}
     let mut mark_j = 711_usize;
     let mut finally = vec_PQ { 0: Vec::<PQ>::new() };
     let mut mark_positive_results = Vec:: <usize>::new();
