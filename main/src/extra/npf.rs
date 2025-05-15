@@ -68,7 +68,7 @@ impl init_form {
         return self.head.clone() + self.tail.clone()
     } 
     pub fn num (&self, x: rugint) -> rugint {
-        return self.head.clone() * x + self.tail.clone()
+        return self.head() * x + self.tail()
     } 
     pub fn __2x_plus_1 (&mut self) -> init_form {
         return self.nest ( init_form::new() )
@@ -351,7 +351,10 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         finally.0.clear ();
     }
     label!("Exit_cross_road_lock");
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()} return ret
+    let X = X.tail ();
+    let Y = Y.tail ();
+    dbg! (&X); dbg! (&Y);
+    if X.clone() * Y.clone() == n {ret.0 = X; ret.1 = Y } return ret
    // println! ("Exit_cross_road_lock {}", X.log2_head() );
 }
 pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
@@ -412,7 +415,7 @@ pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_f
         finally.0.clear ();
     }
     label!("Exit_cross_road_split");
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if X.tail () * Y.tail() == n {ret.0 = X.tail (); ret.1 = Y.tail()}
     println! ("Exit_cross_road_split");
     return ret
 }

@@ -87,13 +87,13 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
         while let Some (next) = pq.after() { finally.0.push (next ) }
         let a = &finally.0 [0].Q;
          //dbg!(&finally);
-         println! ("&&finally = \n {:?}", finally);
+         println! ("{}{}: &&finally = \n {:?}", file!(), line!(), finally);
         for i in 0..finally.0.len() {
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("End_npf_ext");} 
-        if mark_positive_results.len() > 1 {ret = npf_recursion_lock (n.clone (), pq._a() ); goto! ("End_npf_ext"); };
+        if mark_positive_results.len() > 1 {ret = npf_recursion_ext (n.clone (), pq._a() ); goto! ("End_npf_ext"); };
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
@@ -119,7 +119,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
         while let Some (next) = pq.after() { finally.0.push (next ) }
         let a = &finally.0 [0].Q;
          //dbg!(&finally);
-         println! ("&&finally = \n {:?}", finally);
+         println! ("{}{}: &&finally = \n {:?} len = {}", file!(), line!(), finally, finally.0.len());
         for i in 0..finally.0.len() {
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
@@ -164,7 +164,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
         while let Some (next) = pq.after() { finally.0.push (next ) }
         let a = &finally.0 [0].Q;
          //dbg!(&finally);
-         println! ("&&finally = \n {:?}", finally);
+         println! ("{}{}: &&finally = \n {:?} len = {}", file!(), line!(), finally, finally.0.len());
         for i in 0..finally.0.len() {
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
@@ -194,11 +194,10 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
     if X.tail () * Y.tail () == n {ret.0 = X.tail (); ret.1 = Y.tail () }
     return ret
 }
-pub fn npf_recursion_lock (n: rugint, pq: PQ ) -> npf_output {
-let ret0: npf_output = unsafe { if !crate::faav::npf_split( None ) {
-                npf_low_bush (n.clone(), pq._a(), 0 )
-            }  else { npf_long_bush (n.clone(), pq._a(), 0 ) }
-        };
+pub fn npf_recursion_ext (n: rugint, pq: PQ ) -> npf_output {
+let ret0: npf_output = if crate::faav::npf_split( None ) == false {
+               unsafe { npf_low_bush (n.clone(), pq._a(), 0 ) }
+            }  else { unsafe { npf_long_bush (n.clone(), pq._a(), 0 ) } };
 if crate::faav::npf_lock (None) {println! ("End npf_recursion_lock"); return ret0;}
 let mut pq_ =pq.clone();
     let mut thr = std::thread::spawn ( move || {

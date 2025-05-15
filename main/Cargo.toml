@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.373"
+version = "13.11.374"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -43,7 +43,7 @@ midly = {version = "0.5.3", features=["std"]}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
-rug = {version = "1.2.7", features = ["integer", "float", "std"]}
+rug = {version = "1.25.0", features = ["integer", "float", "std"]}
 malachite = {version = "0.4.22"}
 malachite-float = {version = "0.4.22"}
 malachite-q = {version = "0.4.22"}
