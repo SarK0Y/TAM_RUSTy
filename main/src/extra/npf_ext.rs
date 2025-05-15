@@ -204,7 +204,7 @@ let mut pq_ =pq.clone();
         println! ("Run npf_recursion_lock");
         let ret: npf_output = unsafe { if !crate::faav::npf_split( None ) {
                 npf_low_bush (n.clone(), pq_._a(), 0 )
-            }  else { npf_low_bush (n.clone(), pq_._a(), 0 ) }
+            }  else { npf_long_bush (n.clone(), pq_._a(), 0 ) }
         };
         over_npf (Some (ret.clone () ));
     });
