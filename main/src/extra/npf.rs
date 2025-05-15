@@ -581,8 +581,8 @@ pub fn Set_NPF () {
     let (base, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
     let base = base.replace(",", "");
     let base: u32 = if base == "" { 0 } else {
-        let __1 = rugint::parse ("1" ).unwrap();
-        let base = rugint::parse (base).unwrap_or(__1).complete().to_u32 ().unwrap_or (0);
+        let __0 = rugint::parse ("0" ).unwrap();
+        let base = rugint::parse (base).unwrap_or(__0).complete().to_u32 ().unwrap_or (0);
         base
     };
     if num == "" {errMsg0 ("proper command: npf <Your number> or npf <base/radix> <Your number>"); return}
