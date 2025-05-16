@@ -27,7 +27,7 @@ pub struct PQ {
 }
 impl PQ {
     pub fn build (P: init_form, Q: init_form, nxt: iter_tail, rdx: u32) -> Self { return Self {P, Q, nxt, rdx} }
-    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (rdx.into(), 0), Q: init_form::mk (rdx as u64, 0), nxt: iter_tail::new(rdx), rdx} }
+    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (1, 0), Q: init_form::mk (1, 0), nxt: iter_tail::new(rdx), rdx} }
     pub fn after (&mut self) -> Option < Self > {
         let nxt_tail = self.nxt.next();
         let nxt_tail = if nxt_tail.is_none () { return None } else { nxt_tail.unwrap () };
@@ -90,6 +90,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
          println! ("{}{}: &&finally = \n {:?}", file!(), line!(), finally);
         for i in 0..finally.0.len() {
             let product = finally.0[i].product ();
+            dbg! (&product);
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("End_npf_ext");} 
@@ -131,7 +132,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
-                if ret.0 > 1 { goto!("Exit_npf_low_bush");}
+                if ret.0 > 1 || ret.0 == n.clone() || ret.1 == n.clone() { goto!("Exit_npf_low_bush");}
                 ret = npf_low_bush (n.clone (), finally.0 [*j]._a(), 0 );
             }
         }
@@ -176,7 +177,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
-                if ret.0 > 1 { goto!("Exit_npf_long_bush");}
+                if ret.0 > 1 || ret.0 == n.clone() || ret.1 == n.clone() { goto!("Exit_npf_long_bush");}
                 ret = npf_long_bush (n.clone (), finally.0 [*j]._a() , 0 );
             }
         }

@@ -492,9 +492,10 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
     }
 }
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
-    let __1 = rugint::from (1);
-    if div == 0 { return __1 }
-    if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
+    if div == 0 { let __1 = rugint::from (1); return __1 }
+    dbg! (&div);
+    if n.clone() % div.clone() == 0 { return n / div }
+    else {return n.clone().gcd ( &div )}
 }
 pub fn show_npf_split_mode () {
     let status = faav::npf_split( None );
