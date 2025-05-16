@@ -493,7 +493,6 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
 }
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
     if div == 0 { let __1 = rugint::from (1); return __1 }
-    dbg! (&div);
     if n.clone() % div.clone() == 0 { return n / div }
     else {return n.clone().gcd ( &div )}
 }

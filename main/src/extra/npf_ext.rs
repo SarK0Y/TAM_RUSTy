@@ -98,6 +98,7 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
         let cur_ret = unsafe {__check_match_div (&n, &finally.0 [mark_j] ) };
         ret.0 = cur_ret.0;
         ret.1 = cur_ret.1;
+        dbg! (&ret);
         if ret.0 > 1 { goto!("End_npf_ext");}
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
@@ -133,10 +134,16 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
         if mark_positive_results.len() > 1 {
             while let Some(j) = mark_positive_results.iter().next() {
                 if crate::faav::npf_lock (None) {println! ("NPF ext gets locked"); goto!("Exit_npf_low_bush");}
+                dbg! (&finally.0 [*j].product().tail());
+                dbg! (&finally.0 [*j].Q.tail());
+                dbg! (&finally.0 [*j].P.tail());
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
                 if ret.0 > 1 { goto!("Exit_npf_low_bush");}
+            }
+            while let Some(j) = mark_positive_results.iter().next() {
+                if crate::faav::npf_lock (None) {println! ("NPF ext gets locked"); goto!("Exit_npf_low_bush");}
                 ret = npf_low_bush (n.clone (), finally.0 [*j]._a(), 0 );
             }
         }
@@ -200,6 +207,7 @@ pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, ru
     return ret
 }
 pub fn npf_recursion_ext (n: rugint, pq: PQ ) -> npf_output {
+let pq: PQ = PQ::new (pq.rdx);
 let ret0: npf_output = if crate::faav::npf_split( None ) == false {
                unsafe { npf_low_bush (n.clone(), pq._a(), 0 ) }
             }  else { unsafe { npf_long_bush (n.clone(), pq._a(), 0 ) } };
