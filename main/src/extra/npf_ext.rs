@@ -95,6 +95,10 @@ pub unsafe fn npf_ext (n: rugint, rdx: u32) -> (rugint, rugint, String) {
         }
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("End_npf_ext");} 
         if mark_positive_results.len() > 1 {ret = npf_recursion_ext (n.clone (), pq._a() ); goto! ("End_npf_ext"); };
+        let cur_ret = unsafe {__check_match_div (&n, &finally.0 [mark_j] ) };
+        ret.0 = cur_ret.0;
+        ret.1 = cur_ret.1;
+        if ret.0 > 1 { goto!("End_npf_ext");}
         pq = finally.0 [mark_j]._a();
         mark_positive_results.clear();
         finally.0.clear ();
@@ -132,7 +136,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
                 let cur_ret = unsafe {__check_match_div (&n, &finally.0 [*j] ) };
                 ret.0 = cur_ret.0;
                 ret.1 = cur_ret.1;
-                if ret.0 > 1 || ret.0 == n.clone() || ret.1 == n.clone() { goto!("Exit_npf_low_bush");}
+                if ret.0 > 1 { goto!("Exit_npf_low_bush");}
                 ret = npf_low_bush (n.clone (), finally.0 [*j]._a(), 0 );
             }
         }
