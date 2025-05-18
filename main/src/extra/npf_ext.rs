@@ -52,7 +52,15 @@ impl PQ {
     pub fn P (&self) -> init_form {return self.P.clone () }
     pub fn product (&self) -> product_form { return self.P() * self.Q() }
     pub fn _a(&self) -> Self { return self.clone() }
-    pub fn vera (&self) -> bool {
+    pub fn vera (&self, n: &rugint) -> bool {
+        let _mod = self.Q.head();
+        let mute = self.Q.tail();
+        let visible = self.P.tail();
+        let mute_inv = mute.invert ( &_mod ).unwrap_or (rugint::from (0) );
+        if mute_inv == 0 {
+            let msg = format! ("mute.invert in fn vera failed");
+            _msg (&msg); }
+        let mask = mute_inv * visible;
         return false
     }
 }
