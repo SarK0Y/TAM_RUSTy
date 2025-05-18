@@ -23,11 +23,12 @@ pub struct PQ {
     pub P: init_form,
     pub Q: init_form,
     pub nxt: iter_tail,
-    pub rdx: u32
+    pub rdx: u32,
+    pub step: u32
 }
 impl PQ {
-    pub fn build (P: init_form, Q: init_form, nxt: iter_tail, rdx: u32) -> Self { return Self {P, Q, nxt, rdx} }
-    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (1, 0), Q: init_form::mk (1, 0), nxt: iter_tail::new(rdx), rdx} }
+    pub fn build (P: init_form, Q: init_form, nxt: iter_tail, rdx: u32, step: u32) -> Self { return Self {P, Q, nxt, rdx, step} }
+    pub fn new (rdx: u32) -> Self { return Self {P: init_form::mk (1, 0), Q: init_form::mk (1, 0), nxt: iter_tail::new(rdx), rdx, step: 0} }
     pub fn after (&mut self) -> Option < Self > {
         let nxt_tail = self.nxt.next();
         let nxt_tail = if nxt_tail.is_none () { return None } else { nxt_tail.unwrap () };
@@ -36,7 +37,7 @@ impl PQ {
         let P = self.P.nest (P);
         let Q = init_form::mk (rdx, nxt_tail._0 as u64);
         let Q = self.Q.nest (Q);
-        return Some (Self {P, Q, nxt: nxt_tail, rdx: self.rdx} )
+        return Some (Self {P, Q, nxt: nxt_tail, rdx: self.rdx, step: self.step + 1 } )
     }
     pub fn _1st_iter (&self) -> Self {
         let cur_tail = self.nxt.clone();
@@ -45,12 +46,15 @@ impl PQ {
         let P = self.P.nest (P);
         let Q = init_form::mk (rdx, cur_tail._0 as u64);
         let Q = self.Q.nest (Q);
-        return Self {P, Q, nxt: cur_tail, rdx: self.rdx}
+        return Self {P, Q, nxt: cur_tail, rdx: self.rdx, step: self.step + 1 }
     }
     pub fn Q (&self) -> init_form {return self.Q.clone () }
     pub fn P (&self) -> init_form {return self.P.clone () }
     pub fn product (&self) -> product_form { return self.P() * self.Q() }
     pub fn _a(&self) -> Self { return self.clone() }
+    pub fn vera (&self) -> bool {
+        return false
+    }
 }
 #[derive(Clone, PartialEq, Debug)]
 pub struct iter_tail {
@@ -130,6 +134,7 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
             let product = finally.0[i].product ();
             if (n.clone() - product.tail() ) % a.head() == 0 {mark_positive_results.push ( i ); mark_j = i;};
         }
+        dbg! (mark_positive_results.len());
         if mark_positive_results.is_empty () { println! ("Sorry, no solution found"); goto!("Exit_npf_low_bush");} 
         if mark_positive_results.len() > 1 {
             for j in mark_positive_results.iter() {
@@ -156,11 +161,16 @@ pub unsafe fn npf_low_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rug
         finally.0.clear ();
     }
     label!("Exit_npf_low_bush");
-    let X = pq.P();
-    let Y = pq.Q();
-    if X.tail () * Y.tail () == n {ret.0 = X.tail (); ret.1 = Y.tail()}
+    nope();
+    set_final_result (&n, &pq, &mut ret);
     return ret
 }
+pub fn set_final_result (n: &rugint, pq: &PQ, ret: &mut (rugint, rugint, String)) {
+    let X = pq.P();
+    let Y = pq.Q();
+    if X.tail () * Y.tail () == *n {ret.0 = X.tail (); ret.1 = Y.tail()}
+}
+pub fn nope () -> u32 {return 42}
 pub unsafe fn npf_long_bush (n: rugint, mut pq: PQ, split: usize) -> (rugint, rugint, String) {
     let fn_name = "npf long bush".strn();
     let mut ret = (rugint::from (0), rugint::from (0), fn_name);
