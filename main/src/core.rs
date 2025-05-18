@@ -408,7 +408,7 @@ pub(crate) fn errMsg_dbg0(msg: &str) {
 }
 pub(crate) fn errMsg0(msg: &str) {
     errMsg(msg, -1191);
-    println!("{}", msg);
+    println!("{} {} {}", file!(), line!(), msg);
     let dbg_msgs = crate::info::sav_dbg_msg( None );
     if dbg_msgs.len() > 0 {dbg! (dbg_msgs); }
     getkey();
