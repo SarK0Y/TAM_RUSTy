@@ -1,8 +1,7 @@
 /*
         TODO: Discrete Logarithm Possible Solution
 */
-use std::ops::Mul;
-use std::ops::MulAssign;
+use std::ops::{Mul, MulAssign, Rem };
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Complete, Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
@@ -54,13 +53,16 @@ impl PQ {
     pub fn _a(&self) -> Self { return self.clone() }
     pub fn vera (&self, n: &rugint) -> bool {
         let _mod = self.Q.head();
+        let _0 = rugint::from (0);
         let mute = self.Q.tail();
         let visible = self.P.tail();
-        let mute_inv = mute.invert ( &_mod ).unwrap_or (rugint::from (0) );
+        let mute_inv = mute.invert ( &_mod ).unwrap_or ( _0 );
         if mute_inv == 0 {
             let msg = format! ("mute.invert in fn vera failed");
-            _msg (&msg); }
-        let mask = mute_inv * visible;
+            _msg (&msg); return false
+        }
+        let unmask: rugint = mute_inv * visible.clone();
+        let _1st_tst: bool = if (n.clone() * unmask).rem (&_mod) == visible { true } else { false };
         return false
     }
 }
