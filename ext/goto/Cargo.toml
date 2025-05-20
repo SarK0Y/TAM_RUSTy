@@ -1,12 +1,12 @@
 [package]
 name ="goto1717"
 edition = "2021"
-version = "0.0.0"
+version = "0.0.1"
 publish = true
 license-file = "LICENSE"
 description = "goto for Rust"
 [dependencies]
-syn = { version = "2.0.0", features = ["full"] }
+syn = { version = "2.0.0", features = ["full", "extra-traits"] }
 quote = "1.0.0"
 proc-macro2 = "1.0.0" 
 [lib]
