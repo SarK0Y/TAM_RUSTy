@@ -442,7 +442,6 @@ fn main (){
         println!("{}", item);
     }
 tst ();
-return;
 /************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
