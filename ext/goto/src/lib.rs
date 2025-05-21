@@ -80,5 +80,17 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
 
     expanded.into()
 }
+  #[proc_macro]
+   pub fn stmt_to_tokenstream(input: TokenStream) -> TokenStream {
+       // Parse the input TokenStream into a Stmt
+       let stmt: Stmt = parse_macro_input!(input as Stmt);
+
+       // Convert the Stmt back to a TokenStream
+       let output = quote! {
+           #stmt
+       };
+
+       output.into()
+   }
 //pub use crate::inject_after_hello; 
 // https://www.freecodecamp.org/news/procedural-macros-in-rust/
