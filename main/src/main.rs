@@ -421,8 +421,11 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     return
 }
 #[cfg(feature ="tst_macro")]
-#[inject]
-fn tst () {}
+use goto1717::inject_tst;
+#[cfg(feature ="tst_macro")]
+#[inject_tst]
+fn tst () {
+ println!("tst here"); println!("end here" );}
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/

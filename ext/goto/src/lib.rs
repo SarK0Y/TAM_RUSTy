@@ -5,6 +5,23 @@ use quote::quote;
 use syn::{parse_macro_input, ItemFn, Stmt};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 #[proc_macro_attribute]
+pub fn inject(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let mut input: ItemFn = parse_macro_input!(item as ItemFn);
+    let mut new_stmts = Vec::<Stmt>::new(); 
+    let strn_stmts = format! ("{:?}", input.block.stmts);
+    let add_to: Stmt = syn::parse_quote! {
+                println!("yst {}", #strn_stmts);
+            };
+    let stmts = &input.block.stmts;
+    let stmts_len = stmts.len();
+    for j in 0..stmts_len {
+        if j == stmts_len -1 {new_stmts.push ( add_to.clone() ); }
+        new_stmts.push(stmts [j].clone());
+    }            
+    input.block.stmts = new_stmts;
+    return TokenStream::from(quote! { #input })
+}
+#[proc_macro_attribute]
 pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
     let mut new_stmts = Vec::<Stmt>::new(); 
@@ -34,18 +51,19 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
     TokenStream::from(quote! { #input })
 }
 #[proc_macro_attribute]
-pub fn inject(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn inject_tst(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
     let mut new_stmts = Vec::<Stmt>::new(); 
-
-    for stmt in input.block.stmts {
-        // Push the original statement
-        new_stmts.push(stmt.clone());
-    }
+    let strn_stmts = format! ("{:?}", input.block.stmts);
     let add_to: Stmt = syn::parse_quote! {
-                println!("yst {:?}", input.block.stmts);
+                println!("yst {}", #strn_stmts);
             };
-            new_stmts.push ( add_to );
+    let stmts = &input.block.stmts;
+    let stmts_len = stmts.len();
+    for j in 0..stmts_len {
+        if j == stmts_len -1 {new_stmts.push ( add_to.clone() ); }
+        new_stmts.push(stmts [j].clone());
+    }            
     input.block.stmts = new_stmts;
     return TokenStream::from(quote! { #input })
 }
