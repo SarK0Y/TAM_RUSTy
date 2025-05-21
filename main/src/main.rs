@@ -420,6 +420,7 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     }
     return
 }
+#[cfg(feature ="tst_macro")]
 #[inject]
 fn tst () {}
 fn main (){
@@ -441,7 +442,10 @@ fn main (){
     for item in items.iter() {
         println!("{}", item);
     }
+#[cfg(feature ="tst_macro")]
 tst ();
+#[cfg(feature ="tst_macro")]
+return;
 /************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});

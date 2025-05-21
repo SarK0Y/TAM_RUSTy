@@ -41,21 +41,13 @@ pub fn inject(_attr: TokenStream, item: TokenStream) -> TokenStream {
     for stmt in input.block.stmts {
         // Push the original statement
         new_stmts.push(stmt.clone());
-
-        // Check if it's the specific println! macro invocation
-        //if let Stmt::Expr(syn::Expr::Macro(expr_macro), _) = &stmt {
-            //let macro_path = &expr_macro.mac.path.segments;
-            //let macro_tokens = expr_macro.mac.tokens.to_string();
-            quote! {
-                println!("yst {:?}", input.block.stmts);
-                };
-            
-        //}
     }
-
+    let add_to: Stmt = syn::parse_quote! {
+                println!("yst {:?}", input.block.stmts);
+            };
+            new_stmts.push ( add_to );
     input.block.stmts = new_stmts;
-
-    TokenStream::from(quote! { #input })
+    return TokenStream::from(quote! { #input })
 }
 #[proc_macro]
 pub fn my_macro(input: TokenStream) -> TokenStream {
