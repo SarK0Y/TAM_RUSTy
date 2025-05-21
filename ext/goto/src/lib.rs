@@ -52,11 +52,13 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
 }
 #[proc_macro_attribute]
 pub fn inject_tst(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let item_str = format! ("{}", item.clone() );
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
+    let input_str = format! ("{:#?}", input);
     let mut new_stmts = Vec::<Stmt>::new(); 
     let strn_stmts = format! ("{:?}", input.block.stmts);
     let add_to: Stmt = syn::parse_quote! {
-                println!("yst {}", #strn_stmts);
+                println!("yst {}\n{}\n{}", #strn_stmts, #input_str, #item_str);
             };
     let stmts = &input.block.stmts;
     let stmts_len = stmts.len();
