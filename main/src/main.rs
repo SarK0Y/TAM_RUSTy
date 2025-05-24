@@ -422,8 +422,8 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
 }
 #[cfg(feature ="tst_macro")]
 use goto1717::inject_tst;
+#[inject_tst(one)]
 #[cfg(feature ="tst_macro")]
-#[inject_tst]
 fn tst () {
  println!("tst here"); println!("end here" );}
 fn main (){

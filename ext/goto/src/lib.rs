@@ -2,7 +2,8 @@
 //pub use crate::goto::{label, goto};
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, ItemFn, Stmt};
+use syn::{parse_macro_input, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
+token::Comma, Expr};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 mod lex;
 #[proc_macro_attribute]
@@ -55,6 +56,48 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
 pub fn inject_tst(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let item_str = format! ("{}", item.clone() );
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
+    let attrs = &input.attrs;
+    println!("tssst {:?}", attrs);
+  for attr in &input.attrs {
+    println!("enter to attrs", );
+    if !attr.path().is_ident("tst00") {
+        match &attr.meta {
+            Meta::Path(_) => {
+                // Just #[my_attr]
+            }
+            Meta::List(list) => {
+                // #[my_attr(arg1, arg2)]
+                let nested = list.parse_args_with(Punctuated::<Meta, Comma>::parse_terminated);
+                
+                match nested {
+                    Ok(nested) => {
+                        for meta in nested {
+                            match meta {
+                                Meta::Path(path) => println!("Path: {:?}", path),
+                                Meta::List(list) => println!("Nested list: {:?}", list),
+                                Meta::NameValue(nv) => {
+                                    println!("Name-value: {} = {:#?}", 
+                                        nv.path.get_ident().unwrap(), 
+                                        nv.value
+                                    );
+                                }
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        // Handle parse error
+                        return TokenStream::from(e.to_compile_error());
+                    }
+                }
+            }
+            Meta::NameValue(nv) => {
+                // #[my_attr = value]
+                println!("Attribute value: {:?}", nv.value);
+            }
+        }
+    }
+}
+
     let input_str = format! ("{:#?}", input);
     let mut new_stmts = Vec::<Stmt>::new(); 
     let strn_stmts = format! ("{:?}", input.block.stmts);
