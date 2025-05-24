@@ -1,4 +1,4 @@
-use crate::custom_traits::STRN;
+use Mademoiselle_Entropia::custom_traits::STRN;
 pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     if txt.len() == 0 { return None}
     let mut ret0 = key.clone ();
