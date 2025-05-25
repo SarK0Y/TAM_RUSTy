@@ -68,7 +68,7 @@ impl init_form {
         return self.head.clone() + self.tail.clone()
     } 
     pub fn num (&self, x: rugint) -> rugint {
-        return self.head.clone() * x + self.tail.clone()
+        return self.head() * x + self.tail()
     } 
     pub fn __2x_plus_1 (&mut self) -> init_form {
         return self.nest ( init_form::new() )
@@ -80,6 +80,7 @@ impl init_form {
         return self.head.find_one (0).unwrap ()
     }
     pub fn head (&self) -> rugint { return self.head.clone() } 
+    pub fn tail (&self) -> rugint { return self.tail.clone() } 
 }
 impl MulAssign for init_form {
     fn mul_assign(&mut self, rhs: init_form) {
@@ -350,7 +351,10 @@ pub unsafe fn npf_cross_road_lock (n: rugint, X: &mut init_form, Y: &mut init_fo
         finally.0.clear ();
     }
     label!("Exit_cross_road_lock");
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()} return ret
+    let X = X.tail ();
+    let Y = Y.tail ();
+    dbg! (&X); dbg! (&Y);
+    if X.clone() * Y.clone() == n {ret.0 = X; ret.1 = Y } return ret
    // println! ("Exit_cross_road_lock {}", X.log2_head() );
 }
 pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_form, split: usize) -> (rugint, rugint, String) {
@@ -411,7 +415,7 @@ pub unsafe fn npf_cross_road_split (n: rugint, X: &mut init_form, Y: &mut init_f
         finally.0.clear ();
     }
     label!("Exit_cross_road_split");
-    if X.num1 () * Y.num1 () == n {ret.0 = X.num1 (); ret.1 = Y.num1()}
+    if X.tail () * Y.tail() == n {ret.0 = X.tail (); ret.1 = Y.tail()}
     println! ("Exit_cross_road_split");
     return ret
 }
@@ -488,8 +492,9 @@ pub fn check_match_div (n: &rugint, X: &init_form, Y: &init_form) -> (rugint, ru
     }
 }
 pub fn check_div (n: &rugint, div: rugint ) -> rugint {
-    let __1 = rugint::from (1);
-    if n.clone() % div.clone() == 0 { return n / div } return __1.clone()
+    if div == 0 { let __1 = rugint::from (1); return __1 }
+    if n.clone() % div.clone() == 0 { return n / div }
+    else {return n.clone().gcd ( &div )}
 }
 pub fn show_npf_split_mode () {
     let status = faav::npf_split( None );
@@ -575,16 +580,26 @@ pub fn num_x( x: rugint) {
 }
 pub fn Set_NPF () {
     crate::faav::npf_lock (Some (false) );
+    use crate::npf_ext::npf_ext;
     let prnt = get_prnt (1001876412);
-    let (_, num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
-    if num == "" {errMsg0 ("proper command: npf <Your number>"); return}
+    let prnt = prnt.replace("npf ", "").trim_end().trim_start().strn();
+    let (mut base, mut num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    if base == "" && num == "" { num = prnt.clone(); }
+    base = base.replace(",", "");
+    let base: u32 = if num == "" { num = base; base = "".strn(); 0 } else {
+        let __0 = rugint::parse ("0" ).unwrap();
+        let base = rugint::parse (base).unwrap_or(__0).complete().to_u32 ().unwrap_or (0);
+        base
+    };
+    if num == "" {errMsg0 ("proper command: npf <Your number> or npf <base/radix> <Your number>"); return}
     let num = num.replace(",", "");
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let mut num = num.unwrap().complete ();
-    let num_str = format! ("npf {num}");
+    let num_str = if base == 0 { format! ("npf {num}") } else { format! ("npf {base} {num}") };
     set_prnt (&num_str, 479541533);
-    let ret = unsafe { npf (num) };
+    dbg! (&base);
+    let ret = if base == 0 { unsafe { npf (num) } } else { unsafe { npf_ext (num, base) } };
     let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
                 {format! ("Sorry, Dear User, no solution found Q: {}, P: {} - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ", ret.0, ret.1)};
     errMsg0 (ret.as_str());

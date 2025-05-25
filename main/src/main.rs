@@ -10,12 +10,14 @@
 #[allow(arithmetic_overflow)]
 #[allow(temporary_cstring_as_ptr)]
 //#[allow(static_mut_refs)] 
+use syn::punctuated::Punctuated;
+use syn::Token; 
 mod exts;
 use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, split_once_alt_o_null_strns, strn_2_usize, take_list_adr};
 use syn::token::Return;
 use update18::delay_ms;
-
+use goto1717::inject;
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 #[cfg(feature ="mae")]
 use Mademoiselle_Entropia::true_rnd::UID_UTF8;
@@ -418,6 +420,12 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     }
     return
 }
+#[cfg(feature ="tst_macro")]
+use goto1717::inject_tst;
+#[cfg(feature ="tst_macro")]
+#[inject_tst(tst0 = "fooo", tst0="nxt ffoo")]
+pub fn tst () {
+ println!("tst here"); println!("end here" );}
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
@@ -427,6 +435,21 @@ fn main (){
  #[cfg(feature ="mae")]
  println!("{} {}", tst, tst.chars().count() ); return;*/
     //print!("{:?}", std::env::vars()); return;
+/************ tst ******** */
+     let items: Punctuated<syn::Ident, Token![,]> = Punctuated::from_iter(vec![
+        syn::Ident::new("item1", proc_macro2::Span::call_site()),
+        syn::Ident::new("item2", proc_macro2::Span::call_site()),
+    ]);
+
+    // Iterate over the items
+    for item in items.iter() {
+        println!("{}", item);
+    }
+#[cfg(feature ="tst_macro")]
+tst ();
+#[cfg(feature ="tst_macro")]
+return;
+/************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
     if checkArg("-mk-dummy-file"){

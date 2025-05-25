@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.357"
+version = "13.11.397"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -15,8 +15,10 @@ keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics", "rust-patterns"] #"algorithms"]
 [profile.release]
 debug = true
+[build-dependencies]
+goto1717 = { path = "../ext/goto", version = "0.0.10" }
 [dependencies]
-goto1717 = {version = "0.0.0", path = "../ext/goto"}
+goto1717 = { path = "../ext/goto", version = "0.0.10" }
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"
@@ -43,7 +45,7 @@ midly = {version = "0.5.3", features=["std"]}
 serde = {version = "1.0.215", features=["derive"]}
 hound = {version = "3.5.1"}
 wavers = {version = "1.4.3"}
-rug = {version = "1.2.7", features = ["integer", "float", "std"]}
+rug = {version = "1.25.0", features = ["integer", "float", "std"]}
 malachite = {version = "0.4.22"}
 malachite-float = {version = "0.4.22"}
 malachite-q = {version = "0.4.22"}
@@ -67,5 +69,7 @@ in_dbg =[]
 dbg0=[]
 mae =["Mademoiselle_Entropia"]
 npf_dbg = []
+tst_macro = []
+tst = []
 [[bin]]
 name = "sark0y_tam_rst"

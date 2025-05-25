@@ -74,7 +74,7 @@ macro_rules! might_skip {
 #[macro_use]
 macro_rules! label {
     ($label:literal) => {
-        //might_skip! {
+        might_skip! {
         {
             #[allow(named_asm_labels)]
             #[cfg(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64"))]
@@ -84,7 +84,7 @@ macro_rules! label {
             }
             #[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
             compile_error!("`label!` not implemented for this architecture!");
-    //    }
+        }
     }
     };
 }
