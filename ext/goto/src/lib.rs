@@ -57,7 +57,7 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     let item_str = format! ("{}", item.clone() );
     let mut ext_quote = quote!();
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
-  /*    let args_meta: Meta = match syn::parse::<Meta>(args) {
+   /*   let args_meta: Meta = match syn::parse::<Meta>(args) {
         Ok(meta) => meta,
         Err(e) => return e.to_compile_error().into(),
     };
@@ -136,12 +136,12 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
         if j == stmts_len -1 {new_stmts.push ( add_to.clone() ); }
         new_stmts.push(stmts [j].clone());
     }            
-    input.block.stmts = new_stmts;
+    input.block.stmts = new_stmts; 
     let input_str = format! ("{:#?}", input);
     let ext_quote_str = ext_quote.to_string();
     return TokenStream::from(quote! { 
         pub fn lets_prnt_func () {
-            println ("input {} ext {}", #input_str, #ext_quote_str );
+            println! ("input {} ext {}", #input_str, #ext_quote_str );
             }} )
 }
 #[proc_macro]
