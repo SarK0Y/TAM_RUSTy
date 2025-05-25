@@ -410,6 +410,15 @@ for i in 1..args.len(){
 ret.res = false;
 return ret;
 }
+#[cfg(feature ="tst_macro")]
+use goto1717::inject_tst;
+#[cfg(feature ="tst_macro")]
+use goto1717::just_prnt;
+#[cfg(feature ="tst_macro")]
+//#[inject_tst(tt0 = "fooo", tst0="nxt ffoo")]
+//#[just_prnt]
+#[inject_tst]
+fn tst () { println!("tst here"); println!("end here" );}
 fn self_dive(nm: String){// just sidekick to crrash tst :)
     std::thread::spawn(||{
         let nm = nm;
@@ -420,12 +429,7 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     }
     return
 }
-#[cfg(feature ="tst_macro")]
-use goto1717::inject_tst;
-#[cfg(feature ="tst_macro")]
-#[inject_tst(tst0 = "fooo", tst0="nxt ffoo")]
-pub fn tst () {
- println!("tst here"); println!("end here" );}
+
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
@@ -446,7 +450,7 @@ fn main (){
         println!("{}", item);
     }
 #[cfg(feature ="tst_macro")]
-tst ();
+lets_prnt_func ();
 #[cfg(feature ="tst_macro")]
 return;
 /************ tst ******** */

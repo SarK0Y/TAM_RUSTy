@@ -53,14 +53,38 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
     TokenStream::from(quote! { #input })
 }
 #[proc_macro_attribute]
-pub fn inject_tst(_attrs: TokenStream, item: TokenStream) -> TokenStream {
+pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     let item_str = format! ("{}", item.clone() );
+    let mut ext_quote = quote!();
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
-    let attr_cpy = _attrs.clone();
-    let attr_in: ItemFn = parse_macro_input!( attr_cpy as ItemFn);
-    let attrss = &attr_in.attrs;
-    println!("tssst {} val {}", _attrs.to_string(), "42");
-  for attr in attrss {
+  /*    let args_meta: Meta = match syn::parse::<Meta>(args) {
+        Ok(meta) => meta,
+        Err(e) => return e.to_compile_error().into(),
+    };
+    match args_meta {
+        Meta::Path(path) => { ext_quote.extend (
+            quote! { println!("Simple attribute: {:?}", #path); }
+            );
+        }
+        Meta::List(list) => { 
+            let list = list.tokens;
+        ext_quote.extend (
+            quote! {println!("Attribute with args: {:?}", #list); }
+            );
+        }
+        Meta::NameValue(name_value) => { 
+            let ident = name_value.path.get_ident().unwrap();
+            let value = name_value.value;
+        ext_quote.extend (
+           quote! { println!("Name-value attribute: {} = {:?}", 
+                   #ident,
+                   #value);
+            } );
+        }
+    }; */
+    //let attrss = &attr_in.attrs;
+ //   println!("tssst {} val {}", _attrs.to_string(), "42");
+  /*for attr in attrss {
     println!("enter to attrs", );
     if !attr.path().is_ident("tst00") {
         match &attr.meta {
@@ -98,7 +122,7 @@ pub fn inject_tst(_attrs: TokenStream, item: TokenStream) -> TokenStream {
             }
         }
     }
-}
+}*/
 
     let input_str = format! ("{:#?}", input);
     let mut new_stmts = Vec::<Stmt>::new(); 
@@ -113,7 +137,12 @@ pub fn inject_tst(_attrs: TokenStream, item: TokenStream) -> TokenStream {
         new_stmts.push(stmts [j].clone());
     }            
     input.block.stmts = new_stmts;
-    return TokenStream::from(quote! { #input })
+    let input_str = format! ("{:#?}", input);
+    let ext_quote_str = ext_quote.to_string();
+    return TokenStream::from(quote! { 
+        pub fn lets_prnt_func () {
+            println ("input {} ext {}", #input_str, #ext_quote_str );
+            }} )
 }
 #[proc_macro]
 pub fn my_macro(input: TokenStream) -> TokenStream {
@@ -139,6 +168,15 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
        };
 
        output.into()
+   }
+   #[proc_macro_attribute]
+   pub fn just_prnt (args: TokenStream, input: TokenStream) -> TokenStream {
+        let func_body = input.to_string();
+        let out = quote! {
+            pub fn lets_prnt_func () {
+                println! ("{}", #func_body);
+            }
+        }; return out.into()
    }
 //pub use crate::inject_after_hello; 
 // https://www.freecodecamp.org/news/procedural-macros-in-rust/
