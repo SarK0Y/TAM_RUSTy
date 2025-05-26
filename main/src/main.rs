@@ -450,7 +450,7 @@ fn main (){
         println!("{}", item);
     }
 #[cfg(feature ="tst_macro")]
-lets_prnt_func ();
+/* lets_prnt_func (); */ tst ();
 #[cfg(feature ="tst_macro")]
 return;
 /************ tst ******** */

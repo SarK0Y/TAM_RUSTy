@@ -92,9 +92,10 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
         }
         Meta::NameValue(name_value) => { 
             let ident = name_value.path.get_ident().unwrap();
+            let ident = format! ("{}", ident);
             let value = name_value.value;
         ext_quote.extend (
-           quote! { println!("Name-value attribute: {} = {:?}", 
+           quote! { println!("Name-value attribute: {} = {}", 
                    #ident,
                    #value);
             } );
@@ -148,19 +149,22 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     let add_to: Stmt = syn::parse_quote! {
                 println!("yst {}\n{}\n{}", #strn_stmts, #input_str, #item_str);
             };
+    let ext_quote_stmt: Stmt = parse_quote! { #ext_quote };
     let stmts = &input.block.stmts;
     let stmts_len = stmts.len();
     for j in 0..stmts_len {
-        if j == stmts_len -1 {new_stmts.push ( add_to.clone() ); }
+        if j == stmts_len -1 {new_stmts.push ( add_to.clone() ); new_stmts.push ( ext_quote_stmt.clone() ); }
         new_stmts.push(stmts [j].clone());
     }            
     input.block.stmts = new_stmts; 
     let input_str = format! ("{:#?}", input);
     let ext_quote_str = ext_quote.to_string();
-    return TokenStream::from(quote! { 
+    /* return TokenStream::from(quote! { 
         pub fn lets_prnt_func () {
-            println! ("input {} ext {}", #input_str, #ext_quote_str );
-            }} )
+            //println! ("input {} ext {}", #input_str, #ext_quote_str ); 
+            #input
+            }} ) */
+    return TokenStream::from(quote! { #input } )
 }
 #[proc_macro]
 pub fn my_macro(input: TokenStream) -> TokenStream {
