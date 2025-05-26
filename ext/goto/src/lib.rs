@@ -3,7 +3,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
-token::Comma, Expr};
+token::Comma, Expr, Lit};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 mod lex;
 #[proc_macro_attribute]
@@ -57,10 +57,28 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     let item_str = format! ("{}", item.clone() );
     let mut ext_quote = quote!();
     let mut input: ItemFn = parse_macro_input!(item as ItemFn);
-   /*   let args_meta: Meta = match syn::parse::<Meta>(args) {
-        Ok(meta) => meta,
-        Err(e) => return e.to_compile_error().into(),
+    let lit: LitStr = LitStr::new("Alice", proc_macro2::Span::call_site());
+    let val = Expr::Lit(syn::ExprLit {
+        attrs: vec![],
+        lit: Lit::Str(lit),
+    });
+    let meta_name_value = MetaNameValue {
+        path: syn::parse_quote!(name), // The name of the attribute
+        eq_token: Default::default(),   // The '=' token
+        value: val,
     };
+    let mut args_meta: Meta = Meta::NameValue(meta_name_value);
+    let mut stop_err = false;
+    match syn::parse::<Meta>(args) {
+        Ok(meta) => { args_meta = meta; },
+        Err(e) => { let err = format! ("customized compiler's error {:#?}", e); stop_err = true;
+                    return TokenStream::from (quote! {
+                        pub fn lets_prnt_func () {
+                            println! ("{}", #err);
+                        }
+                    })},
+    };
+    //if stop_err {compile_error! ("stop_err"); }
     match args_meta {
         Meta::Path(path) => { ext_quote.extend (
             quote! { println!("Simple attribute: {:?}", #path); }
@@ -81,7 +99,7 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
                    #value);
             } );
         }
-    }; */
+    };
     //let attrss = &attr_in.attrs;
  //   println!("tssst {} val {}", _attrs.to_string(), "42");
   /*for attr in attrss {
