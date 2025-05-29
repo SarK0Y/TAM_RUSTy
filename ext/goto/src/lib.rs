@@ -63,8 +63,7 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
 //trace_macros!(true);
 #[proc_macro_attribute]
 pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
-   let sub_fn = prnt_func ("lets_prnt_func", item.clone());
-   return sub_fn.clone();
+   let sub_fn = prnt_func ("sub_fn", item.clone());
     let item_str = format! ("{}", item.clone() );
     let mut ext_quote = quote!();
     let item0 = item.clone();
@@ -169,9 +168,14 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     input.block.stmts = new_stmts; 
     let input_str = format! ("{:#?}", input);
     let ext_quote_str = ext_quote.to_string();
-    return TokenStream::from(quote! { 
+    //let sub_fn: Stmt = parse_quote! (sub_fn as Stmt);
+    let sub_fn: proc_macro2::TokenStream = sub_fn.into();
+    let sub_fn_id = syn::Ident::new("sub_fn", proc_macro2::Span::call_site());
+    return TokenStream::from(quote! {
+        #sub_fn
         pub fn lets_prnt_func () {
             println! ("input {} ext {}", #input_str, #ext_quote_str );
+            #sub_fn_id();
             }} )
 }
 #[proc_macro]
@@ -219,6 +223,7 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
     //let name_fn = syn::Ident::new(&name_fn, proc_macro2::Span::call_site());
         let out = quote! {
             pub fn #name_fn () {
+            //println!("++++++++++++++++++++++++++++++");
                 println! ("{}", #func_body);
             }
         };
