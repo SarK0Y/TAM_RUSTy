@@ -2,11 +2,27 @@
 //pub use crate::goto::{label, goto};
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
-token::Comma, Expr, Lit};
+use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
+token::Comma, Expr, Lit, Token};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 use Mademoiselle_Entropia::custom_traits::STRN;
 mod lex;
+struct AttrArgs {
+    metas: Punctuated<Meta, Token![,]>,
+}
+impl Default for AttrArgs {
+    fn default() -> Self {
+        Self {
+            metas: Punctuated::new(),
+        }
+    }
+}
+impl Parse for AttrArgs {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let metas = Punctuated::<Meta, Token![,]>::parse_terminated_with(input, Meta::parse)?;
+        Ok(AttrArgs { metas })
+    }
+}
    macro_rules! _prnt_func {
     ($name:ident, $body:block) => {
         pub fn $name() {
@@ -79,7 +95,7 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
         eq_token: Default::default(),   // The '=' token
         value: val,
     };
-    let mut args_meta: Meta = Meta::NameValue(meta_name_value);
+   /* let mut args_meta: Meta = Meta::NameValue(meta_name_value);
     let mut stop_err = false;
     match syn::parse::<Meta>(args) {
         Ok(meta) => { args_meta = meta; },
@@ -89,29 +105,32 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
                             println! ("{}", #err);
                         }
                     })},
-    };
+    };*/
+    let args = parse_macro_input! (args as AttrArgs);
     //if stop_err {compile_error! ("stop_err"); }
-    match args_meta {
-        Meta::Path(path) => { ext_quote.extend (
-            quote! { println!("Simple attribute: {:?}", #path); }
-            );
-        }
-        Meta::List(list) => { 
-            let list = list.tokens;
-        ext_quote.extend (
-            quote! {println!("Attribute with args: {:?}", #list); }
-            );
-        }
-        Meta::NameValue(name_value) => { 
-            let ident = name_value.path.get_ident().unwrap();
-            let value = name_value.value;
-        ext_quote.extend (
-           quote! { println!("Name-value attribute: {} = {:?}", 
-                   #ident,
-                   #value);
-            } );
-        }
-    };
+    for arg in args.metas {
+        match arg {
+            Meta::Path(path) => { ext_quote.extend (
+                quote! { println!("Simple attribute: {:?}", #path); }
+                );
+            }
+            Meta::List(list) => { 
+                let list = &list.tokens;
+            ext_quote.extend (
+                quote! {println!("Attribute with args: {:?}", #list); }
+                );
+            }
+            Meta::NameValue(name_value) => { 
+                let ident = &name_value.path.get_ident().unwrap();
+                let value = &name_value.value;
+            ext_quote.extend (
+            quote! { println!("Name-value attribute: {} = {:?}", 
+                    #ident,
+                    #value);
+                } );
+            }
+        };
+    }
     //let attrss = &attr_in.attrs;
  //   println!("tssst {} val {}", _attrs.to_string(), "42");
   /*for attr in attrss {
