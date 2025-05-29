@@ -5,6 +5,7 @@ use quote::quote;
 use syn::{parse_macro_input, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
 token::Comma, Expr, Lit};
 use proc_macro2::{TokenStream as TokenStream2, Span};
+use Mademoiselle_Entropia::custom_traits::STRN;
 mod lex;
    macro_rules! _prnt_func {
     ($name:ident, $body:block) => {
@@ -63,7 +64,7 @@ pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream 
 //trace_macros!(true);
 #[proc_macro_attribute]
 pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
-   let sub_fn = prnt_func ("sub_fn", item.clone());
+   let (sub_fn, sub_fn_id) = prnt_func ("sub_fn", item.clone());
     let item_str = format! ("{}", item.clone() );
     let mut ext_quote = quote!();
     let item0 = item.clone();
@@ -169,8 +170,6 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     let input_str = format! ("{:#?}", input);
     let ext_quote_str = ext_quote.to_string();
     //let sub_fn: Stmt = parse_quote! (sub_fn as Stmt);
-    let sub_fn: proc_macro2::TokenStream = sub_fn.into();
-    let sub_fn_id = syn::Ident::new("sub_fn", proc_macro2::Span::call_site());
     return TokenStream::from(quote! {
         #sub_fn
         pub fn lets_prnt_func () {
@@ -214,8 +213,9 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         return out.into()
    }
    #[inline]
-   fn prnt_func (name_fn: &str, input: TokenStream) -> TokenStream {
+   fn prnt_func (name_fn: &str, input: TokenStream) -> (TokenStream2, syn::Ident) {
         let func_body = input.to_string();
+        let name_fn_str = name_fn.strn();
         let name_fn = strn_to_Ident (&name_fn);
         // let fn_name = parse_macro_input!( name_fn as LitStr ).value();
     
@@ -228,7 +228,9 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
             }
         };
        // let out: ItemFn = parse_quote!( out as ItemFn );
-        return out.into()
+       let sub_fn: proc_macro2::TokenStream = out.into();
+       let sub_fn_id = syn::Ident::new( &name_fn_str, proc_macro2::Span::call_site());
+        return (sub_fn, sub_fn_id)
    }
 fn strn_to_LitStr(s: &str) -> LitStr {
     LitStr::new(s, Span::call_site())
