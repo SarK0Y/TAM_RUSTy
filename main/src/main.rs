@@ -417,7 +417,7 @@ use goto1717::just_prnt;
 #[cfg(feature ="tst_macro")]
 //#[inject_tst(tt0 = "fooo", tst0="nxt ffoo")]
 #[inject_tst(tst1="tst", tst1="jj")]
-//#[just_prnt]
+#[prnt_vars]
 fn tst () { println!("tst here"); println!("end here" );}
 fn self_dive(nm: String){// just sidekick to crrash tst :)
     std::thread::spawn(||{

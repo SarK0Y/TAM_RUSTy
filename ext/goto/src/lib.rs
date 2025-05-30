@@ -3,7 +3,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
-token::Comma, Expr, Lit, Token};
+token::Comma, Expr, Lit, Token, PatIdent, Pat, Local, PathSegment};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 use Mademoiselle_Entropia::custom_traits::STRN;
 mod lex;
@@ -278,5 +278,93 @@ fn strn_to_LitStr(s: &str) -> LitStr {
 fn strn_to_Ident(s: &str) -> syn::Ident {
     syn::Ident::new(s, Span::call_site())
 }
+#[proc_macro_attribute]
+pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
+use syn::spanned::Spanned;
+    let mut input_fn = parse_macro_input!(item as ItemFn);
+    let fn_name = &input_fn.sig.ident;
+    let mut new_stmts = Vec::new();
+
+    for stmt in input_fn.block.stmts {
+        if let Stmt::Local(local) = &stmt {
+           // let line_num = local.pat.span().start().line;
+            //let mut var_names = Vec::new();
+            
+            // Recursively collect all identifiers from the pattern
+            //collect_idents(&local.pat, &mut var_names);
+            let local_pat = &local.pat;
+            
+            //if !var_names.is_empty() {
+                let print_stmts = /*var_names.iter().map(|ident| { */
+                    quote! {
+                       /* println!("[VAR] {} = {:?} (declared at line {})", 
+                            stringify!(#ident), #ident, #line_num); */
+                        println! ("Pat {:?}", #local_pat);
+                    };
+            //}
+                
+                new_stmts.push(quote! {
+                    #stmt
+                    #print_stmts
+                });
+                //continue;
+            }
+        new_stmts.push(quote! { #stmt });
+        }
+
+    let expanded = quote! {
+        fn #fn_name() {
+            println!("[FN] Entering {}", stringify!(#fn_name));
+            #(#new_stmts)*
+        }
+    };
+
+    expanded.into()
+}
+
+// Helper function to recursively collect identifiers from patterns
+/* fn collect_idents(pat: &Pat, idents: &mut Vec<syn::Ident>) {
+    match pat {
+        Pat::Ident(pat_ident) => {
+            idents.push(pat_ident.ident.clone());
+        }
+        Pat::Tuple(tuple) => {
+            for elem in &tuple.elems {
+                collect_idents(elem, idents);
+            }
+        }
+        Pat::Struct(struct_pat) => {
+            for field in &struct_pat.fields {
+                collect_idents(&field.pat, idents);
+            }
+        }
+        Pat::TupleStruct(tuple_struct) => {
+            for elem in tuple_struct.path.segments.iter() {
+                collect_idents(elem, idents);
+            }
+        }
+        Pat::Slice(slice) => {
+            for elem in &slice.elems {
+                collect_idents(elem, idents);
+            }
+        }
+          Pat::Box(box_pat) => {
+            collect_idents(&box_pat.pat, idents);
+        }
+        Pat::Ref(ref_pat) => {
+            collect_idents(&ref_pat.pat, idents);
+        }
+        Pat::Range(range) => {
+            if let Some(start) = &range.start {
+                collect_idents(start, idents);
+            }
+            if let Some(end) = &range.end {
+                collect_idents(end, idents);
+            }
+        }
+        Pat::Wild(_) => {}
+        _ => {} // Ignore other pattern types
+    }
+} */
 //pub use crate::inject_after_hello; 
 // https://www.freecodecamp.org/news/procedural-macros-in-rust/
