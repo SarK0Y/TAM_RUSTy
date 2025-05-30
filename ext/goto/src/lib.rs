@@ -17,6 +17,26 @@ impl Default for AttrArgs {
         }
     }
 }
+struct AttrArgsIter<'a> {
+    iter: syn::punctuated::Iter<'a, Meta>, // Use a slice iterator for the Punctuated collection
+}
+
+impl<'a> Iterator for AttrArgsIter<'a> {
+    type Item = &'a Meta; // Yield references to Meta items
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.iter.next() // Call the next method on the slice iterator
+    }
+}
+
+// Implement a method to return the iterator
+impl AttrArgs {
+    fn iter(&self) -> AttrArgsIter {
+        AttrArgsIter {
+            iter: self.metas.iter(), // Create an iterator from the Punctuated collection
+        }
+    }
+}
 impl Parse for AttrArgs {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let metas = Punctuated::<Meta, Token![,]>::parse_terminated_with(input, Meta::parse)?;
@@ -108,7 +128,7 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
     };*/
     let args = parse_macro_input! (args as AttrArgs);
     //if stop_err {compile_error! ("stop_err"); }
-    for arg in args.metas {
+    for arg in args.iter() {
         match arg {
             Meta::Path(path) => { ext_quote.extend (
                 quote! { println!("Simple attribute: {:?}", #path); }
