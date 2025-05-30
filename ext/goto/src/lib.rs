@@ -135,14 +135,14 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
                 );
             }
             Meta::List(list) => { 
-                let list = &list.tokens;
+                let list = list.tokens.clone();
             ext_quote.extend (
                 quote! {println!("Attribute with args: {:?}", #list); }
                 );
             }
             Meta::NameValue(name_value) => { 
-                let ident = &name_value.path.get_ident().unwrap();
-                let value = &name_value.value;
+                let ident = name_value.path.get_ident().unwrap().to_string();
+                let value = name_value.value.clone();
             ext_quote.extend (
             quote! { println!("Name-value attribute: {} = {:?}", 
                     #ident,
@@ -213,6 +213,7 @@ pub fn inject_tst(args: TokenStream, item: TokenStream) -> TokenStream {
         #sub_fn
         pub fn lets_prnt_func () {
             println! ("input {} ext {}", #input_str, #ext_quote_str );
+            #ext_quote
             #sub_fn_id();
             }} )
 }
