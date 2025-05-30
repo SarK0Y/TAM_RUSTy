@@ -292,14 +292,14 @@ use syn::spanned::Spanned;
             
             // Recursively collect all identifiers from the pattern
             //collect_idents(&local.pat, &mut var_names);
-            let local_pat = &local.pat;
+            let local_pat = format! ("{:?}", &local );
             
             //if !var_names.is_empty() {
                 let print_stmts = /*var_names.iter().map(|ident| { */
                     quote! {
                        /* println!("[VAR] {} = {:?} (declared at line {})", 
                             stringify!(#ident), #ident, #line_num); */
-                        println! ("Pat {:?}", #local_pat);
+                        println! ("Loc {:?}", #local_pat);
                     };
             //}
                 
