@@ -51,38 +51,7 @@
 // This attempts to prevent segfaults in optimized builds by preventing optimization with
 // surrounding code. It doesn't work well enough to keep as a documented public macro.
 //extern crate proc_macro;
-use proc_macro::TokenStream;
-use quote::quote;
-use syn::{parse_macro_input, ItemFn, Stmt};
-//#[proc_macro_attribute]
-pub fn inject_after_hello(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let mut input: ItemFn = parse_macro_input!(item as ItemFn);
-    let mut new_stmts = Vec::<Stmt>::new(); 
 
-    for stmt in input.block.stmts {
-        // Push the original statement
-        new_stmts.push(stmt.clone());
-
-        // Check if it's the specific println! macro invocation
-        if let Stmt::Semi(syn::Expr::Macro(expr_macro), _) = &stmt {
-            let macro_path = &expr_macro.mac.path.segments;
-            let macro_tokens = expr_macro.mac.tokens.to_string();
-            if macro_path.len() == 1
-                && macro_path[0].ident == "println"
-                && macro_tokens.contains("\"Hello, world!\"")
-            {
-                // Inject code after the matched println!
-                new_stmts.push(syn::parse_quote! {
-                    println!("-- injected after Hello, world!");
-                });
-            }
-        }
-    }
-
-    input.block.stmts = new_stmts;
-
-    TokenStream::from(quote! { #input })
-}
 
 #[macro_use]
 #[doc(hidden)]
@@ -105,18 +74,17 @@ macro_rules! might_skip {
 #[macro_use]
 macro_rules! label {
     ($label:literal) => {
-        //might_skip! {
+        might_skip! {
         {
             #[allow(named_asm_labels)]
             #[cfg(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64"))]
             {
                 use core::arch::asm;
                 asm!(concat!($label, ":"));
-                println! ("{}", $label);
             }
             #[cfg(not(any(target_arch = "x86", target_arch = "x86_64", target_arch = "aarch64")))]
             compile_error!("`label!` not implemented for this architecture!");
-    //    }
+        }
     }
     };
 }
