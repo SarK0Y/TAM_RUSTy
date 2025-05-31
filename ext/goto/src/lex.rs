@@ -19,3 +19,16 @@ pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     }
     return Some (out.clone() )
 }
+pub fn stat_local_vars (fn_str: String) -> found_local_vars {
+    todo!();
+}
+pub struct found_local_vars {
+    pub mut_or_not: Vec <bool>,
+    pub pub_or_not: Vec <bool>,
+    pub static_or_not: Vec <bool>,
+    pub _type: Vec <String>,
+    pub line: Vec <u64>,
+    pub column: Vec <u64>,
+    pub name: Vec <String>,
+    pub txt: Vec <String>,
+}
