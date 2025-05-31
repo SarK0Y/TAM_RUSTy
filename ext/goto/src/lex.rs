@@ -20,6 +20,7 @@ pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     return Some (out.clone() )
 }
 pub fn stat_local_vars (fn_str: String) -> found_local_vars {
+    let mut all_locals = found_local_vars::new();
     todo!();
 }
 pub struct found_local_vars {
@@ -31,4 +32,18 @@ pub struct found_local_vars {
     pub column: Vec <u64>,
     pub name: Vec <String>,
     pub txt: Vec <String>,
+}
+impl found_local_vars {
+    fn new () -> Self {
+        return Self {
+            mut_or_not: Vec::<bool>::new(),
+            pub_or_not: Vec::<bool>::new(),
+            static_or_not: Vec::<bool>::new(),
+            _type: Vec::<String>::new(),
+            name: Vec::<String>::new(),
+            txt: Vec::<String>::new(),
+            line: Vec::<u64>::new(),
+            column: Vec::<u64>::new(),
+        }
+    }
 }
