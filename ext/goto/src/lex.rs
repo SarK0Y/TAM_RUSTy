@@ -23,13 +23,23 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
     let mut all_locals = found_local_vars::new();
     todo!();
 }
+pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> rExpr {
+    let mut line: usize = 0;
+    let mut column = line;
+    let mut maybe = String::new();
+    let stream_len: usize = stream.len();
+    for j in run_from..stream_len {
+        
+    }
+    todo!();
+}
 pub struct found_local_vars {
     pub mut_or_not: Vec <bool>,
     pub pub_or_not: Vec <bool>,
     pub static_or_not: Vec <bool>,
     pub _type: Vec <String>,
-    pub line: Vec <u64>,
-    pub column: Vec <u64>,
+    pub line: Vec <usize>,
+    pub column: Vec <usize>,
     pub name: Vec <String>,
     pub txt: Vec <String>,
 }
@@ -42,8 +52,13 @@ impl found_local_vars {
             _type: Vec::<String>::new(),
             name: Vec::<String>::new(),
             txt: Vec::<String>::new(),
-            line: Vec::<u64>::new(),
-            column: Vec::<u64>::new(),
+            line: Vec::<usize>::new(),
+            column: Vec::<usize>::new(),
         }
     }
+}
+pub struct rExpr {
+    pub txt: String,
+    pub line: usize,
+    pub column: usize,
 }
