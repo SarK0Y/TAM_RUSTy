@@ -3,7 +3,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
-token::Comma, Expr, Lit, Token, PatIdent, Pat, Local, PathSegment};
+token::Comma, Expr, Lit, Token, PatIdent, Pat, Local, PathSegment, DeriveInput};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 use Mademoiselle_Entropia::custom_traits::STRN;
 mod lex;
@@ -281,7 +281,9 @@ fn strn_to_Ident(s: &str) -> syn::Ident {
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
 use syn::spanned::Spanned;
-    let mut input_fn = parse_macro_input!(item as ItemFn);
+    let item_fn = item.clone();
+    let mut input_fn = parse_macro_input!( item_fn as ItemFn);
+     let span = input_fn.attrs.first().map(|attr| attr.span()).unwrap_or_else(proc_macro2::Span::call_site);
     let fn_name = &input_fn.sig.ident;
     let mut new_stmts = Vec::new();
 
@@ -292,7 +294,9 @@ use syn::spanned::Spanned;
             
             // Recursively collect all identifiers from the pattern
             //collect_idents(&local.pat, &mut var_names);
-            let local_pat = format! ("{:?}", &local );
+            let span = local.init.as_ref().unwrap().expr.clone(); // works
+          //  let span = local.pat.attrs.clone();
+            let local_pat = format! ("{:?}\nspanЪЪ {:?}", &local, span );
             
             //if !var_names.is_empty() {
                 let print_stmts = /*var_names.iter().map(|ident| { */
