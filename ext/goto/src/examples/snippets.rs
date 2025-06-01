@@ -18,4 +18,13 @@ attrs: [], paren_token: Paren, elems: [
     token: 47u64 
     } }, Comma, Expr::Lit { attrs: [], lit: Lit::Int { token: 357u32 } }] }, diverge: None }), semi_token: Semi }"
 tst here
+******************
+Tokens:
+These are the building blocks of the language, representing things like:
+Identifiers: Names for variables, functions, etc. (e.g., x, myFunction). 
+Keywords: Reserved words with specific meanings (e.g., if, while, for). 
+Operators: Symbols that perform operations (e.g., +, -, *, =, /). 
+Punctuation: Symbols like commas, semicolons, and parentheses. 
+Literals: Constants, like numbers and strings (e.g., 123, "hello"). 
+
 */

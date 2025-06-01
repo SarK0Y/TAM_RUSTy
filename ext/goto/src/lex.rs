@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 use Mademoiselle_Entropia::custom_traits::STRN;
 pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     if txt.len() == 0 { return None}
@@ -27,7 +28,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut line: usize = 0;
     let mut column = line;
     let mut maybe = String::new();
-    let stream_len: usize = stream.len();
+    let stream_len: usize = stream.chars().count();
     for j in run_from..stream_len {
         
     }
@@ -61,4 +62,8 @@ pub struct rExpr {
     pub txt: String,
     pub line: usize,
     pub column: usize,
+}
+pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> String {
+    static mut tokens: Lazy <Vec <String> > = Lazy::new (|| {Vec::<String>::new()});
+    todo!()
 }
