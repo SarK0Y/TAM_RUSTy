@@ -714,3 +714,11 @@ fn main() {
 }
 
 */
+/*
+    Z = PB + QA
+    PQ = N
+    
+    > AB * N / AB = N
+    > ABP * Q / ABP = N
+    > (A / B)Q * P(B / A) = N [extra variant]
+/*
