@@ -63,11 +63,21 @@ pub struct rExpr {
     pub line: usize,
     pub column: usize,
 }
-pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> String {
+pub fn get_token (indx: usize) -> token_status {
+    return set_of_tokens (None, indx)
+}
+pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
     static mut tokens: Lazy <Vec <String> > = Lazy::new (|| {Vec::<String>::new()});
     unsafe {
-        if let Some (x) = add_nxt { tokens.push (x); return "".strn(); }
+        if let Some (x) = add_nxt { tokens.push (x); return token_status::new_added }
         let len = tokens.len();
-        if get < len {return tokens [get].clone() } return "".strn()
+        if len == 0 { return token_status::empty }
+        if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
     }
+}
+pub enum token_status {
+    too_large_indx,
+    ret (String),
+    empty,
+    new_added
 }

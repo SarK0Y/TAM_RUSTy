@@ -281,6 +281,7 @@ fn strn_to_Ident(s: &str) -> syn::Ident {
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
 use syn::spanned::Spanned;
+    lex::get_token (1);
     let item_fn = item.clone();
     let mut input_fn = parse_macro_input!( item_fn as ItemFn);
      let span = input_fn.attrs.first().map(|attr| attr.span()).unwrap_or_else(proc_macro2::Span::call_site);
