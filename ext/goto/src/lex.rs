@@ -65,5 +65,9 @@ pub struct rExpr {
 }
 pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> String {
     static mut tokens: Lazy <Vec <String> > = Lazy::new (|| {Vec::<String>::new()});
-    todo!()
+    unsafe {
+        if let Some (x) = add_nxt { tokens.push (x); return "".strn(); }
+        let len = tokens.len();
+        if get < len {return tokens [get].clone() } return "".strn()
+    }
 }
