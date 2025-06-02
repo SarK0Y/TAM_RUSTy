@@ -4,10 +4,10 @@ use std::io::Read;
 #[cfg(feature="tam")] 
 use crate::{globs18::strn_2_usize, usize_2_i64, core18::i64_2_usize, errMsg0};
 #[cfg(feature="tam")] use crate::run_cmd_out_sync;
-pub(crate) trait STRN {
+pub trait STRN {
     fn strn(&self) -> String;
 }
-pub(crate) trait STRN_usize {
+pub trait STRN_usize {
     fn usize0(&self) -> usize;
 }
 #[cfg(feature="tam")] 
@@ -16,7 +16,7 @@ impl STRN_usize for String{
         strn_2_usize(&self.strn() ).unwrap_or(0)
     }
 }
-pub(crate) trait turn_2_i64 {
+pub trait turn_2_i64 {
     fn i640(&self) -> i64;
 }
 #[cfg(feature="tam")] 
@@ -52,7 +52,7 @@ impl turn_2_i64 for &String{
         }
     }
 }
-pub(crate) trait turn_2_usize {
+pub trait turn_2_usize {
     fn usize0(&self) -> usize;
 }
 #[cfg(feature="tam")] 
@@ -61,7 +61,7 @@ impl turn_2_usize for i64{
         i64_2_usize(*self )
     }
 }
-pub(crate) trait STRN_strip {
+pub trait STRN_strip {
     fn del_ch(&self, ch: &str) -> String;
     fn strip_symbs(&mut self) -> String;
     fn strip_apostrophe(&mut self) -> String;
@@ -146,12 +146,12 @@ impl STRN for i64 {
         self.to_string()
     }
 }
-pub(crate) trait helpful_math_ops
+pub trait helpful_math_ops
 {
     fn inc(&mut self) -> Self;
     fn dec(&mut self) -> Self;
 }
-pub(crate) trait arrays {
+pub trait arrays {
     fn low_to_high(&mut self) -> &mut Self;
 }
 impl arrays for [u8] {
@@ -163,7 +163,7 @@ impl arrays for [u8] {
         } self
     }
 }
-pub(crate) trait arr2number {
+pub trait arr2number {
     fn arr2u64(&mut self) -> u64;
     fn arr2u128(&mut self) -> u128;
 }
@@ -383,7 +383,7 @@ impl fs_tools for String{
     }
 }
 #[cfg(feature="tam")]
-pub(crate) trait find_substrn {
+pub trait find_substrn {
     fn enum_entry_points_of_substrn(&self, delim: &String) -> Vec<usize>;
 }
 #[cfg(feature="tam")]
@@ -415,7 +415,7 @@ impl find_substrn for String{
     EPs
 }
 }
-pub(crate) trait vec_tools <T>{
+pub trait vec_tools <T>{
     fn up2 (&self, bar: T) -> Vec<T>;
     fn down2 (&self, bar: T) -> Vec<T>;
 }

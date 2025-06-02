@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use Mademoiselle_Entropia::custom_traits::STRN;
+use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     if txt.len() == 0 { return None}
     let mut ret0 = key.clone ();
@@ -27,10 +27,17 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> rExpr {
     let mut line: usize = 0;
     let mut column = line;
+    let nl = char::from_u32(0x0a).unwrap().to_string();
     let mut maybe = String::new();
-    let stream_len: usize = stream.chars().count();
-    for j in run_from..stream_len {
-        
+    let stop_token_len = stop_token.len();
+    let to_stream_len: usize = stream.chars().count();
+    for j in run_from..to_stream_len {
+        let ch = stream.chars().nth (j).unwrap ();
+        maybe.push(ch);
+        column.inc();
+        if maybe.len() == stop_token_len {
+            
+        }
     }
     todo!();
 }
