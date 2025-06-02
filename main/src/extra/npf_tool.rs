@@ -53,3 +53,24 @@ pub fn continued_fraction_approximation(x: rugfloat, max_terms: usize, len_in_bi
 
     return (numerator, denominator)
 }
+pub fn bst_npf (n: rugint, approx_accuracy: u32) -> (rugint, rugint) {
+    let Z = rugfloat::with_val(approx_accuracy, &n) + rugfloat::with_val (approx_accuracy, 9.0);
+    let N = rugfloat::with_val(approx_accuracy, &n);
+    let _2 = rugfloat::with_val(approx_accuracy, 2.0);
+    let eps = rugfloat::with_val(approx_accuracy, 2.0);
+    let eps = eps.pow (approx_accuracy);
+    let eps = rugfloat::with_val(approx_accuracy, 1.0) / eps;
+    let mut x: rugfloat = (&Z / &_2).complete (approx_accuracy.into() );
+    let mut dx: rugfloat = x.clone() / 2;
+    let mut maybe_n = rugfloat::with_val(approx_accuracy, &n);
+    let mut dn = rugfloat::with_val(approx_accuracy, &n);
+    loop {
+        maybe_n = x.clone() * (&Z - &x ).complete (approx_accuracy.into() );
+        if maybe_n > N {x -= &dx;} else { x += &dx; }
+        dx = (&dx / &_2).complete (approx_accuracy.into() );
+        dn = (maybe_n.clone() - N.clone()).abs();
+        if dn <= eps { break; }
+    }
+    
+    todo! ();
+}
