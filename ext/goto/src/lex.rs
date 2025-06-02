@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     if txt.len() == 0 { return None}
@@ -27,17 +28,21 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> rExpr {
     let mut line: usize = 0;
     let mut column = line;
-    let nl = char::from_u32(0x0a).unwrap().to_string();
+    let nl = char::from_u32(0x0a);//.unwrap().to_string();
     let mut maybe = String::new();
-    let stop_token_len = stop_token.len();
+    let stop_token_len = stop_token.chars().count();
+    let token_len = token.chars().count();
     let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
     for j in run_from..to_stream_len {
+        column.inc();
+        if chars.nth (j) == nl {column = 0; line.inc(); }
         let ch = stream.chars().nth (j).unwrap ();
         maybe.push(ch);
-        column.inc();
-        if maybe.len() == stop_token_len {
-            
+        if maybe.chars().count() == token_len {
+            if maybe == *token { break; }
         }
+        if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe = "".strn(); }
     }
     todo!();
 }
