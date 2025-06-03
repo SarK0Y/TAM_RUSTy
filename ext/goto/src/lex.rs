@@ -25,7 +25,7 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
     let mut all_locals = found_local_vars::new();
     todo!();
 }
-pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> rExpr {
+pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
     let mut column = line;
     let nl = char::from_u32(0x0a);//.unwrap().to_string();
@@ -42,9 +42,29 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         if maybe.chars().count() == token_len {
             if maybe == *token { break; }
         }
-        if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe = "".strn(); }
+        if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
     }
-    todo!();
+    if maybe.is_empty() { return None }
+    maybe.clear();
+    let run_from = run_from + token_len - 1;
+    let mut txt = token.clone();
+    for j in run_from..to_stream_len {
+        let ch = stream.chars().nth (j).unwrap ();
+        maybe.push(ch);
+        if maybe.chars().count() == stop_token_len {
+            if maybe == *stop_token { break; }
+        }
+        if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+        txt.push(ch);
+    }
+    txt.push_str ( stop_token.clone().as_str () );
+    return Some (
+        rExpr {
+            txt,
+            line,
+            column
+        }
+    )
 }
 pub struct found_local_vars {
     pub mut_or_not: Vec <bool>,
