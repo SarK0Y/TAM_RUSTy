@@ -6,6 +6,7 @@
 #![allow(unused_imports)]
 #![allow(unused_assignments)]
 #![allow(unused_mut)]
+#![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
 use proc_macro::TokenStream;

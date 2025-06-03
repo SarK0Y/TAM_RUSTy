@@ -66,6 +66,27 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         }
     )
 }
+pub fn blocks_status (ch: Option < &char > ) -> bool {
+    static mut curly: u64 = 0;
+    static mut round: u64 = 0;
+    static mut square: u64 = 0;
+    static mut state: bool = false;
+    unsafe {
+        if ch.is_none () { return state }
+        let ch = ch.unwrap();
+        match *ch {
+            '{' => {curly.inc(); }, 
+            '}' => {curly.dec(); },
+            '(' => {round.inc(); },
+            ')' => {round.dec(); }, 
+            '[' => {square.inc(); }, 
+            ']' => {square.dec(); },
+            _ => {}
+        }
+        let sum = curly + round + square;
+        if sum == 0 { state = false;} else { state = true; } return state
+    }
+}
 pub struct found_local_vars {
     pub mut_or_not: Vec <bool>,
     pub pub_or_not: Vec <bool>,
