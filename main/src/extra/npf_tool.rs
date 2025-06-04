@@ -75,13 +75,18 @@ pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, ru
         dn = (maybe_n.clone() - N.clone()).abs();
         if dn <= eps { break; }
     }
-    return (x.clone(), (Z - x).clone() )
+    let PnQ = (x.clone(), (Z - x).clone() );
+    let PnQ = normalize_PnQ (&PnQ.0, &PnQ.1, approx_accuracy);
+    return PnQ
 }
 pub fn normalize_PnQ (P: &rugfloat, Q: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
     let num_of_terms: usize = (approx_accuracy / 2) as usize;
-    let (num0, den0) = continued_fraction_approximation (P, num_of_terms, approx_accuracy);
-    let (num1, den1) = continued_fraction_approximation (Q, num_of_terms, approx_accuracy);
-    todo! ();
+    let rP = continued_fraction_approximation (P, num_of_terms, approx_accuracy);
+    let rQ = continued_fraction_approximation (Q, num_of_terms, approx_accuracy);
+    let dens = max_min_float ( &rP.1, &rQ.1 );
+    let mut PnQ = max_min_float (&P, &Q);
+    let coef = dens.1 / dens.0;
+    PnQ.0 = PnQ.0 * coef.clone(); PnQ.1 /= coef; return PnQ.clone()
 }
 #[inline]
 pub fn max_min_float (_0: &rugfloat, _1: &rugfloat) -> (rugfloat, rugfloat) {
