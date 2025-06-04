@@ -134,3 +134,11 @@ pub enum token_status {
     empty,
     new_added
 }
+pub enum prime_token {
+    semicolon,
+    colon,
+    dot,
+    comma,
+    paren (char),
+    any_symb (char)
+}
