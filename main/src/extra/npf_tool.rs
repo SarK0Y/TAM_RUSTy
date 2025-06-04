@@ -57,16 +57,16 @@ pub fn z_approx (n: &rugint, approx_accuracy: u32) -> rugfloat {
     let Z = rugfloat::with_val(approx_accuracy, n) + rugfloat::with_val (approx_accuracy, 9.0);
     todo! ();
 }
-pub fn bts_npf (n: rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
-    let N = rugfloat::with_val(approx_accuracy, &n);
+pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
+    let N = rugfloat::with_val(approx_accuracy, n);
     let _2 = rugfloat::with_val(approx_accuracy, 2.0);
     let eps = rugfloat::with_val(approx_accuracy, 2.0);
     let eps = eps.pow (approx_accuracy);
     let eps = rugfloat::with_val(approx_accuracy, 1.0) / eps;
     let mut x: rugfloat = (Z / &_2).complete (approx_accuracy.into() );
     let mut dx: rugfloat = x.clone() / 2;
-    let mut maybe_n = rugfloat::with_val(approx_accuracy, &n);
-    let mut dn = rugfloat::with_val(approx_accuracy, &n);
+    let mut maybe_n = rugfloat::with_val(approx_accuracy, n);
+    let mut dn = rugfloat::with_val(approx_accuracy, n);
     loop {
         maybe_n = x.clone() * (Z - &x ).complete (approx_accuracy.into() );
         if maybe_n > N {x -= &dx;} else { x += &dx; }
