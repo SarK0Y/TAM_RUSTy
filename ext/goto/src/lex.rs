@@ -50,6 +50,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
         let ch = stream.chars().nth (j).unwrap ();
+        if blocks_status ( Some (&ch ) ) {continue; }
         maybe.push(ch);
         if maybe.chars().count() == stop_token_len {
             if maybe == *stop_token { break; }
