@@ -24,7 +24,7 @@ pub fn B_base_num_sys (num: &rugint, rdx: &rugint) -> Vec < rugint > {
         num /= rdx.clone();
     } return conv
 }
-pub fn continued_fraction_approximation(x: rugfloat, max_terms: usize, len_in_bits: u32, ) -> (rugfloat, rugfloat) {
+pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_bits: u32, ) -> (rugfloat, rugfloat) {
     let mut float_x = x.clone();
     let mut a = float_x.clone().trunc(); 
     let mut numerator = a.clone(); 
@@ -54,7 +54,8 @@ pub fn continued_fraction_approximation(x: rugfloat, max_terms: usize, len_in_bi
     return (numerator, denominator)
 }
 pub fn z_approx (n: &rugint, approx_accuracy: u32) -> rugfloat {
-    let Z = rugfloat::with_val(approx_accuracy, n) + rugfloat::with_val (approx_accuracy, 9.0);
+    let mut Z = rugfloat::with_val(approx_accuracy, n) + rugfloat::with_val (approx_accuracy, 9.0);
+    
     todo! ();
 }
 pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
@@ -75,4 +76,14 @@ pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, ru
         if dn <= eps { break; }
     }
     return (x.clone(), (Z - x).clone() )
+}
+pub fn normalize_PnQ (P: &rugfloat, Q: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
+    let num_of_terms: usize = (approx_accuracy / 2) as usize;
+    let (num0, den0) = continued_fraction_approximation (P, num_of_terms, approx_accuracy);
+    let (num1, den1) = continued_fraction_approximation (Q, num_of_terms, approx_accuracy);
+    todo! ();
+}
+#[inline]
+pub fn max_min_float (_0: &rugfloat, _1: &rugfloat) -> (rugfloat, rugfloat) {
+    if _0 > _1 {return (_0.clone(), _1.clone())} return (_1.clone(), _0.clone() )
 }
