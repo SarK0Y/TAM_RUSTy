@@ -53,8 +53,11 @@ pub fn continued_fraction_approximation(x: rugfloat, max_terms: usize, len_in_bi
 
     return (numerator, denominator)
 }
-pub fn bts_npf (n: rugint, approx_accuracy: u32) -> (rugint, rugint) {
+pub fn z_approx (n: &rugint, approx_accuracy: u32) -> rugfloat {
     let Z = rugfloat::with_val(approx_accuracy, &n) + rugfloat::with_val (approx_accuracy, 9.0);
+    todo! ();
+}
+pub fn bts_npf (n: rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
     let N = rugfloat::with_val(approx_accuracy, &n);
     let _2 = rugfloat::with_val(approx_accuracy, 2.0);
     let eps = rugfloat::with_val(approx_accuracy, 2.0);
@@ -71,6 +74,5 @@ pub fn bts_npf (n: rugint, approx_accuracy: u32) -> (rugint, rugint) {
         dn = (maybe_n.clone() - N.clone()).abs();
         if dn <= eps { break; }
     }
-    
-    todo! ();
+    return (x.clone(), (Z - x).clone() )
 }
