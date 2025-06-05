@@ -28,6 +28,8 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
     let mut column = line;
+    let mut entry = line;
+    let mut end = line;
     let nl = char::from_u32(0x0a);//.unwrap().to_string();
     let mut maybe = String::new();
     let stop_token_len = stop_token.chars().count();
@@ -36,6 +38,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut chars = stream.chars();
     for j in run_from..to_stream_len {
         column.inc();
+        entry.inc();
         if chars.nth (j) == nl {column = 0; line.inc(); }
         let ch = stream.chars().nth (j).unwrap ();
         maybe.push(ch);
@@ -50,6 +53,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
         let ch = stream.chars().nth (j).unwrap ();
+        end.inc();
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
         txt.push(ch);
         if blocks_status ( Some (&ch ) ) {continue; }
@@ -63,7 +67,9 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         rExpr {
             txt,
             line,
-            column
+            column,
+            entry,
+            end
         }
     )
 }
@@ -116,6 +122,8 @@ pub struct rExpr {
     pub txt: String,
     pub line: usize,
     pub column: usize,
+    pub entry: usize,
+    pub end: usize
 }
 pub fn get_token (indx: usize) -> token_status {
     return set_of_tokens (None, indx)
