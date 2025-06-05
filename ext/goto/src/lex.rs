@@ -38,12 +38,11 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut chars = stream.chars();
     for j in run_from..to_stream_len {
         column.inc();
-        entry.inc();
         if chars.nth (j) == nl {column = 0; line.inc(); }
         let ch = stream.chars().nth (j).unwrap ();
         maybe.push(ch);
         if maybe.chars().count() == token_len {
-            if maybe == *token { break; }
+            if maybe == *token { entry = j - token_len + 1; break; }
         }
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
     }
