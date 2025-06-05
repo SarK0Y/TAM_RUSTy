@@ -53,7 +53,6 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
         let ch = stream.chars().nth (j).unwrap ();
-        end.inc();
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
         txt.push(ch);
         if blocks_status ( Some (&ch ) ) {continue; }
@@ -63,6 +62,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         }
     }
     txt.push_str ( stop_token.clone().as_str () );
+    end = entry + txt.chars().count ();
     return Some (
         rExpr {
             txt,
