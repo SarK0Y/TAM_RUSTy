@@ -66,7 +66,7 @@ pub fn bts_npf_w_rnd_z (n: &rugint, approx_accuracy: u32) -> (rugfloat, rugfloat
     return bts_npf (n, &dice_Z, approx_accuracy)
 }
 pub fn auto_bts_npf (n: &rugint) -> (rugfloat, rugfloat) {
-    let approx_accuracy = 3 * n.significant_bits();
+    let approx_accuracy = 7 * n.significant_bits();
     let dice_Z = z_dice (n, approx_accuracy);
     return bts_npf (n, &dice_Z, approx_accuracy)
 }
@@ -89,15 +89,22 @@ pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, ru
     }
     let PnQ = (x.clone(), (Z - x).clone() );
     let PnQ = normalize_PnQ (&PnQ.0, &PnQ.1, approx_accuracy);
+    let tst_n = PnQ.0.clone() * PnQ.1.clone();
+    dbg! (tst_n);
     return PnQ
 }
 pub fn normalize_PnQ (P: &rugfloat, Q: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
     let num_of_terms: usize = (approx_accuracy / 2) as usize;
     let rP = continued_fraction_approximation (P, num_of_terms, approx_accuracy);
     let rQ = continued_fraction_approximation (Q, num_of_terms, approx_accuracy);
+    let tst = continued_fraction_approximation (&rugfloat::with_val(approx_accuracy, 0.666666), num_of_terms, approx_accuracy);
+    dbg! (&rQ);
+    dbg! (&rP);
+    dbg! (tst);
     let dens = max_min_float ( &rP.1, &rQ.1 );
     let mut PnQ = max_min_float (&P, &Q);
-    let coef = dens.1 / dens.0;
+    let coef = dens.1.clone() / dens.0.clone();
+    dbg! (&dens);
     PnQ.0 = PnQ.0 * coef.clone(); PnQ.1 /= coef; return PnQ.clone()
 }
 #[inline]

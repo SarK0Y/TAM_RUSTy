@@ -608,6 +608,8 @@ pub fn Set_NPF () {
     if base_cmd == "dice_z" {
         let ret0 = npft::auto_bts_npf (&num);
         ret = format! ("~Q = {}, ~P = {}", ret0.0, ret0.1);
+        let tst_n1 = ret0.0 * ret0.1;
+        dbg! (tst_n1);
     }
     errMsg0 (ret.as_str());
 }
