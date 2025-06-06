@@ -8,6 +8,7 @@ use crate::faav;
 use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
+use Mademoiselle_Entropia::true_rnd::get_true_rnd_u64;
 pub fn gor (n: &rugint) -> rugint {
 
     todo!()
@@ -53,10 +54,12 @@ pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_b
 
     return (numerator, denominator)
 }
-pub fn z_approx (n: &rugint, approx_accuracy: u32) -> rugfloat {
-    let mut Z = rugfloat::with_val(approx_accuracy, n) + rugfloat::with_val (approx_accuracy, 9.0);
-    
-    todo! ();
+pub fn z_dice (n: &rugint, approx_accuracy: u32) -> rugfloat {
+    let dice = get_true_rnd_u64 ().to_string();
+    let dice = rugint::from_str_radix (&dice, 10).unwrap();
+    let dice = rugfloat::with_val (approx_accuracy, &dice);
+    let mut Z = rugfloat::with_val(approx_accuracy, n).sqrt().trunc() * dice + rugfloat::with_val (approx_accuracy, 1.0);
+    return Z
 }
 pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
     let N = rugfloat::with_val(approx_accuracy, n);
