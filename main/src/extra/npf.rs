@@ -12,6 +12,7 @@ use crate::STRN;
 use crate::{errMsg0, errMsg0 as _msg, globs18::split_once_alt_o_null_strns, ps18::{set_prnt, get_prnt}};
 use crate::custom_traits::{helpful_math_ops, STRN_usize, turn_2_i64};
 use crate::goto; //::{label, goto};
+use crate::npf_tool as npft;
 pub const PREC: u64 = 8192;
 pub type npf_output = (rugint, rugint, String);
 #[derive(Clone, PartialEq)]
@@ -584,6 +585,7 @@ pub fn Set_NPF () {
     let prnt = get_prnt (1001876412);
     let prnt = prnt.replace("npf ", "").trim_end().trim_start().strn();
     let (mut base, mut num) = split_once_alt_o_null_strns (&prnt, &" ".strn());
+    let base_cmd = if base == "dice_z" { base.clone() } else {"".strn() };
     if base == "" && num == "" { num = prnt.clone(); }
     base = base.replace(",", "");
     let base: u32 = if num == "" { num = base; base = "".strn(); 0 } else {
@@ -591,17 +593,22 @@ pub fn Set_NPF () {
         let base = rugint::parse (base).unwrap_or(__0).complete().to_u32 ().unwrap_or (0);
         base
     };
-    if num == "" {errMsg0 ("proper command: npf <Your number> or npf <base/radix> <Your number>"); return}
+    if num == "" {errMsg0 ("proper command: npf <Your number> or npf <base/radix> <Your number> or npf dice_z <Your number>"); return}
     let num = num.replace(",", "");
     let num = rugint::parse (num);
     if num.is_err() {errMsg0 ("Set proper number, Please"); return}
     let mut num = num.unwrap().complete ();
-    let num_str = if base == 0 { format! ("npf {num}") } else { format! ("npf {base} {num}") };
+    let mut num_str = if base == 0 { format! ("npf {num}") } else { format! ("npf {base} {num}") };
+    if !base_cmd.is_empty() { num_str = format! ("npf {base_cmd} {num}") }
     set_prnt (&num_str, 479541533);
     dbg! (&base);
-    let ret = if base == 0 { unsafe { npf (num) } } else { unsafe { npf_ext (num, base) } };
-    let ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
+    let ret = if base == 0 { unsafe { npf (num.clone()) } } else { unsafe { npf_ext (num.clone(), base) } };
+    let mut ret = if ret.0 > 1 {format! ("Q = {}, P = {}, id = {}", ret.0, ret.1, ret.2)} else 
                 {format! ("Sorry, Dear User, no solution found Q: {}, P: {} - You can try deeper search {{press Ins}}{{npf bar <Number of Upper Bit>}} ", ret.0, ret.1)};
+    if base_cmd == "dice_z" {
+        let ret0 = npft::auto_bts_npf (&num);
+        ret = format! ("~Q = {}, ~P = {}", ret0.0, ret0.1);
+    }
     errMsg0 (ret.as_str());
 }
 impl std::fmt::Display for product_form {
