@@ -70,6 +70,12 @@ pub fn auto_bts_npf (n: &rugint) -> (rugfloat, rugfloat) {
     let dice_Z = z_dice (n, approx_accuracy);
     return bts_npf (n, &dice_Z, approx_accuracy)
 }
+pub fn simple_bts_npf (n: &rugint) -> (rugfloat, rugfloat) {
+    let approx_accuracy = 7 * n.significant_bits();
+    let _Z = 3 * n.clone().sqrt();
+    let _Z = rugfloat::with_val (approx_accuracy, _Z);
+    return bts_npf (n, &_Z, approx_accuracy)
+}
 pub fn bts_npf (n: &rugint, Z: &rugfloat, approx_accuracy: u32) -> (rugfloat, rugfloat) {
     let N = rugfloat::with_val(approx_accuracy, n);
     let _2 = rugfloat::with_val(approx_accuracy, 2.0);
