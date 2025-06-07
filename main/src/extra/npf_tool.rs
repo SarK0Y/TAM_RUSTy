@@ -32,14 +32,17 @@ pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_b
     let mut denominator = rugfloat::with_val(len_in_bits, 1.0); 
     let mut prev_numerator = rugfloat::with_val(len_in_bits, 1.0); 
     let mut prev_denominator = rugfloat::with_val(len_in_bits, 0.0);
-
+    let eps: rugfloat = rugfloat::with_val(len_in_bits + 1, 2.0);
+    let eps: rugfloat = eps.pow ( -1.0 * len_in_bits as f64 );
+    let mut stop_x: rugfloat = eps.clone();
     float_x -= &a;
 
     for _ in 0..max_terms {
         if float_x.is_zero() {
             break; 
         }
-
+        stop_x = numerator.clone() / denominator.clone();
+        if (stop_x - x ).abs() < eps {break}
         // Take the reciprocal
         float_x = rugfloat::with_val(len_in_bits, 1) / float_x;
         a = float_x.clone().trunc();
