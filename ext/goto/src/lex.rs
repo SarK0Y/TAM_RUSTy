@@ -25,6 +25,13 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
     let mut all_locals = found_local_vars::new();
     todo!();
 }
+pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < String > {
+    let mut ret = Vec::<String>::new ();
+    let mut rexpr = rExpr::new();
+    loop {
+    }
+    return ret
+}
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
     let mut column = line;
@@ -39,7 +46,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     for j in run_from..to_stream_len {
         column.inc();
         if chars.nth (j) == nl {column = 0; line.inc(); }
-        let ch = stream.chars().nth (j).unwrap ();
+        let ch = chars.nth (j).unwrap ();
         maybe.push(ch);
         if maybe.chars().count() == token_len {
             if maybe == *token { entry = j - token_len + 1; break; }
@@ -123,6 +130,17 @@ pub struct rExpr {
     pub column: usize,
     pub entry: usize,
     pub end: usize
+}
+impl rExpr {
+    fn new () -> Self {
+        return Self {
+            txt: String::new(),
+            line: 0,
+            column: 0,
+            entry: 0,
+            end: 0
+        }
+    }
 }
 pub fn get_token (indx: usize) -> token_status {
     return set_of_tokens (None, indx)
