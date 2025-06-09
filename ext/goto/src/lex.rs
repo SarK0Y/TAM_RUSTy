@@ -25,12 +25,19 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
     let mut all_locals = found_local_vars::new();
     todo!();
 }
-pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < String > {
-    let mut ret = Vec::<String>::new ();
+pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
+    let mut ret = Vec::< rExpr >::new ();
     let mut rexpr = rExpr::new();
+    let mut run_from: usize = 0;
     loop {
+        rexpr = if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { x } else { break;};
+        run_from = rexpr.end;
+        ret.push (rexpr.clone() );
     }
     return ret
+}
+pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
+    return stream_sieving (stream, &token, run_from, &stop_token)
 }
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
@@ -100,6 +107,7 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
         if sum == 0 { state = false;} else { state = true; } return state
     }
 }
+#[derive(Clone, Debug)]
 pub struct found_local_vars {
     pub mut_or_not: Vec <bool>,
     pub pub_or_not: Vec <bool>,
@@ -124,6 +132,7 @@ impl found_local_vars {
         }
     }
 }
+#[derive(Clone, Debug)]
 pub struct rExpr {
     pub txt: String,
     pub line: usize,
