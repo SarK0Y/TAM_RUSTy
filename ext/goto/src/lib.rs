@@ -9,6 +9,8 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
+use crate::lex::{collect_not_nested_let_tokens, rExpr};
+use substring::Substring;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
@@ -261,6 +263,17 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         };
         return out.into()
    }
+#[proc_macro_attribute]
+pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let func_body = item.to_string ();
+    let func_body_last_exit = func_body.substring (0, func_body.chars().count() - 1);
+    let new_end = quote! {
+        println! ("new end was successfully added");
+    }.to_string();
+    let modified_func_body = format! ("{func_body_last_exit}\n{new_end}\n}}");
+    let out: TokenStream2 = modified_func_body.parse().unwrap();
+    return out.into()
+}
    #[inline]
    fn prnt_func (name_fn: &str, input: TokenStream) -> (TokenStream2, syn::Ident) {
         let func_body = input.to_string();
@@ -288,7 +301,7 @@ fn strn_to_Ident(s: &str) -> syn::Ident {
     syn::Ident::new(s, Span::call_site())
 }
 #[proc_macro_attribute]
-pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
+pub fn prnt_vars0(_attr: TokenStream, item: TokenStream) -> TokenStream {
 use syn::spanned::Spanned;
     lex::get_token (1);
     let item_fn = item.clone();
