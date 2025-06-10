@@ -54,7 +54,8 @@ pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_b
         denominator = new_denominator;
         float_x -= &a; 
     }
-
+    let res = numerator.clone() / denominator.clone();
+    dbg! (&res);
     return (numerator, denominator)
 }
 pub fn z_dice (n: &rugint, approx_accuracy: u32) -> rugfloat {
@@ -75,7 +76,9 @@ pub fn auto_bts_npf (n: &rugint) -> (rugfloat, rugfloat) {
 }
 pub fn simple_bts_npf (n: &rugint) -> (rugfloat, rugfloat) {
     let approx_accuracy = 7 * n.significant_bits();
-    let _Z = 3 * n.clone().sqrt();
+    let _Z =  n.clone().sqrt();
+    let ext = _Z.clone() / 3;
+    let _Z = 2 * _Z + ext;
     let _Z = rugfloat::with_val (approx_accuracy, _Z);
     return bts_npf (n, &_Z, approx_accuracy)
 }
