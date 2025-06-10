@@ -267,6 +267,8 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let func_body = item.to_string ();
     let func_body_last_exit = func_body.substring (0, func_body.chars().count() - 1);
+    let rexpr: Vec <rExpr > = collect_not_nested_let_tokens (&func_body);
+    //let vars: String = rexpr.into_iter().map (|i| -> String { format! ("\n{}", i.txt) } ).collect();
     let new_end = quote! {
         println! ("new end was successfully added");
     }.to_string();
