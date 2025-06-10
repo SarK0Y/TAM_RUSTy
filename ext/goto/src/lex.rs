@@ -30,7 +30,8 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut rexpr = rExpr::new();
     let mut run_from: usize = 0;
     loop {
-        rexpr = if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { x } else { break;};
+        leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
+        if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
         run_from = rexpr.end;
         ret.push (rexpr.clone() );
     }
@@ -60,7 +61,9 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         }
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
     }
+    
     if maybe.is_empty() { return None }
+    
     maybe.clear();
     let run_from = run_from + token_len - 1;
     let mut txt = token.clone();
@@ -106,6 +109,12 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
         let sum = curly + round + square;
         if sum == 0 { state = false;} else { state = true; } return state
     }
+}
+pub fn leave_file_mark (nm: &str, msg: &str){
+    use std::fs::File;
+    use std::io::{self, Write};
+    let mut file = File::create(nm).expect("Unable to create file");
+    file.write_all(msg.as_bytes()).expect("Unable to write data");
 }
 #[derive(Clone, Debug)]
 pub struct found_local_vars {
