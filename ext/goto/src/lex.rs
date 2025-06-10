@@ -31,7 +31,9 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut run_from: usize = 0;
     loop {
         leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
-        if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
+        leave_file_mark ("/tmp/func", stream);
+        //if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
+        leave_file_mark ("/tmp/end", &format! ("got{run_from}"));
         run_from = rexpr.end;
         ret.push (rexpr.clone() );
     }
