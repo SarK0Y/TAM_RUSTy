@@ -11,7 +11,7 @@
 //pub use crate::goto::{label, goto};
 mod lex;
 mod edit_funx;
-use crate::lex::{collect_not_nested_let_tokens, rExpr};
+use crate::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark};
 use crate::edit_funx as edit;
 use substring::Substring;
 use proc_macro::TokenStream;
@@ -274,7 +274,8 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let new_end = quote! {
         println! ("new end was successfully added");
     }.to_string();
-    let modified_func_body = format! ("{func_body_last_exit}\n{new_end}\n}}");
+    leave_file_mark ("/tmp/ending", &new_end);
+    let modified_func_body =  edit::rewrite_last_exit (&func_body, &new_end);
     let out: TokenStream2 = modified_func_body.parse().unwrap();
     return out.into()
 }
