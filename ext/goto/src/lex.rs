@@ -32,7 +32,7 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     loop {
         leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
         leave_file_mark ("/tmp/func", stream);
-        //if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
+        if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
         leave_file_mark ("/tmp/end", &format! ("got{run_from}"));
         run_from = rexpr.end;
         ret.push (rexpr.clone() );
@@ -47,6 +47,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut column = line;
     let mut entry = line;
     let mut end = line;
+    leave_file_mark ("/tmp/line", &line.to_string() );
     let nl = char::from_u32(0x0a);//.unwrap().to_string();
     let mut maybe = String::new();
     let stop_token_len = stop_token.chars().count();
@@ -56,14 +57,14 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     for j in run_from..to_stream_len {
         column.inc();
         if chars.nth (j) == nl {column = 0; line.inc(); }
-        let ch = chars.nth (j).unwrap ();
+        let ch = chars.nth (j).unwrap_or (' ');
         maybe.push(ch);
         if maybe.chars().count() == token_len {
             if maybe == *token { entry = j - token_len + 1; break; }
         }
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
     }
-    
+    leave_file_mark ("/tmp/line", &line.to_string() );
     if maybe.is_empty() { return None }
     
     maybe.clear();
