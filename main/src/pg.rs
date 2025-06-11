@@ -665,9 +665,9 @@ pub(crate) fn exec_cmd(cmd: String) {
         }
         return;
     }
-    #[cfg(feature = "in_dbg")]
+   // #[cfg(feature = "in_dbg")]
     let cmd0 = "surprise me dry run";
-    #[cfg(feature = "in_dbg")]
+   // #[cfg(feature = "in_dbg")]
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         crate::mae::surprise_me_dry_run(Some(crate::enums::amaze_me::do_ur_stuff));
         return;

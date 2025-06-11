@@ -421,7 +421,8 @@ use goto1717::just_prnt;
 fn tst () { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
-println!("tst here"); println!("end here" );}
+println!("tst here"); println!("end here" );
+}
 fn self_dive(nm: String){// just sidekick to crrash tst :)
     std::thread::spawn(||{
         let nm = nm;
