@@ -9,7 +9,10 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
+mod lex;
+mod edit_funx;
 use crate::lex::{collect_not_nested_let_tokens, rExpr};
+use crate::edit_funx as edit;
 use substring::Substring;
 use proc_macro::TokenStream;
 use quote::quote;
@@ -17,7 +20,6 @@ use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, I
 token::Comma, Expr, Lit, Token, PatIdent, Pat, Local, PathSegment, DeriveInput};
 use proc_macro2::{TokenStream as TokenStream2, Span};
 use Mademoiselle_Entropia::custom_traits::STRN;
-mod lex;
 struct AttrArgs {
     metas: Punctuated<Meta, Token![,]>,
 }
