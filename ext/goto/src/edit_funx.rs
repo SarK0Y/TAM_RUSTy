@@ -4,8 +4,10 @@ use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use crate::lex::blocks_status as blocks_state;
 pub fn rewrite_last_exit (stream: &String, new_end: &String ) -> String {
-    
-    todo!()
+    let last_exit = find_last_exit ( stream );
+    let edit = format! ("\n{new_end}\n{last_exit}");
+    let stream = stream.replace (&last_exit, &edit);
+    return stream
 }
 pub fn find_last_exit (stream: &String ) -> String {
     let stream_len = stream.chars().count();
