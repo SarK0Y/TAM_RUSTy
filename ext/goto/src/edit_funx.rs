@@ -44,11 +44,12 @@ pub trait Rev {
 }
 impl Rev for String {
     fn rev (&mut self) -> Self {
+        leave_file_mark ("/tmp/norev", self);
         let mut rev_ = String::new();
         let mut len = self.chars().count() as isize;
         let mut chars = self.chars();
         while len > -1 {
-            rev_.push ( chars.nth (len.try_into ().unwrap_or(0) ).unwrap_or (' ') );
+            rev_.push ( chars.clone().nth (len.try_into ().unwrap_or(0) ).unwrap_or (' ') );
             len -= 1;
         }
         *self = rev_;
