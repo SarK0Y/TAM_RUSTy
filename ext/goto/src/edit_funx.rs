@@ -5,8 +5,13 @@ use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use crate::lex::blocks_status as blocks_state;
 use crate::lex::leave_file_mark;
 pub fn rewrite_last_exit (stream: &String, new_end: &String ) -> String {
-    leave_file_mark ("/tmp/enter", new_end );
-    let last_exit = find_last_exit ( stream );
+    let last_exit = find_last_exit ( stream ).trim().strn();
+    leave_file_mark ("/tmp/enter", &last_exit );
+    if last_exit.chars().count() < 3 {
+        let top = stream.as_str().substring(0, stream.chars().count() - 1);
+        let edit = format! ("{top}\n{new_end}\n}}");
+        return edit
+    }
     let edit = format! ("\n{new_end}\n{last_exit}");
     let stream0 = stream.replace (&last_exit, &edit);
     leave_file_mark ("/tmp/func0", &stream0);
@@ -28,7 +33,6 @@ pub fn find_last_exit (stream: &String ) -> String {
         if ch == stop && !blocks_state ( Some ( &ch ) ) { break;}
         cursor.dec();
     }
-    ending = format! (";{ending}");
     leave_file_mark ("/tmp/ending1", &ending);
     return ending.rev()
 }
