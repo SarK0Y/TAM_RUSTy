@@ -1,6 +1,11 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
+macro_rules! _set_usize {
+    ($set0:expr, $new:expr) => {
+        *$set0 = $new;
+    };
+}
 pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     if txt.len() == 0 { return None}
     let mut ret0 = key.clone ();
@@ -45,7 +50,8 @@ pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_to
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
     let mut column = line;
-    let mut entry = line;
+    let mut entry: usize = 0;
+    let mut entry1: *mut usize = &mut entry;
     let mut end = line;
     leave_file_mark ("/tmp/line", &line.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
@@ -59,16 +65,31 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         let ch = chars.clone().nth (j).unwrap_or (' ');
         if ch == nl {column = 0; line.inc(); }
         maybe.push(ch);
+        entry = 26;
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
-                entry = j - token_len + 1; break; }
+                let s = j - token_len + 1;
+                let adr = std::ptr::addr_of! (entry);
+                let adr = format! ("{:p}", &mut entry);
+                _set_usize! (&mut entry, s);
+                leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
+                leave_file_mark ("/tmp/adr", &adr ); 
+                break;
+            }
         }
         if !maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
         column.inc();
+        leave_file_mark ("/tmp/ln", &line.strn() );
         leave_file_mark ("/tmp/col", &column.strn() );
     }
+    let adr1 = std::ptr::addr_of! (entry);
+    let adr1 = format! ("pointer {:p}", &mut entry);
+    leave_file_mark ("/tmp/adr1", &adr1 ); 
     leave_file_mark ("/tmp/entry", &entry.to_string() );
+    leave_file_mark ("/tmp/ln1", &line.strn() );
+        leave_file_mark ("/tmp/col1", &column.strn() );
+    //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
     leave_file_mark ("/tmp/may", &maybe.to_string() );
     if maybe.is_empty() { return None }
     
@@ -194,3 +215,15 @@ pub enum prime_token {
     paren (char),
     any_symb (char)
 }
+pub trait Alt_Assign {
+    fn set (&mut self, new: Self);
+}
+impl Alt_Assign for usize {
+    fn set (&mut self, new: Self) {
+        *self = new;
+    }
+}
+pub fn set_usize (set0: &mut usize, new: usize) {
+    *set0 = new;
+}
+
