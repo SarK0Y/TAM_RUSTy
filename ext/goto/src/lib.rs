@@ -270,9 +270,16 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let func_body = item.to_string ();
     let func_body_last_exit = func_body.substring (0, func_body.chars().count() - 1);
     let rexpr: Vec <rExpr > = collect_not_nested_let_tokens (&func_body);
+    let mut var_list = String::new ();
+    let mut ln = String::new ();
+    for got in rexpr {
+        leave_file_mark ("/tmp/got", &got.txt.clone() );
+        ln = format! ("\n{}", got.txt.clone());
+        var_list.push_str(ln.as_str() );
+    }
     //let vars: String = rexpr.into_iter().map (|i| -> String { format! ("\n{}", i.txt) } ).collect();
     let new_end = quote! {
-        println! ("new end was successfully added");
+        println! ("var list {}\nnew end was successfully added", #var_list);
     }.to_string();
     leave_file_mark ("/tmp/ending", &new_end);
     let modified_func_body =  edit::rewrite_last_exit (&func_body, &new_end);
