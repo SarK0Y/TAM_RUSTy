@@ -9,6 +9,6 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-mod lex;
-mod edit_funx;
+pub mod lex;
+pub mod edit_funx;
     

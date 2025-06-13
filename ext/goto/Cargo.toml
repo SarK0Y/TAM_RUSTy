@@ -1,7 +1,7 @@
 [package]
 name ="goto1717"
 edition = "2021"
-version = "0.0.57"
+version = "0.0.58"
 publish = true
 license-file = "LICENSE"
 description = "goto & more for Rust"
@@ -11,7 +11,7 @@ quote = "1.0.0"
 proc-macro2 = "1.0.0"
 once_cell = "1.18.0"
 substring = "1.4.5"
-rst_lex = { path = "../rst_lex", version = "0.0.0" }
+rst_lex = { path = "../rst_lex", version = "0.0.1" }
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
 [lib]
 proc-macro = true

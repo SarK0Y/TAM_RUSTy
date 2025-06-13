@@ -9,10 +9,8 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-mod lex;
-mod edit_funx;
-use crate::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark};
-use crate::edit_funx as edit;
+use rst_lex::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark};
+use rst_lex::edit_funx as edit;
 use substring::Substring;
 use proc_macro::TokenStream;
 use quote::quote;
@@ -315,7 +313,6 @@ fn strn_to_Ident(s: &str) -> syn::Ident {
 #[proc_macro_attribute]
 pub fn prnt_vars0(_attr: TokenStream, item: TokenStream) -> TokenStream {
 use syn::spanned::Spanned;
-    lex::get_token (1);
     let item_fn = item.clone();
     let mut input_fn = parse_macro_input!( item_fn as ItemFn);
      let span = input_fn.attrs.first().map(|attr| attr.span()).unwrap_or_else(proc_macro2::Span::call_site);
