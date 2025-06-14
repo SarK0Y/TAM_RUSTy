@@ -64,21 +64,14 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut chars = stream.chars();
     leave_file_mark ("/tmp/tok", token );
     for j in run_from..to_stream_len {
-        entry = 26;
-        println! ("j {j}");
         let ch = chars.clone().nth (j).unwrap_or (' ');
         if ch == nl {column = 0; line.inc(); }
         maybe.push(ch);
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
-                let s = j - token_len + 1;
-                let adr = std::ptr::addr_of! (entry);
-                let adr = format! ("{:p}", &mut entry);
-                _set_usize! (&mut entry, s);
-                entry = s;
+                entry = j - token_len + 1;
                 leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
-                leave_file_mark ("/tmp/adr", &adr ); 
                 break;
             }
         }
@@ -99,13 +92,13 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     if maybe.is_empty() { return None }
     
     maybe.clear();
-    let run_from = entry + token_len - 1;
+    let run_from = entry + token_len;
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
         let ch = stream.chars().nth (j).unwrap ();
         if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
         txt.push(ch);
-        if blocks_status ( Some (&ch ) ) {continue; }
+        if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
         maybe.push(ch);
         if maybe.chars().count() == stop_token_len {
             if maybe == *stop_token { break; }
