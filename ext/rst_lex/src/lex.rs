@@ -35,6 +35,7 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut rexpr = rExpr::new();
     let mut run_from: usize = 0;
     loop {
+        println! ("run_from {run_from}");
         leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
         leave_file_mark ("/tmp/func", stream);
         if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
@@ -47,6 +48,7 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
 }
+#[inline]
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
     let mut column = line;
@@ -63,6 +65,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     leave_file_mark ("/tmp/tok", token );
     for j in run_from..to_stream_len {
         entry = 26;
+        println! ("j {j}");
         let ch = chars.clone().nth (j).unwrap_or (' ');
         if ch == nl {column = 0; line.inc(); }
         maybe.push(ch);
@@ -73,6 +76,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
                 let adr = std::ptr::addr_of! (entry);
                 let adr = format! ("{:p}", &mut entry);
                 _set_usize! (&mut entry, s);
+                entry = s;
                 leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
                 leave_file_mark ("/tmp/adr", &adr ); 
                 break;
@@ -88,13 +92,14 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     leave_file_mark ("/tmp/adr1", &adr1 ); 
     leave_file_mark ("/tmp/entry", &entry.to_string() );
     leave_file_mark ("/tmp/ln1", &line.strn() );
+    println! ("{line}, {maybe}");
         leave_file_mark ("/tmp/col1", &column.strn() );
     //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
     leave_file_mark ("/tmp/may", &maybe.to_string() );
     if maybe.is_empty() { return None }
     
     maybe.clear();
-    let run_from = run_from + token_len - 1;
+    let run_from = entry + token_len - 1;
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
         let ch = stream.chars().nth (j).unwrap ();
@@ -108,6 +113,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     }
     txt.push_str ( stop_token.clone().as_str () );
     end = entry + txt.chars().count ();
+    println! ("{}", txt);
     return Some (
         rExpr {
             txt,

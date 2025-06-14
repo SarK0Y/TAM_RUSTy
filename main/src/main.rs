@@ -421,7 +421,14 @@ use goto1717::just_prnt;
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
+    let more: i32 = 0;
+    let more: i32 = 1;
     println!("tst here"); println!("end here" );
+    return "tst".strn()
+}
+//#[prnt_vars]
+fn tst1 () -> String { 
+    let tst = 0usize;
     return "tst".strn()
 }
 fn self_dive(nm: String){// just sidekick to crrash tst :)
