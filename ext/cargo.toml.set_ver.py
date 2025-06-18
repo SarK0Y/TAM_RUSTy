@@ -2,25 +2,30 @@ import os
 import sys
 import re
 import codecs
-from tam import info_struct, checkArg, get_arg_in_cmd, achtung
+from sark0y_tam._tam import checkArg, get_arg_in_cmd, get_arg_in_cmd_from, achtung
 import subprocess as sp
 import random
-class main:
-    ver = 1
-    rev = 1
-    author = info_struct.author
 def cpy_file(old: str, new: str):
     cmd = f"cp -af {old} {new}"
     os.system(cmd)
     if not os.path.exists(new):
         print(f"Failed to copy {old} to {new}")
         sys.exit(-5)
-
-def correct_ver_in_toml():
-    tomlFile = get_arg_in_cmd("-toml", sys.argv)
+def get_ver_from_strn (strn: str, crate_name: str):
+    dep = re.findall(f"{crate_name}\s*=\s*{{.*}}",
+     strn, re.IGNORECASE|re.UNICODE)[0]
+    ver = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
+     dep, re.IGNORECASE|re.UNICODE)[0]
+    return ver
+def correct_ver_in_all_toml():
+	tomlFile, from_indx = correct_ver_in_toml(0)
+	while tomlFile is not None:
+		tomlFile, indx = correct_ver_in_toml( from_indx )
+def correct_ver_in_toml(from0: int) -> (str|None, int):
+    tomlFile, indx = get_arg_in_cmd_from(from0, "-toml", sys.argv)
     if tomlFile is None:
-        print("You didn't set toml file.")
-        sys.exit(-7)
+        print(f"You didn't set toml file {{ searched from {from0} }}.")
+        return tomlFile, indx
     if not os.path.exists(tomlFile):
         print(f"{tomlFile} ain't existed")
         sys.exit(-8)
@@ -42,9 +47,8 @@ def correct_ver_in_toml():
     print(f"{readToml =}")
     """"""
     crate_name = get_arg_in_cmd("-crate-name", sys.argv)
-    if crate_name is None:
-        crate_name = ""
-    OldVer = re.findall("\d+\.\d+\.\d+", readToml, re.IGNORECASE|re.UNICODE)[0]
+    OldVer = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
+     readToml, re.IGNORECASE|re.UNICODE)[0] if crate_name is None else get_ver_from_strn (readToml, crate_name)
     major, minor, patch = OldVer.split(".")
     New_Ver = f"{major}.{minor}{int(patch) + 1}"
     print(OldVer)
@@ -100,6 +104,5 @@ def build_pkg():
     run_process_w_output(cmd)
 def make_all():
     mass_cpy()
-    correct_ver_in_toml()
-    build_pkg()
+    correct_ver_in_all_toml()
 make_all()
