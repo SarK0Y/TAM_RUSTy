@@ -46,13 +46,16 @@ def correct_ver_in_toml(from0: int) -> (str|None, int):
     openToml.seek(0)
     print(f"{readToml =}")
     """"""
-    crate_name = get_arg_in_cmd("-crate-name", sys.argv)
-    OldVer = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
+    crate_name = get_arg_in_cmd_from(indx, "-crate-name", sys.argv)
+    Line = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
      readToml, re.IGNORECASE|re.UNICODE)[0] if crate_name is None else get_ver_from_strn (readToml, crate_name)
+    OldVer = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"", Line, re.IGNORECASE|re.UNICODE)[0]
     major, minor, patch = OldVer.split(".")
     New_Ver = f"{major}.{minor}{int(patch) + 1}"
-    print(OldVer)
-    readToml = readToml.replace(OldVer, New_Ver)
+    print(f"OldVer = {OldVer}, new one: {New_Ver}")
+    old_Line = copy.deepcopy(Line)
+    Line = Line.replace(OldVer, New_Ver)
+    readToml = readToml.replace(old_Line, Line)
     if openToml.write(readToml) == -1:
         print("write to toml been failed")
         sys.exit(-4)
@@ -93,16 +96,8 @@ def run_process_w_output(cmd):
             print(line)
     print(stderr0.read())
 
-def build_pkg():
-    build_dir = get_arg_in_cmd("-build-dir", sys.argv)
-    if build_dir is None:
-        print("You didn't set -build-dir")
-        build_dir = str(input("Please, set build directory: "))
-    os.system(f"find {build_dir}/dist/ -type f|xargs rm -f")
-    achtung(f"dist = {build_dir}/dist/")
-    cmd = f"python3 -m build {build_dir}/"
-    run_process_w_output(cmd)
 def make_all():
     mass_cpy()
     correct_ver_in_all_toml()
-make_all()
+if "__main__" == __name__:
+	make_all()
