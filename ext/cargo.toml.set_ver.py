@@ -12,7 +12,7 @@ def cpy_file(old: str, new: str):
     if not os.path.exists(new):
         print(f"Failed to copy {old} to {new}")
         sys.exit(-5)
-def get_ver_from_strn (strn: str, crate_name: str):
+def get_ver_from_strn (strn: str, crate_name: str) -> str:
     pat_str = f"{crate_name}\s*=\s*\{{.*\}}"	
     print (f"pattern {pat_str}")
     dep = re.findall(pat_str,
@@ -20,15 +20,22 @@ def get_ver_from_strn (strn: str, crate_name: str):
     if dep == []:
     	print (f"fn get_ver_from_strn provides empty list")
     	sys.exit(-12)
+    else: dep = dep[0]
     ver = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
      dep, re.IGNORECASE|re.UNICODE)[0]
+    if ver == []: 
+    	print (f"fn get_ver_from_strn can't get ver")
+    	sys.exit(-13)
+    print (f"fn get_ver_from_strn ver = {ver}")
     return ver
 def correct_ver_in_all_toml():
 	tomlFile, from_indx = correct_ver_in_toml(0)
-	print (f"tomlFile = {tomlFile}")
+	print (f"0while tomlFile, indx = {tomlFile},\n {from_indx}")
 	while tomlFile is not None:
-		tomlFile, indx = correct_ver_in_toml( from_indx )
+		print (f"while tomlFile, indx = {tomlFile}, {from_indx}")
+		tomlFile, from_indx = correct_ver_in_toml( from_indx +1 )
 def correct_ver_in_toml(from0: int) -> (str|None, int):
+    fn_name = "correct_ver_in_toml"
     tomlFile, indx = get_arg_in_cmd_from(from0, "-toml", sys.argv)
     if tomlFile is None:
         print(f"You didn't set toml file {{ searched from {from0} }}.")
@@ -59,14 +66,18 @@ def correct_ver_in_toml(from0: int) -> (str|None, int):
     OldVer = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"", Line, re.IGNORECASE|re.UNICODE)[0]
     major, minor, patch = OldVer.split(".")
     patch = patch.replace('"', "")
-    New_Ver = f"\"{major}.{minor}.{int(patch) + 1}\""
+    New_Ver = f"{major}.{minor}.{int(patch) + 1}\""
     print(f"OldVer = {OldVer}, new one: {New_Ver}")
     old_Line = copy.deepcopy(Line)
+    print(f"Line {Line}")
     Line = Line.replace(OldVer, New_Ver)
     readToml = readToml.replace(old_Line, Line)
+    print (f"{readToml=}\n{tomlFile=}")
     if openToml.write(readToml) == -1:
         print("write to toml been failed")
         sys.exit(-4)
+    print (f"Exit {fn_name}")
+    return tomlFile, indx
 def mass_cpy():
     SRC = []
     for s in sys.argv:
