@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import codecs
+import copy
 from sark0y_tam._tam import checkArg, get_arg_in_cmd, get_arg_in_cmd_from, achtung
 import subprocess as sp
 import random
@@ -12,13 +13,19 @@ def cpy_file(old: str, new: str):
         print(f"Failed to copy {old} to {new}")
         sys.exit(-5)
 def get_ver_from_strn (strn: str, crate_name: str):
-    dep = re.findall(f"{crate_name}\s*=\s*{{.*}}",
-     strn, re.IGNORECASE|re.UNICODE)[0]
+    pat_str = f"{crate_name}\s*=\s*\{{.*\}}"	
+    print (f"pattern {pat_str}")
+    dep = re.findall(pat_str,
+     strn, re.IGNORECASE|re.UNICODE)
+    if dep == []:
+    	print (f"fn get_ver_from_strn provides empty list")
+    	sys.exit(-12)
     ver = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
      dep, re.IGNORECASE|re.UNICODE)[0]
     return ver
 def correct_ver_in_all_toml():
 	tomlFile, from_indx = correct_ver_in_toml(0)
+	print (f"tomlFile = {tomlFile}")
 	while tomlFile is not None:
 		tomlFile, indx = correct_ver_in_toml( from_indx )
 def correct_ver_in_toml(from0: int) -> (str|None, int):
@@ -46,12 +53,13 @@ def correct_ver_in_toml(from0: int) -> (str|None, int):
     openToml.seek(0)
     print(f"{readToml =}")
     """"""
-    crate_name = get_arg_in_cmd_from(indx, "-crate-name", sys.argv)
+    crate_name, _ = get_arg_in_cmd_from(indx, "-crate-name", sys.argv)
     Line = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"",
      readToml, re.IGNORECASE|re.UNICODE)[0] if crate_name is None else get_ver_from_strn (readToml, crate_name)
     OldVer = re.findall("version\s*=\s*\"\d+\.\d+\.\d+\"", Line, re.IGNORECASE|re.UNICODE)[0]
     major, minor, patch = OldVer.split(".")
-    New_Ver = f"{major}.{minor}{int(patch) + 1}"
+    patch = patch.replace('"', "")
+    New_Ver = f"\"{major}.{minor}.{int(patch) + 1}\""
     print(f"OldVer = {OldVer}, new one: {New_Ver}")
     old_Line = copy.deepcopy(Line)
     Line = Line.replace(OldVer, New_Ver)
