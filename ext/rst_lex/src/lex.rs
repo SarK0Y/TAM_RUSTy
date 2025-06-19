@@ -48,6 +48,9 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
 }
+pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option < rExpr > {
+    return stream_sieving (stream, &token.to_string(), run_from, &stop_token.to_string() )
+}
 #[inline]
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;
@@ -80,9 +83,6 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         leave_file_mark ("/tmp/ln", &line.strn() );
         leave_file_mark ("/tmp/col", &column.strn() );
     }
-    let adr1 = std::ptr::addr_of! (entry);
-    let adr1 = format! ("pointer {:p}", &mut entry);
-    leave_file_mark ("/tmp/adr1", &adr1 ); 
     leave_file_mark ("/tmp/entry", &entry.to_string() );
     leave_file_mark ("/tmp/ln1", &line.strn() );
     println! ("{line}, {maybe}");
@@ -137,6 +137,9 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
         let sum = curly + round + square;
         if sum == 0 { state = false;} else { state = true; } return state
     }
+}
+pub fn token_for_loop (stream: &String, search_from: usize) -> Option < rExpr > {
+    return stream_sieving2 (stream, "for", search_from, "")
 }
 pub fn leave_file_mark (nm: &str, msg: &str){
     use std::fs::File;
