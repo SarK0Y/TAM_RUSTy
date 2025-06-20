@@ -94,14 +94,22 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     maybe.clear();
     let run_from = entry + token_len;
     let mut txt = token.clone();
-    for j in run_from..to_stream_len {
-        let ch = stream.chars().nth (j).unwrap ();
-        if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
-        txt.push(ch);
-        if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
-        maybe.push(ch);
-        if maybe.chars().count() == stop_token_len {
-            if maybe == *stop_token { break; }
+    if stop_token.len() > 0 {
+        for j in run_from..to_stream_len {
+            let ch = stream.chars().nth (j).unwrap ();
+            if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+            txt.push(ch);
+            if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
+            maybe.push(ch);
+            if maybe.chars().count() == stop_token_len {
+                if maybe == *stop_token { break; }
+            }
+        }
+    } else {
+        for j in run_from..to_stream_len {
+            let ch = stream.chars().nth (j).unwrap ();
+            txt.push(ch);
+            if !blocks_status ( Some (&ch ) ) { break }
         }
     }
     txt.push_str ( stop_token.clone().as_str () );
