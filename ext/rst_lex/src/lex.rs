@@ -146,8 +146,14 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
         if sum == 0 { state = false;} else { state = true; } return state
     }
 }
+pub fn _1st_fn_line (stream: &String) -> usize {
+    for j in 0..stream.chars().count() {
+        let ch = stream.chars().nth ( j ).unwrap ();
+        if ch == '{' { return j }
+    } return 0
+}
 pub fn token_for_loop (stream: &String, search_from: usize) -> Option < rExpr > {
-    return stream_sieving2 (stream, "for", search_from, "")
+    return stream_sieving2 (stream, "for", search_from, "}")
 }
 pub fn leave_file_mark (nm: &str, msg: &str){
     use std::fs::File;

@@ -424,6 +424,9 @@ fn tst () -> String {
     let more: i32 = 0;
     let more: i32 = 1;
     println!("tst here"); println!("end here" );
+    for h in 0..10 {
+        let tst_in = 10u32;
+    }
     return "tst".strn()
 }
 //#[prnt_vars]
