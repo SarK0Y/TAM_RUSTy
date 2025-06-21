@@ -33,14 +33,17 @@ pub fn stat_local_vars (fn_str: String) -> found_local_vars {
 pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut ret = Vec::< rExpr >::new ();
     let mut rexpr = rExpr::new();
-    let mut run_from: usize = 0;
+    let mut run_from: usize = _1st_fn_line (stream);
+    let stream = stream.substring(0, stream.chars().count() ).strn();
     loop {
         println! ("run_from {run_from}");
         leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
-        leave_file_mark ("/tmp/func", stream);
-        if let Some ( x ) = stream_sieving1 (stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
+        leave_file_mark ("/tmp/func", &stream);
+        if let Some ( x ) = stream_sieving1 (&stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
         leave_file_mark ("/tmp/end", &format! ("!got{run_from}"));
         run_from = rexpr.end;
+        let sub_str = stream.substring (0, run_from).strn();
+        println! ("{sub_str}, {} {}", sub_str.chars().count(), blocks_status (None));
         ret.push (rexpr.clone() );
     }
     return ret
@@ -65,11 +68,13 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let token_len = token.chars().count();
     let to_stream_len: usize = stream.chars().count();
     let mut chars = stream.chars();
-    leave_file_mark ("/tmp/tok", token );
+    let mut txt_dbg = String::new();
     for j in run_from..to_stream_len {
         let ch = chars.clone().nth (j).unwrap_or (' ');
         if ch == nl {column = 0; line.inc(); }
         maybe.push(ch);
+        txt_dbg.push( ch );
+       // println! ("{txt_dbg}");
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
@@ -78,7 +83,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
                 break;
             }
         }
-        if !maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear (); }
+        if  blocks_status ( Some (&ch) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
         column.inc();
         leave_file_mark ("/tmp/ln", &line.strn() );
         leave_file_mark ("/tmp/col", &column.strn() );
@@ -94,23 +99,15 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     maybe.clear();
     let run_from = entry + token_len;
     let mut txt = token.clone();
-    if stop_token.len() > 0 {
-        for j in run_from..to_stream_len {
-            let ch = stream.chars().nth (j).unwrap ();
-            if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
-            txt.push(ch);
-            if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
-            maybe.push(ch);
-            if maybe.chars().count() == stop_token_len {
-                if maybe == *stop_token { break; }
-            }
-        }
-    } else {
-        for j in run_from..to_stream_len {
-            let ch = stream.chars().nth (j).unwrap ();
-            txt.push(ch);
-            if !blocks_status ( Some (&ch ) ) { break }
-        }
+    for j in run_from..to_stream_len {
+       let ch = stream.chars().nth (j).unwrap ();
+       if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+       txt.push(ch);
+      if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
+      maybe.push(ch);
+      if maybe.chars().count() == stop_token_len {
+         if maybe == *stop_token { break; }
+      }
     }
     end = entry + txt.chars().count ();
     println! ("{}", txt);
@@ -142,7 +139,9 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
             _ => {}
         }
         let sum = curly + round + square;
-        if sum == 0 { state = false;} else { state = true; } return state
+        if sum == 0 { state = false;} else { state = true; } 
+    //    println! ("{state}, {ch}");
+        return state
     }
 }
 pub fn _1st_fn_line (stream: &String) -> usize {

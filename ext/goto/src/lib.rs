@@ -270,7 +270,7 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut rexpr: Vec <rExpr > = collect_not_nested_let_tokens (&func_body);
     let rexpr_for_loop: Option < rExpr > = token_for_loop (&func_body, 0);
     //rexpr.extend ( rexpr_for_loop );
-    if let Some (x) = rexpr_for_loop { rexpr.push (x); }
+    //if let Some (x) = rexpr_for_loop { rexpr.push (x); }
     let mut var_list = String::new ();
     let mut ln = String::new ();
     for got in rexpr {
