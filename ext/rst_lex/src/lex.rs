@@ -112,7 +112,6 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
             if !blocks_status ( Some (&ch ) ) { break }
         }
     }
-    txt.push_str ( stop_token.clone().as_str () );
     end = entry + txt.chars().count ();
     println! ("{}", txt);
     return Some (
