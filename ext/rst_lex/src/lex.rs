@@ -54,6 +54,17 @@ pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_to
 pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option < rExpr > {
     return stream_sieving (stream, &token.to_string(), run_from, &stop_token.to_string() )
 }
+pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
+    let _1st_ln = _1st_fn_line ( stream );
+    let mut ret = Vec::<rExpr>::new();
+    let mut chars = stream.chars();
+    let mut rexpr: Option < rExpr > = None;
+    for j in 0..chars.count() {
+        rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
+        if let Some (x) = rexpr { ret.push (x); }
+    }
+    return ret
+}
 #[inline]
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
     let mut line: usize = 0;

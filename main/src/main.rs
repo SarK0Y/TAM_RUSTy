@@ -425,6 +425,7 @@ fn tst () -> String {
     let more: i32 = 1;
     println!("tst here"); println!("end here" );
     for h in 0..10 {
+        let f: u32 = 157;
         for k in 1..3 {
             let g: usize = 3;
         }
