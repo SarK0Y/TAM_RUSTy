@@ -433,6 +433,7 @@ fn tst () -> String {
     println!("end here" );
     return "tst".strn()
 }
+#[cfg(feature ="tst_macro")]
 #[prnt_vars]
 fn tst0 () -> String { 
     let tst = 0usize;
