@@ -36,14 +36,14 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut run_from: usize = _1st_fn_line (stream);
     let stream = stream.substring(0, stream.chars().count() ).strn();
     loop {
-        println! ("run_from {run_from}");
+       // println! ("run_from {run_from}");
         leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
         leave_file_mark ("/tmp/func", &stream);
         if let Some ( x ) = stream_sieving1 (&stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
         leave_file_mark ("/tmp/end", &format! ("!got{run_from}"));
         run_from = rexpr.end;
         let sub_str = stream.substring (0, run_from).strn();
-        println! ("{sub_str}, {} {}", sub_str.chars().count(), blocks_status (None));
+     //   println! ("{sub_str}, {} {}", sub_str.chars().count(), blocks_status (None));
         ret.push (rexpr.clone() );
     }
     return ret
@@ -109,7 +109,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     }
     leave_file_mark ("/tmp/entry", &entry.to_string() );
     leave_file_mark ("/tmp/ln1", &line.strn() );
-    println! ("{line}, {maybe}");
+    //println! ("{line}, {maybe}");
         leave_file_mark ("/tmp/col1", &column.strn() );
     //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
     leave_file_mark ("/tmp/may", &maybe.to_string() );
@@ -129,7 +129,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
       }
     }
     end = entry + txt.chars().count ();
-    println! ("{}", txt);
+   // println! ("{}", txt);
     return Some (
         rExpr {
             txt,

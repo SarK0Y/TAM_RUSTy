@@ -423,17 +423,18 @@ fn tst () -> String {
     let (x, y) = (47u64, 357u32);
     let more: i32 = 0;
     let more: i32 = 1;
-    println!("tst here"); println!("end here" );
+    println!("tst here"); 
     for h in 0..10 {
         let f: u32 = 157;
         for k in 1..3 {
             let g: usize = 3;
         }
     }
+    println!("end here" );
     return "tst".strn()
 }
-//#[prnt_vars]
-fn tst1 () -> String { 
+#[prnt_vars]
+fn tst0 () -> String { 
     let tst = 0usize;
     return "tst".strn()
 }
