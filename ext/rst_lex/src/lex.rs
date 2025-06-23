@@ -55,14 +55,22 @@ pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_toke
     return stream_sieving (stream, &token.to_string(), run_from, &stop_token.to_string() )
 }
 pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
-    let _1st_ln = _1st_fn_line ( stream );
+    let mut _1st_ln = _1st_fn_line ( stream );
     let mut ret = Vec::<rExpr>::new();
     let mut chars = stream.chars();
     let mut rexpr: Option < rExpr > = None;
     for j in 0..chars.count() {
         rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
-        if let Some (x) = rexpr { ret.push (x); }
+        if let Some (x) = rexpr {
+        if x.txt.len () < 3 {break;}
+        _1st_ln = x.end;
+        ret.push (x); }
     }
+    if ret.is_empty() { return ret}
+    let mut last: rExpr = ret.pop().unwrap();
+    let ch = last.txt.pop ().unwrap_or (' ');
+    if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
+    ret.push (last);
     return ret
 }
 #[inline]
