@@ -47,8 +47,9 @@ pub fn slabs (strn: &String) -> Option < Vec < String > >{
     let mut ret = Vec::<String>::new();
     let len = slab.chars().count();
     let mut chars = &strn.chars();
-    let mut _from: usize = usize::MAX;
+    let mut _from = usize::MAX;
     let mut ch: char = ' ';
+    let nl = char::from_u32 (0x0a).unwrap();
     for j in 0..len {
         ch = chars.clone().nth (j).unwrap();
         if ch != ' ' { _from = j; break;}
@@ -56,8 +57,11 @@ pub fn slabs (strn: &String) -> Option < Vec < String > >{
     if _from > len { return None }
     for k in _from..len {
         ch = chars.clone().nth (k).unwrap();
-        if ch != ' ' { slab.push(ch); }
-        else { ret.push ( slab.clone() ); slab.clear(); }
+        if ch != ' ' && ch != nl { slab.push(ch); }
+        else {
+            if slab.is_empty () {continue;}
+            ret.push ( slab.clone() ); slab.clear();
+        }
     }
     return Some ( ret )
 }
