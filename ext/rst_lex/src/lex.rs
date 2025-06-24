@@ -1,0 +1,317 @@
+use once_cell::sync::Lazy;
+use substring::Substring;
+use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
+macro_rules! _set_usize {
+    ($set0:expr, $new:expr) => {
+        *$set0 = $new;
+    };
+}
+pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
+    if txt.len() == 0 { return None}
+    let mut ret0 = key.clone ();
+    let key_len = key.chars().count();
+    //let mut pos: usize = if let Some (x) = txt.find (key) { x + key_len } else {return None };
+    let mut pos: Vec <usize> = txt.match_indices (key).map (|(j, _)| j + key_len ).collect();
+    let mut chars = txt.chars();
+    let mut ch = chars.nth(0).unwrap();
+    let stop_ch = ":".strn().chars().nth(0).unwrap();
+    let mut out = Vec:: <String>:: new ();
+    while let Some (nxt_pos) = pos.pop() {
+        let mut ret = ret0.clone();
+        for j in nxt_pos..txt.chars().count() {
+            ch = chars.nth(j).unwrap();
+            if ch != stop_ch { ret.push(ch);}
+        }
+        out.push(ret);
+    }
+    return Some (out.clone() )
+}
+pub fn stat_local_vars (expr: &Vec <rExpr>) -> found_local_vars {
+/*
+found_local_vars {
+    pub mut_or_not: Vec <bool>,
+    pub pub_or_not: Vec <bool>,
+    pub static_or_not: Vec <bool>,
+    pub _type: Vec <String>,
+    pub line: Vec <usize>,
+    pub column: Vec <usize>,
+    pub name: Vec <String>,
+    pub txt: Vec <String>,
+}
+*/
+    let mut all_locals = found_local_vars::new();
+    todo!();
+}
+pub fn slabs (strn: &String) -> Option < Vec < String > >{
+    let mut slab = String::new();
+    let mut ret = Vec::<String>::new();
+    let len = slab.chars().count();
+    let mut chars = &strn.chars();
+    let mut _from = usize::MAX;
+    let mut ch: char = ' ';
+    let nl = char::from_u32 (0x0a).unwrap();
+    for j in 0..len {
+        ch = chars.clone().nth (j).unwrap();
+        if ch != ' ' { _from = j; break;}
+    }
+    if _from > len { return None }
+    for k in _from..len {
+        ch = chars.clone().nth (k).unwrap();
+        if ch != ' ' && ch != nl { slab.push(ch); }
+        else {
+            if slab.is_empty () {continue;}
+            ret.push ( slab.clone() ); slab.clear();
+        }
+    }
+    return Some ( ret )
+}
+pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
+    let mut ret = Vec::< rExpr >::new ();
+    let mut rexpr = rExpr::new();
+    let mut run_from: usize = _1st_fn_line (stream);
+    let stream = stream.substring(0, stream.chars().count() ).strn();
+    loop {
+       // println! ("run_from {run_from}");
+        leave_file_mark ("/tmp/start", &format! ("got{run_from}"));
+        leave_file_mark ("/tmp/func", &stream);
+        if let Some ( x ) = stream_sieving1 (&stream, "let".strn(), run_from, ";".strn() ) { rexpr = x } else { break;};
+        leave_file_mark ("/tmp/end", &format! ("!got{run_from}"));
+        run_from = rexpr.end;
+        let sub_str = stream.substring (0, run_from).strn();
+     //   println! ("{sub_str}, {} {}", sub_str.chars().count(), blocks_status (None));
+        ret.push (rexpr.clone() );
+    }
+    return ret
+}
+pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
+    let mut _1st_ln = _1st_fn_line ( stream );
+    let mut ret = Vec::<rExpr>::new();
+    let mut chars = stream.chars();
+    let mut rexpr: Option < rExpr > = None;
+    loop {
+        rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
+        if let Some (x) = rexpr {
+        if x.txt.len () < 3 {break;}
+        _1st_ln = x.end;
+        ret.push (x); }
+    }
+    if ret.is_empty() { return ret}
+    let mut last: rExpr = ret.pop().unwrap();
+    let ch = last.txt.pop ().unwrap_or (' ');
+    if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
+    ret.push (last);
+    return ret
+}
+pub fn cut_blocks (expr: &String) -> Option < Vec < String> > {
+    if expr.is_empty() { return None }
+    let mut edited = expr.clone();
+    let mut ret = Vec::<rExpr>::new();
+    let mut fst_ch = expr.chars().nth(0).unwrap().to_string();
+    let mut _start: usize = 0;
+    let mut cut_block_off: Option < rExpr > = stream_sieving2 (expr, &fst_ch, _start, "}");
+    if let Some (x) = cut_block_off {
+        if x.txt.len() == expr.len() ||
+           x.txt.len() == expr.len() - 1 { return None }
+    }
+    loop {
+        cut_block_off = stream_sieving2 (&edited, &fst_ch, _start, "}");
+        
+        fst_ch = expr.chars().nth(0).unwrap().to_string();
+    }
+    todo!()
+}
+pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
+    return stream_sieving (stream, &token, run_from, &stop_token)
+}
+pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option < rExpr > {
+    return stream_sieving (stream, &token.to_string(), run_from, &stop_token.to_string() )
+}
+#[inline]
+pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
+    let mut line: usize = 0;
+    let mut column = line;
+    let mut entry: usize = 0;
+    let mut entry1: *mut usize = &mut entry;
+    let mut end = line;
+    leave_file_mark ("/tmp/line", &line.to_string() );
+    let nl = char::from_u32(0x0a).unwrap();
+    let mut maybe = String::new();
+    let stop_token_len = stop_token.chars().count();
+    let token_len = token.chars().count();
+    let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
+    let mut txt_dbg = String::new();
+    for j in run_from..to_stream_len {
+        let ch = chars.clone().nth (j).unwrap_or (' ');
+        if ch == nl {column = 0; line.inc(); }
+        maybe.push(ch);
+        txt_dbg.push( ch );
+       // println! ("{txt_dbg}");
+        if maybe.chars().count() == token_len {
+            if maybe == *token {
+                leave_file_mark ("/tmp/mayb", &maybe.to_string() );
+                entry = j - token_len + 1;
+                leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
+                break;
+            }
+        }
+        if  blocks_status ( Some (&ch) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
+        column.inc();
+        leave_file_mark ("/tmp/ln", &line.strn() );
+        leave_file_mark ("/tmp/col", &column.strn() );
+    }
+    leave_file_mark ("/tmp/entry", &entry.to_string() );
+    leave_file_mark ("/tmp/ln1", &line.strn() );
+    //println! ("{line}, {maybe}");
+        leave_file_mark ("/tmp/col1", &column.strn() );
+    //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
+    leave_file_mark ("/tmp/may", &maybe.to_string() );
+    if maybe.is_empty() { return None }
+    
+    maybe.clear();
+    let run_from = entry + token_len;
+    let mut txt = token.clone();
+    for j in run_from..to_stream_len {
+       let ch = stream.chars().nth (j).unwrap ();
+       if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+       txt.push(ch);
+      if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
+      maybe.push(ch);
+      if maybe.chars().count() == stop_token_len {
+         if maybe == *stop_token { break; }
+      }
+    }
+    end = entry + txt.chars().count ();
+   // println! ("{}", txt);
+    return Some (
+        rExpr {
+            txt,
+            line,
+            column,
+            entry,
+            end
+        }
+    )
+}
+pub fn blocks_status (ch: Option < &char > ) -> bool {
+    static mut curly: u64 = 0;
+    static mut round: u64 = 0;
+    static mut square: u64 = 0;
+    static mut state: bool = false;
+    unsafe {
+        if ch.is_none () { return state }
+        let ch = ch.unwrap();
+        match *ch {
+            '{' => {curly.inc(); }, 
+            '}' => {curly.dec(); },
+            '(' => {round.inc(); },
+            ')' => {round.dec(); }, 
+            '[' => {square.inc(); }, 
+            ']' => {square.dec(); },
+            _ => {}
+        }
+        let sum = curly + round + square;
+        if sum == 0 { state = false;} else { state = true; } 
+    //    println! ("{state}, {ch}");
+        return state
+    }
+}
+pub fn _1st_fn_line (stream: &String) -> usize {
+    for j in 0..stream.chars().count() {
+        let ch = stream.chars().nth ( j ).unwrap ();
+        if ch == '{' { return j + 1 }
+    } return 0
+}
+pub fn token_for_loop (stream: &String, search_from: usize) -> Option < rExpr > {
+    let entry: usize = _1st_fn_line ( stream );
+    let search_from = if search_from > entry { search_from } else { entry };
+    return stream_sieving2 (stream, "for", search_from, "}")
+}
+pub fn leave_file_mark (nm: &str, msg: &str){
+    use std::fs::File;
+    use std::io::{self, Write};
+    let mut file = File::create(nm).expect("Unable to create file");
+    file.write_all(msg.as_bytes()).expect("Unable to write data");
+}
+#[derive(Clone, Debug)]
+pub struct found_local_vars {
+    pub mut_or_not: Vec <bool>,
+    pub pub_or_not: Vec <bool>,
+    pub static_or_not: Vec <bool>,
+    pub _type: Vec <String>,
+    pub line: Vec <usize>,
+    pub column: Vec <usize>,
+    pub name: Vec <String>,
+    pub txt: Vec <String>,
+}
+impl found_local_vars {
+    fn new () -> Self {
+        return Self {
+            mut_or_not: Vec::<bool>::new(),
+            pub_or_not: Vec::<bool>::new(),
+            static_or_not: Vec::<bool>::new(),
+            _type: Vec::<String>::new(),
+            name: Vec::<String>::new(),
+            txt: Vec::<String>::new(),
+            line: Vec::<usize>::new(),
+            column: Vec::<usize>::new(),
+        }
+    }
+}
+#[derive(Clone, Debug)]
+pub struct rExpr {
+    pub txt: String,
+    pub line: usize,
+    pub column: usize,
+    pub entry: usize,
+    pub end: usize
+}
+impl rExpr {
+    fn new () -> Self {
+        return Self {
+            txt: String::new(),
+            line: 0,
+            column: 0,
+            entry: 0,
+            end: 0
+        }
+    }
+}
+pub fn get_token (indx: usize) -> token_status {
+    return set_of_tokens (None, indx)
+}
+pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
+    static mut tokens: Lazy <Vec <String> > = Lazy::new (|| {Vec::<String>::new()});
+    unsafe {
+        if let Some (x) = add_nxt { tokens.push (x); return token_status::new_added }
+        let len = tokens.len();
+        if len == 0 { return token_status::empty }
+        if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
+    }
+}
+pub enum token_status {
+    too_large_indx,
+    ret (String),
+    empty,
+    new_added
+}
+pub enum prime_token {
+    semicolon,
+    colon,
+    dot,
+    comma,
+    paren (char),
+    any_symb (char)
+}
+pub trait Alt_Assign {
+    fn set (&mut self, new: Self);
+}
+impl Alt_Assign for usize {
+    fn set (&mut self, new: Self) {
+        *self = new;
+    }
+}
+pub fn set_usize (set0: &mut usize, new: usize) {
+    *set0 = new;
+}
+

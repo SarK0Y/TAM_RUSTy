@@ -514,6 +514,8 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     let strr = strr.replace("&", r"\&");
     let strr = strr.replace("'", r"\'");
     let strr = strr.replace(r"\\'", r"\'");
+    let strr = strr.replace(r"|", r"\|");
+    let strr = strr.replace(r":", r"\:");
     let strr = str::replace(&strr, ":s:", " ");
     return strr.to_string();
 }

@@ -6,7 +6,8 @@ workspace.package.license-file = "LICENSE"
 readme = "README.md"
 members = [
     "main",
-    "ext/goto"
+    "ext/goto",
+    "ext/rst_lex"
 ]
 [workspace.dependencies]
 ##sark0y_tam_rst = {path = "./"}

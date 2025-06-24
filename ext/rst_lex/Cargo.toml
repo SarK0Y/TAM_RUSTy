@@ -1,0 +1,13 @@
+[package]
+name ="rst_lex"
+edition = "2021"
+version = "0.0.18"
+publish = true
+license-file = "LICENSE"
+description = "Simple lexer for Rust"
+[dependencies]
+once_cell = "1.18.0"
+substring = "1.4.5"
+Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
+[lib]
+
