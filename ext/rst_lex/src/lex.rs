@@ -26,9 +26,40 @@ pub fn read_token (key: &String, txt: &String) -> Option < Vec <String> > {
     }
     return Some (out.clone() )
 }
-pub fn stat_local_vars (fn_str: String) -> found_local_vars {
+pub fn stat_local_vars (expr: &Vec <rExpr>) -> found_local_vars {
+/*
+found_local_vars {
+    pub mut_or_not: Vec <bool>,
+    pub pub_or_not: Vec <bool>,
+    pub static_or_not: Vec <bool>,
+    pub _type: Vec <String>,
+    pub line: Vec <usize>,
+    pub column: Vec <usize>,
+    pub name: Vec <String>,
+    pub txt: Vec <String>,
+}
+*/
     let mut all_locals = found_local_vars::new();
     todo!();
+}
+pub fn slabs (strn: &String) -> Option < Vec < String > >{
+    let mut slab = String::new();
+    let mut ret = Vec::<String>::new();
+    let len = slab.chars().count();
+    let mut chars = &strn.chars();
+    let mut _from: usize = usize::MAX;
+    let mut ch: char = ' ';
+    for j in 0..len {
+        ch = chars.clone().nth (j).unwrap();
+        if ch != ' ' { _from = j; break;}
+    }
+    if _from > len { return None }
+    for k in _from..len {
+        ch = chars.clone().nth (k).unwrap();
+        if ch != ' ' { slab.push(ch); }
+        else { ret.push ( slab.clone() ); slab.clear(); }
+    }
+    return Some ( ret )
 }
 pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut ret = Vec::< rExpr >::new ();

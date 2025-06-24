@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.476"
+version = "13.11.478"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -16,9 +16,9 @@ categories = ["filesystem", "command-line-utilities", "multimedia::audio", "math
 [profile.release]
 debug = true
 [build-dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.72" }
+goto1717 = { path = "../ext/goto", version = "0.0.73" }
 [dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.72" }
+goto1717 = { path = "../ext/goto", version = "0.0.73" }
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"
