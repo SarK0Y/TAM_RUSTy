@@ -105,20 +105,28 @@ pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
 pub fn cut_blocks (expr: &String) -> Option < Vec < String> > {
     if expr.is_empty() { return None }
     let mut edited = expr.clone();
-    let mut ret = Vec::<rExpr>::new();
+    let mut ret = Vec::<String>::new();
     let mut fst_ch = expr.chars().nth(0).unwrap().to_string();
     let mut _start: usize = 0;
     let mut cut_block_off: Option < rExpr > = stream_sieving2 (expr, &fst_ch, _start, "}");
     if let Some (x) = cut_block_off {
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
+           edited = edited.replace(&x.txt, "");
+           ret.push(x.txt.clone());
+           _start = x.end;
     }
     loop {
         cut_block_off = stream_sieving2 (&edited, &fst_ch, _start, "}");
-        
+        if let Some (x) = cut_block_off {
+            if x.txt.len() == edited.len() ||
+               x.txt.len() == edited.len() - 1 { ret.push ( edited.clone() ); return Some ( ret ) }
+            edited = edited.replace(&x.txt, "");
+            ret.push(x.txt.clone());
+            _start = x.end;
+        }
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
-    todo!()
 }
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
