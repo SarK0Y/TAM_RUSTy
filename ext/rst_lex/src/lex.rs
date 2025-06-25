@@ -90,20 +90,19 @@ pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
     let mut rexpr: Option < rExpr > = None;
     loop {
         rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
+        dbg! (&rexpr);
         if let Some ( ref y) = rexpr {
   //          println! ("{:?}", y);
-            let collect_blocks = cut_blocks (&y.txt, y.entry);
-            println! ("tst: {:?}", collect_blocks);
+            let collect_blocks = cut_blocks (&y.txt, y.end);
+          //  println! ("tst: {:?}", collect_blocks);
             if let Some ( cb ) = collect_blocks {
                 _1st_ln = y.end;
                 ret.extend (cb); continue;
             }
-        }
-        if let Some (x) = rexpr {
-            if x.txt.len () < 3 {break;}
-            _1st_ln = x.end;
-            ret.push (x);  continue;
-        } break;
+            if y.txt.len () < 3 {break;}
+            _1st_ln = y.end;
+            ret.push (y.clone() ); continue;
+        } break; 
     }
     if ret.is_empty() { return ret}
     let mut last: rExpr = ret.pop().unwrap();
@@ -113,7 +112,7 @@ pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
     ret.push (last);
     return ret
 }
-pub fn cut_blocks (expr: &String, base_offset: usize) -> Option < Vec < rExpr > > {
+pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
     if expr.is_empty() { return None }
     let mut edited = expr.clone();
     let mut ret = Vec::<rExpr>::new();
@@ -126,23 +125,21 @@ pub fn cut_blocks (expr: &String, base_offset: usize) -> Option < Vec < rExpr > 
            x.txt.len() == expr.len() - 1 { return None }
            edited = edited.replace(&x.txt, "");
            //x.txt = format! ("mm: {}", x.txt);
-           _start = x.end;
-           x.entry += base_offset;
-           x.end += base_offset;
+           x.entry = prev_end;
+           x.end = prev_end + x.txt.chars().count();
            ret.push(x.clone());
     }
     loop {
          println! ("edited: {edited}");
         cut_block_off = stream_sieving2 (&edited, &fst_ch, 0, "}");
-        dbg! (&cut_block_off);
         if let Some ( mut x) = cut_block_off {
-             println! ("xx: {:?}", x);
+            x.entry = prev_end;
+            x.end = prev_end + x.txt.chars().count();
+            println! ("xx: {:?}", x);
             if x.txt.len() == edited.len() ||
                x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
             edited = edited.replace(&x.txt, "");
-            _start = x.end;
-            x.entry += base_offset;
-            x.end += base_offset;
+            //_start = x.end;
             ret.push(x.clone());
         } else { return None }
         fst_ch = expr.chars().nth(0).unwrap().to_string();
@@ -287,7 +284,7 @@ impl found_local_vars {
         }
     }
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct rExpr {
     pub txt: String,
     pub line: usize,
