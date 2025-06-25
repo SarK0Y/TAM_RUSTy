@@ -90,41 +90,60 @@ pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
     let mut rexpr: Option < rExpr > = None;
     loop {
         rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
+        if let Some ( ref y) = rexpr {
+            println! ("{:?}", y);
+            let collect_blocks = cut_blocks (&y.txt, y.entry);
+            println! ("tst: {:?}", collect_blocks);
+            if let Some ( cb ) = collect_blocks {
+                _1st_ln = y.end;
+                ret.extend (cb); continue;
+            }
+        }
         if let Some (x) = rexpr {
-        if x.txt.len () < 3 {break;}
-        _1st_ln = x.end;
-        ret.push (x); }
+            if x.txt.len () < 3 {break;}
+            _1st_ln = x.end;
+            ret.push (x);  continue;
+        } break;
     }
     if ret.is_empty() { return ret}
     let mut last: rExpr = ret.pop().unwrap();
     let ch = last.txt.pop ().unwrap_or (' ');
+    println! ("{:?}", last);
     if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
     ret.push (last);
     return ret
 }
-pub fn cut_blocks (expr: &String) -> Option < Vec < String> > {
+pub fn cut_blocks (expr: &String, base_offset: usize) -> Option < Vec < rExpr > > {
     if expr.is_empty() { return None }
     let mut edited = expr.clone();
-    let mut ret = Vec::<String>::new();
+    let mut ret = Vec::<rExpr>::new();
     let mut fst_ch = expr.chars().nth(0).unwrap().to_string();
     let mut _start: usize = 0;
     let mut cut_block_off: Option < rExpr > = stream_sieving2 (expr, &fst_ch, _start, "}");
-    if let Some (x) = cut_block_off {
+    if let Some (mut x) = cut_block_off {
+        println! ("{:?}", expr);
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
            edited = edited.replace(&x.txt, "");
-           ret.push(x.txt.clone());
+           x.txt = format! ("m: {}", x.txt);
            _start = x.end;
+           x.entry += base_offset;
+           x.end += base_offset;
+           ret.push(x.clone());
     }
     loop {
+         println! ("edited: {edited}");
         cut_block_off = stream_sieving2 (&edited, &fst_ch, _start, "}");
-        if let Some (x) = cut_block_off {
+        if let Some ( mut x) = cut_block_off {
             if x.txt.len() == edited.len() ||
-               x.txt.len() == edited.len() - 1 { ret.push ( edited.clone() ); return Some ( ret ) }
+               x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
+                println! ("{:?}", x);
             edited = edited.replace(&x.txt, "");
-            ret.push(x.txt.clone());
             _start = x.end;
-        }
+            x.entry += base_offset;
+            x.end += base_offset;
+            ret.push(x.clone());
+        } else { return None }
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
@@ -158,7 +177,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
-                entry = j - token_len + 1;
+                entry = if j > token_len { j - token_len + 1 } else { j };
                 leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
                 break;
             }

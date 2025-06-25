@@ -434,7 +434,7 @@ fn tst () -> String {
     return "tst".strn()
 }
 #[cfg(feature ="tst_macro")]
-#[prnt_vars]
+//#[prnt_vars]
 fn tst0 () -> String { 
     let tst = 0usize;
     return "tst".strn()
