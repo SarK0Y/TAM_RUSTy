@@ -276,7 +276,7 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut ln = String::new ();
     for got in rexpr {
         leave_file_mark ("/tmp/got", &got.txt.clone() );
-        ln = format! ("\n{}", got.txt.clone());
+        ln = format! ("\n{}\n", got.txt.clone());
         var_list.push_str(ln.as_str() );
     }
     //let vars: String = rexpr.into_iter().map (|i| -> String { format! ("\n{}", i.txt) } ).collect();
