@@ -150,6 +150,18 @@ pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
+pub fn collect_all_assigns (stream: &String ) -> Option < Vec < rExpr > > {
+    let mut start: usize = 0;
+    let mut nxt: Option < rExpr > = stream_sieving2 ( stream, ";", start, "=");
+    let mut ret = Vec::<rExpr>::new();
+    start = if let Some ( ref x) = nxt { x.end } else { return None};
+    loop {
+        ret.push (nxt.unwrap().clone() );
+        nxt = stream_sieving2 ( stream, ";", start, "=");
+        start = if let Some ( ref x ) = nxt { x.end } else { return break};
+    }
+    if ret.len () == 0 { return None } return Some ( ret )
+}
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
 }
