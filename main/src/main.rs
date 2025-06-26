@@ -423,7 +423,8 @@ fn tst () -> String {
     let (x, y) = (47u64, 357u32);
     let more: i32 = 0;
     let mut more: i32 = 1;
-    println!("tst here");     
+    println!("tst here");
+    more = -35;
     while more < 47 { more += 1;}
     for h in 0..10 {
         let f: u32 = 157;

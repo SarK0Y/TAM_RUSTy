@@ -153,14 +153,20 @@ pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
 pub fn collect_all_assigns (stream: &String ) -> Option < Vec < rExpr > > {
     let mut start: usize = 0;
     let mut nxt: Option < rExpr > = stream_sieving2 ( stream, ";", start, "=");
+    dbg! (&nxt);
     let mut ret = Vec::<rExpr>::new();
-    start = if let Some ( ref x) = nxt { x.end } else { return None};
+    start = if let Some ( ref x) = nxt { x.entry } else { return None};
     loop {
         ret.push (nxt.unwrap().clone() );
         nxt = stream_sieving2 ( stream, ";", start, "=");
-        start = if let Some ( ref x ) = nxt { x.end } else { return break};
+        dbg! (&nxt);
+        start = if let Some ( ref x ) = nxt { x.end } else { break; }; //{ return break}; // curious, it's compilable [13.11.489]
     }
+    dbg! (&ret);
     if ret.len () == 0 { return None } return Some ( ret )
+}
+pub fn no_inits (assigns: &Vec <rExpr>) -> Vec <rExpr> {
+    todo! ()
 }
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
@@ -175,7 +181,8 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut entry: usize = 0;
     let mut entry1: *mut usize = &mut entry;
     let mut end = line;
-    leave_file_mark ("/tmp/line", &line.to_string() );
+    dbg! (&stop_token);
+    leave_file_mark ("/tmp/line", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
     let stop_token_len = stop_token.chars().count();
@@ -219,7 +226,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
       if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
       maybe.push(ch);
       if maybe.chars().count() == stop_token_len {
-         if maybe == *stop_token { break; }
+         if maybe == *stop_token { dbg! (&maybe); break; }
       }
     }
     end = entry + txt.chars().count ();
@@ -310,7 +317,7 @@ pub struct rExpr {
     pub end: usize
 }
 impl rExpr {
-    fn new () -> Self {
+   pub fn new () -> Self {
         return Self {
             txt: String::new(),
             line: 0,
