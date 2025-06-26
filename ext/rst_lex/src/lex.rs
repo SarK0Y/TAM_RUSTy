@@ -68,7 +68,7 @@ pub fn slabs (strn: &String) -> Option < Vec < String > >{
 pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     let mut ret = Vec::< rExpr >::new ();
     let mut rexpr = rExpr::new();
-    let mut run_from: usize = _1st_fn_line (stream);
+    let mut run_from: usize = _1st_fn_line (stream).0;
     let stream = stream.substring(0, stream.chars().count() ).strn();
     loop {
        // println! ("run_from {run_from}");
@@ -84,7 +84,7 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     return ret
 }
 pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
-    let mut _1st_ln = _1st_fn_line ( stream );
+    let (mut _1st_ln, header) = _1st_fn_line ( stream );
     let mut ret = Vec::<rExpr>::new();
     let mut chars = stream.chars();
     let mut rexpr: Option < rExpr > = None;
@@ -151,7 +151,7 @@ pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
     }
 }
 pub fn collect_all_assigns (stream: &String ) -> Option < Vec < rExpr > > {
-    let mut start: usize = _1st_fn_line (stream);
+    let mut start: usize = _1st_fn_line (stream).0;
     let mut nxt: Option < rExpr > = stream_sieving2 ( stream, ";", start, "=");
     dbg! (&nxt);
     let mut ret = Vec::<rExpr>::new();
@@ -266,14 +266,16 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
         return state
     }
 }
-pub fn _1st_fn_line (stream: &String) -> usize {
+pub fn _1st_fn_line (stream: &String) -> (usize, String) {
+    let mut header = String::new();
     for j in 0..stream.chars().count() {
         let ch = stream.chars().nth ( j ).unwrap ();
-        if ch == '{' { return j + 1 }
-    } return 0
+        header.push(ch);
+        if ch == '{' { return (j + 1, header) }
+    } return (0, header)
 }
 pub fn token_for_loop (stream: &String, search_from: usize) -> Option < rExpr > {
-    let entry: usize = _1st_fn_line ( stream );
+    let entry: usize = _1st_fn_line ( stream ).0;
     let search_from = if search_from > entry { search_from } else { entry };
     return stream_sieving2 (stream, "for", search_from, "}")
 }
