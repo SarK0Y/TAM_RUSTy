@@ -151,7 +151,7 @@ pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
     }
 }
 pub fn collect_all_assigns (stream: &String ) -> Option < Vec < rExpr > > {
-    let mut start: usize = 0;
+    let mut start: usize = _1st_fn_line (stream);
     let mut nxt: Option < rExpr > = stream_sieving2 ( stream, ";", start, "=");
     dbg! (&nxt);
     let mut ret = Vec::<rExpr>::new();
