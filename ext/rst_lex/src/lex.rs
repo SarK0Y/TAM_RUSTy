@@ -98,11 +98,12 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     let mut rexpr: Option < rExpr > = None;
     let mut collect_blocks: Option < Vec < rExpr > > = None;
     loop {
-        rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
+        rexpr = stream_sieving2 (stream, " ", 0, ";");
         dbg! (&rexpr);
         if let Some ( ref mut y) = rexpr {
            println! ("MM: {:?}", y);
             collect_blocks = cut_blocks (&mut y.txt, y.entry);
+            *stream = stream.replace (&y.txt, "").strn();
           //  println! ("tst: {:?}", collect_blocks);
             if let Some ( ref cb ) = collect_blocks {
                 _1st_ln = cb [ cb.len() - 1].end;
@@ -124,7 +125,7 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     dbg! (&ret);
     return ret
 }
-pub fn get_lines_in_block (stream: &String) -> Vec < rExpr > {
+pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
     let (mut _1st_ln, header) = _1st_fn_line ( stream );
     let mut ret = Vec::<rExpr>::new();
     let header = rExpr {
@@ -144,6 +145,7 @@ pub fn get_lines_in_block (stream: &String) -> Vec < rExpr > {
         if let Some ( ref mut y) = rexpr {
            println! ("{:?}", y);
             collect_blocks = cut_blocks (&mut y.txt, y.entry);
+            *stream = stream.replace (&y.txt, "").strn();
           //  println! ("tst: {:?}", collect_blocks);
             if let Some ( ref cb ) = collect_blocks {
               //  _1st_ln = cb [ cb.len() - 1].end;
@@ -163,6 +165,7 @@ pub fn get_lines_in_block (stream: &String) -> Vec < rExpr > {
     ret.push (last);
     println! ("***************************");
     dbg! (&ret);
+    dbg! (&stream);
     return ret
 }
 pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr > > {
@@ -179,7 +182,7 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
            x.txt.len() == expr.len() - 1 { return None }
            *expr = expr.replace (&edited, "");
            edited = edited.replace(&x.txt, "");
-           let mut lines_in_block = get_lines_in_block (&x.txt);
+           let mut lines_in_block = get_lines_in_block (&mut x.txt);
            //x.txt = format! ("mm: {}", x.txt);
          //  x.entry = prev_end;
            //x.end = prev_end + x.txt.chars().count();
@@ -199,7 +202,7 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
             if x.txt.len() == edited.len() ||
                x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
             edited = edited.replace(&x.txt, "");
-            let mut lines_in_block = get_lines_in_block (&x.txt);
+            let mut lines_in_block = get_lines_in_block (&mut x.txt);
             //_start = x.end;
             //let block_len = lines_in_block.len();
            // lines_in_block[block_len - 1].end = x.txt.chars().count();
@@ -236,6 +239,7 @@ pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_toke
 }
 #[inline]
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
+    if stream.is_empty () { return None}
     let mut line: usize = 0;
     let mut column = line;
     let mut entry: usize = 0;

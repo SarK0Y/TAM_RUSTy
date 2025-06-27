@@ -273,6 +273,8 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let empty_rexpr = rExpr::new();
     let all_assigns = if let Some (x) = all_assigns { x } else { vec! [empty_rexpr] };
     let rexpr_for_loop: Option < rExpr > = token_for_loop (&func_body, 0);
+    dbg! (&rexpr);
+    func_body = rexpr.clone().into_iter().map(|x| {x.txt}).collect();
     rexpr.extend ( fn_lines );
     rexpr.extend (all_assigns);
   //  if let Some (x) = rexpr_for_loop { rexpr.push (x); }
