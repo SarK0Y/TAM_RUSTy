@@ -83,18 +83,26 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     }
     return ret
 }
-pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
+pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     let (mut _1st_ln, header) = _1st_fn_line ( stream );
     let mut ret = Vec::<rExpr>::new();
+    let header = rExpr {
+        txt: header,
+        line: 0,
+        column: 0,
+        entry: 0,
+        end: 0
+        };
+    ret.push(header);
     let mut chars = stream.chars();
     let mut rexpr: Option < rExpr > = None;
     let mut collect_blocks: Option < Vec < rExpr > > = None;
     loop {
         rexpr = stream_sieving2 (stream, " ", _1st_ln, ";");
         dbg! (&rexpr);
-        if let Some ( ref y) = rexpr {
-           println! ("{:?}", y);
-            collect_blocks = cut_blocks (&y.txt, y.entry);
+        if let Some ( ref mut y) = rexpr {
+           println! ("MM: {:?}", y);
+            collect_blocks = cut_blocks (&mut y.txt, y.entry);
           //  println! ("tst: {:?}", collect_blocks);
             if let Some ( ref cb ) = collect_blocks {
                 _1st_ln = cb [ cb.len() - 1].end;
@@ -109,16 +117,59 @@ pub fn get_lines_in_fn (stream: &String) -> Vec < rExpr > {
     let mut last: rExpr = ret.pop().unwrap();
     let ch = last.txt.pop ().unwrap_or (' ');
 //    println! ("{:?}", last);
-    if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
+  //  if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
+    last.txt.push('}');
     ret.push (last);
     println! ("***************************");
     dbg! (&ret);
     return ret
 }
-pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
+pub fn get_lines_in_block (stream: &String) -> Vec < rExpr > {
+    let (mut _1st_ln, header) = _1st_fn_line ( stream );
+    let mut ret = Vec::<rExpr>::new();
+    let header = rExpr {
+        txt: header,
+        line: 0,
+        column: 0,
+        entry: 0,
+        end: 0
+        };
+    ret.push(header);
+    let mut chars = stream.chars();
+    let mut rexpr: Option < rExpr > = None;
+    let mut collect_blocks: Option < Vec < rExpr > > = None;
+    loop {
+        rexpr = stream_sieving2 (stream, " ", 0, ";");
+        dbg! (&rexpr);
+        if let Some ( ref mut y) = rexpr {
+           println! ("{:?}", y);
+            collect_blocks = cut_blocks (&mut y.txt, y.entry);
+          //  println! ("tst: {:?}", collect_blocks);
+            if let Some ( ref cb ) = collect_blocks {
+              //  _1st_ln = cb [ cb.len() - 1].end;
+                ret.extend (cb.clone () ); continue;
+            }
+            _1st_ln = y.end;
+            ret.push (y.clone() ); continue;
+        }
+        break; 
+    }
+    if ret.is_empty() { return ret}
+    let mut last: rExpr = ret.pop().unwrap();
+    let ch = last.txt.pop ().unwrap_or (' ');
+//    println! ("{:?}", last);
+  //  if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
+    last.txt.push('}');
+    ret.push (last);
+    println! ("***************************");
+    dbg! (&ret);
+    return ret
+}
+pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr > > {
     if expr.is_empty() { return None }
     let mut edited = expr.clone();
     let mut ret = Vec::<rExpr>::new();
+    if expr.is_empty () { return None}
     let mut fst_ch = expr.chars().nth(0).unwrap().to_string();
     let mut end: usize = 0;
     let mut cut_block_off: Option < rExpr > = stream_sieving2 (&edited, &fst_ch, 0, "}");
@@ -126,30 +177,39 @@ pub fn cut_blocks (expr: &String, prev_end: usize) -> Option < Vec < rExpr > > {
         
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
+           *expr = expr.replace (&edited, "");
            edited = edited.replace(&x.txt, "");
+           let mut lines_in_block = get_lines_in_block (&x.txt);
            //x.txt = format! ("mm: {}", x.txt);
-           x.entry = prev_end;
-           x.end = prev_end + x.txt.chars().count();
-           end = x.end;
-           ret.push(x.clone()); dbg! (&expr);
+         //  x.entry = prev_end;
+           //x.end = prev_end + x.txt.chars().count();
+           //end = x.end;
+           let block_len = lines_in_block.len();
+           lines_in_block[block_len - 1].end = x.txt.chars().count();
+           ret.extend(lines_in_block.clone()); dbg! (&expr);
     }
     loop {
          println! ("edited: {edited}");
         cut_block_off = stream_sieving2 (&edited, &fst_ch, 0, "}");
         if let Some ( mut x) = cut_block_off {
-            x.entry = end;
-            x.end = end + x.txt.chars().count();
-            end = x.end;
-            println! ("xx:: {:?}", x);
+           // x.entry = end;
+            //x.end = end + x.txt.chars().count();
+            //end = x.end;
+            println! ("xx:: {:?}", edited);
             if x.txt.len() == edited.len() ||
                x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
             edited = edited.replace(&x.txt, "");
+            let mut lines_in_block = get_lines_in_block (&x.txt);
             //_start = x.end;
-            ret.push(x.clone());
+            //let block_len = lines_in_block.len();
+           // lines_in_block[block_len - 1].end = x.txt.chars().count();
+            ret.extend(lines_in_block.clone());
         } else { return None }
+        if expr.is_empty () { return Some (ret) }
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
+
 pub fn collect_all_assigns (stream: &String ) -> Option < Vec < rExpr > > {
     let mut start: usize = _1st_fn_line (stream).0;
     let mut nxt: Option < rExpr > = stream_sieving2 ( stream, ";", start, "=");

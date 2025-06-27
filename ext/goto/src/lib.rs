@@ -265,10 +265,10 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
    }
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let func_body = item.to_string ();
+    let mut  func_body = item.to_string ();
     let func_body_last_exit = func_body.substring (0, func_body.chars().count() - 1);
     let mut rexpr: Vec <rExpr > = collect_not_nested_let_tokens (&func_body);
-    let fn_lines = get_lines_in_fn (&func_body);
+    let fn_lines = get_lines_in_fn (&mut func_body);
     let all_assigns = collect_all_assigns (&func_body);
     let empty_rexpr = rExpr::new();
     let all_assigns = if let Some (x) = all_assigns { x } else { vec! [empty_rexpr] };
@@ -289,6 +289,7 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     }.to_string();
     leave_file_mark ("/tmp/ending", &new_end);
     let modified_func_body =  edit::rewrite_last_exit (&func_body, &new_end);
+    dbg! (&modified_func_body);
     let out: TokenStream2 = modified_func_body.parse().unwrap();
     return out.into()
 }
