@@ -9,7 +9,7 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-use rst_lex::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark, token_for_loop, get_lines_in_fn, collect_all_assigns};
+use rst_lex::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark, token_for_loop, get_lines_in_fn }; //collect_all_assigns};
 use rst_lex::edit_funx as edit;
 use substring::Substring;
 use proc_macro::TokenStream;
@@ -269,9 +269,7 @@ pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let func_body_last_exit = func_body.substring (0, func_body.chars().count() - 1);
     //let mut rexpr: Vec <rExpr > = collect_not_nested_let_tokens (&func_body);
     let mut rexpr: Vec <rExpr > = get_lines_in_fn (&mut func_body);
-    let all_assigns = collect_all_assigns (&func_body);
     let empty_rexpr = rExpr::new();
-    let all_assigns = if let Some (x) = all_assigns { x } else { vec! [empty_rexpr] };
     let rexpr_for_loop: Option < rExpr > = token_for_loop (&func_body, 0);
     dbg! (&rexpr);
     func_body = rexpr.clone().into_iter().map(|x| {x.txt}).collect();
