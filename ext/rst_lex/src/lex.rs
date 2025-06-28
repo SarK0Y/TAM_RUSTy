@@ -193,7 +193,8 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
         
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
-           *expr = expr.replace (&edited, "");
+           dbg! (&expr);
+           dbg! (&x);
            edited = edited.replace(&x.txt, "");
            let mut lines_in_block = get_lines_in_block (&mut x.txt);
            //x.txt = format! ("mm: {}", x.txt);
@@ -203,7 +204,7 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
            let block_len = lines_in_block.len();
            lines_in_block[block_len - 1].end = x.txt.chars().count();
            ret.extend(lines_in_block.clone());
-           if expr == "" {return Some (ret)}
+           if edited == "" {return Some (ret)}
     }
     loop {
          println! ("edited: {edited}");
@@ -222,7 +223,7 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
            // lines_in_block[block_len - 1].end = x.txt.chars().count();
             ret.extend(lines_in_block.clone());
         } else { return None }
-        if expr.is_empty () { return Some (ret) }
+        if edited.is_empty () { return Some (ret) }
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
