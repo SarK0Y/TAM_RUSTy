@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use crate::strns::split_once_or_ret_null_strns;
+use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars};
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -387,50 +388,6 @@ pub fn leave_file_mark (nm: &str, msg: &str){
     let mut file = File::create(nm).expect("Unable to create file");
     file.write_all(msg.as_bytes()).expect("Unable to write data");
 }
-#[derive(Clone, Debug)]
-pub struct found_local_vars {
-    pub mut_or_not: Vec <bool>,
-    pub pub_or_not: Vec <bool>,
-    pub static_or_not: Vec <bool>,
-    pub _type: Vec <String>,
-    pub line: Vec <usize>,
-    pub column: Vec <usize>,
-    pub name: Vec <String>,
-    pub txt: Vec <String>,
-}
-impl found_local_vars {
-    fn new () -> Self {
-        return Self {
-            mut_or_not: Vec::<bool>::new(),
-            pub_or_not: Vec::<bool>::new(),
-            static_or_not: Vec::<bool>::new(),
-            _type: Vec::<String>::new(),
-            name: Vec::<String>::new(),
-            txt: Vec::<String>::new(),
-            line: Vec::<usize>::new(),
-            column: Vec::<usize>::new(),
-        }
-    }
-}
-#[derive(Clone, Debug, PartialEq)]
-pub struct rExpr {
-    pub txt: String,
-    pub line: usize,
-    pub column: usize,
-    pub entry: usize,
-    pub end: usize
-}
-impl rExpr {
-   pub fn new () -> Self {
-        return Self {
-            txt: String::new(),
-            line: 0,
-            column: 0,
-            entry: 0,
-            end: 0
-        }
-    }
-}
 pub fn get_token (indx: usize) -> token_status {
     return set_of_tokens (None, indx)
 }
@@ -444,34 +401,3 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
     }
 }
 /****************************  enums/structs ****************************/
-#[derive(Clone, Debug, PartialEq)]
-pub enum type_of_vars_expr {
-    complex,
-    simple,
-    not,
-}
-pub enum token_status {
-    too_large_indx,
-    ret (String),
-    empty,
-    new_added
-}
-pub enum prime_token {
-    semicolon,
-    colon,
-    dot,
-    comma,
-    paren (char),
-    any_symb (char)
-}
-pub trait Alt_Assign {
-    fn set (&mut self, new: Self);
-}
-impl Alt_Assign for usize {
-    fn set (&mut self, new: Self) {
-        *self = new;
-    }
-}
-pub fn set_usize (set0: &mut usize, new: usize) {
-    *set0 = new;
-}

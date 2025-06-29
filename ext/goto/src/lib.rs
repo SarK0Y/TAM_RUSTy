@@ -9,7 +9,8 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-use rst_lex::lex::{collect_not_nested_let_tokens, rExpr, leave_file_mark, token_for_loop, get_lines_in_fn }; //collect_all_assigns};
+use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn }; //collect_all_assigns};
+use rst_lex::faav::rExpr;
 use rst_lex::edit_funx as edit;
 use substring::Substring;
 use proc_macro::TokenStream;
