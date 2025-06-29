@@ -242,11 +242,23 @@ pub fn check_let (expr: &String) -> bool {
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     return false
 }
+pub fn var_or_not (expr: &String) -> type_of_vars_expr {
+    let ret = stream_sieving3 (expr.trim_start(), "=", 0, ";" );
+    if ret.is_some() {return type_of_vars_expr::simple }
+    let ret = stream_sieving3 (expr.trim_start(), "=", 0, "{" );
+    if ret.is_some() {
+        blocks_status( Some (&'{' ) );
+        return type_of_vars_expr::complex }
+    return type_of_vars_expr::not
+}
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
 }
 pub fn stream_sieving2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option < rExpr > {
     return stream_sieving (stream, &token.to_string(), run_from, &stop_token.to_string() )
+}
+pub fn stream_sieving3 (stream: &str, token: &str, run_from: usize, stop_token: &str) -> Option < rExpr > {
+    return stream_sieving (&stream.strn(), &token.to_string(), run_from, &stop_token.to_string() )
 }
 #[inline]
 pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option < rExpr > {
@@ -420,6 +432,13 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
         if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
     }
 }
+/****************************  enums/structs ****************************/
+#[derive(Clone, Debug, PartialEq)]
+pub enum type_of_vars_expr {
+    complex,
+    simple,
+    not,
+}
 pub enum token_status {
     too_large_indx,
     ret (String),
@@ -445,4 +464,3 @@ impl Alt_Assign for usize {
 pub fn set_usize (set0: &mut usize, new: usize) {
     *set0 = new;
 }
-
