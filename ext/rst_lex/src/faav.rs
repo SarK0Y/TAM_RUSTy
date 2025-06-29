@@ -81,5 +81,12 @@ pub fn close_complex_var ( add_new_item: Option < &String >) -> Option <String >
             fin.push (x.clone() );
         } return fin.pop ()
     }
-    todo!()
+}
+pub fn log_name ( set: Option < &String >) -> Option <String > {
+    static mut name: Lazy < String > = Lazy::new (|| {String::new ()});
+    unsafe {
+        if let Some (x) = set {
+            *name = x.clone();
+        } return Some ( name.clone() )
+    }
 }
