@@ -1,9 +1,10 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
+use std::io::Write;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append};
 use crate::strns::split_once_or_ret_null_strns;
-use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars};
+use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, close_complex_var };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -238,15 +239,21 @@ pub fn log_vars (stream: &mut String) -> String {
         let categorize_var =  var_expr_or_not (&ln);
         match categorize_var {
             type_of_vars_expr::not => { continue;},
-            type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_var_logged (&ln);},
+            type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (&ln);},
             type_of_vars_expr::complex => { unimplemented!();}
         }
         
     }
     todo! ()
 }
-pub fn make_var_logged (expr: &String ) -> String {
+pub fn make_simple_var_logged (expr: &String ) -> String {
     todo! ()
+}
+pub fn log_the_var (var_name: &str, value: &str ) {
+    let strn_to_log = format! ("{var_name}: {value}");
+    let log_file = log_name (None ).unwrap_or ("/tmp/log_func".strn());
+    let mut log_file = get_file_append (&log_file);
+    log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
 }
 pub fn check_let (expr: &String) -> bool {
     let token = "let";
