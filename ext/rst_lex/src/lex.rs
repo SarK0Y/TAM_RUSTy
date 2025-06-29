@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
+use Mademoiselle_Entropia::help_funcs::{get_file_append};
 use crate::strns::split_once_or_ret_null_strns;
 use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars};
 macro_rules! _set_usize {

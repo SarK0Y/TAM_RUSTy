@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 #[derive(Clone, Debug, PartialEq)]
 pub enum type_of_vars_expr {
     complex,
@@ -72,4 +73,13 @@ impl rExpr {
 }
 pub fn set_usize (set0: &mut usize, new: usize) {
     *set0 = new;
+}
+pub fn close_complex_var ( add_new_item: Option < &String >) -> Option <String > {
+    static mut fin: Lazy <Vec <String> > = Lazy::new (|| {Vec::<String>::new ()});
+    unsafe {
+        if let Some (x) = add_new_item {
+            fin.push (x.clone() );
+        } return fin.pop ()
+    }
+    todo!()
 }
