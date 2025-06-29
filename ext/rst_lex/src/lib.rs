@@ -11,4 +11,5 @@
 //pub use crate::goto::{label, goto};
 pub mod lex;
 pub mod edit_funx;
+pub mod strns;
     

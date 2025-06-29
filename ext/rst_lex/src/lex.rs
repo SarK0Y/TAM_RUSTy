@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
+use crate::strns::split_once_or_ret_null_strns;
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -229,10 +230,20 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
 }
 pub fn log_vars (stream: &mut String) -> String {
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
-    for j in fn_ln_by_ln {
-        let ln = j.txt.clone();
+    for j in 0..fn_ln_by_ln.len() {
+        let ln = fn_ln_by_ln[j].txt.clone();
         if check_let ( &ln ) { continue }
+        let categorize_var =  var_expr_or_not (&ln);
+        match categorize_var {
+            type_of_vars_expr::not => { continue;},
+            type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_var_logged (&ln);},
+            type_of_vars_expr::complex => { unimplemented!();}
+        }
+        
     }
+    todo! ()
+}
+pub fn make_var_logged (expr: &String ) -> String {
     todo! ()
 }
 pub fn check_let (expr: &String) -> bool {
@@ -242,7 +253,7 @@ pub fn check_let (expr: &String) -> bool {
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     return false
 }
-pub fn var_or_not (expr: &String) -> type_of_vars_expr {
+pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let ret = stream_sieving3 (expr.trim_start(), "=", 0, ";" );
     if ret.is_some() {return type_of_vars_expr::simple }
     let ret = stream_sieving3 (expr.trim_start(), "=", 0, "{" );
