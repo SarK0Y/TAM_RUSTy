@@ -324,6 +324,7 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
     static mut curly: u64 = 0;
     static mut round: u64 = 0;
     static mut square: u64 = 0;
+    static mut cite: u64 = 0;
     static mut state: bool = false;
     unsafe {
         if ch.is_none () { return state }
@@ -335,9 +336,10 @@ pub fn blocks_status (ch: Option < &char > ) -> bool {
             ')' => {round.dec(); }, 
             '[' => {square.inc(); }, 
             ']' => {square.dec(); },
+            '\"' => {cite += 1; cite %= 2; },
             _ => {}
         }
-        let sum = curly + round + square;
+        let sum = curly + round + square + cite;
         if sum == 0 { state = false;} else { state = true; } 
     //    println! ("{state}, {ch}");
         return state
