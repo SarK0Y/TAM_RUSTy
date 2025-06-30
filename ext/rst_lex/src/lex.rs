@@ -231,26 +231,36 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
-pub fn log_vars (stream: &mut String) -> String {
+pub fn _log_vars (stream: &mut String) -> String {
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
-    for j in 0..fn_ln_by_ln.len() {
+ //   let deps = fn_ln_by_ln[0].txt.clone();
+   // let deps = format! ("{deps}\nuse goto1717::log_vars;\n");
+   // fn_ln_by_ln[0].txt = deps;
+    for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
         if check_let ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
         match categorize_var {
             type_of_vars_expr::not => { continue;},
-            type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (&ln);},
+            type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => { unimplemented!();}
         }
         
     }
-    todo! ()
+    let ret: String = fn_ln_by_ln.into_iter().map (|x| x.txt.strn()).collect(); 
+    leave_file_mark ("/tmp/log_func", &ret);
+    return ret
 }
-pub fn make_simple_var_logged (expr: &String ) -> String {
-    todo! ()
+pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
+    let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
+    let var_name = var_name.trim();
+    let extra_var = format! ("extra_{var_name}");
+    let log_ins = format! ("\nlet {extra_var} = {:?};\nlog_the_var(ln_num, var_name, extra_var);\n", var_name);
+    let logged_ln = format! ("{log_ins}{expr}{log_ins}");
+    return logged_ln
 }
-pub fn log_the_var (var_name: &str, value: &str ) {
-    let strn_to_log = format! ("{var_name}: {value}");
+pub fn log_the_var (ln_num: usize, var_name: &str, value: &str ) {
+    let strn_to_log = format! ("{ln_num}. {var_name}: {value}");
     let log_file = log_name (None ).unwrap_or ("/tmp/log_func".strn());
     let mut log_file = get_file_append (&log_file);
     log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());

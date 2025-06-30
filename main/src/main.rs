@@ -417,7 +417,10 @@ use goto1717::just_prnt;
 #[cfg(feature ="tst_macro")]
 //#[inject_tst(tt0 = "fooo", tst0="nxt ffoo")]
 //#[inject_tst(tst1="tst", tst1="jj")]
-#[prnt_vars]
+//#[prnt_vars]
+use goto1717::log_vars;
+#[cfg(feature ="tst_macro")]
+#[log_vars]
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);

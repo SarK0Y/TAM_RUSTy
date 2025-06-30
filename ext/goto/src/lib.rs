@@ -9,7 +9,7 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn }; //collect_all_assigns};
+use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn, _log_vars }; //collect_all_assigns};
 use rst_lex::faav::rExpr;
 use rst_lex::edit_funx as edit;
 use substring::Substring;
@@ -264,6 +264,15 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         };
         return out.into()
    }
+#[proc_macro_attribute]
+    pub fn log_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
+        let mut func_body = item.to_string();
+        let func_body = _log_vars(&mut func_body);
+        let out = quote! {
+           #func_body
+        };
+        return out.into()
+}
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut  func_body = item.to_string ();
