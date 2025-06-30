@@ -268,9 +268,10 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
     pub fn log_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
         let mut func_body = item.to_string();
         let func_body = _log_vars(&mut func_body);
-        let out = quote! {
-           #func_body
-        };
+        leave_file_mark ("/tmp/fn1", &func_body);
+        let mut out: TokenStream2 = func_body.parse().unwrap();
+       // let strn = out.to_string ();
+       // leave_file_mark ("/tmp/log_func", &strn);
         return out.into()
 }
 #[proc_macro_attribute]

@@ -233,8 +233,9 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
 }
 pub fn _log_vars (stream: &mut String) -> String {
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
+    let nl = char::from_u32(0x0a).unwrap().to_string();
     let deps = fn_ln_by_ln[0].txt.clone();
-    let deps = format! ("{deps}\nuse rst_lex::lex::log_the_var;\n");
+    let deps = format! ("{deps}{nl}use rst_lex::lex::log_the_var;");
     fn_ln_by_ln[0].txt = deps;
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
@@ -247,19 +248,24 @@ pub fn _log_vars (stream: &mut String) -> String {
         }
         
     }
-    let ret: String = fn_ln_by_ln.into_iter().map (|x| x.txt.strn()).collect(); 
+    let mut ret = String::new ();
+    for iter in fn_ln_by_ln {
+        ret.push_str( iter.txt.trim());
+    }
+    ret = ret.replace("\n", "");
     leave_file_mark ("/tmp/log_func", &ret);
     return ret
 }
 pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
     let expr = expr.trim();
+    let nl = char::from_u32(0x0a).unwrap();
     dbg! (expr);
     let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
     //let var_name = var_name.trim();
     let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
     dbg! (&var_name);
     let value = format! ("let value = format! (\"{{:?}}\", {} )", var_name);
-    let log_ins = format! ("\n{value};\nlog_the_var({ln_num}, {var_name}, value);\n");
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value);{nl}");
     let logged_ln = format! ("{log_ins}{expr}{log_ins}");
     return logged_ln
 }

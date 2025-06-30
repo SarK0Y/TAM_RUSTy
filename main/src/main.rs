@@ -9,6 +9,7 @@
 #![allow(while_true)]
 #[allow(arithmetic_overflow)]
 #[allow(temporary_cstring_as_ptr)]
+#[allow(unknown_lints, dangerous_implicit_autorefs)]
 //#[allow(static_mut_refs)] 
 use syn::punctuated::Punctuated;
 use syn::Token; 
@@ -419,6 +420,7 @@ use goto1717::just_prnt;
 //#[inject_tst(tst1="tst", tst1="jj")]
 //#[prnt_vars]
 use goto1717::log_vars;
+
 #[cfg(feature ="tst_macro")]
 #[log_vars]
 fn tst () -> String { 
@@ -436,8 +438,9 @@ fn tst () -> String {
         }
     }
     println!("end here" );
-    return "tst".strn()
+    return "tst".to_string()
 }
+fn ttst() -> String{use rst_lex::lex::log_the_var;let tst = 411u32;println!("end here");return "tst".to_string() }
 #[cfg(feature ="tst_macro")]
 //#[prnt_vars]
 fn tst0 () -> String { 
@@ -454,7 +457,6 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     }
     return
 }
-
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
