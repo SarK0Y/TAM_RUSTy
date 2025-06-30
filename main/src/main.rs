@@ -438,23 +438,6 @@ fn tst () -> String {
     println!("end here" );
     return "tst".strn()
 }
-fn tst11 () -> String { 
-    let tst = 411u32;
-    let (x, y) = (47u64, 357u32);
-    let more: i32 = 0;
-    let mut more: i32 = 1;
-    println!("tst here");
-    more = -35;
-    while more < 47 { more += 1;}
-    for h in 0..10 {
-        let f: u32 = 157;
-        for k in 1..3 {
-            let g: usize = 3;
-        }
-    }
-    println!("end here" );
-    return "tst".strn()
-}
 #[cfg(feature ="tst_macro")]
 //#[prnt_vars]
 fn tst0 () -> String { 

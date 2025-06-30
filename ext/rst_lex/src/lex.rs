@@ -233,9 +233,9 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
 }
 pub fn _log_vars (stream: &mut String) -> String {
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
- //   let deps = fn_ln_by_ln[0].txt.clone();
-   // let deps = format! ("{deps}\nuse goto1717::log_vars;\n");
-   // fn_ln_by_ln[0].txt = deps;
+    let deps = fn_ln_by_ln[0].txt.clone();
+    let deps = format! ("{deps}\nuse rst_lex::lex::log_the_var;\n");
+    fn_ln_by_ln[0].txt = deps;
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
         if check_let ( &ln ) { continue }
@@ -252,10 +252,14 @@ pub fn _log_vars (stream: &mut String) -> String {
     return ret
 }
 pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
+    let expr = expr.trim();
+    dbg! (expr);
     let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
-    let var_name = var_name.trim();
-    let extra_var = format! ("extra_{var_name}");
-    let log_ins = format! ("\nlet {extra_var} = {:?};\nlog_the_var(ln_num, var_name, extra_var);\n", var_name);
+    //let var_name = var_name.trim();
+    let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
+    dbg! (&var_name);
+    let value = format! ("let value = format! (\"{{:?}}\", {} )", var_name);
+    let log_ins = format! ("\n{value};\nlog_the_var({ln_num}, {var_name}, value);\n");
     let logged_ln = format! ("{log_ins}{expr}{log_ins}");
     return logged_ln
 }
