@@ -422,7 +422,7 @@ use goto1717::just_prnt;
 use goto1717::log_vars;
 
 #[cfg(feature ="tst_macro")]
-#[log_vars]
+#[log_vars(size=47,log=/tmp/tst_log)]
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
