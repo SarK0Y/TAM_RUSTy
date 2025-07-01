@@ -1,4 +1,5 @@
 use once_cell::sync::Lazy;
+ use Mademoiselle_Entropia::custom_traits::STRN;
 #[derive(Clone, Debug, PartialEq)]
 pub enum type_of_vars_expr {
     complex,
@@ -83,7 +84,7 @@ pub fn close_complex_var ( add_new_item: Option < &String >) -> Option <String >
     }
 }
 pub fn log_name ( set: Option < &String >) -> Option <String > {
-    static mut name: Lazy < String > = Lazy::new (|| {String::new ()});
+    static mut name: Lazy < String > = Lazy::new (|| {"/tmp/log_var".strn() });
     unsafe {
         if let Some (x) = set {
             *name = x.clone();

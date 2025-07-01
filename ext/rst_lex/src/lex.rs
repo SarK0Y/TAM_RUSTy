@@ -2,7 +2,7 @@ use once_cell::sync::Lazy;
 use substring::Substring;
 use std::io::Write;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
-use Mademoiselle_Entropia::help_funcs::{get_file_append};
+use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
 use crate::strns::split_once_or_ret_null_strns;
 use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, close_complex_var };
 macro_rules! _set_usize {
@@ -266,13 +266,21 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
     dbg! (&var_name);
     let value = format! ("let value = format! (\"{{:?}}\", {} )", var_name);
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value);{nl}");
-    let logged_ln = format! ("{log_ins}{expr}{log_ins}");
+    let ln_num = ln_num + 1;
+    let log_ins1 = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value);{nl}");
+    let logged_ln = format! ("{log_ins}{expr}{log_ins1}");
     return logged_ln
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str ) {
-    let strn_to_log = format! ("{ln_num}. {var_name}: {value}");
-    let log_file = log_name (None ).unwrap_or ("/tmp/log_func".strn());
+    static mut depth: u8 = 0;
+    let strn_to_log = format! ("__{ln_num}. {var_name}: {value} ");
+    let _depth = unsafe { depth };
+    let log_file = log_name (None ).unwrap_or (format!("/tmp/log_var{_depth}") );
+     if !std::path::Path::new(&log_file).exists(){dbg! (&log_file); let mut filo = std::fs::File::create_new (&log_file).unwrap(); dbg! (&filo); filo.write_all (" ".as_bytes());}
     let mut log_file = get_file_append (&log_file);
+    if log_file.is_err() {
+        unsafe {depth += 1} return log_the_var (ln_num, var_name, value)
+    }
     log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
 }
 pub fn check_let (expr: &String) -> bool {

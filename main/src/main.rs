@@ -3,13 +3,13 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused)]
+#![allow(unknown_lints, dangerous_implicit_autorefs)]
 // #![feature(macro_metavar_expr)]
 #![allow(unused_variables)]
 #![allow(non_upper_case_globals)]
 #![allow(while_true)]
 #[allow(arithmetic_overflow)]
 #[allow(temporary_cstring_as_ptr)]
-#[allow(unknown_lints, dangerous_implicit_autorefs)]
 //#[allow(static_mut_refs)] 
 use syn::punctuated::Punctuated;
 use syn::Token; 
