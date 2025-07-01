@@ -3,6 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused)]
+#![allow(unused_must_use)]
 #![allow(unknown_lints, dangerous_implicit_autorefs)]
 // #![feature(macro_metavar_expr)]
 #![allow(unused_variables)]

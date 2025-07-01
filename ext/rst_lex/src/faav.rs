@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
- use Mademoiselle_Entropia::custom_traits::STRN;
+use Mademoiselle_Entropia::custom_traits::STRN;
 #[derive(Clone, Debug, PartialEq)]
 pub enum type_of_vars_expr {
     complex,
@@ -26,6 +26,19 @@ pub trait Alt_Assign {
 impl Alt_Assign for usize {
     fn set (&mut self, new: Self) {
         *self = new;
+    }
+}
+#[derive(Clone, Debug)]
+pub struct log_attr {
+    pub path: String,
+    pub size: usize,
+}
+impl log_attr {
+    pub fn new () -> Self {
+        return Self {
+            path: "/tmp/log_vars".strn(),
+            size: 8*1024,
+        }
     }
 }
 #[derive(Clone, Debug)]
