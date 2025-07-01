@@ -276,12 +276,12 @@ pub fn log_the_var (ln_num: usize, var_name: &str, value: &str ) {
     let strn_to_log = format! ("__{ln_num}. {var_name}: {value} ");
     let _depth = unsafe { depth };
     let log_file = log_name (None ).unwrap_or (format!("/tmp/log_var{_depth}") );
-     if !std::path::Path::new(&log_file).exists(){dbg! (&log_file); let mut filo = std::fs::File::create_new (&log_file).unwrap(); dbg! (&filo); filo.write_all (" ".as_bytes());}
+     if !std::path::Path::new(&log_file).exists(){dbg! (&log_file); let mut filo = std::fs::File::create_new (&log_file).unwrap(); dbg! (&filo); let _ = filo.write_all (" ".as_bytes());}
     let mut log_file = get_file_append (&log_file);
     if log_file.is_err() {
         unsafe {depth += 1} return log_the_var (ln_num, var_name, value)
     }
-    log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
+    let _ = log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
 }
 pub fn check_let (expr: &String) -> bool {
     let token = "let";

@@ -11,8 +11,9 @@
 //mod goto;
 //pub use crate::goto::{label, goto};
 use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn, _log_vars }; //collect_all_assigns};
-use rst_lex::faav::rExpr;
+use rst_lex::faav::{rExpr, log_attr, sav_log_attrs};
 use rst_lex::edit_funx as edit;
+use rst_lex::strns:: get_attrs_for_log_vars;
 use substring::Substring;
 use proc_macro::TokenStream;
 use quote::quote;
@@ -269,6 +270,8 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
     pub fn log_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
         let mut func_body = item.to_string();
         let attr = _attr.to_string();
+        let extract_log_attrs = get_attrs_for_log_vars (&attr);
+        sav_log_attrs (Some ( &extract_log_attrs ) );
         leave_file_mark ("/tmp/attr", &attr);
         let func_body = _log_vars(&mut func_body);
         leave_file_mark ("/tmp/fn1", &func_body);

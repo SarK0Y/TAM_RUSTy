@@ -56,7 +56,7 @@ pub fn get_attrs_for_log_vars (attrs: &String) -> log_attr {
     return ret
 }
 pub fn get_attr_for_log_vars (attr: &String, ret: &mut log_attr ) {
-    if attr.is_empty () {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]")}
+    if attr.is_empty () {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\nRemark: attr is empty")}
     let (attr0_0, attr0_1) = split_once_alt_o_null_strns (&attr, &"=".strn() );
     let attr0_0 = attr0_0.trim();//.strn();
     match attr0_0 {
@@ -69,10 +69,12 @@ pub fn get_size_from_log_conf (attr: &String) -> usize {
     let mark = attr.chars().nth (attr.chars().count() - 1).unwrap();
     let coef = size_mark (mark);
     let ret = if coef == 1 { strn_2_usize (&attr).unwrap_or (0) } else {
-        let attr = attr.substring (0, attr.chars().count() ).strn ();
+        let attr = attr.substring (0, attr.chars().count() -1 ).strn ();
+        dbg! (&attr);
         strn_2_usize (&attr).unwrap_or(0) * coef
     };
-    if ret == 0 {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]");}
+    if ret == 0 {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\nRemark: can't get file size for log.");}
+    dbg! (&ret);
     return ret
 }
 pub fn size_mark (m: char) -> usize {
