@@ -1,5 +1,6 @@
-use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops}; 
+use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, helpful_math_ops}; 
 use crate::faav::log_attr;
+use substring::Substring;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
     if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
@@ -65,5 +66,27 @@ pub fn get_attr_for_log_vars (attr: &String, ret: &mut log_attr ) {
     }
 }
 pub fn get_size_from_log_conf (attr: &String) -> usize {
-    todo! ()
+    let mark = attr.chars().nth (attr.chars().count() - 1).unwrap();
+    let coef = size_mark (mark);
+    let ret = if coef == 1 { strn_2_usize (&attr).unwrap_or (0) } else {
+        let attr = attr.substring (0, attr.chars().count() ).strn ();
+        strn_2_usize (&attr).unwrap_or(0) * coef
+    };
+    if ret == 0 {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]");}
+    return ret
+}
+pub fn size_mark (m: char) -> usize {
+    match m {
+        'K'|'k' => { return 1024 },
+        'M'|'m' => { return 1048576 },
+        'G'|'g' => { return 1073741824 },
+        'T'|'t' => { return 1099511627776},
+        _ => { return 1}
+    }
+}
+pub fn strn_2_usize(strn: &String) -> Option<usize> {
+    match usize::from_str_radix(&strn, 10) {
+        Ok(num) => Some(num),
+        _ => None,
+    }
 }
