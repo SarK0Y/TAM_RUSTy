@@ -1,5 +1,5 @@
 use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, helpful_math_ops}; 
-use crate::faav::log_attr;
+use crate::faav::{log_attr, sav_log_attrs};
 use substring::Substring;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
     if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
@@ -50,6 +50,7 @@ pub(crate) fn split_once_alt_o_null_strns(strn: &String, delim: &String) -> (Str
 }
 pub fn get_attrs_for_log_vars (attrs: &String) -> log_attr {
     let mut ret = log_attr::new();
+    if let Some (f) = sav_log_attrs (None) {dbg!(&f); ret = f.clone(); }
     let (attr0, attr1) = split_once_alt_o_null_strns (attrs, &",".strn() );
     get_attr_for_log_vars (&attr0, &mut ret);
     get_attr_for_log_vars (&attr1, &mut ret);

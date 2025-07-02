@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.514"
+version = "13.11.515"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -18,10 +18,10 @@ debug = true
 [build]
 rustflags = ["-A", "dangerous_implicit_autorefs"]
 [build-dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.108" }
+goto1717 = { path = "../ext/goto", version = "0.0.109" }
 [dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.108" }
-rst_lex = { path = "../ext/rst_lex", version = "0.0.50" }
+goto1717 = { path = "../ext/goto", version = "0.0.109" }
+rst_lex = { path = "../ext/rst_lex", version = "0.0.51" }
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"

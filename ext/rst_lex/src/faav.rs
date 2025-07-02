@@ -104,7 +104,7 @@ pub fn log_name ( set: Option < &String >) -> Option <String > {
         } return Some ( name.clone() )
     }
 }
-pub fn sav_log_attrs ( set: Option < &log_attr >) -> Option < log_attr > {
+pub fn sav_log_attrs ( set: Option < log_attr >) -> Option < log_attr > {
     static mut sav: Lazy < log_attr > = Lazy::new (|| {log_attr::new() });
     unsafe {
         if let Some (x) = set {
