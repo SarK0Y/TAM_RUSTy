@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
-use std::io::{Write, self};
+use std::io::{Write, self, ErrorKind};
 use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
@@ -286,7 +286,9 @@ pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr
         unsafe {depth += 1} return log_the_var (ln_num, var_name, value, attrs)
     }
     let err_msg = "failed to check log size".strn();
-    let cur_file_len = metadata(&attrs.path).expect(&err_msg).len();
+    let err_set_len = "failed to set log size in 0".strn();
+    let cur_file_len = metadata(&attrs.path).expect(&err_msg).len() as usize;
+    if cur_file_len > attrs.size {set_file_size (&mut log_file, 0);}
     dbg! (&cur_file_len);
     dbg!(&attrs.path);
     let _ = log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
@@ -306,6 +308,16 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
     return type_of_vars_expr::not
+}
+pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {
+    let err_set_len = "failed to set log size in 0".strn();
+    let mut _handle: *mut Result <std::fs::File, ErrorKind > = handle;
+    unsafe {
+        let mut deref = &*_handle;
+        if let Ok (file) = deref {
+            file.set_len(size as u64); return
+        } panic! ("{err_set_len}");
+    }
 }
 pub fn stream_sieving1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option < rExpr > {
     return stream_sieving (stream, &token, run_from, &stop_token)
