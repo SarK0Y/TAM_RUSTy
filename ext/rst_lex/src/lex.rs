@@ -4,8 +4,8 @@ use std::io::{Write, self};
 use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
-use crate::strns::split_once_or_ret_null_strns;
-use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, close_complex_var, sav_log_attrs };
+use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars};
+use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, close_complex_var, log_attr };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -232,11 +232,14 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
-pub fn _log_vars (stream: &mut String) -> String {
+pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
+    let extract_log_attrs = get_attrs_for_log_vars (attrs);
+    dbg! (&extract_log_attrs);
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
     let nl = char::from_u32(0x0a).unwrap().to_string();
     let deps = fn_ln_by_ln[0].txt.clone();
-    let deps = format! ("{deps}{nl}use rst_lex::lex::log_the_var;");
+    let attrs_str = format! ("let attrs = log_attr {{path: \"{}\".to_string(), size: {} }};{nl}", extract_log_attrs.path, extract_log_attrs.size );
+    let deps = format! ("{deps}{nl}use rst_lex::lex::log_the_var;{nl}use rst_lex::faav::log_attr;{nl}{attrs_str}");
     fn_ln_by_ln[0].txt = deps;
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
@@ -257,7 +260,7 @@ pub fn _log_vars (stream: &mut String) -> String {
     leave_file_mark ("/tmp/log_func", &ret);
     return ret
 }
-pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
+pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let expr = expr.trim();
     let nl = char::from_u32(0x0a).unwrap();
     dbg! (expr);
@@ -266,22 +269,21 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String ) -> String {
     let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
     dbg! (&var_name);
     let value = format! ("let value = format! (\"{{:?}}\", {} )", var_name);
-    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value);{nl}");
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value, &attrs );{nl}");
     let ln_num = ln_num + 1;
-    let log_ins1 = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value);{nl}");
+    let log_ins1 = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value, &attrs);{nl}");
     let logged_ln = format! ("{log_ins}{expr}{log_ins1}");
     return logged_ln
 }
-pub fn log_the_var (ln_num: usize, var_name: &str, value: &str ) {
+pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
     static mut depth: u8 = 0;
     let strn_to_log = format! ("__{ln_num}. {var_name}: {value} ");
     let _depth = unsafe { depth };
-    let attrs = sav_log_attrs (None ).unwrap();
     let log_file = attrs.path.clone();
      if !std::path::Path::new(&log_file).exists(){dbg! (&log_file); let mut filo = std::fs::File::create_new (&log_file).unwrap(); dbg! (&filo); let _ = filo.write_all (" ".as_bytes());}
     let mut log_file = get_file_append (&log_file);
     if log_file.is_err() {
-        unsafe {depth += 1} return log_the_var (ln_num, var_name, value)
+        unsafe {depth += 1} return log_the_var (ln_num, var_name, value, attrs)
     }
     let err_msg = "failed to check log size".strn();
     let cur_file_len = metadata(&attrs.path).expect(&err_msg).len();

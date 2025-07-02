@@ -270,10 +270,8 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
     pub fn log_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
         let mut func_body = item.to_string();
         let attr = _attr.to_string();
-        let extract_log_attrs = get_attrs_for_log_vars (&attr);
-        sav_log_attrs (Some ( extract_log_attrs ) );
         leave_file_mark ("/tmp/attr", &attr);
-        let func_body = _log_vars(&mut func_body);
+        let func_body = _log_vars(&mut func_body, &attr);
         leave_file_mark ("/tmp/fn1", &func_body);
         let mut out: TokenStream2 = func_body.parse().unwrap();
        // let strn = out.to_string ();
