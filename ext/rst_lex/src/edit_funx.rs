@@ -2,8 +2,10 @@
 use once_cell::sync::Lazy;
 use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
-use crate::lex::blocks_status as blocks_state;
-use crate::lex::leave_file_mark;
+//#[cfg(feature ="dev_hell_n_fun")]
+use crate::lex::{ blocks_status as blocks_state, leave_file_mark };
+//#[cfg(feature ="stable")]
+//use crate::stable_lex::{ blocks_status as blocks_state, leave_file_mark };
 pub fn rewrite_last_exit (stream: &String, new_end: &String ) -> String {
     let last_exit = find_last_exit ( stream ).trim().strn();
     leave_file_mark ("/tmp/enter", &last_exit );

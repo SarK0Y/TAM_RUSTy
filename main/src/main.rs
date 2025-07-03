@@ -19,7 +19,6 @@ use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, split_once_alt_o_null_strns, strn_2_usize, take_list_adr};
 use syn::token::Return;
 use update18::delay_ms;
-use goto1717::inject;
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 #[cfg(feature ="mae")]
 use Mademoiselle_Entropia::true_rnd::UID_UTF8;
@@ -441,7 +440,6 @@ fn tst () -> String {
     println!("end here" );
     return "tst".to_string()
 }
-fn ttst() -> String{use rst_lex::lex::log_the_var;let tst = 411u32;println!("end here");return "tst".to_string() }
 #[cfg(feature ="tst_macro")]
 //#[prnt_vars]
 fn tst0 () -> String { 

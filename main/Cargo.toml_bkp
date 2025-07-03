@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.517"
+version = "13.11.518"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -13,15 +13,18 @@ description = "Automation tool to make Console/Terminal more comfy. Have a great
 #crate_type = ["staticlib"]
 keywords = ["automation", "file-manager", "shell", "ergonomics", "console"]
 categories = ["filesystem", "command-line-utilities", "multimedia::audio", "mathematics", "rust-patterns"] #"algorithms"]
-[profile.release]
+[profile.dev]
+opt-level = 0
 debug = true
+[profile.release]
+opt-level = 2
 [build]
 rustflags = ["-A", "dangerous_implicit_autorefs"]
 [build-dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.111" }
+goto1717 = { path = "../ext/goto", version = "0.0.112" }
 [dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.111" }
-rst_lex = { path = "../ext/rst_lex", version = "0.0.53" }
+goto1717 = { path = "../ext/goto", version = "0.0.112", optional = true }
+rst_lex = { path = "../ext/rst_lex", version = "0.0.54", optional = true }
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"
@@ -72,7 +75,7 @@ in_dbg =[]
 dbg0=[]
 mae =["Mademoiselle_Entropia"]
 npf_dbg = []
-tst_macro = []
+tst_macro = ["rst_lex/dev_hell_n_fun", "goto1717"]
 tst = []
 [[bin]]
 name = "sark0y_tam_rst"
