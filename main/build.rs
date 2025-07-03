@@ -1,9 +1,8 @@
-// build.rs
+// build.rs for TAM
 
 use std::env;
 use std::fs;
 use std::path::Path;
-use goto1717::inject_tst;
 
 fn main() {
     let out_dir = env::var_os("OUT_DIR").unwrap();
