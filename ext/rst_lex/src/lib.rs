@@ -16,7 +16,10 @@ pub mod lex;
 #[cfg(feature ="stable")]
 #[path = "stable_lex.rs"]
 pub mod lex;
+#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
 pub mod edit_funx;
+#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
 pub mod strns;
+#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
 pub mod faav;
     

@@ -419,6 +419,7 @@ use goto1717::just_prnt;
 //#[inject_tst(tt0 = "fooo", tst0="nxt ffoo")]
 //#[inject_tst(tst1="tst", tst1="jj")]
 //#[prnt_vars]
+#[cfg(feature ="tst_macro")]
 use goto1717::log_vars;
 
 #[cfg(feature ="tst_macro")]

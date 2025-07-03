@@ -10,7 +10,7 @@ fn main() {
 #[cfg(feature ="stable")]
     let src = "./src/stable_goto.rs";
     let dst = "./src/lib.rs";
-
+#[cfg(any(feature ="stable", feature = "tst") )]
     match fs::copy(src, dst) {
         Ok(bytes_copied) => {
             println!("Successfully copied {} bytes from '{}' to '{}'.", bytes_copied, src, dst);
