@@ -1,4 +1,4 @@
-/************************************************** DEV ****************************************************/
+/********************************************* STABLE **************************************************/
 #![allow(static_mut_refs)]
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
@@ -272,8 +272,7 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         let mut func_body = item.to_string();
         let attr = _attr.to_string();
         leave_file_mark ("/tmp/attr", &attr);
-        func_body = _log_vars(&mut func_body, &attr);
-        func_body = func_body.replace("pub fn", "pub fn ").strn();
+        let func_body = _log_vars(&mut func_body, &attr);
         leave_file_mark ("/tmp/fn1", &func_body);
         let mut out: TokenStream2 = func_body.parse().unwrap();
        // let strn = out.to_string ();

@@ -3,6 +3,8 @@
 #![allow(non_snake_case)]
 #![allow(dead_code)]
 #![allow(unused)]
+#![allow(unused_must_use)]
+#![allow(unknown_lints, dangerous_implicit_autorefs)]
 // #![feature(macro_metavar_expr)]
 #![allow(unused_variables)]
 #![allow(non_upper_case_globals)]
@@ -17,7 +19,6 @@ use exts::*;
 use globs18::{get_item_from_front_list, split_once_alt, split_once_alt_o_null_strns, strn_2_usize, take_list_adr};
 use syn::token::Return;
 use update18::delay_ms;
-use goto1717::inject;
 use crate::globs18::{get_proper_indx, get_proper_indx_tst};
 #[cfg(feature ="mae")]
 use Mademoiselle_Entropia::true_rnd::UID_UTF8;
@@ -417,13 +418,20 @@ use goto1717::just_prnt;
 #[cfg(feature ="tst_macro")]
 //#[inject_tst(tt0 = "fooo", tst0="nxt ffoo")]
 //#[inject_tst(tst1="tst", tst1="jj")]
-#[prnt_vars]
+//#[prnt_vars]
+#[cfg(feature ="tst_macro")]
+use goto1717::log_vars;
+
+#[cfg(feature ="tst_macro")]
+#[log_vars(log_size=422,log_path=/dev/shm/log_vars)]
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
     let more: i32 = 0;
-    let more: i32 = 1;
-    println!("tst here"); 
+    let mut more: i32 = 1;
+    println!("tst here");
+    more = -35;
+    while more < 47 { more += 1;}
     for h in 0..10 {
         let f: u32 = 157;
         for k in 1..3 {
@@ -431,10 +439,10 @@ fn tst () -> String {
         }
     }
     println!("end here" );
-    return "tst".strn()
+    return "tst".to_string()
 }
 #[cfg(feature ="tst_macro")]
-#[prnt_vars]
+//#[prnt_vars]
 fn tst0 () -> String { 
     let tst = 0usize;
     return "tst".strn()
@@ -449,7 +457,6 @@ fn self_dive(nm: String){// just sidekick to crrash tst :)
     }
     return
 }
-
 fn main (){
     /*#[cfg(any(feature="in_dbg", feature="dbg0"))]
     panic!("kkkkkkkkkkkkkkkkkkkkmmmmmmmmmmmmmmmm............");*/
@@ -469,11 +476,11 @@ fn main (){
     for item in items.iter() {
         println!("{}", item);
     }
-#[cfg(feature ="tst_macro")]
+/*#[cfg(feature ="tst_macro")]
 //lets_prnt_func (); 
 tst ();
 #[cfg(feature ="tst_macro")]
-return;
+return;*/
 /************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});

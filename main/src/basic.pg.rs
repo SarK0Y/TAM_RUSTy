@@ -10,10 +10,116 @@ use std::ptr::addr_of_mut;
 use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache, clear_screen, entry_cache_t, get_arg_in_cmd, get_ask_user, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize, take_list_adr, take_list_adr_env}, i64_2_usize, ln_of_found_files_cacheless, mk_empty_file, name_of_front_list, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, save_file_append_newline, screen_state, set_num_page, swtch::check_symlink, upd_fast_cache, update18::{delay_ms, fix_screen_count, upd_screen_or_not}};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use gag::Redirect;
-
+#[cfg(feature ="tst_macro")]
+use goto1717::log_vars;
 //use super::extctrl::*;
 impl super::basic{
+#[cfg(not(feature = "tst_macro"))]
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
+    let func_id = crate::func_id18::build_page_;
+    let mut try_entry = 0usize;
+    let mut num_files = crate::get_num_files(func_id);
+    let dbg_point = self.read_file("stop_point").trim_end().to_string();
+    #[cfg(feature="in_dbg")]
+    if dbg_point == "001"{
+        println!("stop 001");
+       // panic!("kkkkkkkmmmmmmmmmm,,,,,,,,,,,,,,");
+    }
+    while try_entry < 1_000 {
+        if crate::size_of_found_files() > 4u64 {break;}
+        num_files = crate::get_num_files(func_id);
+        if num_files == 0i64{continue;}
+        try_entry += 1; 
+    }
+    println!("{}", crate::get_full_path(func_id));
+    let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
+    let GUARD_LAG = crate::smart_lags::screen_lag ( None );
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {
+            if x > GUARD_LAG / 10 { clear_screen() }
+        }
+    if !upd_screen_or_not(pg_info) && screen_state(None) {
+        if name_of_front_list("", false) != "ls" {
+          crate::lst::prnt_screen(); return;
+        }
+    }
+    let save_screen: String = take_list_adr("screen");
+    mk_empty_file(&save_screen);
+    let mut save_screen = get_file(&save_screen).unwrap();
+    let redirect_out = Redirect::stdout(save_screen);
+    let mut count_down = num_files;
+    if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
+    let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
+    let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
+    let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
+    if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
+    let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
+    let mut filename_str: String; let mut time_to_stop = false;
+    let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
+    let mut display_indx = 0i64;
+    for j in 0..num_rows{
+        for i in 0..num_cols{
+           let mut indx = i + num_cols * j + num_page;
+            //indx = num_files - count_down_files;
+            let mut res: String ="".to_string();
+            let mut count_out = 77usize;
+            while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
+            if res == "no str gotten" { res = get_item_from_front_list(indx, true) }
+              num_files = crate::get_num_files(func_id);
+             if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
+                time_to_stop = true;
+            }
+            // println!("build_page - probe 0");
+            let full_path = res;
+            //no_dup_indx = indx;
+            display_indx = indx;
+            if !crate::C!(crate::swtch::local_indx(false)){display_indx = indx - num_page;}
+            let err_ret = std::ffi::OsString::from("");
+            let mut err_path = || -> &std::ffi::OsString{return &err_ret};
+            //println!("build_page - probe 1");
+            let mut filename = crate::Path::new(&full_path);
+            let filename_str0 = || -> String{
+                    let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
+                 if !crate::globs18::check_substrn01(&front_list, "history"){
+                   return String::from(match filename.file_name(){
+                    Some(f) => f,
+                    None => err_path(),
+                }.to_str().unwrap()).as_str().strn();
+            } else {return filename.as_os_str().to_str().unwrap().strn()};
+            };
+            if filename.as_os_str().to_str() == None{filename = crate::Path::new("")}
+            if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
+             time_to_stop = true; break;}
+            if crate::dirty!(){
+               println!("cmp_str res {}", crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()));
+               println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
+               println!("{:?}", filename.file_name());
+            }
+            let mut fixed_filename: String = filename_str0().to_string();
+            crate::ins_newlines(crate::get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
+            if filename.is_dir(){filename_str =format!("{}: {}/", display_indx, fixed_filename);}
+            else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
+            if filename_str == stopCode || filename_str == "no str gotten"{return;}
+            row_cpy.push(filename_str);
+            if count_down <= 0 {time_to_stop = true; break;}
+            count_down -= 1;
+        }
+        let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
+        let mut new_row: Vec<Vec<CellStruct>> = Vec::new();
+        new_row.push(crate::pg18::cpy_row(&mut row_cpy));
+        print_stdout(new_row.table().bold(true).foreground_color(Some(cli_table::Color::Blue)));
+        if time_to_stop {break;}
+    }
+    //println!("{}", pg.table().display().unwrap());
+    drop(redirect_out);
+    if crate::cmd_keys::screen_state( None ) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
+        let screen = read_file("screen");
+        println!("{}\n{}", screen, crate::get_ask_user(func_id) );
+    } else {println!("{}", get_ask_user(func_id) )}
+}
+#[cfg(feature ="tst_macro")]
+#[log_vars(log_size=3k, log_path=/dev/shm/build_page.log)]
+pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
