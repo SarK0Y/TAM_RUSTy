@@ -1,4 +1,4 @@
-use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, helpful_math_ops}; 
+use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, STRN_strip, helpful_math_ops}; 
 use crate::faav::{log_attr, sav_log_attrs};
 use substring::Substring;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
@@ -66,6 +66,7 @@ pub fn get_attr_for_log_vars (attr: &String, ret: &mut log_attr ) {
     }
 }
 pub fn get_size_from_log_conf (attr: &String) -> usize {
+    let attr = attr.strip_quotes();
     let mark = attr.chars().nth (attr.chars().count() - 1).unwrap();
     let coef = size_mark (mark);
     let ret = if coef == 1 { strn_2_usize (&attr).unwrap_or (0) } else {
@@ -90,5 +91,23 @@ pub fn strn_2_usize(strn: &String) -> Option<usize> {
     match usize::from_str_radix(&strn, 10) {
         Ok(num) => Some(num),
         _ => None,
+    }
+}
+pub trait Strip_Quotes {
+    fn strip_quotes_mut (&mut self) -> Self;
+    fn strip_quotes (&self) -> Self;
+}
+impl Strip_Quotes for String {
+    fn strip_quotes (&self) -> Self {
+        let mut ret = String::new ();
+        for j in self.chars() {
+            if j == '\"' || j == '\'' {continue;}
+            ret.push (j);
+        } return ret
+    }
+    fn strip_quotes_mut (&mut self) -> Self {
+        let ret = self.strip_quotes();
+        *self = ret.clone();
+        return ret
     }
 }

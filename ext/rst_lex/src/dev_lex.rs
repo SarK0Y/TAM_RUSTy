@@ -248,7 +248,8 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         match categorize_var {
             type_of_vars_expr::not => { continue;},
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
-            type_of_vars_expr::complex => { unimplemented!();}
+            type_of_vars_expr::simple_let => {},
+            type_of_vars_expr::complex => {/* unimplemented!();*/}
         }
         
     }
@@ -306,12 +307,14 @@ pub fn check_proc_macro (expr: &String) -> bool {
     return false
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
-    let ret = stream_sieving3 (expr.trim_start(), "=", 0, ";" );
-    if ret.is_some() {return type_of_vars_expr::simple }
     let ret = stream_sieving3 (expr.trim_start(), "=", 0, "{" );
     if ret.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
+    let ret = stream_sieving3 (expr.trim_start(), "=", 0, ";" );
+    let ret_is_some = ret.is_some();
+    if ret_is_some && check_let (&ret.unwrap().txt) {return type_of_vars_expr::simple_let }
+    if ret_is_some {return type_of_vars_expr::simple }
     return type_of_vars_expr::not
 }
 pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {

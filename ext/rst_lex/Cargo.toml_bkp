@@ -1,7 +1,7 @@
 [package]
 name ="rst_lex"
 edition = "2021"
-version = "0.0.56"
+version = "0.0.57"
 publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -17,5 +17,6 @@ Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
 #default = ["stable"]
 dev_hell_n_fun = []
 stable = []
+empty = []
 [lib]
 
