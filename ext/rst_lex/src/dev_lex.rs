@@ -243,7 +243,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     fn_ln_by_ln[0].txt = deps;
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
-        if check_let ( &ln ) { continue }
+        if check_let (&ln) || check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
         match categorize_var {
             type_of_vars_expr::not => { continue;},
@@ -297,6 +297,11 @@ pub fn check_let (expr: &String) -> bool {
     let token = "let";
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     let token = "static";
+    if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
+    return false
+}
+pub fn check_proc_macro (expr: &String) -> bool {
+    let token = "#";
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     return false
 }
