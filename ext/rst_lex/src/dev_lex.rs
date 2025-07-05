@@ -247,15 +247,19 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         if check_let (&ln) || check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
         match categorize_var {
-            type_of_vars_expr::not => { continue;},
+            type_of_vars_expr::not => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
                 let item = make_complex_var_logged (&ln);
+                if item.is_empty () {continue}
                 complex_var_ending.push (item);
+                dbg! (&complex_var_ending);
             }
         }
         close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
+        dbg! (&fn_ln_by_ln[j].txt);
+        dbg! (&categorize_var);
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -282,15 +286,16 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
 pub fn make_complex_var_logged( expr: &String) -> String {
     let expr = expr.trim();
     let nl = char::from_u32(0x0a).unwrap();
-    dbg! (expr);
+    //dbg! (expr);
     let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
     //let var_name = var_name.trim();
     let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
-    dbg! (&var_name);
+    if check_wrong_name_of_var (&var_name) { return "".strn() }
+    //dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = "__ln_num__";
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
-    let logged_ln = format! ("{expr}{log_ins}");
+    let logged_ln = format! ("{log_ins}");
     return logged_ln
 }
 pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String> ) {
@@ -496,5 +501,11 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
         if len == 0 { return token_status::empty }
         if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
     }
+}
+pub fn check_wrong_name_of_var (tst: &String) -> bool {
+    match tst.trim() {
+        "let"|"for"|"while"|"if"|"mut" => return true,
+        _ => return false,
+        }
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
