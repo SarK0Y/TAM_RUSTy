@@ -5,7 +5,7 @@ use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
 use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars};
-use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, close_complex_var, log_attr };
+use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, log_attr };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -248,7 +248,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         match categorize_var {
             type_of_vars_expr::not => { continue;},
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
-            type_of_vars_expr::simple_let => {},
+            type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {/* unimplemented!();*/}
         }
         
@@ -269,12 +269,31 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     //let var_name = var_name.trim();
     let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
     dbg! (&var_name);
-    let value = format! ("let value = format! (\"{{:?}}\", {} )", var_name);
-    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value, &attrs );{nl}");
+    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = ln_num + 1;
-    let log_ins1 = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &value, &attrs);{nl}");
-    let logged_ln = format! ("{log_ins}{expr}{log_ins1}");
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
+    let logged_ln = format! ("{expr}{log_ins}");
     return logged_ln
+}
+pub fn make_complex_var_logged( expr: &String) -> String {
+    let expr = expr.trim();
+    let nl = char::from_u32(0x0a).unwrap();
+    dbg! (expr);
+    let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
+    //let var_name = var_name.trim();
+    let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
+    dbg! (&var_name);
+    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
+    let ln_num = "__ln_num__";
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
+    let logged_ln = format! ("{expr}{log_ins}");
+    return logged_ln
+}
+pub fn close_complex_var (ln_num: usize, expr: &String) -> String {
+    let ln_num = ln_num.to_string();
+    let expr = expr.replace ("__ln_num__", &ln_num).strn();
+    let expr = format! ("}};\n{expr}");
+    return expr
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
     static mut depth: u8 = 0;
@@ -464,4 +483,4 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
         if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
     }
 }
-/****************************  enums/structs ****************************/
+//clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
