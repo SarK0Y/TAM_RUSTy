@@ -296,7 +296,8 @@ pub fn make_complex_var_logged( expr: &String) -> String {
 pub fn close_complex_var (ln_num: usize, ln: &String, endings: &mut Vec <rExpr> ) {
     let expr = endings.last();
     let expr = if let Some (x) = expr { x.txt.clone() } else { return };
-    if ln.trim().chars().count() <= 1 { return }
+    let ln = ln.trim();
+    if ln.chars().count() <= 1 { return }
     let last_indx_in_ln = ln.chars().count () - 1; 
     let token = ln.chars().nth ( last_indx_in_ln );
     if token != Some (';') { return };
