@@ -255,7 +255,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
                 complex_var_ending.push (item);
             }
         }
-        
+        close_complex_var (j, &ln, &mut fn_ln_by_ln );
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -293,11 +293,18 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let logged_ln = format! ("{expr}{log_ins}");
     return logged_ln
 }
-pub fn close_complex_var (ln_num: usize, expr: &String) -> String {
+pub fn close_complex_var (ln_num: usize, ln: &String, endings: &mut Vec <rExpr> ) {
+    let expr = endings.last();
+    let expr = if let Some (x) = expr { x.txt.clone() } else { return };
+    if ln.trim().chars().count() <= 1 { return }
+    let last_indx_in_ln = ln.chars().count () - 1; 
+    let token = ln.chars().nth ( last_indx_in_ln );
+    if token != Some (';') { return };
+    let token = ln.chars().nth ( last_indx_in_ln - 1);
+    if token != Some ('}') { return };
     let ln_num = ln_num.to_string();
     let expr = expr.replace ("__ln_num__", &ln_num).strn();
-    let expr = format! ("}};\n{expr}");
-    return expr
+    let expr = format! ("{ln}\n{expr}");
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
     static mut depth: u8 = 0;
