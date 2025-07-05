@@ -255,7 +255,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
                 complex_var_ending.push (item);
             }
         }
-        close_complex_var (j, &ln, &mut fn_ln_by_ln );
+        close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -293,9 +293,10 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let logged_ln = format! ("{expr}{log_ins}");
     return logged_ln
 }
-pub fn close_complex_var (ln_num: usize, ln: &String, endings: &mut Vec <rExpr> ) {
+pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String> ) {
     let expr = endings.last();
-    let expr = if let Some (x) = expr { x.txt.clone() } else { return };
+    let expr = if let Some (x) = expr { x.clone() } else { return };
+    let ln = lines [ln_num].txt.clone();
     let ln = ln.trim();
     if ln.chars().count() <= 1 { return }
     let last_indx_in_ln = ln.chars().count () - 1; 
@@ -303,9 +304,10 @@ pub fn close_complex_var (ln_num: usize, ln: &String, endings: &mut Vec <rExpr> 
     if token != Some (';') { return };
     let token = ln.chars().nth ( last_indx_in_ln - 1);
     if token != Some ('}') { return };
-    let ln_num = ln_num.to_string();
-    let expr = expr.replace ("__ln_num__", &ln_num).strn();
+    let ln_num_str = ln_num.to_string();
+    let expr = expr.replace ("__ln_num__", &ln_num_str).strn();
     let expr = format! ("{ln}\n{expr}");
+    lines [ ln_num ].txt = expr.clone(); let _ = endings.pop ();
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
     static mut depth: u8 = 0;
