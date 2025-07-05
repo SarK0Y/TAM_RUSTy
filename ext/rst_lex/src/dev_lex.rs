@@ -241,6 +241,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let attrs_str = format! ("let attrs = log_attr {{path: \"{}\".to_string(), size: {} }};{nl}", extract_log_attrs.path, extract_log_attrs.size );
     let deps = format! ("{deps}{nl}use rst_lex::lex::log_the_var;{nl}use rst_lex::faav::log_attr;{nl}{attrs_str}");
     fn_ln_by_ln[0].txt = deps;
+    let mut complex_var_ending = Vec::<String>::new();
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
         if check_let (&ln) || check_proc_macro ( &ln ) { continue }
@@ -249,7 +250,10 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
             type_of_vars_expr::not => { continue;},
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
-            type_of_vars_expr::complex => {/* unimplemented!();*/}
+            type_of_vars_expr::complex => {
+                let item = make_complex_var_logged (&ln);
+                complex_var_ending.push (item);
+            }
         }
         
     }
