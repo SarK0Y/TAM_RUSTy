@@ -154,13 +154,13 @@ pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
         };
     ret.push(header);
     let mut chars = stream.chars();
-    let mut rexpr: Option < rExpr > = None;
+    let mut rexpr: (Option < rExpr >, String ) = (None, "".strn() );
     let mut collect_blocks: Option < Vec < rExpr > > = None;
     loop {
         let fst_ch = if stream.chars().count () > 0 { stream.chars().nth(0).unwrap().to_string() } else {break;};
-        rexpr = stream_sieving2 (stream, &fst_ch, 0, ";");
+        rexpr = sieve_n_split2 (stream, &fst_ch, 0, ";");
       //  dbg! (&rexpr);
-        if let Some ( ref mut y) = rexpr {
+        if let Some ( ref mut y) = rexpr.0 {
     //       println! ("{:?}", y);
             collect_blocks = cut_blocks (&mut y.txt, 0);
             let y_len = y.txt.chars().count();
@@ -348,11 +348,15 @@ pub fn check_proc_macro (expr: &String) -> bool {
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let expr = expr.replace ("\n", "").trim().strn();
-    let ret = stream_sieving3 (&expr, "=", 0, "{" );
-    if ret.is_some() {
+    let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
+    if ret_curly.is_none () { return type_of_vars_expr::not }
+    let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
+    //  compile_error!("gggggggggggg");
+    if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
+    
+    if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
-    let ret = stream_sieving3 (&expr, "=", 0, ";" );
     let ret_is_some = ret.is_some();
     if ret_is_some && check_let (&ret.unwrap().txt) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
@@ -515,8 +519,10 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
          if maybe == *stop_token { dbg! (&maybe); run_from = j; break; }
       }
     }
-    end = entry + txt.chars().count ();
-    let out = stream.substring( run_from, to_stream_len).strn();
+    end = entry + txt.chars().count (); let mut out = String::new();
+    for j in run_from..to_stream_len {
+        out.push (stream.chars().nth(j).unwrap() );
+    }
   //  dbg! (stream);
     //dbg! (&txt);
     //dbg! (&fn_name);
