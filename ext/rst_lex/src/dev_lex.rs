@@ -236,6 +236,8 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let extract_log_attrs = get_attrs_for_log_vars (attrs);
     dbg! (&extract_log_attrs);
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
+    let dbg_fn_ln_by_ln = format! ("{:?}", fn_ln_by_ln);
+    leave_file_mark ("/tmp/dbg_fn_ln_by_ln", &dbg_fn_ln_by_ln);
     let nl = char::from_u32(0x0a).unwrap().to_string();
     let deps = fn_ln_by_ln[0].txt.clone();
     let attrs_str = format! ("let attrs = log_attr {{path: \"{}\".to_string(), size: {} }};{nl}", extract_log_attrs.path, extract_log_attrs.size );
@@ -244,7 +246,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let mut complex_var_ending = Vec::<String>::new();
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
-        if check_let (&ln) || check_proc_macro ( &ln ) { continue }
+        if check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
         match categorize_var {
             type_of_vars_expr::not => { },
@@ -345,11 +347,12 @@ pub fn check_proc_macro (expr: &String) -> bool {
     return false
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
-    let ret = stream_sieving3 (expr.trim_start(), "=", 0, "{" );
+    let expr = expr.replace ("\n", "").trim().strn();
+    let ret = stream_sieving3 (&expr, "=", 0, "{" );
     if ret.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
-    let ret = stream_sieving3 (expr.trim_start(), "=", 0, ";" );
+    let ret = stream_sieving3 (&expr, "=", 0, ";" );
     let ret_is_some = ret.is_some();
     if ret_is_some && check_let (&ret.unwrap().txt) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
@@ -446,6 +449,89 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         }
     )
 }
+pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
+    return sieve_n_split (stream, &token, run_from, &stop_token)
+}
+pub fn sieve_n_split2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> (Option < rExpr >, String) {
+    return sieve_n_split (stream, &token.to_string(), run_from, &stop_token.to_string() )
+}
+pub fn sieve_n_split3 (stream: &str, token: &str, run_from: usize, stop_token: &str) -> (Option < rExpr >, String) {
+    return sieve_n_split (&stream.strn(), &token.to_string(), run_from, &stop_token.to_string() )
+}
+#[inline]
+pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_token: &String) -> (Option < rExpr >, String) {
+    if stream.is_empty () { return (None, "".strn() )}
+    let fn_name = "stream_sieving".strn();
+    let mut line: usize = 0;
+    let mut column = line;
+    let mut entry: usize = 0;
+    let mut entry1: *mut usize = &mut entry;
+    let mut end = line;
+    dbg! (&stop_token);
+    leave_file_mark ("/tmp/line", &stop_token.to_string() );
+    let nl = char::from_u32(0x0a).unwrap();
+    let mut maybe = String::new();
+    let stop_token_len = stop_token.chars().count();
+    let token_len = token.chars().count();
+    let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
+    let mut txt_dbg = String::new();
+    for j in run_from..to_stream_len {
+        let ch = chars.clone().nth (j).unwrap_or (' ');
+        if ch == nl {column = 0; line.inc(); }
+        maybe.push(ch);
+        txt_dbg.push( ch );
+       // println! ("{txt_dbg}");
+        if maybe.chars().count() == token_len {
+            if maybe == *token {
+                leave_file_mark ("/tmp/mayb", &maybe.to_string() );
+                entry = if j > token_len { j - token_len + 1 } else { j };
+                leave_file_mark ("/tmp/entry0", &entry.to_string() ); 
+                break;
+            }
+        }
+        if  blocks_status ( Some (&ch) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
+        column.inc();
+        leave_file_mark ("/tmp/ln", &line.strn() );
+        leave_file_mark ("/tmp/col", &column.strn() );
+    }
+    leave_file_mark ("/tmp/entry", &entry.to_string() );
+    leave_file_mark ("/tmp/ln1", &line.strn() );
+    //println! ("{line}, {maybe}");
+        leave_file_mark ("/tmp/col1", &column.strn() );
+    //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
+    leave_file_mark ("/tmp/may", &maybe.to_string() );
+    if maybe.is_empty() { return (None, stream.clone() ) }
+    maybe.clear();
+    let mut run_from = entry + token_len;
+    let mut txt = token.clone();
+    for j in run_from..to_stream_len {
+       let ch = stream.chars().nth (j).unwrap ();
+       if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+       txt.push(ch);
+      if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
+      maybe.push(ch);
+      if maybe.chars().count() == stop_token_len {
+         if maybe == *stop_token { dbg! (&maybe); run_from = j; break; }
+      }
+    }
+    end = entry + txt.chars().count ();
+    let out = stream.substring( run_from, to_stream_len).strn();
+  //  dbg! (stream);
+    //dbg! (&txt);
+    //dbg! (&fn_name);
+   // println! ("{}", txt);
+    return (Some (
+        rExpr {
+            txt,
+            line,
+            column,
+            entry,
+            end
+        }
+    ), out )
+}
+
 pub fn blocks_status (ch: Option < &char > ) -> bool {
     static mut curly: u64 = 0;
     static mut round: u64 = 0;
