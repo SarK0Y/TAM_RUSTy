@@ -272,13 +272,10 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     return ret
 }
 pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
-    let expr = expr.trim();
+    let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
    // dbg! (expr);
-    let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
-    //let var_name = var_name.trim();
-    let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
-    //dbg! (&var_name);
+    let var_name = extract_var_name (&expr);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = ln_num + 1;
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
@@ -286,13 +283,10 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     return logged_ln
 }
 pub fn make_complex_var_logged( expr: &String) -> String {
-    let expr = expr.trim();
+    let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
     //dbg! (expr);
-    let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
-    //let var_name = var_name.trim();
-    let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
-    if check_wrong_name_of_var (&var_name) { return "".strn() }
+    let var_name = extract_var_name (&expr);
     //dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = "__ln_num__";
@@ -345,6 +339,15 @@ pub fn check_proc_macro (expr: &String) -> bool {
     let token = "#";
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     return false
+}
+pub fn extract_var_name (expr: &String) -> String {
+    let (mut var_name, _) = split_once_or_ret_null_strns (expr, "=");
+    if var_name.is_empty () {compile_error! ("Expression has no var name");}
+    let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
+    if var_name_.len() > 0 { var_name = var_name_; }
+    var_name = var_name.trim_start_matches ("static ").trim_start_matches ("let ").trim_start_matches ("mut ").trim().strn(); 
+    if check_wrong_name_of_var (&var_name) {dbg! (&var_name); compile_error! ("Wrong var name.");}
+    return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let expr = expr.replace ("\n", "").trim().strn();
