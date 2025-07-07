@@ -341,12 +341,15 @@ pub fn check_proc_macro (expr: &String) -> bool {
     return false
 }
 pub fn extract_var_name (expr: &String) -> String {
+    if expr.is_empty() { return "".strn()}
+    let err_msg = format! ("Expression {expr} has no var name");
     let (mut var_name, _) = split_once_or_ret_null_strns (expr, "=");
-    if var_name.is_empty () {compile_error! ("Expression has no var name");}
+    if var_name == "" {dbg! (&expr); panic! ("{err_msg}");}
     let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
     if var_name_.len() > 0 { var_name = var_name_; }
     var_name = var_name.trim_start_matches ("static ").trim_start_matches ("let ").trim_start_matches ("mut ").trim().strn(); 
-    if check_wrong_name_of_var (&var_name) {dbg! (&var_name); compile_error! ("Wrong var name.");}
+    dbg! (&var_name);
+    if check_wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
     return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
@@ -601,6 +604,8 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
     }
 }
 pub fn check_wrong_name_of_var (tst: &String) -> bool {
+    let (tst, _) = split_once_or_ret_null_strns (tst, " ");
+    if tst.is_empty () { return true }
     match tst.trim() {
         "let"|"for"|"while"|"if"|"mut" => return true,
         _ => return false,
