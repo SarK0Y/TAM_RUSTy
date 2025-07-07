@@ -358,8 +358,9 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     if ret_curly.is_none () { return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     //  compile_error!("gggggggggggg");
+    dbg! (&ret);
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
-    
+    if check_wrong_name_of_var (&ret.as_ref().unwrap().txt) { return type_of_vars_expr::not }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
@@ -604,8 +605,9 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
     }
 }
 pub fn check_wrong_name_of_var (tst: &String) -> bool {
-    let (tst, _) = split_once_or_ret_null_strns (tst, " ");
+    let tst = extract_var_name (tst);
     if tst.is_empty () { return true }
+    dbg! (&tst);
     match tst.trim() {
         "let"|"for"|"while"|"if"|"mut" => return true,
         _ => return false,
