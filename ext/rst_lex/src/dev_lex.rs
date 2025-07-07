@@ -243,11 +243,15 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let attrs_str = format! ("let attrs = log_attr {{path: \"{}\".to_string(), size: {} }};{nl}", extract_log_attrs.path, extract_log_attrs.size );
     let deps = format! ("{deps}{nl}use rst_lex::lex::log_the_var;{nl}use rst_lex::faav::log_attr;{nl}{attrs_str}");
     fn_ln_by_ln[0].txt = deps;
+    leave_file_mark ("/tmp/steps", "");
     let mut complex_var_ending = Vec::<String>::new();
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
+        add_file_mark_to ("/tmp/steps", &ln);
         if check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
+        dbg! (&categorize_var);
+        add_file_mark_to ("/tmp/steps", &ln);
         match categorize_var {
             type_of_vars_expr::not => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
@@ -261,7 +265,6 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         }
         close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
       //  dbg! (&fn_ln_by_ln[j].txt);
-       // dbg! (&categorize_var);
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -276,6 +279,8 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let nl = char::from_u32(0x0a).unwrap();
    // dbg! (expr);
     let var_name = extract_var_name (&expr);
+    dbg! ("msvl");
+    dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = ln_num + 1;
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
@@ -287,7 +292,8 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let nl = char::from_u32(0x0a).unwrap();
     //dbg! (expr);
     let var_name = extract_var_name (&expr);
-    //dbg! (&var_name);
+    dbg! ("mcvl");
+    dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = "__ln_num__";
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
@@ -360,7 +366,7 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     //  compile_error!("gggggggggggg");
     dbg! (&ret);
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
-    if check_wrong_name_of_var (&ret.as_ref().unwrap().txt) { return type_of_vars_expr::not }
+    if check_wrong_name_of_var (&expr) { return type_of_vars_expr::not }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
@@ -590,6 +596,10 @@ pub fn leave_file_mark (nm: &str, msg: &str){
     use std::fs::File;
     use std::io::{self, Write};
     let mut file = File::create(nm).expect("Unable to create file");
+    file.write_all(msg.as_bytes()).expect("Unable to write data");
+}
+pub fn add_file_mark_to (nm: &str, msg: &str){
+    let mut file =get_file_append (&nm.strn() ).expect("Unable to create file [add_file_mark_to]");
     file.write_all(msg.as_bytes()).expect("Unable to write data");
 }
 pub fn get_token (indx: usize) -> token_status {
