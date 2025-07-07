@@ -165,7 +165,7 @@ pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
             collect_blocks = cut_blocks (&mut y.txt, 0);
             let y_len = y.txt.chars().count();
             let stream_len = stream.chars().count ();
-            *stream = stream.replace (&y.txt, "").strn();// stream.substring(y_len, stream_len).strn();
+            *stream = rexpr.1;//stream.replace (&y.txt, "").strn();// stream.substring(y_len, stream_len).strn();
           //  println! ("tst: {:?}", collect_blocks);
             if let Some ( ref cb ) = collect_blocks {
               //  _1st_ln = cb [ cb.len() - 1].end;
@@ -193,14 +193,14 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
     let mut ret = Vec::<rExpr>::new();
     let mut fst_ch = expr.chars().nth(0).unwrap().to_string();
     let mut end: usize = 0;
-    let mut cut_block_off: Option < rExpr > = stream_sieving2 (&edited, &fst_ch, 0, "}");
-    if let Some (mut x) = cut_block_off {
+    let mut cut_block_off: (Option < rExpr >, String ) = sieve_n_split2 (&edited, &fst_ch, 0, "}");
+    if let Some (mut x) = cut_block_off.0 {
         
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
-           dbg! (&expr);
-           dbg! (&x);
-           edited = edited.replace(&x.txt, "");
+         //  dbg! (&expr);
+           //dbg! (&x);
+           edited = cut_block_off.1;//edited.replace(&x.txt, "");
            let mut lines_in_block = get_lines_in_block (&mut x.txt);
            //x.txt = format! ("mm: {}", x.txt);
          //  x.entry = prev_end;
@@ -213,15 +213,15 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
     }
     loop {
          println! ("edited: {edited}");
-        cut_block_off = stream_sieving2 (&edited, &fst_ch, 0, "}");
-        if let Some ( mut x) = cut_block_off {
+        cut_block_off = sieve_n_split2 (&edited, &fst_ch, 0, "}");
+        if let Some ( mut x) = cut_block_off.0 {
            // x.entry = end;
             //x.end = end + x.txt.chars().count();
             //end = x.end;
             println! ("xx:: {:?}", edited);
             if x.txt.len() == edited.len() ||
                x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
-            edited = edited.replace(&x.txt, "");
+            edited = cut_block_off.1; //edited.replace(&x.txt, "");
             let mut lines_in_block = get_lines_in_block (&mut x.txt);
             //_start = x.end;
             //let block_len = lines_in_block.len();
@@ -256,12 +256,12 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
                 let item = make_complex_var_logged (&ln);
                 if item.is_empty () {continue}
                 complex_var_ending.push (item);
-                dbg! (&complex_var_ending);
+               // dbg! (&complex_var_ending);
             }
         }
         close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
-        dbg! (&fn_ln_by_ln[j].txt);
-        dbg! (&categorize_var);
+      //  dbg! (&fn_ln_by_ln[j].txt);
+       // dbg! (&categorize_var);
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -274,11 +274,11 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
 pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let expr = expr.trim();
     let nl = char::from_u32(0x0a).unwrap();
-    dbg! (expr);
+   // dbg! (expr);
     let (var_name, _) = split_once_or_ret_null_strns (expr, "=");
     //let var_name = var_name.trim();
     let (var_name, _) = split_once_or_ret_null_strns (expr, " ");
-    dbg! (&var_name);
+    //dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
     let ln_num = ln_num + 1;
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
@@ -330,8 +330,8 @@ pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr
     let err_set_len = "failed to set log size in 0".strn();
     let cur_file_len = metadata(&attrs.path).expect(&err_msg).len() as usize;
     if cur_file_len > attrs.size {set_file_size (&mut log_file, 0);}
-    dbg! (&cur_file_len);
-    dbg!(&attrs.path);
+    //dbg! (&cur_file_len);
+    //dbg!(&attrs.path);
     let _ = log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
 }
 pub fn check_let (expr: &String) -> bool {
@@ -471,7 +471,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     let mut entry: usize = 0;
     let mut entry1: *mut usize = &mut entry;
     let mut end = line;
-    dbg! (&stop_token);
+  //  dbg! (&stop_token);
     leave_file_mark ("/tmp/line", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
@@ -515,8 +515,9 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        txt.push(ch);
       if blocks_status ( Some (&ch ) ) {maybe.clear(); continue; }
       maybe.push(ch);
+      run_from = j;
       if maybe.chars().count() == stop_token_len {
-         if maybe == *stop_token { dbg! (&maybe); run_from = j; break; }
+         if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
     end = entry + txt.chars().count (); let mut out = String::new();
@@ -527,7 +528,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     //dbg! (&txt);
     //dbg! (&fn_name);
    // println! ("{}", txt);
-    return (Some (
+    let ret = (Some (
         rExpr {
             txt,
             line,
@@ -535,7 +536,9 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
             entry,
             end
         }
-    ), out )
+    ), out );
+    dbg! (&ret);
+    return ret
 }
 
 pub fn blocks_status (ch: Option < &char > ) -> bool {
