@@ -247,7 +247,9 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let mut complex_var_ending = Vec::<String>::new();
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
-        add_file_mark_to ("/tmp/steps", &ln);
+        add_file_mark_to ("/tmp/steps", &j.to_string() );
+        dbg!("check here");
+        dbg! (&ln);
         if check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
         dbg! (&categorize_var);
@@ -277,7 +279,8 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
 pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
-   // dbg! (expr);
+    dbg! (&expr);
+   dbg! ("msvl");
     let var_name = extract_var_name (&expr);
     dbg! ("msvl");
     dbg! (&var_name);
@@ -291,6 +294,7 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
     //dbg! (expr);
+    dbg! ("mcvl");
     let var_name = extract_var_name (&expr);
     dbg! ("mcvl");
     dbg! (&var_name);
@@ -355,7 +359,7 @@ pub fn extract_var_name (expr: &String) -> String {
     if var_name_.len() > 0 { var_name = var_name_; }
     var_name = var_name.trim_start_matches ("static ").trim_start_matches ("let ").trim_start_matches ("mut ").trim().strn(); 
     dbg! (&var_name);
-    if check_wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
+    if wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
     return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
@@ -364,14 +368,15 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     if ret_curly.is_none () { return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     //  compile_error!("gggggggggggg");
-    dbg! (&ret);
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
-    if check_wrong_name_of_var (&expr) { return type_of_vars_expr::not }
+    let tst_var = extract_var_name (&expr);
+    dbg! (&tst_var);
+    if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
     let ret_is_some = ret.is_some();
-    if ret_is_some && check_let (&ret.unwrap().txt) {return type_of_vars_expr::simple_let }
+    if ret_is_some && check_let (&expr) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
     return type_of_vars_expr::not
 }
@@ -614,13 +619,24 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
         if get < len { return token_status::ret ( tokens [get].clone() ) } return token_status::too_large_indx
     }
 }
-pub fn check_wrong_name_of_var (tst: &String) -> bool {
-    let tst = extract_var_name (tst);
+pub fn wrong_name_of_var (tst: &String) -> bool {
+    //let tst = extract_var_name (tst);
     if tst.is_empty () { return true }
     dbg! (&tst);
     match tst.trim() {
         "let"|"for"|"while"|"if"|"mut" => return true,
         _ => return false,
         }
+}
+pub fn wrong_symb_in_var (tst: &String) -> bool {
+    //let tst = extract_var_name (tst);
+    if tst.is_empty () { return true }
+    dbg! (&tst);
+    for b in tst.chars() {
+        match b {
+            ' '|':'|'\''|'\"'|','|'-' => return true,
+            _ => continue,
+            }
+    } return false
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
