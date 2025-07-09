@@ -284,9 +284,9 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let var_name = extract_var_name (&expr, 417);
     dbg! ("msvl");
     dbg! (&var_name);
-    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
+    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} );", var_name);
     let ln_num = ln_num + 1;
-    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359, &attrs);");
     let logged_ln = format! ("{expr}{log_ins}");
     return logged_ln
 }
@@ -298,9 +298,9 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let var_name = extract_var_name (&expr, 351);
     dbg! ("mcvl");
     dbg! (&var_name);
-    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
+    let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} );", var_name);
     let ln_num = "__ln_num__";
-    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359");
+    let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359, &attrs);");
     let logged_ln = format! ("{log_ins}");
     return logged_ln
 }
