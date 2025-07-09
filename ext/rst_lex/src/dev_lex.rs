@@ -219,8 +219,8 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
             //x.end = end + x.txt.chars().count();
             //end = x.end;
             println! ("xx:: {:?}", edited);
-            if x.txt.len() == edited.len() ||
-               x.txt.len() == edited.len() - 1 { ret.push ( x.clone() ); return Some ( ret ) }
+            if x.txt.len() == edited.len() /*||
+               x.txt.len() == edited.len() - 1*/ { ret.push ( x.clone() ); return Some ( ret ) }
             edited = cut_block_off.1; //edited.replace(&x.txt, "");
             let mut lines_in_block = get_lines_in_block (&mut x.txt);
             //_start = x.end;
@@ -281,7 +281,7 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let nl = char::from_u32(0x0a).unwrap();
     dbg! (&expr);
    dbg! ("msvl");
-    let var_name = extract_var_name (&expr);
+    let var_name = extract_var_name (&expr, 417);
     dbg! ("msvl");
     dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
@@ -295,7 +295,7 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let nl = char::from_u32(0x0a).unwrap();
     //dbg! (expr);
     dbg! ("mcvl");
-    let var_name = extract_var_name (&expr);
+    let var_name = extract_var_name (&expr, 351);
     dbg! ("mcvl");
     dbg! (&var_name);
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} )", var_name);
@@ -350,9 +350,9 @@ pub fn check_proc_macro (expr: &String) -> bool {
     if expr.trim_start().substring (0, token.chars().count () ) == token { return true }
     return false
 }
-pub fn extract_var_name (expr: &String) -> String {
+pub fn extract_var_name (expr: &String, func_id: usize) -> String {
     if expr.is_empty() { return "".strn()}
-    let err_msg = format! ("Expression {expr} has no var name");
+    let err_msg = format! ("Expression {expr} has no var name, func_id: {func_id}");
     let (mut var_name, _) = split_once_or_ret_null_strns (expr, "=");
     if var_name == "" {dbg! (&expr); panic! ("{err_msg}");}
     let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
@@ -369,7 +369,7 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     //  compile_error!("gggggggggggg");
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
-    let tst_var = extract_var_name (&expr);
+    let tst_var = extract_var_name (&expr, 203);
     dbg! (&tst_var);
     if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not }
     if ret_curly.is_some() {
