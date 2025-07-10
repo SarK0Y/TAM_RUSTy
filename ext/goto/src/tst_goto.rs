@@ -272,8 +272,9 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         let mut func_body = item.to_string();
         let attr = _attr.to_string();
         leave_file_mark ("/tmp/attr", &attr);
-        let func_body = _log_vars(&mut func_body, &attr);
-        leave_file_mark ("/tmp/fn1", &func_body);
+        func_body = _log_vars(&mut func_body, &attr);
+        rst_lex::edit_funx::dirty_fix (&mut func_body);
+        leave_file_mark ("/tmp/fn", &func_body);
         let mut out: TokenStream2 = func_body.parse().unwrap();
        // let strn = out.to_string ();
        // leave_file_mark ("/tmp/log_func", &strn);

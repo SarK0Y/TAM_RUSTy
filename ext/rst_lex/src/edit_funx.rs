@@ -58,3 +58,9 @@ impl Rev for String {
         return self.clone()
     }
 }
+pub fn dirty_fix (fn_body: &mut String) {
+    *fn_body = fn_body
+    .replace("pub fn", "pub fn ")
+    .replace("mutcrate", "mut crate")
+    .strn();
+}

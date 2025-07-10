@@ -4,6 +4,7 @@ use Mademoiselle_Entropia::custom_traits::STRN;
 pub enum type_of_vars_expr {
     complex,
     simple,
+    simple_let,
     not,
 }
 pub enum token_status {

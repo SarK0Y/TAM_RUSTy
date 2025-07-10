@@ -1,4 +1,4 @@
-use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, helpful_math_ops}; 
+use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, STRN_strip, helpful_math_ops}; 
 use crate::faav::{log_attr, sav_log_attrs};
 use substring::Substring;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
@@ -50,7 +50,6 @@ pub(crate) fn split_once_alt_o_null_strns(strn: &String, delim: &String) -> (Str
 }
 pub fn get_attrs_for_log_vars (attrs: &String) -> log_attr {
     let mut ret = log_attr::new();
-    if let Some (f) = sav_log_attrs (None) {dbg!(&f); ret = f.clone(); }
     let (attr0, attr1) = split_once_alt_o_null_strns (attrs, &",".strn() );
     get_attr_for_log_vars (&attr0, &mut ret);
     get_attr_for_log_vars (&attr1, &mut ret);
@@ -63,10 +62,11 @@ pub fn get_attr_for_log_vars (attr: &String, ret: &mut log_attr ) {
     match attr0_0 {
         "log_size" => {ret.size = get_size_from_log_conf(&attr0_1);},
         "log_path" => {ret.path = attr0_1.trim().strn();},
-        _ => {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]")}
+        _ => {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\n{:?}", ret)}
     }
 }
 pub fn get_size_from_log_conf (attr: &String) -> usize {
+    let attr = attr.strip_quotes();
     let mark = attr.chars().nth (attr.chars().count() - 1).unwrap();
     let coef = size_mark (mark);
     let ret = if coef == 1 { strn_2_usize (&attr).unwrap_or (0) } else {
@@ -74,7 +74,7 @@ pub fn get_size_from_log_conf (attr: &String) -> usize {
         dbg! (&attr);
         strn_2_usize (&attr).unwrap_or(0) * coef
     };
-    if ret == 0 {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\nRemark: can't get file size for log.");}
+    if ret == 0 {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\nRemark: can't get file size for log.\n{attr},{mark},{coef}");}
     dbg! (&ret);
     return ret
 }
@@ -91,5 +91,23 @@ pub fn strn_2_usize(strn: &String) -> Option<usize> {
     match usize::from_str_radix(&strn, 10) {
         Ok(num) => Some(num),
         _ => None,
+    }
+}
+pub trait Strip_Quotes {
+    fn strip_quotes_mut (&mut self) -> Self;
+    fn strip_quotes (&self) -> Self;
+}
+impl Strip_Quotes for String {
+    fn strip_quotes (&self) -> Self {
+        let mut ret = String::new ();
+        for j in self.chars() {
+            if j == '\"' || j == '\'' {continue;}
+            ret.push (j);
+        } return ret
+    }
+    fn strip_quotes_mut (&mut self) -> Self {
+        let ret = self.strip_quotes();
+        *self = ret.clone();
+        return ret
     }
 }

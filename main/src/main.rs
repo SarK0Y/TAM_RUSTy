@@ -423,7 +423,7 @@ use goto1717::just_prnt;
 use goto1717::log_vars;
 
 #[cfg(feature ="tst_macro")]
-#[log_vars(log_size=422,log_path=/dev/shm/log_vars)]
+//#[log_vars(log_size=422,log_path=/dev/shm/log_vars)]
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
@@ -476,11 +476,11 @@ fn main (){
     for item in items.iter() {
         println!("{}", item);
     }
-#[cfg(feature ="tst_macro")]
+/*#[cfg(feature ="tst_macro")]
 //lets_prnt_func (); 
 tst ();
 #[cfg(feature ="tst_macro")]
-return;
+return;*/
 /************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
