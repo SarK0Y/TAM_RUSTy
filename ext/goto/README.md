@@ -1,8 +1,10 @@
-<div style="text-align: center;font-size: 30px;">
-   <b>GOTO1717</b>
+<div align="center" style="text-align: center;font-size: 30px;">
+   <b>GOTO1717.</b>
 </div>
 The very idea of this sub-project of TAM is, making Rust's macros for practical, educational & researching purposes.<br>
-# FUNCTIONALITY.
+<p style="text-align: center;font-size: 30px;">
+   <b>FUNCTIONALITY.</b>
+</p>
 <ul>
 <li> Log variables in functions. </li>
 <li> <s> Goto. </s></li>
