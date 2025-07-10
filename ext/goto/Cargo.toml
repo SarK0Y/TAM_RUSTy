@@ -4,6 +4,7 @@ edition = "2021"
 version = "0.0.125"
 publish = true
 license-file = "LICENSE"
+readme = "README.md"
 description = "goto & more for Rust"
 [dependencies]
 syn = { version = "2.0.0", features = ["full", "extra-traits"] }
