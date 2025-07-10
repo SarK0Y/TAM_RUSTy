@@ -151,7 +151,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let save_screen: String = take_list_adr("screen");
     mk_empty_file(&save_screen);
     let mut save_screen = get_file(&save_screen).unwrap();
-    let redirect_out = Redirect::stdout(save_screen);
+    let nolog_redirect_out = Redirect::stdout(save_screen);
     let mut count_down = num_files;
     if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
@@ -160,7 +160,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
     let mut filename_str: String; let mut time_to_stop = false;
-    let mut row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
+    let mut nolog_row: Vec<CellStruct> = Vec::new(); let mut row_cpy: Vec<String> = Vec::new();
     let mut display_indx = 0i64;
     for j in 0..num_rows{
         for i in 0..num_cols{
@@ -216,7 +216,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
         if time_to_stop {break;}
     }
     //println!("{}", pg.table().display().unwrap());
-    drop(redirect_out);
+    drop(nolog_redirect_out);
     if crate::cmd_keys::screen_state( None ) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
         let screen = read_file("screen");
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );

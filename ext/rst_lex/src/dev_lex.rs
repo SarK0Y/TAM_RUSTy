@@ -377,6 +377,8 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
     let tst_var = extract_var_name (&expr, 203);
     dbg! (&tst_var);
+    let nolog = "nolog_";
+    if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not }
     if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
