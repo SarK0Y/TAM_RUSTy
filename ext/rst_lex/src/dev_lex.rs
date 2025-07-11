@@ -88,6 +88,18 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
     }
     return ret
 }
+pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
+    let fst = stream.chars().nth (0);
+    if fst.is_none () { return ("".strn(), "".strn() )}
+    let fst = fst.unwrap ().to_string();
+    let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
+    let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
+    let block_entry = block_entry.unwrap().txt;
+    let simple = simple.unwrap().txt;
+    let ln = if block_entry.chars().count() < simple.chars().count () { block_entry.clone() }
+             else { simple.clone() };
+    todo!()
+}
 pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     let (mut _1st_ln, header) = _1st_fn_line ( stream );
     let mut ret = Vec::<rExpr>::new();
@@ -645,6 +657,14 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
             ' '|':'|'\''|'\"'|','|'-' => return true,
             _ => continue,
             }
+    } return false
+}
+pub fn wrong_symb (tst: char) -> bool {
+    //let tst = extract_var_name (tst);
+    dbg! (&tst);
+    match tst {
+        ' '|':'|'\''|'\"'|','|'-' => return true,
+        _ => return false,
     } return false
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
