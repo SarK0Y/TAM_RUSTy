@@ -96,8 +96,11 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
-    let ln = if block_entry.chars().count() < simple.chars().count () { block_entry.clone() }
-             else { simple.clone() };
+    let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
+             else { (simple.clone(), other.clone()) };
+    let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
+    let left: bool = wrong_name_of_var(&tst_end_of_block.0);
+    let right = wrong_name_of_var(&tst_end_of_block.1);
     todo!()
 }
 pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
