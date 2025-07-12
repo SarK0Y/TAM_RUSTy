@@ -111,3 +111,16 @@ impl Strip_Quotes for String {
         return ret
     }
 }
+pub trait Char_Stream {
+    fn stream_len (&self) -> usize;
+}
+impl Char_Stream for &String {
+    fn stream_len (&self) -> usize {
+        return self.chars().count()
+    }
+}
+impl Char_Stream for String {
+    fn stream_len (&self) -> usize {
+        return self.chars().count()
+    }
+}
