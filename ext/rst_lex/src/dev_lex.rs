@@ -144,6 +144,8 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     loop {
         let new_ln = get_lex_line_n_split (stream);
         if new_ln.0.is_empty () { return ret }
+        *stream = new_ln.1.clone();
+        dbg!(&stream);
         let new_entry = rExpr {
         txt: new_ln.0,
         line: 0,
@@ -160,8 +162,8 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
   //  if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
     last.txt.push('}');
     ret.push (last);
-    println! ("***************************");
-    dbg! (&ret);
+  //  println! ("***************************");
+   // dbg! (&ret);
     return ret
 }
 pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
@@ -304,7 +306,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
 pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
-    dbg! (&expr);
+   // dbg! (&expr);
    dbg! ("msvl");
     let var_name = extract_var_name (&expr, 417);
     dbg! ("msvl");
@@ -588,7 +590,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
             end
         }
     ), out );
-    dbg! (&ret);
+  //  dbg! (&ret);
     return ret
 }
 
