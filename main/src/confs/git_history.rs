@@ -1,0 +1,21 @@
+/*
+term  rm -rf ./src/;mkdir -vp ./src/extra; cp -fvR ../src ./; cp -fv ../README.md ./; cp -fv ../Cargo.toml ./; cp -vf ../LICENSE ./
+term  rm -rfv ./main/ >> /tmp/git;cp -fvR ../main ./ >> /tmp/git;cp -fvR ../ext ./ >> /tmp/git;cp -fv ../README.md ./ >> /tmp/git; cp -fv ../Cargo.toml ./ >> /tmp/git;cp -vf ../LICENSE ./ >> /tmp/git;less /tmp/git
+term git add main/ ext/ Cargo.toml README.md LICENSE
+term git add src/* src/confs/* Cargo.toml README.md LICENSE
+term git commit -m "v 8.0." -m ""
+term git switch pre-workable
+term git switch not_tested_func
+term git switch trunk
+term git push -u
+i>_ cargo clean;cargo publish
+term git log
+term git reset --hard HEAD
+term git checkout commit_hash
+term  git commit --amend -m ""
+term git rm Cargo.lock
+term git commit -m "v 9.0" -m "corrections, optimizations & improvements."
+term git switch --orphan NAME
+_cargo clean;cargo publish
+_cargo clean;cargo publish -p goto1717;cargo publish -p sark0y_tam_rst
+*/

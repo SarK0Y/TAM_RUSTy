@@ -5,7 +5,8 @@
 The very reason of this project is to make Your life easy at least for a little bit thanks to efficient automation of daily routine.
 
 # Remark: it's outdated Readme ==>> check out the links for actual Info. TAM already has a damn lot of tricks to use it for Shell tasks 😉
-
+# EXTRA FUNCTIONS:
+# 1. NPF = Simplest way to factorize Natural Numbers: https://alg0z.blogspot.com/2025/05/simplest-way-to-factorize-natural.html 🤐😇
 # FUNCTIONS:
 
 For now, TAM makes possible to find files in whatever directory and run them with chosen viewers. hmmm.. yea, looks rather boring ain't it??? :)) well, let's look on some examples & details will show You how this "boring" feature can make Your life better.
