@@ -4,7 +4,7 @@ use std::io::{Write, self, ErrorKind};
 use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
-use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars};
+use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars, Char_Stream};
 use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, log_attr };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
@@ -87,6 +87,31 @@ pub fn collect_not_nested_let_tokens (stream: &String) -> Vec < rExpr > {
         ret.push (rexpr.clone() );
     }
     return ret
+}
+pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
+    let fst = stream.chars().nth (0);
+    if fst.is_none () { return ("".strn(), "".strn() )}
+    let fst = fst.unwrap ().to_string();
+    let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
+    let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
+    let block_entry = block_entry.unwrap().txt;
+    let simple = simple.unwrap().txt;
+    let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
+             else { (simple.clone(), other.clone()) };
+    let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
+    if tst_end_of_block.0 == ln.0 { return ln }
+    let mut left = false;
+    for c in tst_end_of_block.0.chars () {
+        left = !wrong_symb(c);
+        if left { break; }
+    }
+    if left {
+        let tst_end_of_block_len = tst_end_of_block.0.chars().count ();
+        let stream_len = stream.stream_len();
+        let other = stream.substring (tst_end_of_block_len, stream_len).strn();
+        return (tst_end_of_block.0, other)        
+    }
+    todo!()
 }
 pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     let (mut _1st_ln, header) = _1st_fn_line ( stream );
@@ -645,6 +670,14 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
             ' '|':'|'\''|'\"'|','|'-' => return true,
             _ => continue,
             }
+    } return false
+}
+pub fn wrong_symb (tst: char) -> bool {
+    //let tst = extract_var_name (tst);
+    dbg! (&tst);
+    match tst {
+        ' '|':'|'\''|'\"'|','|'-' => return true,
+        _ => return false,
     } return false
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam

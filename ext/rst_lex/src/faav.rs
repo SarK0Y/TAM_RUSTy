@@ -1,6 +1,25 @@
 use once_cell::sync::Lazy;
 use Mademoiselle_Entropia::custom_traits::STRN;
 #[derive(Clone, Debug, PartialEq)]
+pub struct blocks {
+    pub curly: usize,
+    pub round: usize,
+    pub square: usize,
+    pub cite: usize,
+    pub state: bool
+}
+impl blocks {
+    pub fn new () -> Self {
+        return Self {
+            curly: 0,
+            round: 0,
+            square: 0,
+            cite: 0,
+            state: false
+        }
+    }
+}
+#[derive(Clone, Debug, PartialEq)]
 pub enum type_of_vars_expr {
     complex,
     simple,
