@@ -4,6 +4,7 @@ use substring::Substring;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 //#[cfg(feature ="dev_hell_n_fun")]
 use crate::lex::{ blocks_status as blocks_state, leave_file_mark };
+use crate::faav::blocks;
 //#[cfg(feature ="stable")]
 //use crate::stable_lex::{ blocks_status as blocks_state, leave_file_mark };
 pub fn rewrite_last_exit (stream: &String, new_end: &String ) -> String {
@@ -30,12 +31,13 @@ pub fn find_last_exit (stream: &String ) -> String {
     let mut chars = stream.chars();
     let mut ending = String::new();
     let mut cursor = stream_len - 2;
+    let mut block_ = blocks::new();
     let mut ch: char = ' ';
     while cursor > 0 {
         ch = chars.clone().nth (cursor ).unwrap_or (' ');
         //leave_file_mark ("/tmp/ch", &ch.to_string () );
-        if ch != stop || blocks_state ( Some ( &ch ) )  { ending.push (ch ); }
-        if ch == stop && !blocks_state ( Some ( &ch ) ) { break;}
+        if ch != stop || blocks_state ( Some ( &ch ), Some (&mut block_) )  { ending.push (ch ); }
+        if ch == stop && !blocks_state ( Some ( &ch ), Some (&mut block_) ) { break;}
         cursor.dec();
     }
     leave_file_mark ("/tmp/ending1", &ending);
