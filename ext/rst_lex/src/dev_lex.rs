@@ -107,7 +107,7 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let simple = simple.unwrap().txt;
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
-    dbg! (&ln);
+    if ln.0.find ("else{").is_some () { dbg! (&ln); }
     let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
    // dbg! (&ln);
    // dbg!(&tst_end_of_block);
@@ -148,7 +148,7 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
     let mut collect_blocks: Option < Vec < rExpr > > = None;
     loop {
         let new_ln = get_lex_line_n_split (stream);
-        if new_ln.0.is_empty () { return ret }
+        if new_ln.0.is_empty () { break }
         *stream = new_ln.1.clone();
         let new_entry = rExpr {
         txt: new_ln.0,
@@ -158,7 +158,7 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
         end: 0
         };
         ret.push (new_entry);
-        if new_ln.1.is_empty () { return ret }
+        if new_ln.1.is_empty () { break }
     }
     if ret.is_empty() { return ret}
     let mut last: rExpr = ret.pop().unwrap();
@@ -584,6 +584,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
+    run_from.inc();
     end = entry + txt.chars().count (); let mut out = String::new();
     for j in run_from..to_stream_len {
         out.push (stream.chars().nth(j).unwrap() );
