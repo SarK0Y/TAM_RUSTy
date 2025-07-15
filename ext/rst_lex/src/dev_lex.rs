@@ -102,12 +102,12 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
     let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
     if simple.is_none () { return ("".strn(), "".strn() )}
-    dbg! (&simple);
   //  dbg! (&block_entry);
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
+    dbg! (&ln);
     let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
    // dbg! (&ln);
    // dbg!(&tst_end_of_block);
@@ -733,18 +733,15 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
     if tst.is_empty () { return true }
     dbg! (&tst);
     for b in tst.chars() {
-        match b {
-            ' '|':'|'\''|'\"'|','|'-' => return true,
-            _ => continue,
-            }
-    } return false
+        if wrong_symb (b) {return false }
+    } return true
 }
 pub fn wrong_symb (tst: char) -> bool {
     //let tst = extract_var_name (tst);
     dbg! (&tst);
     match tst {
-        ' '|':'|'\''|'\"'|','|'-' => return true,
+        ' '|':'|'\''|'\"'|','|'-'|'{'|'['|'(' => return true,
         _ => return false,
-    } return false
+    }
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
