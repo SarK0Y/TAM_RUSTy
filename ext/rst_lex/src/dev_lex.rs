@@ -105,8 +105,8 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
 //    dbg! (&block_entry);
-    dbg! (&fst);
-    dbg! (&simple);
+  //  dbg! (&fst);
+  //  dbg! (&simple);
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
   //  if ln.0.find ("else{").is_some () { dbg! (&ln); }
@@ -580,7 +580,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        run_from = j;
        maybe.push(ch);
        txt.push(ch);
-      if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); continue; };
+      if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); continue; };
       if maybe.chars().count() == stop_token_len {
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
@@ -594,6 +594,9 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     //dbg! (&txt);
     //dbg! (&fn_name);
    // println! ("{}", txt);
+   leave_file_mark ("/tmp/stop_token", &stop_token);
+   leave_file_mark ("/tmp/1st", &txt);
+  // panic! ("sieve_n_split");
     let ret = (Some (
         rExpr {
             txt,
