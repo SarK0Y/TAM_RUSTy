@@ -99,9 +99,9 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let fst = stream.chars().nth (0);
     if fst.is_none () { return ("".strn(), "".strn() )}
     let fst = fst.unwrap ().to_string();
-    let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
     let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
-    if simple.is_none () { return ("".strn(), "".strn() )}
+    let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
+    if simple.is_none () && block_entry.is_none () { return ("".strn(), "".strn() )}
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
 //    dbg! (&block_entry);
@@ -285,7 +285,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
      //   dbg!("check here");
      //   dbg! (&ln);
-        if check_proc_macro ( &ln ) { continue }
+        if check_proc_macro ( &ln ) { } /* MUST BE MORE SOPHISTICATED HANDLING */
         let categorize_var =  var_expr_or_not (&ln);
        // dbg! (&categorize_var);
         add_file_mark_to ("/tmp/steps", &add_to_log);
@@ -585,7 +585,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
-    //run_from.inc();
+    run_from.inc();
     end = entry + txt.chars().count (); let mut out = String::new();
     for j in run_from..to_stream_len {
         out.push (stream.chars().nth(j).unwrap() );

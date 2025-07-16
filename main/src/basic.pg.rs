@@ -121,10 +121,10 @@ impl super::basic{
 #[cfg(feature ="tst_macro")]
 #[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
 pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
-    let func_id = crate::func_id18::build_page_;
+    /*let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
-    let dbg_point = self.read_file("stop_point").trim_end().to_string();
+    let dbg_point = self.read_file("stop_point").trim_end().to_string(); */
     #[cfg(feature="in_dbg")]
     if dbg_point == "001"{
         println!("stop 001");
