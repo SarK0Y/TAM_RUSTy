@@ -102,12 +102,14 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let (simple, other) = sieve_n_split2 (stream, &fst, 0, ";" );
     let (block_entry, other1) = sieve_n_split2 (stream, &fst, 0, "{" );
     if simple.is_none () { return ("".strn(), "".strn() )}
-  //  dbg! (&block_entry);
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
+//    dbg! (&block_entry);
+    dbg! (&fst);
+    dbg! (&simple);
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
-    if ln.0.find ("else{").is_some () { dbg! (&ln); }
+  //  if ln.0.find ("else{").is_some () { dbg! (&ln); }
     let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
    // dbg! (&ln);
    // dbg!(&tst_end_of_block);
@@ -280,13 +282,13 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let mut complex_var_ending = Vec::<String>::new();
     for j in 1..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
-        add_file_mark_to ("/tmp/steps", &j.to_string() );
-        dbg!("check here");
+        let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
+     //   dbg!("check here");
      //   dbg! (&ln);
         if check_proc_macro ( &ln ) { continue }
         let categorize_var =  var_expr_or_not (&ln);
-        dbg! (&categorize_var);
-        add_file_mark_to ("/tmp/steps", &ln);
+       // dbg! (&categorize_var);
+        add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
             type_of_vars_expr::not => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
@@ -548,9 +550,9 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
         maybe.push(ch);
         txt_dbg.push( ch );
        // println! ("{txt_dbg}");
-       if  blocks_status_not_curly ( Some (&ch), Some (&mut block_) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
-        dbg! ("blocks_status_not_curly");
-        dbg! (blocks_status_not_curly (None, Some (&mut block_) ));
+       if  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
+        //dbg! ("blocks_status_not_curly");
+        //dbg! (blocks_status_not_curly (None, Some (&mut block_) ));
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
@@ -575,16 +577,15 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
        let ch = stream.chars().nth (j).unwrap ();
-       if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+       run_from = j;
+       maybe.push(ch);
        txt.push(ch);
-      if blocks_status_not_curly ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); continue; }
-      maybe.push(ch);
-      run_from = j;
+      if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); continue; };
       if maybe.chars().count() == stop_token_len {
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
-    run_from.inc();
+    //run_from.inc();
     end = entry + txt.chars().count (); let mut out = String::new();
     for j in run_from..to_stream_len {
         out.push (stream.chars().nth(j).unwrap() );
@@ -648,7 +649,7 @@ pub fn blocks_status (ch: Option < &char >, ext: Option < &mut blocks > ) -> boo
         return state
     }
 }
-pub fn blocks_status_not_curly (ch: Option < &char >, ext: Option < &mut blocks > ) -> bool {
+pub fn not_curly_blocks_status (ch: Option < &char >, ext: Option < &mut blocks > ) -> bool {
     if let Some ( x ) = ext {
         if ch.is_none () { return x.state }
         let ch = ch.unwrap();
@@ -661,6 +662,8 @@ pub fn blocks_status_not_curly (ch: Option < &char >, ext: Option < &mut blocks 
             _ => {}
         }
         let sum = x.round + x.square + x.cite;
+      //  dbg! (&sum);
+       // dbg! (&ch);
         if sum == 0 { x.state = false;} else { x.state = true; } 
         return x.state
     }
