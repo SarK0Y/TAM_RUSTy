@@ -580,6 +580,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        run_from = j;
        maybe.push(ch);
        txt.push(ch);
+       dbg! (&txt);
        dbg! (&maybe);
       if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }//continue; };
       dbg! (&maybe);
