@@ -110,24 +110,25 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
   //  if ln.0.find ("else{").is_some () { dbg! (&ln); }
-    let tst_end_of_block = split_once_or_ret_null_strns (&ln.0, "}");
+    let tst_end_of_block = sieve_n_split2 (&ln.0, &fst, 0, "}");
    // dbg! (&ln);
    // dbg!(&tst_end_of_block);
-    if tst_end_of_block.0 == ln.0 { return ln }
+    if tst_end_of_block.0.is_none () { return ln }
+    let end_of_block_txt = tst_end_of_block.0.unwrap ().txt;
     let mut left = false;
-    for c in tst_end_of_block.0.chars () {
+    for c in end_of_block_txt.chars () {
         left = !wrong_symb(c);
         if left { break; }
     }
     let stream_len = stream.stream_len();
-    let mut tst_end_of_block_len = tst_end_of_block.0.chars().count ();
+    let mut end_of_block_len = end_of_block_txt.chars().count ();
     if left {
-        let other = stream.substring (tst_end_of_block_len, stream_len).strn();
-        return (tst_end_of_block.0, other)        
+        let other = stream.substring (end_of_block_len, stream_len).strn();
+        return (end_of_block_txt, other)        
     }
-    tst_end_of_block_len += 1;
-    let close_block = format! ("{}}}", tst_end_of_block.0);
-    let other = stream.substring (tst_end_of_block_len, stream_len).strn();
+    end_of_block_len += 1;
+    let close_block = format! ("{}}}", end_of_block_txt);
+    let other = stream.substring (end_of_block_len, stream_len).strn();
     return (close_block, other)        
 }
 pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
@@ -580,12 +581,12 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        run_from = j;
        maybe.push(ch);
        txt.push(ch);
-       dbg! (&txt);
-       dbg! (&maybe);
+       //dbg! (&txt);
+       //dbg! (&maybe);
       if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }//continue; };
-      dbg! (&maybe);
+     // dbg! (&maybe);
       if maybe.chars().count() == stop_token_len {
-        dbg! (&maybe);
+       // dbg! (&maybe);
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
