@@ -120,7 +120,7 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
         if left { break; }
     }
     let stream_len = stream.stream_len();
-    let mut tst_end_of_block_len = tst_end_of_block.0.chars().count () + 1;
+    let mut tst_end_of_block_len = tst_end_of_block.0.chars().count ();
     if left {
         let other = stream.substring (tst_end_of_block_len, stream_len).strn();
         return (tst_end_of_block.0, other)        
@@ -580,8 +580,11 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        run_from = j;
        maybe.push(ch);
        txt.push(ch);
-      if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); continue; };
+       dbg! (&maybe);
+      if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }//continue; };
+      dbg! (&maybe);
       if maybe.chars().count() == stop_token_len {
+        dbg! (&maybe);
          if maybe == *stop_token { dbg! (&maybe);  break; }
       }
     }
@@ -666,8 +669,8 @@ pub fn not_curly_blocks_status (ch: Option < &char >, ext: Option < &mut blocks 
         }
         let sum = x.round + x.square + x.cite;
       //  dbg! (&sum);
-       // dbg! (&ch);
         if sum == 0 { x.state = false;} else { x.state = true; } 
+        dbg! (&x);
         return x.state
     }
     static mut round: u64 = 0;
@@ -747,7 +750,7 @@ pub fn wrong_symb (tst: char) -> bool {
     //let tst = extract_var_name (tst);
     dbg! (&tst);
     match tst {
-        ' '|':'|'\''|'\"'|','|'-'|'{'|'['|'(' => return true,
+        ' '|':'|'\''|'\"'|','|'-'|'{'|'['|'('|'\n' => return true,
         _ => return false,
     }
 }

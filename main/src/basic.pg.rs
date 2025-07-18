@@ -124,7 +124,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     /*let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
-    let dbg_point = self.read_file("stop_point").trim_end().to_string(); */
+    let dbg_point = self.read_file("stop_point").trim_end().to_string(); 
     #[cfg(feature="in_dbg")]
     if dbg_point == "001"{
         println!("stop 001");
@@ -135,7 +135,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
         num_files = crate::get_num_files(func_id);
         if num_files == 0i64{continue;}
         try_entry += 1; 
-    }
+    } */
     println!("{}", crate::get_full_path(func_id));
     let pg_info = (get_num_page(func_id), name_of_front_list("", false) );
     let GUARD_LAG = crate::smart_lags::screen_lag ( None );
