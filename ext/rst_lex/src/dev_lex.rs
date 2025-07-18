@@ -405,7 +405,8 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
     return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
-    let expr = expr.replace ("\n", "").trim().strn();
+    //let expr = expr.replace ("\n", "").trim().strn();
+    if  check_proc_macro (expr) { return type_of_vars_expr::not }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
     if ret_curly.is_none () { return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
