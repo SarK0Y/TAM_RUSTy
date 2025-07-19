@@ -767,6 +767,8 @@ pub fn eqeq (expr: &String ) -> bool {
     if expr.find ("==").is_some() { return true }
     if expr.find ("<=").is_some() { return true }
     if expr.find (">=").is_some() { return true }
+    if expr.find ("if let").is_some() { return true }
+    if expr.find ("while let").is_some() { return true }
     return false
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
