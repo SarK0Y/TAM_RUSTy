@@ -127,7 +127,7 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
         return (end_of_block_txt, other)        
     }
     end_of_block_len += 1;
-    let close_block = format! ("{}}} ", end_of_block_txt);
+    let close_block = format! ("{} ", end_of_block_txt);
     let other = stream.substring (end_of_block_len, stream_len).strn();
     return (close_block, other)        
 }
@@ -393,15 +393,20 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
     if var_name == "" {dbg! (&expr); panic! ("{err_msg}");}
     let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
     if var_name_.len() > 0 { var_name = var_name_; }
+    var_name = tail_trim_var (&var_name);
     var_name = var_name
                 .trim ()
+                .trim_start_matches (";")
+                .trim ()
                 .trim_start_matches ("static mut")
-                .trim_start_matches ("static ")
+                .trim_start_matches ("static")
+                .trim ()
                 .trim_start_matches ("let mut")
-                .trim_start_matches ("let ")
-                .trim_start_matches ("mut ")
+                .trim_start_matches ("let")
+                .trim ()
+                .trim_start_matches ("mut")
+                .trim ()
              //   .trim_start_matches ("} ") // dirty fix
-               // .trim_start_matches ("; ")
                // .trim_start_matches (") ")
                 .strn(); 
     var_name = trim_var (&var_name);
@@ -416,8 +421,6 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
     if ret_curly.is_none () { return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
-    let eqeq = if let Some ( ref x) = ret {x.txt.clone()} else {"none".strn()};
-    if eqeq.chars ().nth(1) == Some ('=' ) { return type_of_vars_expr::not }
     let mut block_ = blocks::new();
     //  compile_error!("gggggggggggg");
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
@@ -761,7 +764,7 @@ pub fn stop_wrong_symb (tst: char) -> bool {
     //let tst = extract_var_name (tst);
     dbg! (&tst);
     match tst {
-        ':'|'\''|'\"'|','|'-'|'['|'(' => return true,
+        ':'|'\''|'\"'|','|'['|'(' => return true,
         _ => return false,
     }
 }
@@ -790,4 +793,13 @@ pub fn trim_var (var: &String) -> String {
         ret.push (c);
     } return ret
 }
+pub fn tail_trim_var (var: &String) -> String {
+    let mut writeIt = false;
+    let mut ret = String::new();
+    for c in var.chars () {
+        if !wrong_symb (c ) && !stop_wrong_symb (c) { writeIt = true }
+        if writeIt { ret.push (c); }
+    } return ret
+}
+
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
