@@ -785,7 +785,7 @@ pub fn trim_var (var: &String) -> String {
     let mut ret = String::new();
     for c in var.chars () {
         if wrong_symb (c ) { continue }
-        if stop_wrong_symb (c) { panic! ("Dear Dev, Can't trim variable - it contains very wrong symb {c}")}
+        if stop_wrong_symb (c) { panic! ("Dear Dev, Can't trim variable - it contains very wrong symb {c} in {var}")}
         ret.push (c);
     } return ret
 }
