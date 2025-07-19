@@ -399,6 +399,9 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
                 .trim_start_matches ("let mut")
                 .trim_start_matches ("let ")
                 .trim_start_matches ("mut ")
+                .trim_start_matches ("} ") // dirty fix
+                .trim_start_matches ("; ")
+                .trim_start_matches (") ")
                 .trim().strn(); 
     dbg! (&var_name);
     if wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
@@ -407,9 +410,12 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     //let expr = expr.replace ("\n", "").trim().strn();
     if  check_proc_macro (expr) { return type_of_vars_expr::not }
+    if eqeq (expr) { return type_of_vars_expr::not }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
     if ret_curly.is_none () { return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
+    let eqeq = if let Some ( ref x) = ret {x.txt.clone()} else {"none".strn()};
+    if eqeq.chars ().nth(1) == Some ('=' ) { return type_of_vars_expr::not }
     let mut block_ = blocks::new();
     //  compile_error!("gggggggggggg");
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
@@ -756,5 +762,11 @@ pub fn wrong_symb (tst: char) -> bool {
         ' '|':'|'\''|'\"'|','|'-'|'{'|'['|'('|'\n' => return true,
         _ => return false,
     }
+}
+pub fn eqeq (expr: &String ) -> bool {
+    if expr.find ("==").is_some() { return true }
+    if expr.find ("<=").is_some() { return true }
+    if expr.find (">=").is_some() { return true }
+    return false
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
