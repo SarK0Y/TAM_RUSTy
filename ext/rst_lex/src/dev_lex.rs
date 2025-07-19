@@ -777,6 +777,7 @@ pub fn eqeq (expr: &String ) -> bool {
     if expr.find ("==").is_some() { return true }
     if expr.find ("<=").is_some() { return true }
     if expr.find (">=").is_some() { return true }
+    if expr.find ("!=").is_some() { return true }
     if expr.find ("if let").is_some() { return true }
     if expr.find ("while let").is_some() { return true }
     return false
