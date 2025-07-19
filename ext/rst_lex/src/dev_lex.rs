@@ -127,7 +127,7 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
         return (end_of_block_txt, other)        
     }
     end_of_block_len += 1;
-    let close_block = format! ("{}}}", end_of_block_txt);
+    let close_block = format! ("{}}} ", end_of_block_txt);
     let other = stream.substring (end_of_block_len, stream_len).strn();
     return (close_block, other)        
 }
@@ -394,15 +394,17 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
     let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
     if var_name_.len() > 0 { var_name = var_name_; }
     var_name = var_name
+                .trim ()
                 .trim_start_matches ("static mut")
                 .trim_start_matches ("static ")
                 .trim_start_matches ("let mut")
                 .trim_start_matches ("let ")
                 .trim_start_matches ("mut ")
-                .trim_start_matches ("} ") // dirty fix
-                .trim_start_matches ("; ")
-                .trim_start_matches (") ")
-                .trim().strn(); 
+             //   .trim_start_matches ("} ") // dirty fix
+               // .trim_start_matches ("; ")
+               // .trim_start_matches (") ")
+                .strn(); 
+    var_name = trim_var (&var_name);
     dbg! (&var_name);
     if wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
     return var_name
@@ -752,14 +754,22 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
     if tst.is_empty () { return true }
     dbg! (&tst);
     for b in tst.chars() {
-        if wrong_symb (b) {return false }
+        if stop_wrong_symb (b) {return false }
     } return true
+}
+pub fn stop_wrong_symb (tst: char) -> bool {
+    //let tst = extract_var_name (tst);
+    dbg! (&tst);
+    match tst {
+        ':'|'\''|'\"'|','|'-'|'['|'(' => return true,
+        _ => return false,
+    }
 }
 pub fn wrong_symb (tst: char) -> bool {
     //let tst = extract_var_name (tst);
     dbg! (&tst);
     match tst {
-        ' '|':'|'\''|'\"'|','|'-'|'{'|'['|'('|'\n' => return true,
+        '\n'|'+'|'-'|'*'|'/'|' '|'}'|'{' => return true,
         _ => return false,
     }
 }
@@ -770,5 +780,13 @@ pub fn eqeq (expr: &String ) -> bool {
     if expr.find ("if let").is_some() { return true }
     if expr.find ("while let").is_some() { return true }
     return false
+}
+pub fn trim_var (var: &String) -> String {
+    let mut ret = String::new();
+    for c in var.chars () {
+        if wrong_symb (c ) { continue }
+        if stop_wrong_symb (c) { panic! ("Dear Dev, Can't trim variable - it contains very wrong symb {c}")}
+        ret.push (c);
+    } return ret
 }
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
