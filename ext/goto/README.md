@@ -39,8 +39,9 @@ bash> cargo build --no-default-features --features in_dbg --features=mae --featu
 https://github.com/SarK0Y/TAM_RUSTy/blob/52d12558ddb78f213811721561585a477f485de7/main/src/basic.pg.rs#L121 <br>
  <b>If You don't want to log variable, just add prefix 'nolog_' to its name:</b> <br>
 let mut nolog_myvar: usize = 0; <br>
- <b> Links: </b>b<br>
+ <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
+ <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
  <b>TELEGRAM:</b> https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z). <br>
  <b>ALG0Z RU:</b> https://dzen.ru/alg0z <br>
  <b>ALG0Z EN:</b> https://alg0z.blogspot.com <br>

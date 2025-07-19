@@ -1,6 +1,7 @@
 The Core idea is to treat Rust's lexemes as just simple strings w/o extra types which only add new layers of unnecessary complexity. 
- <b> Links: </b>b<br>
+ <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
+ <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
  <b>TELEGRAM:</b> https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z). <br>
  <b>ALG0Z RU:</b> https://dzen.ru/alg0z <br>
  <b>ALG0Z EN:</b> https://alg0z.blogspot.com <br>
