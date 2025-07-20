@@ -120,7 +120,7 @@ impl super::basic{
 //#[cfg(feature ="tst_macro")]
 
 #[cfg(feature ="tst_macro")]
-#[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
+//#[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
 pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;

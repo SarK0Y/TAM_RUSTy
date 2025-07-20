@@ -801,5 +801,12 @@ pub fn tail_trim_var (var: &String) -> String {
         if writeIt { ret.push (c); }
     } return ret
 }
-
+pub fn _7block_ending (expr: &String) -> bool {
+    let mut block_ = blocks::new ();
+    for c in expr.chars() {
+        if not_curly_blocks_status ( Some (&c), Some (&mut block_ ) ) { continue }
+        if c == '}' { return true }
+    } return false
+}
+//fn 
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
