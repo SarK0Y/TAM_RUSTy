@@ -288,7 +288,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
      //   dbg! (&ln);
         if check_proc_macro ( &ln ) { } /* MUST BE MORE SOPHISTICATED HANDLING */
         let categorize_var =  var_expr_or_not (&ln);
-       // dbg! (&categorize_var);
+     //   dbg! (&categorize_var);
         add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
             type_of_vars_expr::not => { },
@@ -417,9 +417,9 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     //let expr = expr.replace ("\n", "").trim().strn();
     if  check_proc_macro (expr) { return type_of_vars_expr::not }
-    if eqeq (expr) { return type_of_vars_expr::not }
+    if eqeq (expr) {dbg! ("category eqeq"); return type_of_vars_expr::not }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
-    if ret_curly.is_none () { return type_of_vars_expr::not }
+    if ret_curly.is_none () { dbg! ("category curly"); return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     let mut block_ = blocks::new();
     //  compile_error!("gggggggggggg");
@@ -428,7 +428,7 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     dbg! (&tst_var);
     let nolog = "nolog_";
     if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not }
-    if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not }
+    if  wrong_symb_in_var (&tst_var ){dbg! ("category wrong symb"); dbg! (&tst_var); return type_of_vars_expr::not }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ), Some (&mut block_) );
         return type_of_vars_expr::complex }
@@ -757,7 +757,7 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
     if tst.is_empty () { return true }
     dbg! (&tst);
     for b in tst.chars() {
-        if stop_wrong_symb (b) {return false }
+        if !stop_wrong_symb (b) {return false }
     } return true
 }
 pub fn stop_wrong_symb (tst: char) -> bool {
