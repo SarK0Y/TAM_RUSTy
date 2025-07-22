@@ -122,7 +122,7 @@ impl super::basic{
 #[cfg(feature ="tst_macro")]
 #[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
 pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
-    let func_id = crate::func_id18::build_page_;
+   /* let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
     let dbg_point = self.read_file("stop_point").trim_end().to_string(); 
@@ -180,9 +180,9 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
             //no_dup_indx = indx;
             display_indx = indx;
             if !crate::C!(crate::swtch::local_indx(false)){display_indx = indx - num_page;}
-            let err_ret = std::ffi::OsString::from("");
+            let err_ret = std::ffi::OsString::from(""); */
             let mut err_path = || -> &std::ffi::OsString{return &err_ret};
-            //println!("build_page - probe 1");
+            /*//println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
             let filename_str0 = || -> String{
                     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
@@ -221,7 +221,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     if crate::cmd_keys::screen_state( None ) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
         let screen = read_file("screen");
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );
-    } else {println!("{}", get_ask_user(func_id) )}
+    } else {println!("{}", get_ask_user(func_id) )} */
 }
 pub(crate) fn pg_rec_to_cache(cache: &mut cache_t, key: &String, val: &String){
     let mut entry_cache: entry_cache_t = HashMap::new();

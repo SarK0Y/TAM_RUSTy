@@ -281,7 +281,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     fn_ln_by_ln[0].txt = deps;
     leave_file_mark ("/tmp/steps", "");
     let mut complex_var_ending = Vec::<String>::new();
-    for j in 1..fn_ln_by_ln.len() {
+    for j in 0..fn_ln_by_ln.len() {
         let ln = fn_ln_by_ln[j].txt.clone();
         let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
      //   dbg!("check here");
@@ -514,13 +514,14 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
        let ch = stream.chars().nth (j).unwrap ();
        if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
        txt.push(ch);
-      if blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); continue; }
+      if blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
       maybe.push(ch);
       if maybe.chars().count() == stop_token_len {
          if maybe == *stop_token { 
          break; }
       }
     }
+    if maybe != *stop_token { dbg! ("failed stop_token"); dbg! (&stop_token); dbg! (&maybe); dbg!(stream); return None }
      if maybe == "{" {dbg! (stream); dbg! (&maybe); }
     end = entry + txt.chars().count ();
   //  dbg! (stream);
