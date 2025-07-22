@@ -288,17 +288,18 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
      //   dbg! (&ln);
         if check_proc_macro ( &ln ) { } /* MUST BE MORE SOPHISTICATED HANDLING */
         let categorize_var =  var_expr_or_not (&ln);
-     //   dbg! (&categorize_var);
+        dbg! (&categorize_var);
         add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
             type_of_vars_expr::not => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
+                dbg! ("complex");
                 let item = make_complex_var_logged (&ln);
                 if item.is_empty () {continue}
                 complex_var_ending.push (item);
-               // dbg! (&complex_var_ending);
+                dbg! (&complex_var_ending);
             }
         }
         close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
@@ -308,7 +309,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     for iter in fn_ln_by_ln {
         ret.push_str( iter.txt.trim());
     }
-    ret = ret.replace("\n", "");
+  //  ret = ret.replace("\n", "");
     leave_file_mark ("/tmp/log_func", &ret);
     return ret
 }
@@ -341,19 +342,24 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     return logged_ln
 }
 pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String> ) {
+    let end = _7block_ending ( &lines [ln_num].txt );
+    dbg! (&end);
+    if !end { dbg! (&lines [ln_num].txt); return }
     let expr = endings.last();
+    dbg! (&expr);
     let expr = if let Some (x) = expr { x.clone() } else { return };
     let ln = lines [ln_num].txt.clone();
     let ln = ln.trim();
-    if ln.chars().count() <= 1 { return }
-    let last_indx_in_ln = ln.chars().count () - 1; 
+    /*let last_indx_in_ln = ln.chars().count () - 1; 
     let token = ln.chars().nth ( last_indx_in_ln );
     if token != Some (';') { return };
     let token = ln.chars().nth ( last_indx_in_ln - 1);
-    if token != Some ('}') { return };
+    if token != Some ('}') { return };*/
     let ln_num_str = ln_num.to_string();
     let expr = expr.replace ("__ln_num__", &ln_num_str).strn();
+    dbg! (&ln);
     let expr = format! ("{ln}\n{expr}");
+    dbg! (&expr);
     lines [ ln_num ].txt = expr.clone(); let _ = endings.pop ();
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
@@ -506,14 +512,16 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut txt = token.clone();
     for j in run_from..to_stream_len {
        let ch = stream.chars().nth (j).unwrap ();
-       if token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+       if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
        txt.push(ch);
       if blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); continue; }
       maybe.push(ch);
       if maybe.chars().count() == stop_token_len {
-         if maybe == *stop_token { dbg! (&maybe); break; }
+         if maybe == *stop_token { 
+         break; }
       }
     }
+     if maybe == "{" {dbg! (stream); dbg! (&maybe); }
     end = entry + txt.chars().count ();
   //  dbg! (stream);
     //dbg! (&txt);
