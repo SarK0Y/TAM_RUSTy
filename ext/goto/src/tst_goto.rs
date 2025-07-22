@@ -11,6 +11,8 @@
 #![allow(unused_must_use)]
 //mod goto;
 //pub use crate::goto::{label, goto};
+#[cfg(not(any(feature ="stable", feature = "tst")))]
+panic! ("Please, activate features (stable or tst)");
 use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn, _log_vars }; //collect_all_assigns};
 use rst_lex::faav::{rExpr, log_attr, sav_log_attrs};
 use rst_lex::edit_funx as edit;

@@ -5,7 +5,7 @@ use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
 use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars};
-use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, log_attr };
+use crate::faav::{rExpr, type_of_vars_expr, code_ln, token_status, found_local_vars, log_name, log_attr };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -255,7 +255,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         dbg! (&categorize_var);
         add_file_mark_to ("/tmp/steps", &ln);
         match categorize_var {
-            type_of_vars_expr::not => { },
+            type_of_vars_expr::not (_) => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
@@ -371,22 +371,22 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let expr = expr.replace ("\n", "").trim().strn();
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
-    if ret_curly.is_none () { return type_of_vars_expr::not }
+    if ret_curly.is_none () { return type_of_vars_expr::not (code_ln::simple) }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     //  compile_error!("gggggggggggg");
     if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
     let tst_var = extract_var_name (&expr, 203);
     dbg! (&tst_var);
     let nolog = "nolog_";
-    if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not }
-    if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not }
+    if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not (code_ln::simple) }
+    if  wrong_symb_in_var (&tst_var ){ return type_of_vars_expr::not (code_ln::simple) }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ) );
         return type_of_vars_expr::complex }
     let ret_is_some = ret.is_some();
     if ret_is_some && check_let (&expr) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
-    return type_of_vars_expr::not
+    return type_of_vars_expr::not (code_ln::simple)
 }
 pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {
     let err_set_len = "failed to set log size in 0".strn();

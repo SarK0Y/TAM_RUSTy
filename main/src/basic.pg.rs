@@ -117,12 +117,10 @@ impl super::basic{
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );
     } else {println!("{}", get_ask_user(func_id) )}
 }
-//#[cfg(feature ="tst_macro")]
-
 #[cfg(feature ="tst_macro")]
 #[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
 pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
-   /* let func_id = crate::func_id18::build_page_;
+    let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
     let dbg_point = self.read_file("stop_point").trim_end().to_string(); 
@@ -180,16 +178,16 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
             //no_dup_indx = indx;
             display_indx = indx;
             if !crate::C!(crate::swtch::local_indx(false)){display_indx = indx - num_page;}
-            let err_ret = std::ffi::OsString::from(""); */
-            let mut err_path = || -> &std::ffi::OsString{return &err_ret};
-            /*//println!("build_page - probe 1");
+            let err_ret = std::ffi::OsString::from("");
+            let mut nolog_err_path = || -> &std::ffi::OsString{return &err_ret};
+            //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
             let filename_str0 = || -> String{
                     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
                  if !crate::globs18::check_substrn01(&front_list, "history"){
                    return String::from(match filename.file_name(){
                     Some(f) => f,
-                    None => err_path(),
+                    None => nolog_err_path(),
                 }.to_str().unwrap()).as_str().strn();
             } else {return filename.as_os_str().to_str().unwrap().strn()};
             };
@@ -221,7 +219,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     if crate::cmd_keys::screen_state( None ) && crate::smart_lags::fork_lag_mcs_bool( GUARD_LAG ) {
         let screen = read_file("screen");
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );
-    } else {println!("{}", get_ask_user(func_id) )} */
+    } else {println!("{}", get_ask_user(func_id) )}
 }
 pub(crate) fn pg_rec_to_cache(cache: &mut cache_t, key: &String, val: &String){
     let mut entry_cache: entry_cache_t = HashMap::new();
@@ -304,12 +302,12 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
             Entry::Vacant(en) => {en.insert(cache_entry);}
          }
         }
-        return get_item_from_front_list(proper_indx.1, true);;
+        return get_item_from_front_list(proper_indx.1, true);
     }
     else {
         if !self.cache_active{
            // return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET)) }
-         return get_item_from_front_list(proper_indx.1, true);; }
+         return get_item_from_front_list(proper_indx.1, true); }
         //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
@@ -327,7 +325,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     //if !list_id.1{llset_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
 //    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
-     return get_item_from_front_list(proper_indx.1, true);;
+     return get_item_from_front_list(proper_indx.1, true);
 
 }}
 pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Option<Vec<String>>, cache_state){
@@ -415,4 +413,6 @@ pub(crate) fn read_file(&self, name: &str) -> String{
 pub(crate) fn read_cache_msg(&self) -> String{
     self.read_file("msg/basic/cache/clean")
 }
+//#[cfg(feature ="tst_macro")]
+
 }

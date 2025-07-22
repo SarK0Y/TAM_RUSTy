@@ -24,7 +24,15 @@ pub enum type_of_vars_expr {
     complex,
     simple,
     simple_let,
-    not,
+    not (code_ln),
+}
+#[derive(Clone, Debug, PartialEq)]
+pub enum code_ln {
+    enter_block,
+    exit_block,
+    proc_macro,
+    perhaps_error,
+    simple,
 }
 pub enum token_status {
     too_large_indx,

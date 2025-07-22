@@ -5,7 +5,7 @@ use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
 use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars, Char_Stream};
-use crate::faav::{rExpr, type_of_vars_expr, token_status, found_local_vars, log_name, log_attr, blocks };
+use crate::faav::{rExpr, type_of_vars_expr, code_ln, token_status, found_local_vars, log_name, log_attr, blocks };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
@@ -283,8 +283,8 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let mut complex_var_ending = Vec::<String>::new();
     let fn_ln_by_ln_len = fn_ln_by_ln.len();
     dbg! (&fn_ln_by_ln_len);
+    let mut nested_depth: usize = 0;
     for j in 1..fn_ln_by_ln_len {
-        dbg! ("no even for 1st run");
         let ln = fn_ln_by_ln[j].txt.clone();
         let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
      //   dbg!("check here");
@@ -292,9 +292,10 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         if check_proc_macro ( &ln ) { } /* MUST BE MORE SOPHISTICATED HANDLING */
         let categorize_var =  var_expr_or_not (&ln);
         dbg! (&categorize_var);
+        dbg! (&complex_var_ending);
         add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
-            type_of_vars_expr::not => { },
+            type_of_vars_expr::not (other) => { },
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
@@ -361,7 +362,7 @@ pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut 
     let ln_num_str = ln_num.to_string();
     let expr = expr.replace ("__ln_num__", &ln_num_str).strn();
     dbg! (&ln);
-    let expr = format! ("{ln}\n{expr}");
+    let expr = format! ("{ln};\n{expr}");
     dbg! (&expr);
     lines [ ln_num ].txt = expr.clone(); let _ = endings.pop ();
 }
@@ -425,14 +426,15 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     //let expr = expr.replace ("\n", "").trim().strn();
-    if  *expr == ";}" { return type_of_vars_expr::not }
-    if  *expr == ";\n}" { return type_of_vars_expr::not } // MUST BE MORE DETAILED
-    if  check_proc_macro (expr) { return type_of_vars_expr::not }
-    if eqeq (expr) {dbg! ("category eqeq"); return type_of_vars_expr::not }
+    if  *expr == ";}" { return type_of_vars_expr::not (code_ln::exit_block )  }
+    if  *expr == ";\n}" { return type_of_vars_expr::not (code_ln::exit_block) } // MUST BE MORE DETAILED
+    if  check_proc_macro (expr) { return type_of_vars_expr::not (code_ln::proc_macro) }
+    if eqeq (expr) {dbg! ("category eqeq"); return type_of_vars_expr::not (code_ln::enter_block) }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
     dbg! (&ret_curly);
     //if ret_curly.is_none () { dbg! ("category curly"); return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
+    if ret.is_none() && ret_curly.is_none () { return type_of_vars_expr::not (code_ln::perhaps_error) }
     let mut block_ = blocks::new();
     //  compile_error!("gggggggggggg");
     let ret_len = if let Some (_ret) = ret.as_ref() {_ret.txt.len()} else {0 };
@@ -444,8 +446,8 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let tst_var = extract_var_name (&expr, 203);
     dbg! (&tst_var);
     let nolog = "nolog_";
-    if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not }
-    if  wrong_symb_in_var (&tst_var ){dbg! ("category wrong symb"); dbg! (&tst_var); return type_of_vars_expr::not }
+    if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not (code_ln::simple) }
+    if  wrong_symb_in_var (&tst_var ){dbg! ("category wrong symb"); dbg! (&tst_var); return type_of_vars_expr::not (code_ln::perhaps_error) }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ), Some (&mut block_) );
         return type_of_vars_expr::complex }
@@ -453,7 +455,7 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     if ret_is_some && check_let (&expr) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
     dbg! ("end var_expr_or_not");
-    return type_of_vars_expr::not
+    return type_of_vars_expr::not (code_ln::perhaps_error)
 }
 pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {
     let err_set_len = "failed to set log size in 0".strn();
