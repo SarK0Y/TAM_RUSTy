@@ -281,7 +281,10 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     fn_ln_by_ln[0].txt = deps;
     leave_file_mark ("/tmp/steps", "");
     let mut complex_var_ending = Vec::<String>::new();
-    for j in 0..fn_ln_by_ln.len() {
+    let fn_ln_by_ln_len = fn_ln_by_ln.len();
+    dbg! (&fn_ln_by_ln_len);
+    for j in 1..fn_ln_by_ln_len {
+        dbg! ("no even for 1st run");
         let ln = fn_ln_by_ln[j].txt.clone();
         let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
      //   dbg!("check here");
@@ -417,19 +420,27 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
                 .strn(); 
     var_name = trim_var (&var_name);
     dbg! (&var_name);
-    if wrong_name_of_var (&var_name) {dbg! (&var_name); var_name.clear (); panic! ("Wrong var name.");}
+    if wrong_name_of_var (&var_name) {dbg! (&var_name); panic! ("Wrong var name {var_name} expr: {expr}.");}
     return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     //let expr = expr.replace ("\n", "").trim().strn();
+    if  *expr == ";}" { return type_of_vars_expr::not }
+    if  *expr == ";\n}" { return type_of_vars_expr::not } // MUST BE MORE DETAILED
     if  check_proc_macro (expr) { return type_of_vars_expr::not }
     if eqeq (expr) {dbg! ("category eqeq"); return type_of_vars_expr::not }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
-    if ret_curly.is_none () { dbg! ("category curly"); return type_of_vars_expr::not }
+    dbg! (&ret_curly);
+    //if ret_curly.is_none () { dbg! ("category curly"); return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     let mut block_ = blocks::new();
     //  compile_error!("gggggggggggg");
-    if ret.as_ref().unwrap().txt.len() <= ret_curly.as_ref().unwrap().txt.len() { ret_curly = None}
+    let ret_len = if let Some (_ret) = ret.as_ref() {_ret.txt.len()} else {0 };
+    let ret_curly_len = if let Some (_ret) = ret_curly.as_ref() {_ret.txt.len()} else {usize::MAX };
+    if  ret_len >= ret_curly_len { ret_curly = None}
+    dbg! (&ret_len);
+    dbg! (&ret_curly_len);
+    dbg! (&ret_curly);
     let tst_var = extract_var_name (&expr, 203);
     dbg! (&tst_var);
     let nolog = "nolog_";
@@ -441,6 +452,7 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let ret_is_some = ret.is_some();
     if ret_is_some && check_let (&expr) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
+    dbg! ("end var_expr_or_not");
     return type_of_vars_expr::not
 }
 pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {
@@ -472,7 +484,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut entry1: *mut usize = &mut entry;
     let mut block_ = blocks::new ();
     let mut end = line;
-    dbg! (&stop_token);
+ //   dbg! (&stop_token);
     leave_file_mark ("/tmp/line", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
@@ -521,8 +533,8 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
          break; }
       }
     }
+    if maybe == "{" {dbg! (stream); dbg! (&maybe); }
     if maybe != *stop_token { dbg! ("failed stop_token"); dbg! (&stop_token); dbg! (&maybe); dbg!(stream); return None }
-     if maybe == "{" {dbg! (stream); dbg! (&maybe); }
     end = entry + txt.chars().count ();
   //  dbg! (stream);
     //dbg! (&txt);
