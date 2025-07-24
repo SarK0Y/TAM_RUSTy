@@ -371,6 +371,7 @@ pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut 
     let expr = expr.replace ("__ln_num__", &ln_num_str).strn();
     dbg! (&ln);
     let expr = format! ("{ln};\n{expr}");
+    depth.dec();
     dbg! (&expr);
     lines [ ln_num ].txt = expr.clone(); let _ = endings.pop ();
 }
@@ -812,6 +813,7 @@ pub fn eqeq (expr: &String ) -> bool {
     if expr.find ("<=").is_some() { return true }
     if expr.find (">=").is_some() { return true }
     if expr.find ("!=").is_some() { return true }
+    if expr.find ("=>").is_some() { return true }
     if expr.find ("if let").is_some() { return true }
     if expr.find ("while let").is_some() { return true }
     return false
