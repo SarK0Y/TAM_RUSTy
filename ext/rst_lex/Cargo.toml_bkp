@@ -1,7 +1,7 @@
 [package]
 name ="rst_lex"
 edition = "2021"
-version = "0.0.90"
+version = "0.0.91"
 publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
