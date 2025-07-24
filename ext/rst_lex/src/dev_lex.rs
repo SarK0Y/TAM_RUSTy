@@ -268,6 +268,13 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
         fst_ch = expr.chars().nth(0).unwrap().to_string();
     }
 }
+pub fn control_nested_blocks (state: &code_ln, depth: &mut usize ) {
+    match state {
+        code_ln::enter_block => { depth.inc (); },
+        code_ln::exit_block  => { depth.dec (); },
+        _                  => {},
+    }
+}
 pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let extract_log_attrs = get_attrs_for_log_vars (attrs);
     dbg! (&extract_log_attrs);
@@ -295,18 +302,18 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
         dbg! (&complex_var_ending);
         add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
-            type_of_vars_expr::not (other) => { },
+            type_of_vars_expr::not (other) => {control_nested_blocks ( &other, &mut nested_depth );},
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
-                dbg! ("complex");
+                dbg! ("complex"); nested_depth.inc();
                 let item = make_complex_var_logged (&ln);
                 if item.is_empty () {continue}
                 complex_var_ending.push (item);
                 dbg! (&complex_var_ending);
             }
         }
-        close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending );
+        close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending, nested_depth );
       //  dbg! (&fn_ln_by_ln[j].txt);
     }
     let mut ret = String::new ();
@@ -345,7 +352,7 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let logged_ln = format! ("{log_ins}");
     return logged_ln
 }
-pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String> ) {
+pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String>, depth: usize ) {
     let end = _7block_ending ( &lines [ln_num].txt );
     dbg! (&end);
     if !end { dbg! (&lines [ln_num].txt); return }
