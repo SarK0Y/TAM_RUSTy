@@ -313,7 +313,7 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
                 dbg! (&complex_var_ending);
             }
         }
-        close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending, nested_depth );
+        close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending, &mut nested_depth );
       //  dbg! (&fn_ln_by_ln[j].txt);
     }
     let mut ret = String::new ();
@@ -352,10 +352,11 @@ pub fn make_complex_var_logged( expr: &String) -> String {
     let logged_ln = format! ("{log_ins}");
     return logged_ln
 }
-pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String>, depth: usize ) {
+pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String>, depth: &mut usize ) {
     let end = _7block_ending ( &lines [ln_num].txt );
     dbg! (&end);
     if !end { dbg! (&lines [ln_num].txt); return }
+    if endings.len() < *depth { depth.dec (); }
     let expr = endings.last();
     dbg! (&expr);
     let expr = if let Some (x) = expr { x.clone() } else { return };
