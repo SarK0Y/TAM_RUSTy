@@ -356,7 +356,7 @@ pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut 
     let end = _7block_ending ( &lines [ln_num].txt );
     dbg! (&end);
     if !end { dbg! (&lines [ln_num].txt); return }
-    if endings.len() < *depth { depth.dec (); return }
+    if endings.len() <= *depth { depth.dec (); return }
     let expr = endings.last();
     dbg! (&expr);
     let expr = if let Some (x) = expr { x.clone() } else { return };
