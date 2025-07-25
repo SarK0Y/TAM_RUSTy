@@ -182,7 +182,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
             let mut nolog_err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
-            let filename_str0 = || -> String{
+            let nolog_filename_str0 = || -> String{
                     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
                  if !crate::globs18::check_substrn01(&front_list, "history"){
                    return String::from(match filename.file_name(){
@@ -199,7 +199,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }
-            let mut fixed_filename: String = filename_str0().to_string();
+            let mut fixed_filename: String = nolog_filename_str0().to_string();
             crate::ins_newlines(crate::get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
             if filename.is_dir(){filename_str =format!("{}: {}/", display_indx, fixed_filename);}
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
