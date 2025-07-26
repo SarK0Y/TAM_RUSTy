@@ -124,9 +124,10 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let mut end_of_block_len = end_of_block_txt.chars().count ();
     if left {
         let other = stream.substring (end_of_block_len, stream_len).strn();
+        dbg! (&other);
         return (end_of_block_txt, other)        
     }
-    end_of_block_len += 1;
+    //end_of_block_len += 1;
     let close_block = format! ("{} ", end_of_block_txt);
     let other = stream.substring (end_of_block_len, stream_len).strn();
     return (close_block, other)        
@@ -164,12 +165,12 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
         if new_ln.1.is_empty () { break }
     }
     if ret.is_empty() { return ret}
-    let mut last: rExpr = ret.pop().unwrap();
-    let ch = last.txt.pop ().unwrap_or (' ');
+    //let mut last: rExpr = ret.pop().unwrap();
+    //let ch = last.txt.pop ().unwrap_or (' ');
 //    println! ("{:?}", last);
   //  if ch == '}' {last.txt = last.txt.as_str().substring(0, last.txt.chars().count() - 1).strn();}
-    last.txt.push('}');
-    ret.push (last);
+   // last.txt.push('}');
+   // ret.push (last);
   //  println! ("***************************");
    // dbg! (&ret);
    leave_file_mark ("/tmp/dbg_fn_ln_by_ln0", &format! ("{:?}", ret));

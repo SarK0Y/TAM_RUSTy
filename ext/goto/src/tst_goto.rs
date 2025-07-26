@@ -277,10 +277,13 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
         func_body = _log_vars(&mut func_body, &attr);
         rst_lex::edit_funx::dirty_fix (&mut func_body);
         leave_file_mark ("/tmp/fn", &func_body);
-        let mut out: TokenStream2 = func_body.parse().unwrap();
+        let mut out: TokenStream2 =match  func_body.parse() {
+            Ok (x) => { x },
+            Err (y) => { panic! ("Crashes into err: {:?}", y);},
+        };
        // let strn = out.to_string ();
        // leave_file_mark ("/tmp/log_func", &strn);
-        return out.into()
+       return out.into()
 }
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
