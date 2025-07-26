@@ -562,6 +562,74 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
         }
     )
 }
+pub fn stream_cleanup1 (stream: &String, token: String, run_from: usize, stop_token: String) -> Option <String> {
+    return stream_cleanup (stream, &token, run_from, &stop_token)
+}
+pub fn stream_cleanup2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option <String> {
+    return stream_cleanup (stream, &token.to_string(), run_from, &stop_token.to_string() )
+}
+pub fn stream_cleanup3 (stream: &str, token: &str, run_from: usize, stop_token: &str) -> Option <String>  {
+    return stream_cleanup (&stream.strn(), &token.to_string(), run_from, &stop_token.to_string() )
+}
+#[inline]
+pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_token: &String) -> Option <String>  {
+    if stream.is_empty () { return None}
+    let fn_name = "stream_cleanup".strn();
+    let mut block_ = blocks::new ();
+    let mut ret = String::new ();
+    let mut entry: usize = 0;
+ //   dbg! (&stop_token);
+    leave_file_mark ("/tmp/line", &stop_token.to_string() );
+    let nl = char::from_u32(0x0a).unwrap();
+    let mut maybe = String::new();
+    let stop_token_len = stop_token.chars().count();
+    let token_len = token.chars().count();
+    let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
+    let mut txt_dbg = String::new();
+    for j in run_from..to_stream_len {
+        let ch = chars.clone().nth (j).unwrap_or (' ');
+        maybe.push(ch);
+        txt_dbg.push( ch );
+       // println! ("{txt_dbg}");
+        if maybe.chars().count() == token_len {
+            if maybe == *token {
+                leave_file_mark ("/tmp/mayb", &maybe.to_string() );
+                entry = if j > token_len { j - token_len + 1 } else { j };
+                break;
+            }
+        }
+        if  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
+                                                                                                                {ret.push_str(maybe.as_str() ); maybe.clear (); }
+    }
+    //println! ("{line}, {maybe}");
+    //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
+    leave_file_mark ("/tmp/may", &maybe.to_string() );
+    if maybe.is_empty() { return None }
+    maybe.clear();
+    let mut write_char_or_not = false;
+    let run_from = entry + token_len;
+    let mut txt = token.clone();
+    for j in run_from..to_stream_len {
+       let ch = stream.chars().nth (j).unwrap ();
+      if !write_char_or_not {
+        if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
+        if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
+        maybe.push(ch);
+        if maybe.chars().count() == stop_token_len {
+            if maybe == *stop_token { 
+            write_char_or_not = true; }
+        } continue;
+      } ret.push (ch);
+    }
+    if maybe == "{" {dbg! (stream); dbg! (&maybe); }
+    if maybe != *stop_token { dbg! ("failed stop_token"); dbg! (&stop_token); dbg! (&maybe); dbg!(stream); return None }
+  //  dbg! (stream);
+    //dbg! (&txt);
+    //dbg! (&fn_name);
+   // println! ("{}", txt);
+    return Some (ret );
+}
 pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
     return sieve_n_split (stream, &token, run_from, &stop_token)
 }
