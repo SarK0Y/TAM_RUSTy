@@ -70,6 +70,19 @@ impl log_attr {
     }
 }
 #[derive(Clone, Debug)]
+pub struct cleanup_dbg_attr {
+    pub _1st_token: String,
+    pub end_token: String,
+}
+impl cleanup_dbg_attr {
+    pub fn new () -> Self {
+        return Self {
+            _1st_token: "dbg!".strn(),
+            end_token: ";".strn(),
+        }
+    }
+}
+#[derive(Clone, Debug)]
 pub struct found_local_vars {
     pub mut_or_not: Vec <bool>,
     pub pub_or_not: Vec <bool>,

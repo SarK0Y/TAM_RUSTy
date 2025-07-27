@@ -5,7 +5,7 @@ use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
 use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars, Char_Stream};
-use crate::faav::{rExpr, type_of_vars_expr, code_ln, token_status, found_local_vars, log_name, log_attr, blocks };
+use crate::faav::{rExpr, type_of_vars_expr, code_ln, token_status, found_local_vars, log_name, log_attr, cleanup_dbg_attr, blocks };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
         *$set0 = $new;
