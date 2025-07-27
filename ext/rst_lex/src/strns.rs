@@ -72,7 +72,7 @@ pub fn get_attrs_for_cleanup (attrs: &String) -> cleanup_dbg_attr {
     get_attr_for_cleanup (&attr1, &mut ret);
     return ret
 }
-pub fn get_attr_for_cleanup (attr: &String, ret: &mut log_attr ) {
+pub fn get_attr_for_cleanup (attr: &String, ret: &mut cleanup_dbg_attr ) {
     if attr.is_empty () {panic! ("Please, set attributes for cleanup.. Ex: #[cleanup(_1st_token=dbg!,end_token=;)]\nRemark: attr is empty")}
     let (attr0_0, attr0_1) = split_once_alt_o_null_strns (&attr, &"=".strn() );
     let attr0_0 = attr0_0.trim();//.strn();

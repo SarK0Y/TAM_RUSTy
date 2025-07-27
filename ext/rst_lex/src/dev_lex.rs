@@ -4,7 +4,7 @@ use std::io::{Write, self, ErrorKind};
 use std::fs::metadata;
 use Mademoiselle_Entropia::custom_traits::{STRN, helpful_math_ops};
 use Mademoiselle_Entropia::help_funcs::{get_file_append, get_file };
-use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars, Char_Stream};
+use crate::strns::{split_once_or_ret_null_strns, get_attrs_for_log_vars, Char_Stream, get_attrs_for_cleanup };
 use crate::faav::{rExpr, type_of_vars_expr, code_ln, token_status, found_local_vars, log_name, log_attr, cleanup_dbg_attr, blocks };
 macro_rules! _set_usize {
     ($set0:expr, $new:expr) => {
@@ -909,6 +909,12 @@ pub fn _7block_ending (expr: &String) -> bool {
         if not_curly_blocks_status ( Some (&c), Some (&mut block_ ) ) { continue }
         if c == '}' { return true }
     } return false
+}
+pub fn _cleanup (stream: &String, attrs: &String) -> String {
+    let attr = get_attrs_for_cleanup ( attrs );
+    let ret = stream_cleanup ( stream, &attr._1st_token, 0, &attr.end_token );
+    if let Some (x) = ret { return x}
+    return stream.strn()
 }
 //fn 
 //clear;cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam
