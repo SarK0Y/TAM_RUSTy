@@ -1,5 +1,5 @@
 use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, STRN_strip, helpful_math_ops}; 
-use crate::faav::{log_attr, sav_log_attrs};
+use crate::faav::{log_attr, cleanup_dbg_attr, sav_log_attrs};
 use substring::Substring;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
     if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
@@ -63,6 +63,23 @@ pub fn get_attr_for_log_vars (attr: &String, ret: &mut log_attr ) {
         "log_size" => {ret.size = get_size_from_log_conf(&attr0_1);},
         "log_path" => {ret.path = attr0_1.trim().strn();},
         _ => {panic! ("Please, set attributes for log file.. Ex: #[log_vars(log_size=10K,log_path=/tst/log)]\n{:?}", ret)}
+    }
+}
+pub fn get_attrs_for_cleanup (attrs: &String) -> cleanup_dbg_attr {
+    let mut ret = cleanup_dbg_attr::new();
+    let (attr0, attr1) = split_once_alt_o_null_strns (attrs, &",".strn() );
+    get_attr_for_cleanup (&attr0, &mut ret);
+    get_attr_for_cleanup (&attr1, &mut ret);
+    return ret
+}
+pub fn get_attr_for_cleanup (attr: &String, ret: &mut log_attr ) {
+    if attr.is_empty () {panic! ("Please, set attributes for cleanup.. Ex: #[cleanup(_1st_token=dbg!,end_token=;)]\nRemark: attr is empty")}
+    let (attr0_0, attr0_1) = split_once_alt_o_null_strns (&attr, &"=".strn() );
+    let attr0_0 = attr0_0.trim();//.strn();
+    match attr0_0 {
+        "_1st_token" => {ret._1st_token = attr0_1.trim().strn();},
+        "end_token" => {ret.end_token = attr0_1.trim().strn();},
+        _ => {panic! ("Please, set attributes for cleanup.. Ex: #[cleanup(_1st_token=dbg!,end_token=;)]\n{:?}", ret)}
     }
 }
 pub fn get_size_from_log_conf (attr: &String) -> usize {

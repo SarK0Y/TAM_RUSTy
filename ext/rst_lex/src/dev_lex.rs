@@ -568,7 +568,7 @@ pub fn stream_cleanup1 (stream: &String, token: String, run_from: usize, stop_to
 pub fn stream_cleanup2 (stream: &String, token: &str, run_from: usize, stop_token: &str) -> Option <String> {
     return stream_cleanup (stream, &token.to_string(), run_from, &stop_token.to_string() )
 }
-pub fn stream_cleanup3 (stream: &str, token: &str, run_from: usize, stop_token: &str) -> Option <String>  {
+pub fn stream_cleanup3 (stream: &str, token: &str, run_from: usize, stop_token: String) -> Option <String>  {
     return stream_cleanup (&stream.strn(), &token.to_string(), run_from, &stop_token.to_string() )
 }
 #[inline]
