@@ -13,7 +13,7 @@
 //pub use crate::goto::{label, goto};
 #[cfg(not(any(feature ="stable", feature = "tst")))]
 panic! ("Please, activate features (stable or tst)");
-use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn, _log_vars }; //collect_all_assigns};
+use rst_lex::lex::{collect_not_nested_let_tokens, leave_file_mark, token_for_loop, get_lines_in_fn, _log_vars, _cleanup }; //collect_all_assigns};
 use rst_lex::faav::{rExpr, log_attr, sav_log_attrs};
 use rst_lex::edit_funx as edit;
 use rst_lex::strns:: get_attrs_for_log_vars;
@@ -285,6 +285,22 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
        // leave_file_mark ("/tmp/log_func", &strn);
        return out.into()
 }
+#[proc_macro_attribute]
+    pub fn cleanup(_attr: TokenStream, item: TokenStream) -> TokenStream {
+        let mut func_body = item.to_string();
+        let attr = _attr.to_string();
+        leave_file_mark ("/tmp/attr", &attr);
+        func_body = _cleanup(&mut func_body, &attr);
+        leave_file_mark ("/tmp/fn", &func_body);
+        let mut out: TokenStream2 =match  func_body.parse() {
+            Ok (x) => { x },
+            Err (y) => { panic! ("Crashes into err: {:?}", y);},
+        };
+       // let strn = out.to_string ();
+       // leave_file_mark ("/tmp/log_func", &strn);
+       return out.into()
+}
+
 #[proc_macro_attribute]
 pub fn prnt_vars(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let mut  func_body = item.to_string ();
