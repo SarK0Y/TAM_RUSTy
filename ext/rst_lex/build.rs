@@ -3,9 +3,12 @@
 use std::env;
 use std::fs;
 use std::path::Path;
-//extern crate rst_lex;
+//extern crate for_build_rs;
+#[cfg(feature ="cleanup")]
 use for_build_rs::lex::_cleanup;
+#[cfg(feature ="cleanup")]
 use for_build_rs::faav::cleanup_dbg_attr;
+#[cfg(feature ="cleanup")]
 pub fn cleanup () {
     let mut attr = cleanup_dbg_attr::new();
     let src = "./src/dev_lex.rs";
