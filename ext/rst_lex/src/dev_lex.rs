@@ -626,6 +626,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     //dbg! (&txt);
     //dbg! (&fn_name);
    // println! ("{}", txt);
+   leave_file_mark ("/tmp/may", &ret.to_string() );
     return ret;
 }
 pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
