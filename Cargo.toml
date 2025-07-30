@@ -7,7 +7,8 @@ readme = "README.md"
 members = [
     "main",
     "ext/goto",
-    "ext/rst_lex"
+    "ext/rst_lex",
+    "ext/for_build_rs"
 ]
 [workspace.dependencies]
 ##sark0y_tam_rst = {path = "./"}
