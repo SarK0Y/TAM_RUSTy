@@ -9,17 +9,8 @@
 #![allow(non_upper_case_globals)]
 //mod goto;
 //pub use crate::goto::{label, goto};
-#[cfg(feature ="dev_hell_n_fun")]
-#[cfg(not(feature ="stable"))]
 #[path = "dev_lex.rs"]
 pub mod lex;
-#[cfg(feature ="stable")]
-#[path = "stable_lex.rs"]
-pub mod lex;
-#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
 pub mod edit_funx;
-#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
-pub mod strns;
-#[cfg(any(feature ="dev_hell_n_fun", feature = "stable") )]
+pub mod strns;s
 pub mod faav;
-    
