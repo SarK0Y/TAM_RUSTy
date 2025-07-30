@@ -12,5 +12,5 @@
 #[path = "dev_lex.rs"]
 pub mod lex;
 pub mod edit_funx;
-pub mod strns;s
+pub mod strns;
 pub mod faav;
