@@ -24,7 +24,7 @@ pub fn rewrite_last_exit (stream: &String, new_end: &String ) -> String {
     leave_file_mark ("/tmp/edit", &edit);
     return stream0
 }
-#[cfg(feature ="dev_hell_n_fun")]
+//#[cfg(feature ="dev_hell_n_fun")]
 pub fn find_last_exit (stream: &String ) -> String {
     let stream_len = stream.chars().count();
     let stop = ';';
@@ -40,27 +40,6 @@ pub fn find_last_exit (stream: &String ) -> String {
         //leave_file_mark ("/tmp/ch", &ch.to_string () );
         if ch != stop || blocks_state ( Some ( &ch ), Some (&mut block_) )  { ending.push (ch ); }
         if ch == stop && !blocks_state ( Some ( &ch ), Some (&mut block_) ) { break;}
-        cursor.dec();
-    }
-    leave_file_mark ("/tmp/ending1", &ending);
-    return ending.rev()
-}
-#[cfg(not(feature ="dev_hell_n_fun"))]
-pub fn find_last_exit (stream: &String ) -> String {
-    let stream_len = stream.chars().count();
-    let stop = ';';
-    leave_file_mark ("/tmp/ending", "tst");
-    let mut count_ending: usize = 0;
-    let mut chars = stream.chars();
-    let mut ending = String::new();
-    let mut cursor = stream_len - 2;
-    let mut block_ = blocks::new();
-    let mut ch: char = ' ';
-    while cursor > 0 {
-        ch = chars.clone().nth (cursor ).unwrap_or (' ');
-        //leave_file_mark ("/tmp/ch", &ch.to_string () );
-        if ch != stop || blocks_state ( Some ( &ch ) )  { ending.push (ch ); }
-        if ch == stop && !blocks_state ( Some ( &ch ) ) { break;}
         cursor.dec();
     }
     leave_file_mark ("/tmp/ending1", &ending);
