@@ -579,7 +579,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     let mut ret = String::new ();
     let mut entry: usize = 0;
  //   dbg! (&stop_token);
-    leave_file_mark ("/tmp/line", &stop_token.to_string() );
+    leave_file_mark ("/tmp/cleanup_log", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
     let stop_token_len = stop_token.chars().count();
@@ -594,13 +594,20 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
         // println! ("{txt_dbg}");
             if maybe.chars().count() == token_len {
                 if maybe == *token {
-                    leave_file_mark ("/tmp/mayb", &maybe.to_string() );
                     entry = if j > token_len { j - token_len + 1 } else { j };
+                    run_from = j;
+                    //dbg_stuff
+                    let var = format! ("ret: {ret}\nblock_ {:?}, ch {ch} maybe {maybe}:: ", block_);
+                    add_file_mark_to ("/tmp/cleanup_log", &var);
+                    //dbg_stuff
                     break;
                 }
             }
-            if  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
-                                                                                                                    {ret.push_str(maybe.as_str() ); maybe.clear (); }
+            
+            if  wrong_symb (ch) ||
+                not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || 
+                (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
+                                                                                                {ret.push_str(maybe.as_str() ); maybe.clear (); }
         }
         //println! ("{line}, {maybe}");
         //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
@@ -608,7 +615,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
         if maybe.is_empty() { return ret }
         maybe.clear();
         let mut write_char_or_not = false;
-        run_from = entry + token_len;
+        //run_from = entry + token_len;
         let mut txt = token.clone();
         for j in run_from..to_stream_len {
             let ch = stream.chars().nth (j).unwrap ();
@@ -626,6 +633,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     //dbg! (&txt);
     //dbg! (&fn_name);
    // println! ("{}", txt);
+   leave_file_mark ("/tmp/may", &ret.to_string() );
     return ret;
 }
 pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
@@ -875,6 +883,17 @@ pub fn wrong_symb (tst: char) -> bool {
         _ => return false,
     }
 }
+pub fn custom_wrong_symb (symb: char, good: Option < &Vec <char> >, wrong: Option < &Vec <char> >) -> bool {
+    let good: &Vec < char > = if let Some (ref x) = good { x } else {&Vec::new() };
+    for c in good {
+        if symb == *c { return false }
+    }
+    let wrong: &Vec < char > = if let Some ( ref x) = wrong { x } else {&Vec::new() };
+    for c in wrong {
+        if symb == *c { return true }
+    }
+    return wrong_symb (symb)
+}
 pub fn eqeq (expr: &String ) -> bool {
     if expr.find ("==").is_some() { return true }
     if expr.find ("<=").is_some() { return true }
@@ -911,7 +930,7 @@ pub fn _7block_ending (expr: &String) -> bool {
 pub fn _cleanup (stream: &String, attrs: &String) -> String {
     let attr = get_attrs_for_cleanup ( attrs );
     let ret = stream_cleanup ( stream, &attr._1st_token, 0, &attr.end_token );
-    dbg! (&ret);
+    dbg!(&ret); dbg! (&ret);
     return ret
 }
 //fn 

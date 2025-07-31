@@ -6,7 +6,7 @@ use std::path::Path;
 use std::io::{Read, Write};
 //extern crate for_build_rs;
 #[cfg(feature ="cleanup")]
-use for_build_rs::lex::stream_cleanup;
+use for_build_rs::lex::{stream_cleanup, leave_file_mark};
 #[cfg(feature ="cleanup")]
 use for_build_rs::faav::cleanup_dbg_attr;
 #[cfg(feature ="cleanup")]
@@ -31,6 +31,7 @@ pub fn cleanup () {
         Err (e) => {panic! ("cleanup for rst_lex failed to wtite file {dst} w/ err {:?}", e)}
     };
     dev_lex = dev_lex.replace (";;", "");
+    leave_file_mark ("/tmp/cleanup", &dev_lex);
     dst_file.write_all (dev_lex.as_bytes() );
 }
 fn main() {
