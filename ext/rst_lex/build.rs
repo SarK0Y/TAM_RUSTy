@@ -26,6 +26,7 @@ pub fn cleanup () {
         Err (e) => { eprintln! ("cleanup () in rst_lex build.rs failed to read from {src} to dev_lex due to {:?} ", e); return}
     };
     dev_lex = stream_cleanup (&dev_lex, &attr._1st_token, 0, &attr.end_token);
+    dev_lex = stream_cleanup (&dev_lex, &"dbg_stuff".to_string(), 0, &"dbg_stuff".to_string() );
     let mut dst_file = match fs::File::create (dst) {
         Ok (f) => { f },
         Err (e) => {panic! ("cleanup for rst_lex failed to wtite file {dst} w/ err {:?}", e)}

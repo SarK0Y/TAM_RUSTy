@@ -605,7 +605,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
             }
             
             if  wrong_symb (ch) ||
-                not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || 
+              //  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || 
                 (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
                                                                                                 {ret.push_str(maybe.as_str() ); maybe.clear (); }
         }
@@ -620,7 +620,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
         for j in run_from..to_stream_len {
             let ch = stream.chars().nth (j).unwrap ();
             if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
-            if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
+         //   if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
             maybe.push(ch);
             run_from = j;
             if maybe.chars().count() == stop_token_len {
@@ -867,11 +867,11 @@ pub fn wrong_symb_in_var (tst: &String) -> bool {
         if !stop_wrong_symb (b) {return false }
     } return true
 }
-pub fn stop_wrong_symb (tst: char) -> bool {
+pub fn stop_wrong_symb (tst: char) -> bool { 
     //let tst = extract_var_name (tst);
     dbg! (&tst);
     match tst {
-        ':'|'\''|'\"'|','|'['|'(' => return true,
+        ':'|'\''|'\"'|','|'['|'(' => return true, //cleanup gets stuck here, 'cos brackets ain't paired :))
         _ => return false,
     }
 }
@@ -930,7 +930,9 @@ pub fn _7block_ending (expr: &String) -> bool {
 pub fn _cleanup (stream: &String, attrs: &String) -> String {
     let attr = get_attrs_for_cleanup ( attrs );
     let ret = stream_cleanup ( stream, &attr._1st_token, 0, &attr.end_token );
+    //dbg_stuff
     dbg!(&ret); dbg! (&ret);
+    //dbg_stuff
     return ret
 }
 //fn 
