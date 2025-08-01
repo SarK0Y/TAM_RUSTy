@@ -629,11 +629,27 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
             }
         }
     }
-  //  dbg! (stream);
-    //dbg! (&txt);
-    //dbg! (&fn_name);
-   // println! ("{}", txt);
    leave_file_mark ("/tmp/may", &ret.to_string() );
+    return ret;
+}
+
+#[inline]
+pub fn attr_to_vec (stream: &String, delim: &String ) -> Vec <String >  {
+    let fn_name = "attr_to_vec".strn();
+    let mut ret = Vec::<String>::new ();
+ //   dbg! (&stop_token);
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
+    let mut chunk = String::new();
+    for j in 0..to_stream_len {
+       let ch = chars.clone().nth (j).unwrap_or (' ');
+       maybe.push(ch);
+       if  !maybe.is_empty() && delim.as_str().substring (0, maybe.chars().count()) != maybe
+                                                {chunk.push_str(maybe.as_str() ); maybe.clear (); continue; }
+       if *delim == maybe { ret.push (chunk.clone() ); maybe.clear (); chunk.clear (); }
+        }
     return ret;
 }
 pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
