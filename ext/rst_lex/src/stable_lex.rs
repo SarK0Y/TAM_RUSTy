@@ -104,15 +104,15 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     if simple.is_none () && block_entry.is_none () { return ("".strn(), "".strn() )}
     let block_entry = block_entry.unwrap().txt;
     let simple = simple.unwrap().txt;
-//    dbg! (&block_entry);
-  //  dbg! (&fst);
-  //  dbg! (&simple);
+//    
+  //  
+  //  
     let ln = if block_entry.chars().count() < simple.chars().count () { (block_entry.clone(), other1.clone() ) }
              else { (simple.clone(), other.clone()) };
-  //  if ln.0.find ("else{").is_some () { dbg! (&ln); }
+  //  if ln.0.find ("else{").is_some () {  }
     let tst_end_of_block = sieve_n_split2 (&ln.0, &fst, 0, "}");
-   // dbg! (&ln);
-   // dbg!(&tst_end_of_block);
+   // 
+   // 
     if tst_end_of_block.0.is_none () { return ln }
     let end_of_block_txt = tst_end_of_block.0.unwrap ().txt;
     let mut left = false;
@@ -124,7 +124,7 @@ pub fn get_lex_line_n_split (stream: &String) -> (String, String) {
     let mut end_of_block_len = end_of_block_txt.chars().count ();
     if left {
         let other = stream.substring (end_of_block_len, stream_len).strn();
-        dbg! (&other);
+        
         return (end_of_block_txt, other)        
     }
     //end_of_block_len += 1;
@@ -145,7 +145,7 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
         entry: 0,
         end: 0
         };
-   // dbg! (&header);
+   // 
     ret.push(header);
     let mut chars = stream.chars();
     let mut rexpr: Option < rExpr > = None;
@@ -172,7 +172,7 @@ pub fn get_lines_in_fn (stream: &mut String) -> Vec < rExpr > {
    // last.txt.push('}');
    // ret.push (last);
   //  println! ("***************************");
-   // dbg! (&ret);
+   // 
    leave_file_mark ("/tmp/dbg_fn_ln_by_ln0", &format! ("{:?}", ret));
     return ret
 }
@@ -196,7 +196,7 @@ pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
     loop {
         let fst_ch = if stream.chars().count () > 0 { stream.chars().nth(0).unwrap().to_string() } else {break;};
         rexpr = sieve_n_split2 (stream, &fst_ch, 0, ";");
-      //  dbg! (&rexpr);
+      //  
         if let Some ( ref mut y) = rexpr.0 {
     //       println! ("{:?}", y);
             collect_blocks = cut_blocks (&mut y.txt, 0);
@@ -220,8 +220,8 @@ pub fn get_lines_in_block (stream: &mut String) -> Vec < rExpr > {
     last.txt.push('}');
     ret.push (last);
    // println! ("***************************");
-    //dbg! (&ret);
- //   dbg! (&stream);
+    //
+ //   
     return ret
 }
 pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr > > {
@@ -235,8 +235,8 @@ pub fn cut_blocks (expr: &mut String, prev_end: usize) -> Option < Vec < rExpr >
         
         if x.txt.len() == expr.len() ||
            x.txt.len() == expr.len() - 1 { return None }
-         //  dbg! (&expr);
-           //dbg! (&x);
+         //  
+           //
            edited = cut_block_off.1;//edited.replace(&x.txt, "");
            let mut lines_in_block = get_lines_in_block (&mut x.txt);
            //x.txt = format! ("mm: {}", x.txt);
@@ -278,7 +278,7 @@ pub fn control_nested_blocks (state: &code_ln, depth: &mut usize ) {
 }
 pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     let extract_log_attrs = get_attrs_for_log_vars (attrs);
-    dbg! (&extract_log_attrs);
+    
     let mut fn_ln_by_ln: Vec <rExpr> = get_lines_in_fn (stream);
     let dbg_fn_ln_by_ln = format! ("{:?}", fn_ln_by_ln);
     leave_file_mark ("/tmp/dbg_fn_ln_by_ln", &dbg_fn_ln_by_ln);
@@ -290,32 +290,32 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
     leave_file_mark ("/tmp/steps", "");
     let mut complex_var_ending = Vec::<String>::new();
     let fn_ln_by_ln_len = fn_ln_by_ln.len();
-    dbg! (&fn_ln_by_ln_len);
+    
     let mut nested_depth: usize = 0;
     for j in 1..fn_ln_by_ln_len {
         let ln = fn_ln_by_ln[j].txt.clone();
         let add_to_log = format! ("{j}: {ln}\nend line {j}\n");
-     //   dbg!("check here");
-     //   dbg! (&ln);
+     //   
+     //   
         if check_proc_macro ( &ln ) { } /* MUST BE MORE SOPHISTICATED HANDLING */
         let categorize_var =  var_expr_or_not (&ln);
-        dbg! (&categorize_var);
-        dbg! (&complex_var_ending);
+        
+        
         add_file_mark_to ("/tmp/steps", &add_to_log);
         match categorize_var {
             type_of_vars_expr::not (other) => {control_nested_blocks ( &other, &mut nested_depth );},
             type_of_vars_expr::simple => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::simple_let => { fn_ln_by_ln[j].txt = make_simple_var_logged (j, &ln);},
             type_of_vars_expr::complex => {
-                dbg! ("complex"); nested_depth.inc();
+                 nested_depth.inc();
                 let item = make_complex_var_logged (&ln);
                 if item.is_empty () {continue}
                 complex_var_ending.push (item);
-                dbg! (&complex_var_ending);
+                
             }
         }
         close_complex_var (j, &mut fn_ln_by_ln, &mut complex_var_ending, &mut nested_depth );
-      //  dbg! (&fn_ln_by_ln[j].txt);
+      //  
     }
     let mut ret = String::new ();
     for iter in fn_ln_by_ln {
@@ -328,11 +328,11 @@ pub fn _log_vars (stream: &mut String, attrs: &String) -> String {
 pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
     let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
-   // dbg! (&expr);
-   dbg! ("msvl");
+   // 
+   
     let var_name = extract_var_name (&expr, 417);
-    dbg! ("msvl");
-    dbg! (&var_name);
+    
+    
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} );", var_name);
     let ln_num = ln_num + 1;
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359, &attrs);");
@@ -342,11 +342,11 @@ pub fn make_simple_var_logged (ln_num: usize, expr: &String) -> String {
 pub fn make_complex_var_logged( expr: &String) -> String {
     let expr = expr.trim().strn();
     let nl = char::from_u32(0x0a).unwrap();
-    //dbg! (expr);
-    dbg! ("mcvl");
+    //
+    
     let var_name = extract_var_name (&expr, 351);
-    dbg! ("mcvl");
-    dbg! (&var_name);
+    
+    
     let value = format! ("let __88value__359 = format! (\"{{:?}}\", {} );", var_name);
     let ln_num = "__ln_num__";
     let log_ins = format! ("{nl}{value};{nl}log_the_var({ln_num}, \"{var_name}\", &__88value__359, &attrs);");
@@ -355,11 +355,11 @@ pub fn make_complex_var_logged( expr: &String) -> String {
 }
 pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut Vec <String>, depth: &mut usize ) {
     let end = _7block_ending ( &lines [ln_num].txt );
-    dbg! (&end);
-    if !end { dbg! (&lines [ln_num].txt); return }
+    
+    if !end {  return }
     if endings.len() <= *depth { depth.dec (); return }
     let expr = endings.last();
-    dbg! (&expr);
+    
     let expr = if let Some (x) = expr { x.clone() } else { return };
     let ln = lines [ln_num].txt.clone();
     let ln = ln.trim();
@@ -370,10 +370,10 @@ pub fn close_complex_var (ln_num: usize, lines: &mut Vec <rExpr>, endings: &mut 
     if token != Some ('}') { return };*/
     let ln_num_str = ln_num.to_string();
     let expr = expr.replace ("__ln_num__", &ln_num_str).strn();
-    dbg! (&ln);
+    
     let expr = format! ("{ln};\n{expr}");
     depth.dec();
-    dbg! (&expr);
+    
     lines [ ln_num ].txt = expr.clone(); let _ = endings.pop ();
 }
 pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr ) {
@@ -381,7 +381,7 @@ pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr
     let strn_to_log = format! ("__{ln_num}. {var_name}: {value} ");
     let _depth = unsafe { depth };
     let log_file = attrs.path.clone();
-     if !std::path::Path::new(&log_file).exists(){dbg! (&log_file); let mut filo = std::fs::File::create_new (&log_file).unwrap(); dbg! (&filo); let _ = filo.write_all (" ".as_bytes());}
+     if !std::path::Path::new(&log_file).exists(){ let mut filo = std::fs::File::create_new (&log_file).unwrap();  let _ = filo.write_all (" ".as_bytes());}
     let mut log_file = get_file_append (&log_file);
     if log_file.is_err() {
         unsafe {depth += 1} return log_the_var (ln_num, var_name, value, attrs)
@@ -390,8 +390,8 @@ pub fn log_the_var (ln_num: usize, var_name: &str, value: &str, attrs: &log_attr
     let err_set_len = "failed to set log size in 0".strn();
     let cur_file_len = metadata(&attrs.path).expect(&err_msg).len() as usize;
     if cur_file_len > attrs.size {set_file_size (&mut log_file, 0);}
-    //dbg! (&cur_file_len);
-    //dbg!(&attrs.path);
+    //
+    //
     let _ = log_file.expect("log_the_var failed").write_all(strn_to_log.as_bytes());
 }
 pub fn check_let (expr: &String) -> bool {
@@ -410,7 +410,7 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
     if expr.is_empty() { return "".strn()}
     let err_msg = format! ("Expression {expr} has no var name, func_id: {func_id}");
     let (mut var_name, _) = split_once_or_ret_null_strns (expr, "=");
-    if var_name == "" {dbg! (&expr); panic! ("{err_msg}");}
+    if var_name == "" { panic! ("{err_msg}");}
     let (var_name_, _) = split_once_or_ret_null_strns (&var_name, ":");
     if var_name_.len() > 0 { var_name = var_name_; }
     var_name = tail_trim_var (&var_name);
@@ -430,8 +430,8 @@ pub fn extract_var_name (expr: &String, func_id: usize) -> String {
                // .trim_start_matches (") ")
                 .strn(); 
     var_name = trim_var (&var_name);
-    dbg! (&var_name);
-    if wrong_name_of_var (&var_name) {dbg! (&var_name); panic! ("Wrong var name {var_name} expr: {expr}.");}
+    
+    if wrong_name_of_var (&var_name) { panic! ("Wrong var name {var_name} expr: {expr}.");}
     return var_name
 }
 pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
@@ -439,10 +439,10 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     if  *expr == ";}" { return type_of_vars_expr::not (code_ln::exit_block )  }
     if  *expr == ";\n}" { return type_of_vars_expr::not (code_ln::exit_block) } // MUST BE MORE DETAILED
     if  check_proc_macro (expr) { return type_of_vars_expr::not (code_ln::proc_macro) }
-    if eqeq (expr) {dbg! ("category eqeq"); return type_of_vars_expr::not (code_ln::enter_block) }
+    if eqeq (expr) { return type_of_vars_expr::not (code_ln::enter_block) }
     let mut ret_curly = stream_sieving3 (&expr, "=", 0, "{" );
-    dbg! (&ret_curly);
-    //if ret_curly.is_none () { dbg! ("category curly"); return type_of_vars_expr::not }
+    
+    //if ret_curly.is_none () {  return type_of_vars_expr::not }
     let mut ret = stream_sieving3 (&expr, "=", 0, ";" );
     if ret.is_none() && ret_curly.is_none () { return type_of_vars_expr::not (code_ln::perhaps_error) }
     let mut block_ = blocks::new();
@@ -450,21 +450,21 @@ pub fn var_expr_or_not (expr: &String) -> type_of_vars_expr {
     let ret_len = if let Some (_ret) = ret.as_ref() {_ret.txt.len()} else {0 };
     let ret_curly_len = if let Some (_ret) = ret_curly.as_ref() {_ret.txt.len()} else {usize::MAX };
     if  ret_len >= ret_curly_len { ret_curly = None}
-    dbg! (&ret_len);
-    dbg! (&ret_curly_len);
-    dbg! (&ret_curly);
+    
+    
+    
     let tst_var = extract_var_name (&expr, 203);
-    dbg! (&tst_var);
+    
     let nolog = "nolog_";
     if tst_var.substring (0, 6) == nolog { return type_of_vars_expr::not (code_ln::simple) }
-    if  wrong_symb_in_var (&tst_var ){dbg! ("category wrong symb"); dbg! (&tst_var); return type_of_vars_expr::not (code_ln::perhaps_error) }
+    if  wrong_symb_in_var (&tst_var ){  return type_of_vars_expr::not (code_ln::perhaps_error) }
     if ret_curly.is_some() {
         blocks_status( Some (&'{' ), Some (&mut block_) );
         return type_of_vars_expr::complex }
     let ret_is_some = ret.is_some();
     if ret_is_some && check_let (&expr) {return type_of_vars_expr::simple_let }
     if ret_is_some {return type_of_vars_expr::simple }
-    dbg! ("end var_expr_or_not");
+    
     return type_of_vars_expr::not (code_ln::perhaps_error)
 }
 pub fn set_file_size (handle: &mut Result <std::fs::File, ErrorKind >, size: usize) {
@@ -496,7 +496,7 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
     let mut entry1: *mut usize = &mut entry;
     let mut block_ = blocks::new ();
     let mut end = line;
- //   dbg! (&stop_token);
+ //   
     leave_file_mark ("/tmp/line", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
@@ -545,12 +545,12 @@ pub fn stream_sieving (stream: &String, token: &String, run_from: usize, stop_to
          break; }
       }
     }
-    if maybe == "{" {dbg! (stream); dbg! (&maybe); }
-    if maybe != *stop_token { dbg! ("failed stop_token"); dbg! (&stop_token); dbg! (&maybe); dbg!(stream); return None }
+    if maybe == "{" {  }
+    if maybe != *stop_token {     return None }
     end = entry + txt.chars().count ();
-  //  dbg! (stream);
-    //dbg! (&txt);
-    //dbg! (&fn_name);
+  //  
+    //
+    //
    // println! ("{}", txt);
     return Some (
         rExpr {
@@ -578,7 +578,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     let mut block_ = blocks::new ();
     let mut ret = String::new ();
     let mut entry: usize = 0;
- //   dbg! (&stop_token);
+ //   
     leave_file_mark ("/tmp/cleanup_log", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
@@ -588,23 +588,22 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     let mut chars = stream.chars();
     let mut txt_dbg = String::new();
     while run_from < to_stream_len {
+        maybe.clear ();
         for j in run_from..to_stream_len {
             let ch = chars.clone().nth (j).unwrap_or (' ');
             maybe.push(ch);
         // println! ("{txt_dbg}");
+        
             if maybe.chars().count() == token_len {
                 if maybe == *token {
                     entry = if j > token_len { j - token_len + 1 } else { j };
-                    run_from = j;
-                    //dbg_stuff
-                    let var = format! ("ret: {ret}\nblock_ {:?}, ch {ch} maybe {maybe}:: ", block_);
-                    add_file_mark_to ("/tmp/cleanup_log", &var);
-                    //dbg_stuff
+                 //   run_from = j;
+                    //
                     break;
                 }
             }
             
-            if  wrong_symb (ch) ||
+            if // wrong_symb (ch) ||
               //  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || 
                 (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
                                                                                                 {ret.push_str(maybe.as_str() ); maybe.clear (); }
@@ -612,23 +611,31 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
         //println! ("{line}, {maybe}");
         //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
         leave_file_mark ("/tmp/may", &maybe.to_string() );
-        if maybe.is_empty() { return ret }
+        if maybe.is_empty() {return ret }
         maybe.clear();
         let mut write_char_or_not = false;
-        //run_from = entry + token_len;
+        run_from = entry + token_len;
+       // let mut dt = run_from;
         let mut txt = token.clone();
         for j in run_from..to_stream_len {
             let ch = stream.chars().nth (j).unwrap ();
-            if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
-         //   if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
             maybe.push(ch);
+            
+            //
+            if stop_token.as_str().substring (0, maybe.chars().count()) != maybe 
+                                                            { maybe.clear (); }
+         //   if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
+            
             run_from = j;
+          //  if j - dt > 43 {return ret}
             if maybe.chars().count() == stop_token_len {
-                if maybe == *stop_token { 
+                if maybe == *stop_token {
+                run_from += 1;
                 break; }
             }
         }
     }
+    ret = ret.replace ("#[cfg (feature = \"hide\")]", "");
    leave_file_mark ("/tmp/may", &ret.to_string() );
     return ret;
 }
@@ -637,7 +644,7 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
 pub fn attr_to_vec (stream: &String, delim: &String ) -> Vec <String >  {
     let fn_name = "attr_to_vec".strn();
     let mut ret = Vec::<String>::new ();
- //   dbg! (&stop_token);
+ //   
     let mut maybe = String::new();
     let delim_len = delim.chars().count();
     let to_stream_len: usize = stream.chars().count();
@@ -671,7 +678,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     let mut entry1: *mut usize = &mut entry;
     let mut end = line;
     let mut block_ = blocks::new();
-  //  dbg! (&stop_token);
+  //  
     leave_file_mark ("/tmp/line", &stop_token.to_string() );
     let nl = char::from_u32(0x0a).unwrap();
     let mut maybe = String::new();
@@ -687,8 +694,8 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
         txt_dbg.push( ch );
        // println! ("{txt_dbg}");
        if  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) {maybe.clear (); }
-        //dbg! ("blocks_status_not_curly");
-        //dbg! (blocks_status_not_curly (None, Some (&mut block_) ));
+        //
+        //
         if maybe.chars().count() == token_len {
             if maybe == *token {
                 leave_file_mark ("/tmp/mayb", &maybe.to_string() );
@@ -716,13 +723,13 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
        run_from = j;
        maybe.push(ch);
        txt.push(ch);
-       //dbg! (&txt);
-       //dbg! (&maybe);
+       //
+       //
       if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) || stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }//continue; };
-     // dbg! (&maybe);
+     // 
       if maybe.chars().count() == stop_token_len {
-       // dbg! (&maybe);
-         if maybe == *stop_token { dbg! (&maybe);  break; }
+       // 
+         if maybe == *stop_token {   break; }
       }
     }
     run_from.inc();
@@ -730,9 +737,9 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
     for j in run_from..to_stream_len {
         out.push (stream.chars().nth(j).unwrap() );
     }
-  //  dbg! (stream);
-    //dbg! (&txt);
-    //dbg! (&fn_name);
+  //  
+    //
+    //
    // println! ("{}", txt);
    leave_file_mark ("/tmp/stop_token", &stop_token);
    leave_file_mark ("/tmp/1st", &txt);
@@ -746,7 +753,7 @@ pub fn sieve_n_split (stream: &String, token: &String, run_from: usize, stop_tok
             end
         }
     ), out );
-  //  dbg! (&ret);
+  //  
     return ret
 }
 
@@ -805,9 +812,9 @@ pub fn not_curly_blocks_status (ch: Option < &char >, ext: Option < &mut blocks 
             _ => {}
         }
         let sum = x.round + x.square + x.cite;
-      //  dbg! (&sum);
+      //  
         if sum == 0 { x.state = false;} else { x.state = true; } 
-        dbg! (&x);
+        
         return x.state
     }
     static mut round: u64 = 0;
@@ -869,7 +876,7 @@ pub fn set_of_tokens (add_nxt: Option <String>, get: usize) -> token_status {
 pub fn wrong_name_of_var (tst: &String) -> bool {
     //let tst = extract_var_name (tst);
     if tst.is_empty () { return true }
-    dbg! (&tst);
+    
     match tst.trim() {
         "let"|"for"|"while"|"if"|"mut" => return true,
         _ => return false,
@@ -878,14 +885,14 @@ pub fn wrong_name_of_var (tst: &String) -> bool {
 pub fn wrong_symb_in_var (tst: &String) -> bool {
     //let tst = extract_var_name (tst);
     if tst.is_empty () { return true }
-    dbg! (&tst);
+    
     for b in tst.chars() {
         if !stop_wrong_symb (b) {return false }
     } return true
 }
 pub fn stop_wrong_symb (tst: char) -> bool { 
     //let tst = extract_var_name (tst);
-    dbg! (&tst);
+    
     match tst {
         ':'|'\''|'\"'|','|'['|'(' => return true, //cleanup gets stuck here, 'cos brackets ain't paired :))
         _ => return false,
@@ -893,7 +900,7 @@ pub fn stop_wrong_symb (tst: char) -> bool {
 }
 pub fn wrong_symb (tst: char) -> bool {
     //let tst = extract_var_name (tst);
-    dbg! (&tst);
+    
     match tst {
         '\n'|'+'|'-'|'*'|'/'|' '|'}'|'{' => return true,
         _ => return false,
@@ -946,9 +953,7 @@ pub fn _7block_ending (expr: &String) -> bool {
 pub fn _cleanup (stream: &String, attrs: &String) -> String {
     let attr = get_attrs_for_cleanup ( attrs );
     let ret = stream_cleanup ( stream, &attr._1st_token, 0, &attr.end_token );
-    //dbg_stuff
-    dbg!(&ret); dbg! (&ret);
-    //dbg_stuff
+    //
     return ret
 }
 //fn 
