@@ -75,9 +75,23 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
-    let err = _1 / _2.clone().pow(err);
-    let count_steps = (x / err).log2().to_integer().expect("fast_n_simple_sin failed to count steps for operation. Sorry, Dear User.").to_usize();//ln();
-    todo! ()
+    let err = _1.clone () / _2.clone().pow(err);
+    let count_steps = (x / err).log2().to_integer().expect("fast_n_simple_sin failed to count steps for operation. Sorry, Dear User.").to_usize()
+                                                                .expect("fast_n_simple_sin was failing to count steps for operation. Sorry, Dear User.")+ 1;//ln();
+    let mut start_x: rugfloat = x / _2.pow (count_steps);
+    let mut step: usize = 0;
+    let mut sin_x: rugfloat = start_x.clone();
+    sin_x = 2 * start_x.clone ();
+    let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
+    sin_x *= cos_x.sqrt ();
+    start_x *= 2; 
+    while start_x <= *x {
+        sin_x = 2 * sin_x.clone ();
+        cos_x = ( _1.clone () - sin_x.clone().pow (2) );
+        sin_x *= cos_x.sqrt ();
+        start_x *= 2; 
+    }
+    return sin_x
 }
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
