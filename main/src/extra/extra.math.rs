@@ -72,6 +72,13 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
 }
+pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let err = _1 / _2.clone().pow(err);
+    let count_steps = (x / err).log2().to_integer().expect("fast_n_simple_sin failed to count steps for operation. Sorry, Dear User.").to_usize();//ln();
+    todo! ()
+}
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
     let mut y = x - x;
