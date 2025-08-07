@@ -131,6 +131,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
      dbg! (BigFloat::from(2.0).pow(5));
+     let err: f64 = 1.0 / 2.0.powi (62);
+     let _45deg = fast_n_simple_Pi ( err );
+     let sin_45deg = fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), PREC0 as usize);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
