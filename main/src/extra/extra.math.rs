@@ -82,13 +82,12 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     let mut step: usize = 0;
     let mut sin_x: rugfloat = start_x.clone();
     //sin_x = 2 * start_x.clone ();
-    sin_x = start_x.clone().sin();
     let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
     /*sin_x *= cos_x.sqrt ();
     start_x *= 2; */
     while start_x <= *x {
-        sin_x *= 2;
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
+        sin_x *= 2;
         sin_x *= cos_x.sqrt ();
         start_x *= 2; 
     }
@@ -135,7 +134,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let err: f64 = 1.0 / 2.0.powi (60);
      let _45deg = fast_n_simple_Pi ( err ) / 4.0;
      //let sin_45deg = _45deg.sin();
-     let sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 2);
+     let sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 2000);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
