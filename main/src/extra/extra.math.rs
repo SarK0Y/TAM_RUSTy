@@ -65,6 +65,30 @@ pub fn fast_n_simple_Pi (error: f64 ) -> f64 {
         num_of_pts *= 2;
     } num_of_pts as f64 * dx
 }
+pub fn fast_n_simple_long_Pi (err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let err = _1.clone () / _2.clone().pow(err);
+    let mut dx: rugfloat = _2.clone().sqrt(); 
+    //let mut x = 0.0f64;
+    dx /= 2;
+    let mut y: rugfloat = (_1.clone() - dx.clone().pow(2) );
+    y = y.sqrt ();
+    let mut dy: rugfloat = _1.clone() - y;
+    dx = ( dx.clone().pow(2) + dy.clone().pow(2) );
+    dx = dx.sqrt ();
+    let mut num_of_pts: rugfloat = _1.clone() * 4;
+    while dx > err {
+        dx = dx / 2;
+        y = (_1.clone() - dx.clone().pow (2) );
+        y = y.sqrt ();
+        dy = _1.clone() - y;
+        dx = ( dx.clone().pow (2) + dy.clone().pow (2) );
+        dx = dx.sqrt ();
+        num_of_pts *= 2;
+    } num_of_pts * dx
+}
+
 pub fn arc_val (from: f64, to: f64) -> f64 {
     let x = from;
     let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;    
