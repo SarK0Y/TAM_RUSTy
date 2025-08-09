@@ -8,7 +8,6 @@ use crate::{
     }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
-use malachite::num::arithmetic::traits::CheckedAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use once_cell::sync::Lazy;
 use std::{default, io};

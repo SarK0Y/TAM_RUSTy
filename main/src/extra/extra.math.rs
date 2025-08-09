@@ -2,22 +2,8 @@
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
-use malachite::num::arithmetic::floor;
-use malachite::rounding_modes::RoundingMode;
 use num::Float;
 use std::f64::consts::E; 
-use malachite::num::arithmetic::traits::{Floor, Pow, PowAssign, PowerOf2};
-use malachite::num::float::NiceFloat;
-use malachite::Rational;
-use malachite::Natural;
-use malachite_float::Float as BigFloat;
-use malachite::num::conversion::string::options::ToSciOptions;
-use malachite::num::conversion::traits::{RoundingFrom, ToSci};
-use malachite::num::conversion::traits::ConvertibleFrom;
-use malachite_float::conversion::from_rational;
-use malachite_float::conversion::from_natural;
-use malachite_q::conversion::from_float_simplest;
-use malachite_q::conversion::to_numerator_and_denominator;
 const PREC: u64 = 1024;
 const PREC0: u64 = 3072;
 pub fn simple_Pi (step: f64) -> f64 {
@@ -152,7 +138,6 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&epi__);
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
-     dbg! (BigFloat::from(2.0).pow(5));
      let err: usize = 1000;
      let mut _45deg = fast_n_simple_long_Pi ( err );
      let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
@@ -343,33 +328,31 @@ pub fn __epi (terms: usize) -> rugfloat {
    dbg!(orig_epi);
    ret
 }
-fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
-    let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
-    let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
-    let mut over_term: *mut BigFloat = &mut term;
-    over_bigfloat( Some (over_term ) );
-    let mut x = BigFloat::from_float_prec(BigFloat::from(x), PREC).0;
-    let mut __x: *mut BigFloat = &mut x;
-    over_bigfloat1( Some (__x ) );
+fn exp_Taylor(x: f64, terms: usize) -> rugfloat { // todo it
+    let mut sum = rugfloat::with_val_64 (PREC0, 1);
+    let mut term = sum.clone(); 
+    let mut over_term: *mut rugfloat = &mut term;
+    over_rugfloat( Some (over_term ) );
+    let mut x =rugfloat::with_val_64 (PREC0, x);
+    let mut __x: *mut rugfloat = &mut x;
+    over_rugfloat1( Some (__x ) );
     for n in 1..=terms {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       term *= x.clone() / BigFloat::from(n); // Calculate x^n / n!
-       sum.add_prec_assign( term.clone(), PREC);
-    }
-
-    sum
+       term *= x.clone() / rugfloat::with_val_64 (PREC0, n); // Calculate x^n / n!
+       sum += term.clone();
+    } sum
 }
-fn big_exp_Taylor_(x: BigFloat, terms: usize) -> BigFloat {
-    let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
-    let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
-    let mut over_term: *mut BigFloat = &mut term;
-    over_bigfloat( Some (over_term ) );
-    for n in 1..=terms {
+fn big_exp_Taylor_(x: rugfloat, terms: usize) -> rugfloat {
+    let mut sum = rugfloat::with_val_64 (PREC0, 1);
+    let mut term = sum.clone(); 
+    let mut over_term: *mut rugfloat = &mut term;
+    over_rugfloat( Some (over_term ) );
+     for n in 1..=terms {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       term.mul_prec_round_assign(x.clone() / BigFloat::from(n), PREC, RoundingMode::Floor); // Calculate x^n / n!
-       sum.add_prec_round_assign( term.clone(), PREC, RoundingMode::Floor);
+       term *= x.clone() / rugfloat::with_val_64 (PREC0, n); // Calculate x^n / n!
+       sum += term.clone();
     }
 dbg!(&sum);
     sum
@@ -539,23 +522,6 @@ pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     num += floor * den;
     (num as i64, den as i64)
 }
-pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
-    let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
-    let mut floor = BigFloat::from_natural_prec(nat, PREC).0;
-    let mut mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
-    let mut den = BigFloat::from_float_prec(BigFloat::from(10u64), PREC).0;
-    let mut num = BigFloat::from_float_prec(BigFloat::from(1u64), PREC).0;
-    let one = BigFloat::from(1.0);
-    let ten = BigFloat::from(10.0);
-    while mantissa != num.clone() / (den.clone() - one.clone() ) {
-        num = (den.clone() - one.clone() ) * mantissa.clone();
-        nat = Natural::rounding_from(&num, RoundingMode::Floor).0;
-        num = BigFloat::from_natural_prec(nat, PREC).0;
-        den *= ten.clone(); 
-    }
-    den -= one;
-    (num, den)
-}
 pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
     let mut floor = rugfloat::with_val_64(PREC0, x.to_integer().unwrap_or(rugint::new()) );
     dbg!(&floor);
@@ -586,9 +552,9 @@ pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
 use once_cell::sync::Lazy;
 
 use crate::errMsg0;
-pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
-    static mut sum: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
-    static mut term: Lazy < *mut BigFloat > = Lazy::new (|| {&mut BigFloat::from(1.0) });
+pub fn sum_exp_Taylor (set: Option <(*mut rugfloat, *mut rugfloat) >){
+    static mut sum: Lazy < *mut rugfloat > = Lazy::new (|| {&mut rugfloat::with_val_64(PREC0, 1u64) });
+    static mut term: Lazy < *mut rugfloat > = Lazy::new (|| {&mut rugfloat::with_val_64(PREC0, 1u64) });
     unsafe {
         if set.is_some() { 
             *sum = set.unwrap().0;
@@ -599,36 +565,16 @@ pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
          //sum.as_mut().expect("extra.math 264").add_prec_assign( *term.as_mut().expect("extra.math 264"), PREC);
     }
 }
-pub fn over_bigfloat (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
-    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+pub fn over_rugfloat (pointer: Option <*mut rugfloat > ) -> Option <*mut rugfloat > {
+    static mut state: Lazy < Option <*mut rugfloat > > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
-pub fn over_bigfloat1 (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
-    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+pub fn over_rugfloat1 (pointer: Option <*mut rugfloat > ) -> Option <*mut rugfloat > {
+    static mut state: Lazy < Option <*mut rugfloat > > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
-    }
-}
-pub trait PowItFloat {
-    fn pow (&self, exp: i64) -> BigFloat;
-}
-impl PowItFloat for BigFloat {
-    fn pow (&self, exp: i64) -> BigFloat {
-        dbg!(&exp);
-        let mut norm_exp = exp as u64;
-        let mut ret = BigFloat::from (1u64);
-        let mut sq = self.clone();
-        while norm_exp > 0 {
-            dbg!(&norm_exp);
-            if norm_exp & 1 == 1 {
-                ret *= sq.clone();
-                dbg! (&ret);
-            } sq.mul_prec_assign(sq.clone(), PREC0);
-            dbg! (&sq);
-            norm_exp /= 2;
-        } ret
     }
 }
 pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {

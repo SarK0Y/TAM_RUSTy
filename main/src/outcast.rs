@@ -459,4 +459,41 @@ pub fn fast_real_e_ (exp: f64) -> BigFloat {
     dbg!(&const_e);
     const_e
 }
+pub trait PowItFloat {
+    fn pow (&self, exp: i64) -> BigFloat;
+}
+impl PowItFloat for BigFloat {
+    fn pow (&self, exp: i64) -> BigFloat {
+        dbg!(&exp);
+        let mut norm_exp = exp as u64;
+        let mut ret = BigFloat::from (1u64);
+        let mut sq = self.clone();
+        while norm_exp > 0 {
+            dbg!(&norm_exp);
+            if norm_exp & 1 == 1 {
+                ret *= sq.clone();
+                dbg! (&ret);
+            } sq.mul_prec_assign(sq.clone(), PREC0);
+            dbg! (&sq);
+            norm_exp /= 2;
+        } ret
+    }
+}
+pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
+    let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
+    let mut floor = BigFloat::from_natural_prec(nat, PREC).0;
+    let mut mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
+    let mut den = BigFloat::from_float_prec(BigFloat::from(10u64), PREC).0;
+    let mut num = BigFloat::from_float_prec(BigFloat::from(1u64), PREC).0;
+    let one = BigFloat::from(1.0);
+    let ten = BigFloat::from(10.0);
+    while mantissa != num.clone() / (den.clone() - one.clone() ) {
+        num = (den.clone() - one.clone() ) * mantissa.clone();
+        nat = Natural::rounding_from(&num, RoundingMode::Floor).0;
+        num = BigFloat::from_natural_prec(nat, PREC).0;
+        den *= ten.clone(); 
+    }
+    den -= one;
+    (num, den)
+}
     //tst

@@ -1,5 +1,3 @@
-use malachite::num::arithmetic::traits::Floor;
-
 pub fn poly <T: std::ops::Mul<Output = T> +
                 std::ops::Sub<Output = T> +
                 std::ops::Add<Output = T> +
