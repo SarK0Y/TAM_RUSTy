@@ -588,20 +588,22 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
     let mut chars = stream.chars();
     let mut txt_dbg = String::new();
     while run_from < to_stream_len {
+        maybe.clear ();
         for j in run_from..to_stream_len {
             let ch = chars.clone().nth (j).unwrap_or (' ');
             maybe.push(ch);
         // println! ("{txt_dbg}");
+        
             if maybe.chars().count() == token_len {
                 if maybe == *token {
                     entry = if j > token_len { j - token_len + 1 } else { j };
-                    run_from = j;
-                    //dbg_stufff
+                 //   run_from = j;
+                    //
                     break;
                 }
             }
             
-            if  wrong_symb (ch) ||
+            if // wrong_symb (ch) ||
               //  not_curly_blocks_status ( Some (&ch), Some (&mut block_) ) || 
                 (!maybe.is_empty() && token.as_str().substring (0, maybe.chars().count()) != maybe ) 
                                                                                                 {ret.push_str(maybe.as_str() ); maybe.clear (); }
@@ -609,28 +611,52 @@ pub fn stream_cleanup (stream: &String, token: &String, run_from: usize, stop_to
         //println! ("{line}, {maybe}");
         //leave_file_mark ("/tmp/entry1", &entry1.to_string() );
         leave_file_mark ("/tmp/may", &maybe.to_string() );
-        if maybe.is_empty() { return ret }
+        if maybe.is_empty() {return ret }
         maybe.clear();
         let mut write_char_or_not = false;
-        //run_from = entry + token_len;
+        run_from = entry + token_len;
+       // let mut dt = run_from;
         let mut txt = token.clone();
         for j in run_from..to_stream_len {
             let ch = stream.chars().nth (j).unwrap ();
-            if stop_token.as_str().substring (0, maybe.chars().count()) != maybe {maybe.clear(); }
-         //   if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
             maybe.push(ch);
+            
+            //
+            if stop_token.as_str().substring (0, maybe.chars().count()) != maybe 
+                                                            { maybe.clear (); }
+         //   if not_curly_blocks_status ( Some (&ch ), Some (&mut block_) ) {maybe.clear(); }
+            
             run_from = j;
+          //  if j - dt > 43 {return ret}
             if maybe.chars().count() == stop_token_len {
-                if maybe == *stop_token { 
+                if maybe == *stop_token {
+                run_from += 1;
                 break; }
             }
         }
     }
-  //  
-    //
-    //
-   // println! ("{}", txt);
+    ret = ret.replace ("#[cfg (feature = \"hide\")]", "");
    leave_file_mark ("/tmp/may", &ret.to_string() );
+    return ret;
+}
+
+#[inline]
+pub fn attr_to_vec (stream: &String, delim: &String ) -> Vec <String >  {
+    let fn_name = "attr_to_vec".strn();
+    let mut ret = Vec::<String>::new ();
+ //   
+    let mut maybe = String::new();
+    let delim_len = delim.chars().count();
+    let to_stream_len: usize = stream.chars().count();
+    let mut chars = stream.chars();
+    let mut chunk = String::new();
+    for j in 0..to_stream_len {
+       let ch = chars.clone().nth (j).unwrap_or (' ');
+       maybe.push(ch);
+       if  !maybe.is_empty() && delim.as_str().substring (0, maybe.chars().count()) != maybe
+                                                {chunk.push_str(maybe.as_str() ); maybe.clear (); continue; }
+       if *delim == maybe { ret.push (chunk.clone() ); maybe.clear (); chunk.clear (); }
+        }
     return ret;
 }
 pub fn sieve_n_split1 (stream: &String, token: String, run_from: usize, stop_token: String) -> (Option < rExpr >, String) {
@@ -927,7 +953,7 @@ pub fn _7block_ending (expr: &String) -> bool {
 pub fn _cleanup (stream: &String, attrs: &String) -> String {
     let attr = get_attrs_for_cleanup ( attrs );
     let ret = stream_cleanup ( stream, &attr._1st_token, 0, &attr.end_token );
-    //dbg_stufff
+    //
     return ret
 }
 //fn 

@@ -459,4 +459,25 @@ pub fn fast_real_e_ (exp: f64) -> BigFloat {
     dbg!(&const_e);
     const_e
 }
+pub trait PowItFloat {
+    fn pow (&self, exp: i64) -> BigFloat;
+}
+impl PowItFloat for BigFloat {
+    fn pow (&self, exp: i64) -> BigFloat {
+        dbg!(&exp);
+        let mut norm_exp = exp as u64;
+        let mut ret = BigFloat::from (1u64);
+        let mut sq = self.clone();
+        while norm_exp > 0 {
+            dbg!(&norm_exp);
+            if norm_exp & 1 == 1 {
+                ret *= sq.clone();
+                dbg! (&ret);
+            } sq.mul_prec_assign(sq.clone(), PREC0);
+            dbg! (&sq);
+            norm_exp /= 2;
+        } ret
+    }
+}
+
     //tst

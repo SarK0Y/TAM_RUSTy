@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.567"
+version = "13.11.579"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -21,10 +21,10 @@ opt-level = 2
 [build]
 rustflags = ["-A", "dangerous_implicit_autorefs"]
 [build-dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.161", optional = true, default-features = false }
+goto1717 = { path = "../ext/goto", version = "0.0.166", optional = true, default-features = false }
 [dependencies]
-goto1717 = { path = "../ext/goto", version = "0.0.161", optional = true, default-features = false }
-rst_lex = { path = "../ext/rst_lex", version = "0.0.104", optional = true }
+goto1717 = { path = "../ext/goto", version = "0.0.166", optional = true, default-features = false }
+rst_lex = { path = "../ext/rst_lex", version = "0.0.109", optional = true }
 cli-table = "0.4.7"
 once_cell = "1.18.0"
 threadpool = "1.8.1"
@@ -79,6 +79,7 @@ tst_macro = ["rst_lex/dev_hell_n_fun", "goto1717/tst"]
 macro = ["rst_lex/stable", "goto1717/stable"]
 macro_cleanup = ["rst_lex/cleanup", "goto1717/stable"]
 tst = []
+hide = []
 [[bin]]
 name = "sark0y_tam_rst"
 #version = 13.11.466 was just a test for ./ext/cargo.toml.set_ver.py

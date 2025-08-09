@@ -424,14 +424,16 @@ use goto1717::log_vars;
 
 #[cfg(feature ="tst_macro")]
 //#[log_vars(log_size=422,log_path=/dev/shm/log_vars)]
-#[cleanup(_1st_token=dbg!,end_token=;)]
+#[cleanup(_1st_token=dbg!("--->");,end_token=dbg!("--->");)]
 fn tst () -> String { 
     let tst = 411u32;
     let (x, y) = (47u64, 357u32);
     let more: i32 = 0;
-    let mut more: i32 = 1;
+    let mut more: i32 = 1; 
+    dbg!("--->");
     println!("tst here");
-    dbg! ("tst");
+    dbg! ("tst");  
+    dbg!("--->");
     more = -35;
     while more < 47 { more += 1;}
     for h in 0..10 {

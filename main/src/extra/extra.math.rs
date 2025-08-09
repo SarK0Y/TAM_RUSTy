@@ -65,12 +65,55 @@ pub fn fast_n_simple_Pi (error: f64 ) -> f64 {
         num_of_pts *= 2;
     } num_of_pts as f64 * dx
 }
+pub fn fast_n_simple_long_Pi (err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let err = _1.clone () / _2.clone().pow(err);
+    let mut dx: rugfloat = _2.clone().sqrt(); 
+    //let mut x = 0.0f64;
+    dx /= 2;
+    let mut y: rugfloat = (_1.clone() - dx.clone().pow(2) );
+    y = y.sqrt ();
+    let mut dy: rugfloat = _1.clone() - y;
+    dx = ( dx.clone().pow(2) + dy.clone().pow(2) );
+    dx = dx.sqrt ();
+    let mut num_of_pts: rugfloat = _1.clone() * 4;
+    while dx > err {
+        dx = dx / 2;
+        y = (_1.clone() - dx.clone().pow (2) );
+        y = y.sqrt ();
+        dy = _1.clone() - y;
+        dx = ( dx.clone().pow (2) + dy.clone().pow (2) );
+        dx = dx.sqrt ();
+        num_of_pts *= 2;
+    } num_of_pts * dx
+}
+
 pub fn arc_val (from: f64, to: f64) -> f64 {
     let x = from;
     let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;    
     let x = to;
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
+}
+pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut start_x: rugfloat = x / _2.pow (err);
+    let mut step: usize = 0;
+    let mut sin_x: rugfloat = start_x.clone();
+    //sin_x = 2 * start_x.clone ();
+    let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
+    /*sin_x *= cos_x.sqrt ();
+    start_x *= 2; */
+    while start_x < *x {
+        cos_x = ( _1.clone () - sin_x.clone().pow (2) );
+        sin_x *= 2;
+        sin_x *= cos_x.sqrt ();
+        start_x *= 2; 
+    }
+    dbg! (&start_x);
+    return sin_x
 }
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
@@ -109,7 +152,25 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&epi__);
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
-     dbg! (BigFloat::from(2.0).pow(5));
+     let err: usize = 1000;
+     let mut _45deg = fast_n_simple_long_Pi ( err );
+     let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
+     dbg! (&err_pi);
+     _45deg /= 4;
+     dbg! (&_45deg);
+     let mut rug_sin_err = _45deg.clone().sin();
+     dbg! (&rug_sin_err);
+     //let sin_45deg = _45deg.sin();
+     let mut sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 3000);
+     let _2 = rugfloat::with_val_64 (PREC0, 2);
+     let _1 = rugfloat::with_val_64 (PREC0, 1);
+     let _2_sqrt = _2.clone().sqrt();
+     dbg! (&sin_45deg);
+     rug_sin_err /= sin_45deg.clone();
+     dbg! (&rug_sin_err);
+     sin_45deg *= 2;
+     let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt;
+     dbg! (&fast_n_simple_sin_err);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
@@ -281,10 +342,10 @@ pub fn __epi (terms: usize) -> rugfloat {
    dbg!(orig_epi);
    ret
 }
-fn exp_Taylor(x: f64, terms: usize) -> BigFloat {
-    let mut sum = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
-    let mut term = BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
-    let mut over_term: *mut BigFloat = &mut term;
+fn exp_Taylor(x: f64, terms: usize) -> rugfloat { // todo it
+    let mut sum = rugfloat::with_val_64 (PREC0, 1);//BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // Start with the first term of the series
+    let mut term = sum.clone(); //BigFloat::from_float_prec(BigFloat::from(1.0), PREC).0; // This will hold each term value
+    let mut over_term: *mut rugfloat = &mut term;
     over_bigfloat( Some (over_term ) );
     let mut x = BigFloat::from_float_prec(BigFloat::from(x), PREC).0;
     let mut __x: *mut BigFloat = &mut x;
@@ -537,36 +598,16 @@ pub fn sum_exp_Taylor (set: Option <(*mut BigFloat, *mut BigFloat) >){
          //sum.as_mut().expect("extra.math 264").add_prec_assign( *term.as_mut().expect("extra.math 264"), PREC);
     }
 }
-pub fn over_bigfloat (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
-    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+pub fn over_rugfloat (pointer: Option <*mut rugfloat > ) -> Option <*mut rugfloat > {
+    static mut state: Lazy < Option <*mut rugfloat > > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
-pub fn over_bigfloat1 (pointer: Option <*mut BigFloat > ) -> Option <*mut BigFloat> {
-    static mut state: Lazy < Option <*mut BigFloat > > = Lazy::new (|| {None});
+pub fn over_rugfloat1 (pointer: Option <*mut rugfloat > ) -> Option <*mut rugfloat > {
+    static mut state: Lazy < Option <*mut rugfloat > > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
-    }
-}
-pub trait PowItFloat {
-    fn pow (&self, exp: i64) -> BigFloat;
-}
-impl PowItFloat for BigFloat {
-    fn pow (&self, exp: i64) -> BigFloat {
-        dbg!(&exp);
-        let mut norm_exp = exp as u64;
-        let mut ret = BigFloat::from (1u64);
-        let mut sq = self.clone();
-        while norm_exp > 0 {
-            dbg!(&norm_exp);
-            if norm_exp & 1 == 1 {
-                ret *= sq.clone();
-                dbg! (&ret);
-            } sq.mul_prec_assign(sq.clone(), PREC0);
-            dbg! (&sq);
-            norm_exp /= 2;
-        } ret
     }
 }
 pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
