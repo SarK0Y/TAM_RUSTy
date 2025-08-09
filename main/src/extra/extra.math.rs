@@ -99,22 +99,20 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
-    let err = _1.clone () / _2.clone().pow(err);
-    let count_steps = (x / err).log2().to_integer().expect("fast_n_simple_sin failed to count steps for operation. Sorry, Dear User.").to_usize()
-                                                                .expect("fast_n_simple_sin was failing to count steps for operation. Sorry, Dear User.")+ 1;//ln();
-    let mut start_x: rugfloat = x / _2.pow (count_steps);
+    let mut start_x: rugfloat = x / _2.pow (err);
     let mut step: usize = 0;
     let mut sin_x: rugfloat = start_x.clone();
     //sin_x = 2 * start_x.clone ();
     let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
     /*sin_x *= cos_x.sqrt ();
     start_x *= 2; */
-    while start_x <= *x {
+    while start_x < *x {
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
         sin_x *= 2;
         sin_x *= cos_x.sqrt ();
         start_x *= 2; 
     }
+    dbg! (&start_x);
     return sin_x
 }
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
@@ -155,15 +153,24 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      fast_real_e(1.0);
      dbg! (big_exp_Taylor( rugfloat::with_val_64( PREC0, 1.0 ), 100));
      dbg! (BigFloat::from(2.0).pow(5));
-     let err: f64 = 1.0 / 2.0.powi (60);
-     let _45deg = fast_n_simple_Pi ( err ) / 4.0;
+     let err: usize = 1000;
+     let mut _45deg = fast_n_simple_long_Pi ( err );
+     let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
+     dbg! (&err_pi);
+     _45deg /= 4;
+     dbg! (&_45deg);
+     let mut rug_sin_err = _45deg.clone().sin();
+     dbg! (&rug_sin_err);
      //let sin_45deg = _45deg.sin();
-     let sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 2000);
+     let mut sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 3000);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
-     let sin_45deg = _1.clone() / sin_45deg;
-     let fast_n_simple_sin_err = sin_45deg - _2_sqrt;
+     dbg! (&sin_45deg);
+     rug_sin_err /= sin_45deg.clone();
+     dbg! (&rug_sin_err);
+     sin_45deg *= 2;
+     let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt;
      dbg! (&fast_n_simple_sin_err);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
