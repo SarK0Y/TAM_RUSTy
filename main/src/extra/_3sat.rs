@@ -1,3 +1,10 @@
+use rustsat::instances::{SatInstance, Cnf};
+use rustsat::lit;
+use std::fs;
+pub fn load_cnf (path: &String) -> Result<(), Box<dyn std::error::Error>> {
+    let dimacs_str = fs::read_to_string( path )?;
+    todo! ()
+}
 /*
 use rustsat::instances::SatInstance;
 use std::fs;
