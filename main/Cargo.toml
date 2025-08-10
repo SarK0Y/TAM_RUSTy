@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.580"
+version = "13.11.581"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -30,6 +30,7 @@ once_cell = "1.18.0"
 threadpool = "1.8.1"
 chrono = "=0.4.31"
 substring = "1.4.5"
+rustsat = "0.7.0"
 colored = "2.0.4"
 num-traits = "0.2.17"
 #c-gull = "0.15.31"

@@ -35,6 +35,8 @@ mod kcode01;
 mod snd;
 #[path = "extra/extra.math.rs"]
 mod extra_math;
+#[path = "extra/_3sat.rs"]
+mod _3sat;
 #[path = "extra/npf_tool.rs"]
 mod npf_tool;
 #[path = "extra/goto.rs"]
