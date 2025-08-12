@@ -1,9 +1,11 @@
 use rustsat::instances::{SatInstance, Cnf};
 use rustsat::lit;
+use rustsat::instances::ObjectVarManager;
 use std::fs;
 use std::io::BufReader;
 pub fn load_cnf (path: &String) -> Result<(), Box<dyn std::error::Error>> {
-    let instance: SatInstance = SatInstance::from_dimacs_path(&path)?;
+    let sys: Cnf = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?.into_cnf().0;
+    sys[0][0].clone();
     todo! ()
 }
 /*
