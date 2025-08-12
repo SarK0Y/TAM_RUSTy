@@ -1,11 +1,43 @@
 use rustsat::instances::{SatInstance, Cnf};
 use rustsat::lit;
 use std::fs;
+use std::io::BufReader;
 pub fn load_cnf (path: &String) -> Result<(), Box<dyn std::error::Error>> {
-    let dimacs_str = fs::read_to_string( path )?;
+    let instance: SatInstance = SatInstance::from_dimacs_path(&path)?;
     todo! ()
 }
 /*
+fn load_cnfs(dir: &str) -> Vec<Cnf> {
+    let mut cnfs = Vec::new();
+    println!("Loading CNFs from {}", dir);
+    let dir = Path::new(dir);
+    if !dir.exists() || !dir.is_dir() {
+        eprintln!("Directory {} does not exist.", dir.display());
+        return cnfs;
+    }
+    for entry in dir.read_dir().expect("Failed to read directory") {
+        let entry = entry.unwrap();
+        if entry.file_type().unwrap().is_file() {
+            let file_path = entry.path();
+            if file_path.extension().and_then(|s| s.to_str()) == Some("cnf") {
+                match dimacs::parse_file(file_path.to_str().expect("Invalid UTF-8")) {
+                    Ok(cnf) => cnfs.push(cnf),
+                    Err(_) => eprintln!("Failed to parse file"),
+                }
+            }
+        }
+    }
+    println!("Loaded {} CNF files.", cnfs.len());
+    if cnfs.is_empty() {
+        eprintln!(
+            "Warning: No CNF files were loaded. Benchmarks might not run correctly. Check the \
+            path pattern: {:?}",
+            dir,
+        );
+    }
+    cnfs
+}
+https://github.com/JacobJEdwards/rust_sat_solver/blob/master/benches/bench.rs
 use rustsat::instances::SatInstance;
 use std::fs;
 
