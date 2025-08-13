@@ -2,11 +2,21 @@ use rustsat::instances::{SatInstance, Cnf};
 use rustsat::lit;
 use rustsat::instances::ObjectVarManager;
 use std::fs;
+use std::path::Path;
 use std::io::BufReader;
-pub fn load_cnf (path: &String) -> Result<(), Box<dyn std::error::Error>> {
-    let sys: Cnf = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?.into_cnf().0;
-    sys[0][0].clone();
-    todo! ()
+use Mademoiselle_Entropia::custom_traits::STRN;
+pub fn load_cnf (path: &String) -> Result<Cnf, Box<dyn std::error::Error>> {
+    let cnf: Cnf = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?.into_cnf().0;
+    //cnf[0][0].clone();
+    return Ok (cnf )
+}
+pub fn try_to_solve_cnf (path: &String) {
+    let mut path = path.replace ("try cnf", "").trim_end().trim_start ().strn ();
+    if let Ok ( x ) = path.parse:: <i64> () { path = crate::get_item_from_front_list( x, true); }
+    let cnf = match load_cnf ( &path ) {
+        Ok (cnf) => { cnf },
+        Err ( e ) => { crate::errMsg0 (&format! ("Sorry, Dear User, failed to load cnf file due to error {:?}", e)); return}
+    };
 }
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {

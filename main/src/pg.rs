@@ -682,6 +682,11 @@ pub(crate) fn exec_cmd(cmd: String) {
         crate::nui::universum_vox( &cmd );
         return;
     }
+    let cmd0 = "try cnf";
+    if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
+        crate::_3sat::try_to_solve_cnf( &cmd );
+        return;
+    }
     let cmd0 = "sieve";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
         sieve_list(crate::cpy_str(&cmd));
