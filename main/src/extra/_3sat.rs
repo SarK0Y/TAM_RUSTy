@@ -1,21 +1,27 @@
-use rustsat::instances::{SatInstance, Cnf};
-use rustsat::lit;
-use rustsat::types::Lit;
+use rustsat::instances::{SatInstance, Cnf, ManageVars};
+use rustsat::{lit, var};
+use rustsat::types::{Lit, Var};
 use rustsat::instances::ObjectVarManager;
+use rustsat::encodings::am1::Encode;
 use std::fs;
 use std::path::Path;
 use std::io::BufReader;
+use crate::errMsg0;
+type _CNF = Vec <Vec <Lit> >;
 use Mademoiselle_Entropia::custom_traits::STRN;
-pub fn load_cnf (path: &String) -> Result<Cnf, Box<dyn std::error::Error>> {
-    let cnf: Cnf = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?.into_cnf().0;
+pub fn load_cnf (path: &String) -> Result< (Cnf, u32), Box<dyn std::error::Error>> {
+    let inst = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?;
+    let n_vars: u32 = inst.n_vars();
+    let cnf: Cnf = inst.into_cnf().0;
     //cnf[0][0].clone();
-    return Ok (cnf )
+    return Ok ( (cnf, n_vars ) )
 }
 pub fn try_to_solve_cnf (path: &String) {
     let mut path = path.replace ("try cnf", "").trim_end().trim_start ().strn ();
+    path = "/home/mnt/usbhdd/gits/rustsat/data/AProVE11-12.cnf".strn();
     if let Ok ( x ) = path.parse:: <i64> () { path = crate::get_item_from_front_list( x, true); }
-    let mut cnf = match load_cnf ( &path ) {
-        Ok (cnf) => { cnf },
+    let (mut cnf, n_vars ) = match load_cnf ( &path ) {
+        Ok ((cnf, n_vars ) ) => { (cnf, n_vars ) },
         Err ( e ) => { crate::errMsg0 (&format! ("Sorry, Dear User, failed to load cnf file due to error {:?}", e)); return}
     };
   //  if cnf[0][0] == !lit! (0) {};
@@ -27,7 +33,11 @@ pub fn try_to_solve_cnf (path: &String) {
             //_cnf [i][j] = !cnf [i][j];
         }
     }
-    dbg! (&cnf);
+    dbg! (&n_vars);
+    errMsg0 ("");
+}
+pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) {
+    
 }
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
