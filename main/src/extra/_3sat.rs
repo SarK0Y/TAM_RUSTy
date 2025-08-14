@@ -1,5 +1,6 @@
 use rustsat::instances::{SatInstance, Cnf};
 use rustsat::lit;
+use rustsat::types::Lit;
 use rustsat::instances::ObjectVarManager;
 use std::fs;
 use std::path::Path;
@@ -13,10 +14,20 @@ pub fn load_cnf (path: &String) -> Result<Cnf, Box<dyn std::error::Error>> {
 pub fn try_to_solve_cnf (path: &String) {
     let mut path = path.replace ("try cnf", "").trim_end().trim_start ().strn ();
     if let Ok ( x ) = path.parse:: <i64> () { path = crate::get_item_from_front_list( x, true); }
-    let cnf = match load_cnf ( &path ) {
+    let mut cnf = match load_cnf ( &path ) {
         Ok (cnf) => { cnf },
         Err ( e ) => { crate::errMsg0 (&format! ("Sorry, Dear User, failed to load cnf file due to error {:?}", e)); return}
     };
+  //  if cnf[0][0] == !lit! (0) {};
+    let mut _cnf: Vec <Vec <Lit> > = Vec::new();
+    for i in 0..cnf.len() {
+        _cnf.push (Vec::new() );
+        for j in 0..cnf[i].len() {
+            _cnf[i].push (cnf [i] [j]);
+            //_cnf [i][j] = !cnf [i][j];
+        }
+    }
+    dbg! (&cnf);
 }
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
