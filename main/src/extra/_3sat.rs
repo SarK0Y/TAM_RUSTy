@@ -44,7 +44,7 @@ pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) {
         for i in 0.._cnf.len () {
             for k in 0.._cnf[i].len() {
                 let val = _cnf [i] [k].clone();
-                if val.lidx() != j { break; }
+                if val.lidx() != j { continue; }
                 if val.is_neg () {var_share [j].0 += 1;}
                 else {var_share [j].1 += 1;}
             }
