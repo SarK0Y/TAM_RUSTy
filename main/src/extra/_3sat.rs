@@ -12,6 +12,7 @@ use Mademoiselle_Entropia::custom_traits::STRN;
 pub fn load_cnf (path: &String) -> Result< (Cnf, u32), Box<dyn std::error::Error>> {
     let inst = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?;
     let n_vars: u32 = inst.n_vars();
+    //dbg! (inst.n_lits() );
     let cnf: Cnf = inst.into_cnf().0;
     //cnf[0][0].clone();
     return Ok ( (cnf, n_vars ) )
@@ -37,7 +38,18 @@ pub fn try_to_solve_cnf (path: &String) {
     errMsg0 ("");
 }
 pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) {
-    
+    let mut var_share: Vec < (u32 /*neg*/, u32 /*pos*/)> = Vec::new();
+    for j in 0..n_vars as usize {
+        var_share.push ( (0, 0) );
+        for i in 0.._cnf.len () {
+            for k in 0.._cnf[i].len() {
+                let val = _cnf [i] [k].clone();
+                if val != lit! (j as u32 ) { break; }
+                if val.is_neg () {var_share [j].0 += 1;}
+                else {var_share [j].1 += 1;}
+            }
+        }
+    }
 }
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
