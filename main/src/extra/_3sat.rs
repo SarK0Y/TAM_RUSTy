@@ -37,7 +37,7 @@ pub fn try_to_solve_cnf (path: &String) {
     dbg! (&n_vars);
     errMsg0 ("");
 }
-pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32, bool)>{
+pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>{
     let mut var_share: Vec < (u32 /*neg*/, u32 /*pos*/)> = Vec::new();
     for j in 0..n_vars as usize {
         var_share.push ( (0, 0) );
@@ -50,14 +50,15 @@ pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32, bool)>{
             }
         }
     }
-    let mut naive_rank: Vec <(u32, bool)> = Vec::new();
+    let mut naive_rank: Vec <(u32, usize, bool)> = Vec::new();
     for j in 0..var_share.len() {
-        naive_rank.push ((0, false));
+        naive_rank.push ((0, j, false));
         if var_share[j].0 < var_share[j].1 {
             naive_rank[j].0 = var_share[j].1;
-            naive_rank[j].1 = true;
+            naive_rank[j].2 = true;
         } else { naive_rank[j].0 = var_share[j].0; }
     }
+    naive_rank.sort_by (|a, b| {a.0.cmp (&b.0)});
     return naive_rank
 }
 /*
