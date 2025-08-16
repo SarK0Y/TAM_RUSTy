@@ -8,6 +8,7 @@ use std::path::Path;
 use std::io::BufReader;
 use crate::errMsg0;
 type _CNF = Vec <Vec <Lit> >;
+type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>;
 use Mademoiselle_Entropia::custom_traits::STRN;
 pub fn load_cnf (path: &String) -> Result< (Cnf, u32), Box<dyn std::error::Error>> {
     let inst = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?;
@@ -61,6 +62,16 @@ pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of li
     }
     naive_rank.sort_by (|a, b| {a.0.cmp (&b.0)});
     return naive_rank
+}
+pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) {
+   let mut _1st_vals: Vec <bool> = Vec::with_capacity (nr.len() );
+   for i in 0..nr.len() { _1st_vals.push (false); }
+   for j in 0..nr.len() {
+        let spin = nr[j].2;
+        let var_id = nr[j].1;
+        //let rank = nr[j].0;
+        if spin { _1st_vals[var_id] = true; }
+   }
 }
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
