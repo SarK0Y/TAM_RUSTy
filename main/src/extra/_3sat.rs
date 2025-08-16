@@ -73,6 +73,22 @@ pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) {
         if spin { _1st_vals[var_id] = true; }
    }
 }
+pub fn check_solution (_cnf: &_CNF, var_vals: Vec <bool> ) -> bool {
+    let mut ret = true;
+     for i in 0.._cnf.len () {
+        for k in 0.._cnf[i].len() {
+            let _lit = &_cnf [i] [k]; //.clone();
+            let idx = _lit.var().idx ();
+            ret &= lit_val (_lit, var_vals [idx]);
+        } if !ret { return false }
+    } return true
+}
+pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
+    if _lit.is_neg () && !var_val { return true } 
+    if _lit.is_pos () && var_val { return true } 
+    return false
+}
+//fn
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
     let mut cnfs = Vec::new();
