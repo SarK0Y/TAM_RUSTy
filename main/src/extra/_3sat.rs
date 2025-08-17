@@ -9,6 +9,7 @@ use std::io::BufReader;
 use crate::errMsg0;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>;
+type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
 use Mademoiselle_Entropia::custom_traits::STRN;
 pub fn load_cnf (path: &String) -> Result< (Cnf, u32), Box<dyn std::error::Error>> {
     let inst = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?;
@@ -84,9 +85,13 @@ pub fn check_solution (_cnf: &_CNF, var_vals: Vec <bool> ) -> bool {
     } return true
 }
 pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
-    if _lit.is_neg () && !var_val { return true } 
+    /*if _lit.is_neg () && !var_val { return true } 
     if _lit.is_pos () && var_val { return true } 
-    return false
+    return false */
+    return !(_lit.is_pos () ^ var_val )
+}
+pub fn search_w_details (_cnf: &_CNF, var_vals: Vec <bool>) {
+    let mut map_vars: _Map_vars = Vec::new();
 }
 //fn
 /*
