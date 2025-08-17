@@ -90,8 +90,17 @@ pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
     return false */
     return !(_lit.is_pos () ^ var_val )
 }
-pub fn search_w_details (_cnf: &_CNF, var_vals: Vec <bool>) {
-    let mut map_vars: _Map_vars = Vec::new();
+pub fn search_w_details (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) {
+    let mut map_vars: _Map_vars = Vec::with_capacity (var_vals.len() );
+    for _ in 0..var_vals.len() { map_vars.push ( (false, Vec::new(), Vec::new() ) ); }
+    for i in 0.._cnf.len () {
+        for k in 0.._cnf[i].len() {
+            let _lit = &_cnf [i] [k]; //.clone();
+            let idx = _lit.var().idx ();
+            if _lit.is_neg () {map_vars[idx].1.push ( i ); }
+            else {map_vars[idx].2.push ( i ); }
+        } 
+    }
 }
 //fn
 /*
