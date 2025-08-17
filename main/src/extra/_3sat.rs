@@ -74,7 +74,7 @@ pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) {
         if spin { _1st_vals[var_id] = true; }
    }
 }
-pub fn check_solution (_cnf: &_CNF, var_vals: Vec <bool> ) -> bool {
+pub fn check_solution_of_system (_cnf: &_CNF, var_vals: Vec <bool> ) -> bool {
     let mut ret = true;
      for i in 0.._cnf.len () {
         for k in 0.._cnf[i].len() {
@@ -101,6 +101,14 @@ pub fn search_w_details (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) 
             else {map_vars[idx].2.push ( i ); }
         } 
     }
+}
+pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
+    let mut ret = true;
+    for k in 0..clause.len() {
+        let _lit = &clause [k]; //.clone();
+        let idx = _lit.var().idx ();
+        ret &= lit_val (_lit, var_vals [idx]);
+    } return ret
 }
 //fn
 /*
