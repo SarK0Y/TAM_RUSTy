@@ -7,10 +7,22 @@ use std::fs;
 use std::path::Path;
 use std::io::BufReader;
 use crate::errMsg0;
+use Mademoiselle_Entropia::custom_traits::STRN;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
-use Mademoiselle_Entropia::custom_traits::STRN;
+pub struct stats_for_clauses {
+    pub solved_clauses: Vec <usize>,
+    pub rogue_clauses: Vec <usize>
+}
+impl stats_for_clauses {
+    pub fn new () -> Self {
+        return Self {
+            solved_clauses: Vec::new(),
+            rogue_clauses: Vec::new()
+        }
+    }
+}
 pub fn load_cnf (path: &String) -> Result< (Cnf, u32), Box<dyn std::error::Error>> {
     let inst = SatInstance::<ObjectVarManager>::from_dimacs_path(&path)?;
     let n_vars: u32 = inst.n_vars();
@@ -109,6 +121,9 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
         let idx = _lit.var().idx ();
         ret &= lit_val (_lit, var_vals [idx]);
     } return ret
+}
+pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) {
+    let mut solved_n_not = stats_for_clauses::new();
 }
 //fn
 /*
