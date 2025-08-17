@@ -122,12 +122,12 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
         ret &= lit_val (_lit, var_vals [idx]);
     } return ret
 }
-pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) {
+pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
     let mut solved_n_not = stats_for_clauses::new();
     for i in 0.._cnf.len () {
         if eval_clause (&_cnf [i], &var_vals) { solved_n_not.solved_clauses.push (i); continue }
         solved_n_not.rogue_clauses.push (i);
-    }
+    } return solved_n_not
 }
 //fn
 /*
