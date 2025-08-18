@@ -140,6 +140,14 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause
     } 
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
+pub fn fast_eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
+    let mut ret = true;
+    for k in 0..clause.len() {
+        let _lit = &clause [k]; //.clone();
+        let idx = _lit.var().idx ();
+        ret &= lit_val (_lit, var_vals [idx]);
+    } return ret
+}
 pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
     let mut solved_n_not = stats_for_clauses::new();
     for i in 0.._cnf.len () {
