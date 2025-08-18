@@ -9,7 +9,7 @@ use std::io::BufReader;
 use crate::errMsg0;
 use Mademoiselle_Entropia::custom_traits::STRN;
 type _CNF = Vec <Vec <Lit> >;
-type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>;
+type _Naive_rank = Vec < (u32/*number of vars w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
 pub struct stats_for_vars {
     pub var_id: usize,
@@ -78,7 +78,7 @@ pub fn try_to_solve_cnf (path: &String) {
     dbg! (&n_vars);
     errMsg0 ("");
 }
-pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>{
+pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of vars w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>{
     let mut var_share: Vec < (u32 /*neg*/, u32 /*pos*/)> = Vec::new();
     for j in 0..n_vars as usize {
         var_share.push ( (0, 0) );
