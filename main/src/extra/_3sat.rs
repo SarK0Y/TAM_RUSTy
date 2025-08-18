@@ -11,8 +11,22 @@ use Mademoiselle_Entropia::custom_traits::STRN;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*lit indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
+pub struct clause_state {
+    pub clause_id: usize,
+    pub clause_keys: Vec <usize>,
+    pub offset_in_clause: Vec <u16>
+}
+impl clause_state {
+    pub fn new () -> Self {
+        return Self {
+            clause_id: 0,
+            clause_keys: Vec::new(),
+            offset_in_clause: Vec::new()
+        }
+    }
+}
 pub struct stats_for_clauses {
-    pub solved_clauses: Vec <usize>,
+    pub solved_clauses: Vec <clause_state>,
     pub rogue_clauses: Vec <usize>
 }
 impl stats_for_clauses {
@@ -114,18 +128,25 @@ pub fn search_w_details (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) 
         } 
     }
 }
-pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
-    let mut ret = true;
+pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause_state> {
+    let mut ret = clause_state::new();
     for k in 0..clause.len() {
-        let _lit = &clause [k]; //.clone();
+        let _lit = &clause [k]; 
         let idx = _lit.var().idx ();
-        ret &= lit_val (_lit, var_vals [idx]);
-    } return ret
+        if lit_val (_lit, var_vals [idx]) {
+            ret.clause_keys.push (idx);
+            ret.offset_in_clause.push (k as u16);
+        }
+    } 
+    if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
 pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
     let mut solved_n_not = stats_for_clauses::new();
     for i in 0.._cnf.len () {
-        if eval_clause (&_cnf [i], &var_vals) { solved_n_not.solved_clauses.push (i); continue }
+        if let Some (mut x) = eval_clause (&_cnf [i], &var_vals) { 
+            x.clause_id = i;
+            solved_n_not.solved_clauses.push (x); continue 
+        }
         solved_n_not.rogue_clauses.push (i);
     } return solved_n_not
 }
