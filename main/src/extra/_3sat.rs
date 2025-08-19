@@ -11,12 +11,16 @@ use Mademoiselle_Entropia::custom_traits::STRN;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
-pub struct stats_for_vars {
+pub struct stats_for_vars_n_clauses {
+    pub vars: Vec <stats_for_var>,
+    pub clauses: stats_for_clauses,
+}
+pub struct stats_for_var {
    // pub var_id: usize,
     pub solved_clauses: Vec <usize>,
     pub rogue_clauses:  Vec <usize>
 }
-impl stats_for_vars {
+impl stats_for_var {
     pub fn new () -> Self {
         return Self {
      //       var_id: 0,
@@ -154,7 +158,7 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause
     } 
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
-pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut Vec <stats_for_vars >, var_vals: &Vec <bool>) -> Option <clause_state> {
+pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut Vec <stats_for_var >, var_vals: &Vec <bool>) -> Option <clause_state> {
     let mut ret = clause_state::new();
     for k in 0..clause.len() {
         let _lit = &clause [k]; 
@@ -185,17 +189,20 @@ pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_ran
         solved_n_not.rogue_clauses.push (i);
     } return solved_n_not
 }
-pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
+pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_vars_n_clauses {
     let mut solved_n_not = stats_for_clauses::new();
-    let mut vars: Vec <stats_for_vars> = Vec::new();
-    for _ in 0..var_vals.len() {vars.push (stats_for_vars::new () );}
+    let mut vars: Vec <stats_for_var> = Vec::new();
+    for _ in 0..var_vals.len() {vars.push (stats_for_var::new () );}
     for i in 0.._cnf.len () {
         if let Some (mut x) = extra_eval_clause (&_cnf [i], i, &mut vars, &var_vals) { 
             x.clause_id = i;
             solved_n_not.solved_clauses.push (x); continue 
         }
         solved_n_not.rogue_clauses.push (i);
-    } return solved_n_not
+    } return stats_for_vars_n_clauses {
+        vars: vars,
+        clauses: solved_n_not,
+    }
 }
 //fn
 /*
