@@ -9,17 +9,19 @@ use std::io::BufReader;
 use crate::errMsg0;
 use Mademoiselle_Entropia::custom_traits::STRN;
 type _CNF = Vec <Vec <Lit> >;
-type _Naive_rank = Vec < (u32/*number of vars w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
+type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
 pub struct stats_for_vars {
-    pub var_id: usize,
-    pub vars_clauses: Vec <stats_for_clauses>,
+   // pub var_id: usize,
+    pub solved_clauses: Vec <usize>,
+    pub rogue_clauses:  Vec <usize>
 }
 impl stats_for_vars {
     pub fn new () -> Self {
         return Self {
-            var_id: 0,
-            vars_clauses: Vec::new(),
+     //       var_id: 0,
+            solved_clauses: Vec::new(),
+            rogue_clauses: Vec::new(),
         }
     }
 }
@@ -78,7 +80,7 @@ pub fn try_to_solve_cnf (path: &String) {
     dbg! (&n_vars);
     errMsg0 ("");
 }
-pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of vars w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>{
+pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>{
     let mut var_share: Vec < (u32 /*neg*/, u32 /*pos*/)> = Vec::new();
     for j in 0..n_vars as usize {
         var_share.push ( (0, 0) );
@@ -152,6 +154,19 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause
     } 
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
+pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut Vec <stats_for_vars >, var_vals: &Vec <bool>) -> Option <clause_state> {
+    let mut ret = clause_state::new();
+    for k in 0..clause.len() {
+        let _lit = &clause [k]; 
+        let idx = _lit.var().idx ();
+        if lit_val (_lit, var_vals [idx]) {
+            ret.clause_keys.push (idx);
+            ret.offset_in_clause.push (k as u16);
+            vars [idx].solved_clauses.push (clause_id);
+        } vars [idx].rogue_clauses.push (clause_id);
+    } 
+    if ret.clause_keys.len () > 0 { return Some (ret) } return None
+}
 pub fn fast_eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
     let mut ret = true;
     for k in 0..clause.len() {
@@ -164,6 +179,18 @@ pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_ran
     let mut solved_n_not = stats_for_clauses::new();
     for i in 0.._cnf.len () {
         if let Some (mut x) = eval_clause (&_cnf [i], &var_vals) { 
+            x.clause_id = i;
+            solved_n_not.solved_clauses.push (x); continue 
+        }
+        solved_n_not.rogue_clauses.push (i);
+    } return solved_n_not
+}
+pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
+    let mut solved_n_not = stats_for_clauses::new();
+    let mut vars: Vec <stats_for_vars> = Vec::new();
+    for _ in 0..var_vals.len() {vars.push (stats_for_vars::new () );}
+    for i in 0.._cnf.len () {
+        if let Some (mut x) = extra_eval_clause (&_cnf [i], i, &mut vars, &var_vals) { 
             x.clause_id = i;
             solved_n_not.solved_clauses.push (x); continue 
         }
