@@ -209,7 +209,11 @@ pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Na
     }
 }
 pub fn set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
-    if var_ids.len () == 1 { vars [var_ids [0] ].vars_state = var_status::prime; }
+    match var_ids.len () {
+        0 => { return; },
+        1 => { vars [var_ids [0] ].vars_state = var_status::prime; return },
+        _ => {}
+    }
     for j in var_ids {
         vars [*j].vars_state = var_status::neutral (var_ids.len () as u16 );
     }
