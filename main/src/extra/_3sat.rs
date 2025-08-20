@@ -220,6 +220,25 @@ pub fn set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
         vars [*j].vars_state = var_status::neutral (var_ids.len () as u16 );
     }
 }
+pub fn _set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
+    match var_ids.len () {
+        0 => { return; },
+        1 => { vars [var_ids [0] ].vars_state = var_status::prime; return },
+        _ => {}
+    }
+    for j in var_ids {
+        match vars [*j].vars_state {
+            var_status::prime => { continue },
+            var_status::neutral (x) => {
+                let len = var_ids.len () as u16;
+                if len < x {
+                    vars [*j].vars_state = var_status::neutral ( len )
+                }
+            }
+        }
+    }
+}
+
 //fn
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
