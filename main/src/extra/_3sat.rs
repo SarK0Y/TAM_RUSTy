@@ -22,6 +22,7 @@ pub struct stats_for_vars_n_clauses {
 }
 pub struct stats_for_var {
    // pub var_id: usize,
+    pub spin: bool,
     pub solved_clauses: Vec <usize>,
     pub rogue_clauses:  Vec <usize>,
     pub vars_state: var_status
@@ -30,6 +31,7 @@ impl stats_for_var {
     pub fn new () -> Self {
         return Self {
      //       var_id: 0,
+            spin: true,
             solved_clauses: Vec::new(),
             rogue_clauses: Vec::new(),
             vars_state: var_status::neutral (0)
@@ -168,6 +170,7 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Stat
             vars [idx].solved_clauses.push (clause_id);
             ids.push (idx);
         } vars [idx].rogue_clauses.push (clause_id);
+        vars [idx].spin = _lit.is_pos();
     } 
     set_vars_status (vars, &ids);
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
