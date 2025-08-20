@@ -8,9 +8,14 @@ use std::path::Path;
 use std::io::BufReader;
 use crate::errMsg0;
 use Mademoiselle_Entropia::custom_traits::STRN;
+type _Status_for_vars = Vec <stats_for_var>;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
+pub enum var_status {
+    prime,
+    neutral (u16)
+}
 pub struct stats_for_vars_n_clauses {
     pub vars: Vec <stats_for_var>,
     pub clauses: stats_for_clauses,
@@ -18,7 +23,8 @@ pub struct stats_for_vars_n_clauses {
 pub struct stats_for_var {
    // pub var_id: usize,
     pub solved_clauses: Vec <usize>,
-    pub rogue_clauses:  Vec <usize>
+    pub rogue_clauses:  Vec <usize>,
+    pub vars_state: var_status
 }
 impl stats_for_var {
     pub fn new () -> Self {
@@ -26,6 +32,7 @@ impl stats_for_var {
      //       var_id: 0,
             solved_clauses: Vec::new(),
             rogue_clauses: Vec::new(),
+            vars_state: var_status::neutral (0)
         }
     }
 }
@@ -158,8 +165,9 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause
     } 
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
-pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut Vec <stats_for_var >, var_vals: &Vec <bool>) -> Option <clause_state> {
+pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Status_for_vars, var_vals: &Vec <bool>) -> Option <clause_state> {
     let mut ret = clause_state::new();
+    let mut ids = Vec:: <usize> ::new();
     for k in 0..clause.len() {
         let _lit = &clause [k]; 
         let idx = _lit.var().idx ();
@@ -167,8 +175,10 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut Vec <
             ret.clause_keys.push (idx);
             ret.offset_in_clause.push (k as u16);
             vars [idx].solved_clauses.push (clause_id);
+            ids.push (idx);
         } vars [idx].rogue_clauses.push (clause_id);
     } 
+    set_vars_status (vars, &ids);
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
 pub fn fast_eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
@@ -202,6 +212,12 @@ pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Na
     } return stats_for_vars_n_clauses {
         vars: vars,
         clauses: solved_n_not,
+    }
+}
+pub fn set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
+    if var_ids.len () == 1 { vars [var_ids [0] ].vars_state = var_status::prime; }
+    for j in var_ids {
+        vars [*j].vars_state = var_status::neutral (var_ids.len () as u16 );
     }
 }
 //fn
