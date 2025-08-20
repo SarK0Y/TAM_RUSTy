@@ -12,6 +12,7 @@ type _Status_for_vars = Vec <stats_for_var>;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
+#[derive(PartialEq, Debug)]
 pub enum var_status {
     prime,
     neutral (u16)
@@ -215,6 +216,7 @@ pub fn set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
         _ => {}
     }
     for j in var_ids {
+        if vars [*j].vars_state == var_status::prime { continue }
         vars [*j].vars_state = var_status::neutral (var_ids.len () as u16 );
     }
 }
