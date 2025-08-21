@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.614"
+version = "13.11.615"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]

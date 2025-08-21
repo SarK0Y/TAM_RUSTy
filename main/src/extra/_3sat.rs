@@ -114,8 +114,8 @@ pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of li
     for j in 0..var_share.len() {
         naive_rank.push ((0, j, false));
         if var_share[j].0 < var_share[j].1 {
-            naive_rank[j].0 = var_share[j].1;
-            naive_rank[j].2 = true;
+            naive_rank[j].0 /*rank*/ = var_share[j].1;
+            naive_rank[j].2 /*spin*/ = true;
         } else { naive_rank[j].0 = var_share[j].0; }
     }
     naive_rank.sort_by (|a, b| {a.0.cmp (&b.0)});
@@ -148,6 +148,7 @@ pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
     return !(_lit.is_pos () ^ var_val )
 }
 pub fn search_w_details (_cnf: &mut _CNF, var_vals: &mut Vec <bool>, nr: &mut _Naive_rank ) {
+    let mut details: stats_for_vars_n_clauses = solved_n_not_clauses_w_vars (&_cnf, &var_vals, &nr);
     
 }
 pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause_state> {
