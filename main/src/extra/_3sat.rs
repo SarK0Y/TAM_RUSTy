@@ -90,7 +90,10 @@ pub fn try_to_solve_cnf (path: &String) {
             //_cnf [i][j] = !cnf [i][j];
         }
     }
-    _1st_look_rank (&mut _cnf, n_vars);
+    let mut nr: _Naive_rank = _1st_look_rank (&mut _cnf, n_vars);
+    let mut var_vals: Vec <bool> = simplest_attempt (&mut _cnf, &mut nr);
+    if system_is_solved (&_cnf, &var_vals) { todo!() }
+    search_w_details (&mut _cnf, &mut var_vals, &mut nr);
     dbg! (&n_vars);
     errMsg0 ("");
 }
@@ -118,7 +121,7 @@ pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of li
     naive_rank.sort_by (|a, b| {a.0.cmp (&b.0)});
     return naive_rank
 }
-pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) {
+pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) -> Vec <bool> {
    let mut _1st_vals: Vec <bool> = Vec::with_capacity (nr.len() );
    for i in 0..nr.len() { _1st_vals.push (false); }
    for j in 0..nr.len() {
@@ -126,9 +129,9 @@ pub fn simplest_attempt (cnf: &mut _CNF, nr: &mut _Naive_rank) {
         let var_id = nr[j].1;
         //let rank = nr[j].0;
         if spin { _1st_vals[var_id] = true; }
-   }
+   } return _1st_vals
 }
-pub fn check_solution_of_system (_cnf: &_CNF, var_vals: Vec <bool> ) -> bool {
+pub fn system_is_solved (_cnf: &_CNF, var_vals: &Vec <bool> ) -> bool {
     let mut ret = true;
      for i in 0.._cnf.len () {
         for k in 0.._cnf[i].len() {
@@ -144,7 +147,7 @@ pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
     return false */
     return !(_lit.is_pos () ^ var_val )
 }
-pub fn search_w_details (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) {
+pub fn search_w_details (_cnf: &mut _CNF, var_vals: &mut Vec <bool>, nr: &mut _Naive_rank ) {
     
 }
 pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause_state> {
@@ -173,7 +176,7 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Stat
         } vars [idx].rogue_clauses.push (clause_id);
         vars [idx].spin = _lit.is_pos();
     } 
-    set_vars_status (vars, &ids);
+    _set_vars_status (vars, &ids);
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
 pub fn fast_eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
