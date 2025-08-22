@@ -105,6 +105,13 @@ pub fn try_to_solve_cnf (path: &String) {
     dbg! (&n_vars);
     errMsg0 ("");
 }
+pub fn set_spins (v: &mut _Status_for_vars, nr: &_Naive_rank) {
+    for n in nr {
+        let id = n.1;
+        let spin = n.2;
+        v [id].spin = spin;
+    }
+}
 pub fn _1st_look_rank (_cnf: &mut _CNF, n_vars: u32) -> Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>{
     let mut var_share: Vec < (u32 /*neg*/, u32 /*pos*/)> = Vec::new();
     for j in 0..n_vars as usize {
@@ -186,7 +193,6 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Stat
             continue
         }
         rogue_ids.push (idx);
-     //   vars [idx].spin = _lit.is_pos(); wrong 
     }
     
     if clause.len () == rogue_ids.len () {
