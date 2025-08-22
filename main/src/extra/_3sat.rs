@@ -13,6 +13,11 @@ type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
 #[derive(PartialEq, Debug)]
+pub enum order {
+    unset,
+    frozen,
+}
+#[derive(PartialEq, Debug)]
 pub enum var_status {
     prime,
     neutral (u16)
@@ -26,7 +31,8 @@ pub struct stats_for_var {
     pub spin: bool,
     pub solved_clauses: Vec <usize>,
     pub rogue_clauses:  Vec <usize>,
-    pub vars_state: var_status
+    pub vars_state: var_status,
+    pub var_order: order,
 }
 impl stats_for_var {
     pub fn new () -> Self {
@@ -35,7 +41,8 @@ impl stats_for_var {
             spin: true,
             solved_clauses: Vec::new(),
             rogue_clauses: Vec::new(),
-            vars_state: var_status::neutral (0)
+            vars_state: var_status::neutral (0),
+            var_order: order::unset,
         }
     }
 }
