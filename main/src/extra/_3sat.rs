@@ -25,6 +25,7 @@ pub enum var_status {
 pub struct stats_for_vars_n_clauses {
     pub vars: Vec <stats_for_var>,
     pub clauses: stats_for_clauses,
+    pub rogue_vars: Vec <usize>
 }
 pub struct stats_for_var {
    // pub var_id: usize,
@@ -218,6 +219,7 @@ pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Na
     } return stats_for_vars_n_clauses {
         vars: vars,
         clauses: solved_n_not,
+        rogue_vars: Vec::new()
     }
 }
 pub fn set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
@@ -249,7 +251,9 @@ pub fn _set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
         }
     }
 }
-
+pub fn collect_info_on_rogue_vars (info: &mut stats_for_vars_n_clauses) {
+    
+}
 //fn
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
