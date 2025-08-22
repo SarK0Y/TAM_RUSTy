@@ -182,7 +182,9 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Stat
             ret.offset_in_clause.push (k as u16);
             vars [idx].solved_clauses.push (clause_id);
             ids.push (idx);
-        } vars [idx].rogue_clauses.push (clause_id);
+            continue
+        }
+        vars [idx].rogue_clauses.push (clause_id);
         vars [idx].spin = _lit.is_pos();
     } 
     _set_vars_status (vars, &ids);
