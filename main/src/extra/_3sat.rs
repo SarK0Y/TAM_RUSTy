@@ -174,6 +174,7 @@ pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause
 pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Status_for_vars, var_vals: &Vec <bool>) -> Option <clause_state> {
     let mut ret = clause_state::new();
     let mut ids = Vec:: <usize> ::new();
+    let mut rogue_ids = Vec:: <usize> ::new();
     for k in 0..clause.len() {
         let _lit = &clause [k]; 
         let idx = _lit.var().idx ();
@@ -184,9 +185,15 @@ pub fn extra_eval_clause (clause: &Vec <Lit>, clause_id: usize, vars: &mut _Stat
             ids.push (idx);
             continue
         }
-        vars [idx].rogue_clauses.push (clause_id);
-        vars [idx].spin = _lit.is_pos();
-    } 
+        rogue_ids.push (idx);
+     //   vars [idx].spin = _lit.is_pos(); wrong 
+    }
+    
+    if clause.len () == rogue_ids.len () {
+        for j in rogue_ids {
+            vars [j].rogue_clauses.push (clause_id);
+        }
+    }
     _set_vars_status (vars, &ids);
     if ret.clause_keys.len () > 0 { return Some (ret) } return None
 }
