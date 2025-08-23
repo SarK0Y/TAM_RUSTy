@@ -164,6 +164,7 @@ pub fn lit_val (_lit: &Lit, var_val: bool ) -> bool {
 }
 pub fn search_w_details (_cnf: &mut _CNF, var_vals: &mut Vec <bool>, nr: &mut _Naive_rank ) {
     let mut details: stats_for_vars_n_clauses = solved_n_not_clauses_w_vars (&_cnf, &var_vals, &nr);
+    set_spins (&mut details.vars, &nr);
     
 }
 pub fn eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> Option <clause_state> {
