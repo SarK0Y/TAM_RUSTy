@@ -7,7 +7,8 @@ use std::fs;
 use std::path::Path;
 use std::io::BufReader;
 use crate::errMsg0;
-use Mademoiselle_Entropia::custom_traits::STRN;
+use Mademoiselle_Entropia::{custom_traits::STRN, true_rnd::get_true_rnd_u64 as dice};
+
 type _Status_for_vars = Vec <stats_for_var>;
 type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
@@ -267,8 +268,12 @@ pub fn _set_vars_status (vars: &mut _Status_for_vars, var_ids: &Vec <usize>) {
         }
     }
 }
-pub fn collect_info_on_rogue_vars (info: &mut stats_for_vars_n_clauses) {
-    
+pub fn dice_neutrals (info: &mut stats_for_vars_n_clauses) {
+    let len = info.vars.len ();
+    let mut rnd = Vec::<usize>::new();
+    for _ in 0..8 {
+        rnd.push (dice () as usize )
+    }
 }
 //fn
 /*
