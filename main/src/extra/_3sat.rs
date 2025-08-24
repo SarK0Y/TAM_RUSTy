@@ -272,14 +272,28 @@ pub fn dice_neutrals (info: &mut stats_for_vars_n_clauses) {
     let len = info.vars.len ();
     let mut rnd = Vec::<usize>::new();
     for _ in 0..8 {
-        rnd.push (dice () as usize )
+        rnd.push (dice () as usize % len )
     }
-    
 }
 pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <usize>) -> Vec <usize> {
     let mut ret = Vec::<usize>::new ();
+    let mut added = false;
+    let sel_len = selected.len();
     for sel in selected {
         if let var_status::neutral (_) = info.vars [*sel].vars_state {continue }
+        for id in *sel..sel_len {
+            if let var_status::neutral (_) = info.vars [*sel].vars_state {continue }
+            ret.push (id);
+            added = true;
+            break;
+        }
+        if added { continue }
+        for id in *sel..0 {
+            if let var_status::neutral (_) = info.vars [*sel].vars_state {continue }
+            ret.push (id);
+            added = true;
+            break;
+        }
     }
     todo!()
 }
