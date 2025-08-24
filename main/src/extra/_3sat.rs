@@ -282,11 +282,11 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
     let mut added = false;
     let sel_len = selected.len();
     for sel in selected {
-        if info.vars [*sel].var_order != order::frozen {}
+        if info.vars [*sel].var_order == order::frozen {continue }
         if let var_status::neutral (_) = info.vars [*sel].vars_state {}
         else {continue }
         for id in *sel..sel_len {
-            if info.vars [*sel].var_order != order::frozen {}
+            if info.vars [*sel].var_order == order::frozen {continue }
             if let var_status::neutral (_) = info.vars [*sel].vars_state {}
             else {continue }
             ret.push (id);
@@ -295,7 +295,7 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
         }
         if added { continue }
         for id in *sel..0 {
-            if info.vars [*sel].var_order != order::frozen {}
+            if info.vars [*sel].var_order == order::frozen {continue }
             if let var_status::neutral (_) = info.vars [*sel].vars_state {}
             else {continue }
             ret.push (id);
