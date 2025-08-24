@@ -275,7 +275,7 @@ pub fn dice_neutrals (info: &mut stats_for_vars_n_clauses) {
         rnd.push (dice () as usize % len )
     }
 }
-pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <usize>) -> Vec <usize> {
+pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <usize>) -> Option <Vec <usize> > {
     let mut ret = Vec::<usize>::new ();
     let mut added = false;
     let sel_len = selected.len();
@@ -291,11 +291,12 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
         for id in *sel..0 {
             if let var_status::neutral (_) = info.vars [*sel].vars_state {continue }
             ret.push (id);
-            added = true;
             break;
         }
+        added = false;
     }
-    todo!()
+    if ret.len () > 0 { return Some (ret) }
+    return None
 }
 //fn
 /*
