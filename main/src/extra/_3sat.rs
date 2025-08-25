@@ -306,6 +306,9 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
     if ret.len () > 0 { return Some (ret) }
     return None
 }
+pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, var_id: usize, freeze: bool) {
+    /**/
+}
 //fn
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
