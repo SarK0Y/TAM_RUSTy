@@ -64,13 +64,15 @@ impl clause_state {
 }
 pub struct stats_for_clauses {
     pub solved_clauses: Vec <clause_state>,
-    pub rogue_clauses: Vec <usize>
+    pub rogue_clauses: Vec <usize>,
+    pub map: Vec<usize>
 }
 impl stats_for_clauses {
     pub fn new () -> Self {
         return Self {
             solved_clauses: Vec::new(),
-            rogue_clauses: Vec::new()
+            rogue_clauses: Vec::new(),
+            map: Vec::new()
         }
     }
 }
@@ -213,7 +215,7 @@ pub fn fast_eval_clause (clause: &Vec <Lit>, var_vals: &Vec <bool>) -> bool {
         ret &= lit_val (_lit, var_vals [idx]);
     } return ret
 }
-pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses {
+pub fn solved_n_not_clauses (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Naive_rank ) -> stats_for_clauses { // needs updates to be used
     let mut solved_n_not = stats_for_clauses::new();
     for i in 0.._cnf.len () {
         if let Some (mut x) = eval_clause (&_cnf [i], &var_vals) { 
@@ -230,8 +232,11 @@ pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Na
     for i in 0.._cnf.len () {
         if let Some (mut x) = extra_eval_clause (&_cnf [i], i, &mut vars, &var_vals) { 
             x.clause_id = i;
-            solved_n_not.solved_clauses.push (x); continue 
+            solved_n_not.map.push (solved_n_not.solved_clauses.len() );
+            solved_n_not.solved_clauses.push (x);
+            continue 
         }
+        solved_n_not.map.push (solved_n_not.rogue_clauses.len() );
         solved_n_not.rogue_clauses.push (i);
     } return stats_for_vars_n_clauses {
         vars: vars,
@@ -307,7 +312,7 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
     return None
 }
 pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, var_id: usize, freeze: bool) {
-    /**/
+    
 }
 //fn
 /*
