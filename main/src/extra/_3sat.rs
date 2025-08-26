@@ -65,7 +65,7 @@ impl clause_state {
 pub struct stats_for_clauses {
     pub solved_clauses: Vec <clause_state>,
     pub rogue_clauses: Vec <usize>,
-    pub map: Vec<usize>
+    pub map: Vec<i64>
 }
 impl stats_for_clauses {
     pub fn new () -> Self {
@@ -232,11 +232,11 @@ pub fn solved_n_not_clauses_w_vars (_cnf: &_CNF, var_vals: &Vec <bool>, nr: &_Na
     for i in 0.._cnf.len () {
         if let Some (mut x) = extra_eval_clause (&_cnf [i], i, &mut vars, &var_vals) { 
             x.clause_id = i;
-            solved_n_not.map.push (solved_n_not.solved_clauses.len() );
+            solved_n_not.map.push (solved_n_not.solved_clauses.len() as i64 );
             solved_n_not.solved_clauses.push (x);
             continue 
         }
-        solved_n_not.map.push (solved_n_not.rogue_clauses.len() );
+        solved_n_not.map.push (-1i64 * solved_n_not.rogue_clauses.len() as i64 );
         solved_n_not.rogue_clauses.push (i);
     } return stats_for_vars_n_clauses {
         vars: vars,
