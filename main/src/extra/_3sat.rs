@@ -312,7 +312,14 @@ pub fn collect_neutral_vars (info: &stats_for_vars_n_clauses, selected: &Vec <us
     return None
 }
 pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, var_id: usize, freeze: bool) {
-    
+    let mut clause: &mut clause_state = &mut clause_state::new ();
+    for c in 0..info.vars [var_id].solved_clauses.len() {
+         let clause_id: usize = info.vars [var_id].solved_clauses [c];  
+         let map_id: i64 = info.clauses.map [clause_id];
+         if map_id > 0 {
+            clause = &mut info.clauses.solved_clauses [clause_id];
+        }
+    }
 }
 //fn
 /*
