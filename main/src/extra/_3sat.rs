@@ -335,9 +335,11 @@ pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> st
         if var_id == clause.clause_keys [i] {
             clause.clause_keys.remove (i);
             clause.offset_in_clause.remove (i);
+            break;
         }
     }
-    return state_of_edited_clause::same
+    if count_keys - 1 == 0 { return return state_of_edited_clause::rogue }
+    return state_of_edited_clause::many_keys(count_keys - 1)
 }
 //fn
 /*
