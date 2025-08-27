@@ -343,13 +343,22 @@ pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> st
             break;
         }
     }
-    if count_keys - 1 == 0 { return return state_of_edited_clause::rogue }
+    if count_keys == 1 { return return state_of_edited_clause::rogue }
+    if count_keys == 2 { return return state_of_edited_clause::primed }
     return state_of_edited_clause::many_keys(count_keys - 1)
 }
 pub fn clause_goes_rogue (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
-    info.clauses.map [clause_id] *= -1i64;
     info.clauses.solved_clauses.remove (clause_id);
-    info.clauses.rogue_clauses.remove (clause_id);
+    info.clauses.rogue_clauses.push (clause_id);
+    info.clauses.map [clause_id] = -1i64 * info.clauses.rogue_clauses.len () as i64;
+}
+pub fn clause_is_prime_now (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
+    let var_id = info.clauses.solved_clauses [clause_id].clause_keys [0];
+    for i in 0..info.vars [var_id].solved_clauses.len () {
+        if info.vars [var_id].solved_clauses [i] == clause_id { 
+            info.vars [var_id].solved_clauses.remove (i); break
+        }
+    }
 }
 //fn
 /*
