@@ -14,6 +14,13 @@ type _CNF = Vec <Vec <Lit> >;
 type _Naive_rank = Vec < (u32/*number of lits w/ given spin*/, usize/*var's indx*/, bool /*spin*/)>;
 type _Map_vars = Vec <(bool /*Prime spin*/, Vec <usize> /*clauses w/ neg lit*/, Vec <usize> /*clauses w/ pos lit*/)>;
 #[derive(PartialEq, Debug)]
+pub enum state_of_edited_clause {
+    same,
+    rogue,
+    primed,
+    many_keys (usize),
+}
+#[derive(PartialEq, Debug)]
 pub enum order {
     unset,
     frozen,
@@ -320,6 +327,12 @@ pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, 
             clause = &mut info.clauses.solved_clauses [clause_id];
         }
     }
+}
+pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> state_of_edited_clause {
+    let count_keys = clause.clause_keys.len ();
+    if count_keys == 0 { return state_of_edited_clause::same }
+    
+    return state_of_edited_clause::same
 }
 //fn
 /*
