@@ -331,7 +331,12 @@ pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, 
 pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> state_of_edited_clause {
     let count_keys = clause.clause_keys.len ();
     if count_keys == 0 { return state_of_edited_clause::same }
-    
+    for i in 0..count_keys {
+        if var_id == clause.clause_keys [i] {
+            clause.clause_keys.remove (i);
+            clause.offset_in_clause.remove (i);
+        }
+    }
     return state_of_edited_clause::same
 }
 //fn
