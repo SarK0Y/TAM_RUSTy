@@ -325,6 +325,10 @@ pub fn flip_var (info: &mut stats_for_vars_n_clauses, var_vals: &mut Vec<bool>, 
          let map_id: i64 = info.clauses.map [clause_id];
          if map_id > 0 {
             clause = &mut info.clauses.solved_clauses [clause_id];
+            if exclude_var_from_clause (clause, var_id) == state_of_edited_clause::same {
+                let msg = format! ( "Something gets wrong at {} {}", file!(), line!() );
+                errMsg0 (&msg);
+            }
         }
     }
 }
