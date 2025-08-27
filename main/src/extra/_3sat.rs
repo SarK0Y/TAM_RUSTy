@@ -346,6 +346,11 @@ pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> st
     if count_keys - 1 == 0 { return return state_of_edited_clause::rogue }
     return state_of_edited_clause::many_keys(count_keys - 1)
 }
+pub fn clause_goes_rogue (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
+    info.clauses.map [clause_id] *= -1i64;
+    info.clauses.solved_clauses.remove (clause_id);
+    info.clauses.rogue_clauses.remove (clause_id);
+}
 //fn
 /*
 fn load_cnfs(dir: &str) -> Vec<Cnf> {
