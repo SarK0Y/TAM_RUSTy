@@ -5,7 +5,7 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use num::Float;
 use std::f64::consts::E; 
 const PREC: u64 = 1024;
-const PREC0: u64 = 3072;
+const PREC0: u64 = 5000;
 pub fn simple_Pi (step: f64) -> f64 {
     let num_of_step = (1.0 as f64 / step) as usize;
     let mut x: f64 = 0.0;
@@ -101,6 +101,22 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     dbg! (&start_x);
     return sin_x
 }
+pub fn fast_n_simple_cos (x: &rugfloat, err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut start_x: rugfloat = x / _2.pow (err);
+    let mut step: usize = 0;
+    //sin_x = 2 * start_x.clone ();
+    let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
+    cos_x = cos_x.sqrt ();
+    while start_x < *x {
+        cos_x = 2 * cos_x.clone () * cos_x - _1.clone ();
+        //dbg! (&cos_x); break;
+        start_x *= 2; 
+    }
+    dbg! (&start_x);
+    return cos_x
+}
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
     let mut y = x - x;
@@ -145,18 +161,26 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      _45deg /= 4;
      dbg! (&_45deg);
      let mut rug_sin_err = _45deg.clone().sin();
+     let mut rug_cos_err = _45deg.clone().cos();
      dbg! (&rug_sin_err);
+     dbg! (&rug_cos_err);
      //let sin_45deg = _45deg.sin();
-     let mut sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg), 3000);
+     let mut sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg.clone () ), 3000);
+     let mut cos_45deg =fast_n_simple_cos ( &rugfloat::with_val_64 (PREC0, _45deg), 3000);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
      dbg! (&sin_45deg);
+     dbg! (&cos_45deg);
      rug_sin_err /= sin_45deg.clone();
+     rug_cos_err /= cos_45deg.clone();
      dbg! (&rug_sin_err);
+     dbg! (&rug_cos_err);
      sin_45deg *= 2;
-     let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt;
+     let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt.clone ();
+     let fast_n_simple_cos_err = cos_45deg.clone() - _2_sqrt;
      dbg! (&fast_n_simple_sin_err);
+     dbg! (&fast_n_simple_cos_err);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
