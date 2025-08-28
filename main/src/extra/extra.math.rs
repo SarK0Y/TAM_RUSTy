@@ -55,7 +55,8 @@ pub fn fast_n_simple_long_Pi (err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let err = _1.clone () / _2.clone().pow(err);
-    let mut dx: rugfloat = _2.clone().sqrt(); 
+    let mut dx: rugfloat = _2.clone();
+    dx = dx.sqrt ();
     //let mut x = 0.0f64;
     dx /= 2;
     let mut y: rugfloat = (_1.clone() - dx.clone().pow(2) );
@@ -102,12 +103,15 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     return sin_x
 }
 pub fn fast_n_simple_cos (x: &rugfloat, err: usize ) -> rugfloat {
-    let _2 = rugfloat::with_val_64 (PREC0, 2);
-    let _1 = rugfloat::with_val_64 (PREC0, 1);
-    let mut start_x: rugfloat = x / _2.pow (err);
+    let _2 = rugfloat::with_val_64 (2*PREC0, 2);
+    let _1 = rugfloat::with_val_64 (2*PREC0, 1);
+    let mut start_x: rugfloat = _1.clone();
+    start_x.assign (x >> err); /// _2.pow (err);
+    dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
-    let mut cos_x: rugfloat = ( _1.clone () - start_x.clone().pow (2) );
+    let mut cos_x: rugfloat = _1.clone ();
+    cos_x = ( _1.clone () - start_x.clone() * start_x.clone() );
     cos_x = cos_x.sqrt ();
     while start_x < *x {
         cos_x = 2 * cos_x.clone () * cos_x - _1.clone ();
@@ -165,8 +169,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&rug_sin_err);
      dbg! (&rug_cos_err);
      //let sin_45deg = _45deg.sin();
-     let mut sin_45deg =fast_n_simple_sin ( &rugfloat::with_val_64 (PREC0, _45deg.clone () ), 3000);
-     let mut cos_45deg =fast_n_simple_cos ( &rugfloat::with_val_64 (PREC0, _45deg), 3000);
+     let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 3000);
+     let mut cos_45deg =fast_n_simple_cos ( &_45deg, 3000);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
@@ -177,6 +181,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&rug_sin_err);
      dbg! (&rug_cos_err);
      sin_45deg *= 2;
+     cos_45deg *= 2;
      let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt.clone ();
      let fast_n_simple_cos_err = cos_45deg.clone() - _2_sqrt;
      dbg! (&fast_n_simple_sin_err);
