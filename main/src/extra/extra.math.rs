@@ -121,6 +121,24 @@ pub fn fast_n_simple_cos (x: &rugfloat, err: usize ) -> rugfloat {
     dbg! (&start_x);
     return cos_x
 }
+pub fn fast_n_simple_cos3 (x: &rugfloat, err: usize ) -> rugfloat {
+    let _3 = rugfloat::with_val_64 (2*PREC0, 3);
+    let _1 = rugfloat::with_val_64 (2*PREC0, 1);
+    let mut start_x: rugfloat = x / _3.pow (err);
+    dbg! (&start_x);
+    let mut step: usize = 0;
+    //sin_x = 2 * start_x.clone ();
+    let mut cos_x: rugfloat = _1.clone ();
+    cos_x = ( _1.clone () - start_x.clone() * start_x.clone() );
+    cos_x = cos_x.sqrt ();
+    while start_x < *x {
+        cos_x = 4 * cos_x.clone ().pow (3) - cos_x.clone ();
+        //dbg! (&cos_x); break;
+        start_x *= 3; 
+    }
+    dbg! (&start_x);
+    return cos_x
+}
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
     let mut y = x - x;
@@ -166,11 +184,13 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&_45deg);
      let mut rug_sin_err = _45deg.clone().sin();
      let mut rug_cos_err = _45deg.clone().cos();
+     let mut rug_cos3_err = _45deg.clone().cos();
      dbg! (&rug_sin_err);
      dbg! (&rug_cos_err);
      //let sin_45deg = _45deg.sin();
      let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 3000);
      let mut cos_45deg =fast_n_simple_cos ( &_45deg, 3000);
+     let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 50);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
@@ -178,14 +198,19 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&cos_45deg);
      rug_sin_err /= sin_45deg.clone();
      rug_cos_err /= cos_45deg.clone();
+     rug_cos3_err /= cos3_45deg.clone();
      dbg! (&rug_sin_err);
      dbg! (&rug_cos_err);
+     dbg! (&rug_cos3_err);
      sin_45deg *= 2;
      cos_45deg *= 2;
+     cos3_45deg *= 3;
      let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt.clone ();
-     let fast_n_simple_cos_err = cos_45deg.clone() - _2_sqrt;
+     let fast_n_simple_cos_err = cos_45deg.clone() - _2_sqrt.clone ();
+     let fast_n_simple_cos3_err = cos3_45deg.clone() - _2_sqrt;
      dbg! (&fast_n_simple_sin_err);
      dbg! (&fast_n_simple_cos_err);
+     dbg! (&fast_n_simple_cos3_err);
     crate::errMsg0( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
