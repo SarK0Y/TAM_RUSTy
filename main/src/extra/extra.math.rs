@@ -128,16 +128,16 @@ pub fn fast_n_simple_cos3 (x: &rugfloat, err: usize ) -> rugfloat {
     dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
-    let mut cos_x: rugfloat = _1.clone ();
-    cos_x = ( _1.clone () - start_x.clone() * start_x.clone() );
-    cos_x = cos_x.sqrt ();
+    let mut cos_3x: rugfloat = _1.clone ();
+    cos_3x = ( _1.clone () - start_x.clone() * start_x.clone() );
+    cos_3x = cos_3x.sqrt ();
+    dbg! (&cos_3x);
     while start_x < *x {
-        cos_x = 4 * cos_x.clone ().pow (3) - cos_x.clone ();
-        //dbg! (&cos_x); break;
+        cos_3x = 4 * cos_3x.clone ().pow (3) - 3 * cos_3x.clone ();
         start_x *= 3; 
     }
-    dbg! (&start_x);
-    return cos_x
+    dbg! (&cos_3x);
+    return cos_3x
 }
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
@@ -190,7 +190,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      //let sin_45deg = _45deg.sin();
      let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 3000);
      let mut cos_45deg =fast_n_simple_cos ( &_45deg, 3000);
-     let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 50);
+     let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 1350);
      let _2 = rugfloat::with_val_64 (PREC0, 2);
      let _1 = rugfloat::with_val_64 (PREC0, 1);
      let _2_sqrt = _2.clone().sqrt();
@@ -204,7 +204,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&rug_cos3_err);
      sin_45deg *= 2;
      cos_45deg *= 2;
-     cos3_45deg *= 3;
+     cos3_45deg *= 2;
      let fast_n_simple_sin_err = sin_45deg.clone() - _2_sqrt.clone ();
      let fast_n_simple_cos_err = cos_45deg.clone() - _2_sqrt.clone ();
      let fast_n_simple_cos3_err = cos3_45deg.clone() - _2_sqrt;
