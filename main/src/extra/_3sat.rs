@@ -55,6 +55,7 @@ impl stats_for_var {
         }
     }
 }
+#[derive(Clone, Debug)]
 pub struct clause_state {
     pub clause_id: usize,
     pub clause_keys: Vec <usize>,
@@ -347,18 +348,39 @@ pub fn exclude_var_from_clause (clause: &mut clause_state, var_id: usize ) -> st
     if count_keys == 2 { return return state_of_edited_clause::primed }
     return state_of_edited_clause::many_keys(count_keys - 1)
 }
-pub fn clause_goes_rogue (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
-    info.clauses.solved_clauses.remove (clause_id);
+pub fn clause_gone_rogue (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
+    let map_id: i64 = info.clauses.map [clause_id]; 
+    info.clauses.solved_clauses.remove (map_id as usize);
     info.clauses.rogue_clauses.push (clause_id);
     info.clauses.map [clause_id] = -1i64 * info.clauses.rogue_clauses.len () as i64;
 }
-pub fn clause_is_prime_now (info: &mut stats_for_vars_n_clauses, clause_id: usize) {
-    let var_id = info.clauses.solved_clauses [clause_id].clause_keys [0];
+pub fn clause_gets_ok (info: &mut stats_for_vars_n_clauses, clause_id: usize, clause: &clause_state) {
+    let map_id: i64 = info.clauses.map [clause_id]; 
+    info.clauses.rogue_clauses.remove (map_id as usize);
+    info.clauses.solved_clauses.push (clause.clone () );
+    info.clauses.map [clause_id] = info.clauses.rogue_clauses.len () as i64;
+}
+pub fn restate_clause_for_var (info: &mut stats_for_vars_n_clauses, clause_id: usize, var_id: usize, nice_rogue: bool) -> bool {
+    if nice_rogue { return state_good_clause_for_var (info, clause_id, var_id) }
+    return state_rogue_clause_for_var (info, clause_id, var_id)
+}
+pub fn state_rogue_clause_for_var (info: &mut stats_for_vars_n_clauses, clause_id: usize, var_id: usize) -> bool {
     for i in 0..info.vars [var_id].solved_clauses.len () {
         if info.vars [var_id].solved_clauses [i] == clause_id { 
-            info.vars [var_id].solved_clauses.remove (i); break
+            info.vars [var_id].solved_clauses.remove (i); 
+            info.vars [var_id].rogue_clauses.push (clause_id);
+            return true
         }
-    }
+    } return false
+}
+pub fn state_good_clause_for_var (info: &mut stats_for_vars_n_clauses, clause_id: usize, var_id: usize) -> bool {
+    for i in 0..info.vars [var_id].solved_clauses.len () {
+        if info.vars [var_id].rogue_clauses [i] == clause_id { 
+            info.vars [var_id].rogue_clauses.remove (i); 
+            info.vars [var_id].solved_clauses.push (clause_id);
+            return true
+        }
+    } return false
 }
 //fn
 /*
