@@ -83,6 +83,25 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
 }
+pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
+    let _2 = rugfloat::with_val_64 (2*PREC0, 2);
+    let _1 = rugfloat::with_val_64 (2*PREC0, 1);
+    let mut start_x: rugfloat = _1.clone();
+    start_x.assign (x >> err); /// _2.pow (err);
+    dbg! (&start_x);
+    let mut step: usize = 0;
+    //sin_x = 2 * start_x.clone ();
+    let mut cos_x: rugfloat = _1.clone ();
+    cos_x = ( _1.clone () - start_x.clone() * start_x.clone() );
+    cos_x = cos_x.sqrt ();
+    while start_x < *x {
+        cos_x = 2 * cos_x.clone () * cos_x - _1.clone ();
+        //dbg! (&cos_x); break;
+        start_x *= 2; 
+    }
+    dbg! (&start_x);
+    return cos_x
+}
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
