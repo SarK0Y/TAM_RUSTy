@@ -87,20 +87,18 @@ pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (2*PREC0, 2);
     let _1 = rugfloat::with_val_64 (2*PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
-    start_x.assign (x >> err); /// _2.pow (err);
+    start_x.assign (x >> 3); /// 
+    let no_less = _1.clone () / _2.clone().pow (err);
+    let mut b = _1.clone();
     dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
-    let mut cos_x: rugfloat = _1.clone ();
-    cos_x = ( _1.clone () - start_x.clone() * start_x.clone() );
-    cos_x = cos_x.sqrt ();
-    while start_x < *x {
-        cos_x = 2 * cos_x.clone () * cos_x - _1.clone ();
-        //dbg! (&cos_x); break;
-        start_x *= 2; 
+    while (start_x.clone() - b.clone() ).abs () > no_less {
+        b = x.clone () / start_x.clone ();
+	start_x = (start_x.clone() + b.clone () ) / 2;
     }
     dbg! (&start_x);
-    return cos_x
+    return b
 }
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
