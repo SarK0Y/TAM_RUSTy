@@ -3,7 +3,7 @@ use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use num::Float;
-use std::f64::consts::E; 
+use std::f64::consts::E;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 const PREC: u64 = 1024;
 const PREC0: u64 = 5000;
@@ -33,11 +33,11 @@ pub fn simple_Pi_vs_std_Pi (step: String) -> (f64, f64) {
 pub fn tst_Pi (ceil: f64) -> f64 {
     let mut x = 1.0_f64;
     let mut y = x - x;
-    let ret: f64 = Gauss_Legendre_Pi(ceil); 
+    let ret: f64 = Gauss_Legendre_Pi(ceil);
     ret
 }
 pub fn fast_n_simple_Pi (error: f64 ) -> f64 {
-    let mut dx: f64 = 2.0.sqrt(); 
+    let mut dx: f64 = 2.0.sqrt();
     //let mut x = 0.0f64;
     dx = dx / 2.0;
     let mut y = (1.0 - dx.powi(2) ).sqrt();
@@ -79,7 +79,7 @@ pub fn fast_n_simple_long_Pi (err: usize ) -> rugfloat {
 
 pub fn arc_val (from: f64, to: f64) -> f64 {
     let x = from;
-    let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;    
+    let From = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     let x = to;
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
@@ -88,7 +88,7 @@ pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
-    start_x.assign (x >> 3); /// 
+    start_x.assign (x >> 3); ///
     let no_less = _1.clone () / _2.clone().pow (err);
     let mut b = _1.clone();
    // dbg! (&start_x);
@@ -105,7 +105,7 @@ pub fn nthrt (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
-    start_x.assign (x >> 3); /// 
+    start_x.assign (x >> 3); ///
     let no_less = _1.clone () / _2.clone().pow (err);
     let mut b = _1.clone();
    // dbg! (&start_x);
@@ -132,7 +132,7 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
         sin_x *= 2;
         sin_x *= __2rt (&cos_x, PREC0 as usize );//cos_x.sqrt ();
-        start_x *= 2; 
+        start_x *= 2;
     }
     dbg! (&start_x);
     return sin_x
@@ -151,7 +151,7 @@ pub fn fast_n_simple_cos (x: &rugfloat, err: usize ) -> rugfloat {
     while start_x < *x {
         cos_x = 2 * cos_x.clone () * cos_x - _1.clone ();
         //dbg! (&cos_x); break;
-        start_x *= 2; 
+        start_x *= 2;
     }
     dbg! (&start_x);
     return cos_x
@@ -169,10 +169,27 @@ pub fn fast_n_simple_cos3 (x: &rugfloat, err: usize ) -> rugfloat {
     dbg! (&cos_3x);
     while start_x < *x {
         cos_3x = 4 * cos_3x.clone ().pow (3) - 3 * cos_3x.clone ();
-        start_x *= 3; 
+        start_x *= 3;
     }
     dbg! (&cos_3x);
     return cos_3x
+}
+pub fn fast_n_simple_sin3 (x: &rugfloat, err: usize ) -> rugfloat {
+    let _3 = rugfloat::with_val_64 (2*PREC0, 3);
+    let _1 = rugfloat::with_val_64 (2*PREC0, 1);
+    let mut start_x: rugfloat = x / _3.pow (err);
+    dbg! (&start_x);
+    let mut step: usize = 0;
+    //sin_x = 2 * start_x.clone ();
+    let mut sin_3x: rugfloat = _1.clone ();
+    sin_3x = start_x.clone();
+    dbg! (&sin_3x);
+    while start_x < *x {
+        sin_3x = 3 * sin_3x.clone () - 4* sin_3x.clone ().pow (3);
+        start_x *= 3;
+    }
+    dbg! (&sin_3x);
+    return sin_3x
 }
 pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let mut x = 1.0_f64;
@@ -184,7 +201,7 @@ pub fn tst_Pi_ (error: f64) -> f64 { // failed
     let n = (0.5/ x);
      dbg! ((x - y).abs() );
     y = y / 2.0;
-    let ret = 8.0 * n * y; 
+    let ret = 8.0 * n * y;
     dbg! (y);
     ret
 }
@@ -199,9 +216,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     crate::krunner (Some (&tst_Pi.to_string()) );
     let epi__ = __epi(100);
     let msg = format! ("deviation from std Pi {}\ntst Pi {}\nCos(std): {} \nCos(tst): {}\nstd_Cos(tst): {}\n
-    std_Cos(800 000*tst): {}\nCos(800 000*tst): {}\ntricked_Cos(800 000*tst): {}\ntricked_Cos(811 000*tst): {}   ", 
-    &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi), 
-    tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ), 
+    std_Cos(800 000*tst): {}\nCos(800 000*tst): {}\ntricked_Cos(800 000*tst): {}\ntricked_Cos(811 000*tst): {}   ",
+    &(std_Pi - tst_Pi).to_string(), tst_Pi, tst_Cos (std_Pi) , tst_Cos(tst_Pi),
+    tst_Pi.cos(), (800_000.0*tst_Pi).cos(), tst_Cos(800_000.0*tst_Pi ),
     tricked_Cos(800_000.0*tst_Pi, error ), tricked_Cos(811_000.0*tst_Pi, error ));
     let msg1 = format! ("{}\nfast & Simple Pi(0.5^35): {}\ncontrol_tst(step + 1): {}\nstd_Pi - 2*tst_asin: {}\nstd_Pi - 2*almost_asin: {}
     \nstd_Pi - __epi {}"
@@ -289,7 +306,7 @@ pub fn sigma_log (base: f64, from: f64, to: f64) -> f64 {
     (To - From) / base.ln()
 }
 pub fn tst_Cos (x: f64) -> f64 {
-// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) 
+// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8)
     1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
 }
 pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
@@ -299,7 +316,7 @@ pub fn tricked_Cos (x: f64, rounds_to_calc_pi: f64) -> f64 {
         if (rotations as usize) % 2 == 0 {return 1.0}
     }
     let x = x % pi;
-// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) - 0(9) - 1(10) 
+// cos (0) -sin(0)(1) - cos(0)(2) + sin(0)(3) + cos(0)(4) - 0(5) - 1(6) +0(7) + 1(8) - 0(9) - 1(10)
     let ret = 1.0 - (x.powi(2) / 2u64.factorial()) + (x.powi(4) / 4.factorial() ) -  (x.powi(6) / 6.factorial() ) + (x.powi(8) / 8.factorial() )
     - (x.powi(10) / 10.factorial() ) + (x.powi(12) / 12.factorial() );
     if rotations.floor() as usize % 2 == 1 {return -1.0 * ret ;}
@@ -420,7 +437,7 @@ pub fn __epi (terms: usize) -> rugfloat {
 }
 fn exp_Taylor(x: f64, terms: usize) -> rugfloat { // todo it
     let mut sum = rugfloat::with_val_64 (PREC0, 1);
-    let mut term = sum.clone(); 
+    let mut term = sum.clone();
     let mut over_term: *mut rugfloat = &mut term;
     over_rugfloat( Some (over_term ) );
     let mut x =rugfloat::with_val_64 (PREC0, x);
@@ -435,7 +452,7 @@ fn exp_Taylor(x: f64, terms: usize) -> rugfloat { // todo it
 }
 fn big_exp_Taylor_(x: rugfloat, terms: usize) -> rugfloat {
     let mut sum = rugfloat::with_val_64 (PREC0, 1);
-    let mut term = sum.clone(); 
+    let mut term = sum.clone();
     let mut over_term: *mut rugfloat = &mut term;
     over_rugfloat( Some (over_term ) );
      for n in 1..=terms {
@@ -460,8 +477,8 @@ fn big_exp_Taylor(x: rugfloat, terms: usize) -> rugfloat {
     for n in 1..=terms {
      //   let mut over_term =unsafe { &mut *over_bigfloat(None).unwrap() };
        // let over_term1 =unsafe { &mut *over_bigfloat(None).unwrap() };
-       xn.mul_assign_round (rugfloat::with_val(PREC0_, x.clone() ), rm); 
-       __factorial.mul_assign_round (rugfloat::with_val(PREC0_, n.clone() ), rm); 
+       xn.mul_assign_round (rugfloat::with_val(PREC0_, x.clone() ), rm);
+       __factorial.mul_assign_round (rugfloat::with_val(PREC0_, n.clone() ), rm);
        term = rugfloat::with_val_64 (PREC0, xn.clone() / __factorial.clone() ); // Calculate x^n / n!
        sum.add_assign_round( term.clone(), rm);
     }
@@ -475,7 +492,7 @@ pub fn fast_real_e (exp: f64) -> rugfloat {
     let one = rugfloat::with_val(PREC0_, 1.0);
     let mut one_div_by = one.clone();
     let rm = Round::Down;
-    let exponent: u32 = PREC0_ / 2; 
+    let exponent: u32 = PREC0_ / 2;
     let mut const_e_base = rugfloat::with_val(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent);
@@ -503,7 +520,7 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     let one = rugfloat::with_val(PREC0_, 1.0);
     let mut one_div_by = one.clone();
     let rm = Round::Down;
-    let exponent: u32 = PREC0_ / 2; 
+    let exponent: u32 = PREC0_ / 2;
     let mut const_e_base = rugfloat::with_val(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent);
@@ -540,7 +557,7 @@ pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u64) 
     let one = rugfloat::with_val_64(PREC0_, 1.0);
     let mut one_div_by = one.clone();
     let rm = Round::Down;
-    let exponent: u64 = PREC0_ / 2; 
+    let exponent: u64 = PREC0_ / 2;
     let mut const_e_base = rugfloat::with_val_64(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent);
@@ -572,7 +589,7 @@ pub fn fast_real_e_orig (num: f64, den: f64) -> rugfloat {
     let one = rugfloat::with_val(PREC0_, 1.0);
     let mut one_div_by = one.clone();
     let rm = Round::Down;
-    let exponent: u32 = PREC0_ / 2; 
+    let exponent: u32 = PREC0_ / 2;
     let mut const_e_base = rugfloat::with_val(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent);
@@ -606,7 +623,7 @@ pub fn num_n_den_from_float64 (x: f64) -> (i64, i64) {
     epsilon = epsilon.powi (40);
     while (mantissa - num / (den - 1.0 ) ).abs() > epsilon {
         num = (den - 1.0 ) * mantissa;
-        den *= 10.0; 
+        den *= 10.0;
     }
     den -= 1.0;
     num += floor * den;
@@ -631,7 +648,7 @@ pub fn num_n_den_from_rugfloat (x: rugfloat) -> (rugfloat, rugfloat) {
         //mid_res = mantissa.clone() - num.clone() / (den.clone() - one.clone() );
         num = (den.clone() - one.clone() ) * mantissa.clone();
         num = rugfloat::with_val_64(PREC0, num.to_integer().unwrap_or (rugint::new() ) );
-       // den *= ten.clone(); 
+       // den *= ten.clone();
     //}
     den.sub_assign_round(1.0, Round::Down);
     dbg! (&den);
@@ -646,7 +663,7 @@ pub fn sum_exp_Taylor (set: Option <(*mut rugfloat, *mut rugfloat) >){
     static mut sum: Lazy < *mut rugfloat > = Lazy::new (|| {&mut rugfloat::with_val_64(PREC0, 1u64) });
     static mut term: Lazy < *mut rugfloat > = Lazy::new (|| {&mut rugfloat::with_val_64(PREC0, 1u64) });
     unsafe {
-        if set.is_some() { 
+        if set.is_some() {
             *sum = set.unwrap().0;
             *term = set.unwrap().1;
             return;
