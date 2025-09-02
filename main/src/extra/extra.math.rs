@@ -4,6 +4,7 @@ use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugP
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use num::Float;
 use std::f64::consts::E; 
+use Mademoiselle_Entropia::minio::InterruptMsg;
 const PREC: u64 = 1024;
 const PREC0: u64 = 5000;
 pub fn simple_Pi (step: f64) -> f64 {
@@ -245,9 +246,10 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&fast_n_simple_sin_err);
      dbg! (&fast_n_simple_cos_err);
      dbg! (&fast_n_simple_cos3_err);
-    crate::errMsg0( &msg1);
+    InterruptMsg( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
+// term git  remote set-url --add origin  https://[token]@github.com/SarK0Y/Mademoiselle_Entropia.git
 pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
     let mut a = 1.0f64;
     let mut b: f64 =1.0 / 2.0.sqrt();
