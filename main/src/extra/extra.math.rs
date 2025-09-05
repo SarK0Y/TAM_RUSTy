@@ -245,7 +245,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      //let sin_45deg = _45deg.sin();
      let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 5000);
      let mut cos_45deg =fast_n_simple_cos ( &_45deg, 5100);
-     let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 3200);
+     let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
      dbg! (&cos3_45deg);
      let _2_sqrt = _2.clone().sqrt();
