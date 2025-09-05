@@ -21,6 +21,11 @@ pub fn multi_folder_lst () {
     ); ps0::set_num_cols(val, func_id);}
     let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
     std::fs::remove_file(&orig_lst);
+    let mut lsts: Vec <String> = Vec::new ();
+    for path in paths {
+        let lst = __main_update ( &path );
+        lsts.push (lst);
+    }
 }
 pub fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -78,9 +83,6 @@ pub fn __main_update (path: &String) -> String{
     let mut in_name: String = "".to_string();
     let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
     let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
-    let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
-    let prev_list = fs::read_to_string (&orig_lst);
-    std::fs::remove_file(&orig_lst);
     upd_screen_or_not((-1, "".strn() ) );
         thr_find_files.spawn(move||{
             println!("spawn find files");
@@ -93,7 +95,13 @@ pub fn __main_update (path: &String) -> String{
             if crate::dirty!(){println!("exit midway data");}
         }).unwrap ().join ();
 clear_patch();
-todo! ()
+let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
+let list = match fs::read_to_string (&orig_lst) {
+    Ok (l) => l,
+    Err (e) => format! ("orig_lst {orig_lst} can't be open: {:?}", e)
+};
+std::fs::remove_file(&orig_lst);
+return list
 }
 pub(crate) fn delay_ms(sleep: u64){
     std::thread::sleep(std::time::Duration::from_millis(sleep));
