@@ -421,7 +421,7 @@ pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
     );
     set_ask_user(&msg.bold().red(), val_func_id);
 }
-pub(crate) fn checkArg(key: &str) -> bool {
+pub fn checkArg(key: &str) -> bool {
     let len_of_cmd_line = env::args().len();
     let args: Vec<String> = env::args().collect();
     let i: i64 = 0;
@@ -432,6 +432,31 @@ pub(crate) fn checkArg(key: &str) -> bool {
     }
     return false;
 }
+pub fn countArg(key: &str) -> u16 {
+    let mut cnt: u16 = 0;
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    for i in 0..len_of_cmd_line {
+        if args[i] == key.to_string() {
+            cnt += 1;
+        }
+    }
+    return cnt;
+}
+pub fn collectArg(key: &str) -> Vec <String> {
+    let mut arg_vals = Vec::<String>::new();
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    for i in 0..len_of_cmd_line {
+        if args[i] == key.to_string() {
+            arg_vals.push (args [i].clone () );
+        }
+    }
+    return arg_vals;
+}
+
 pub(crate) fn set(item: i64) -> i64 {
     return item * -1;
 }
