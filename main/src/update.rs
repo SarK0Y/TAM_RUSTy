@@ -19,13 +19,25 @@ pub fn multi_folder_lst () {
     if  crate::checkArg("-cols"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-cols"), 10).expect(
         "set number of columns as an integer: '-cols 3'"
     ); ps0::set_num_cols(val, func_id);}
-    let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
+    let mut orig_lst_lnk = take_list_adr("found_files");
+    let orig_lst = orig_lst_lnk.unreel_link_to_depth(1);
     std::fs::remove_file(&orig_lst);
     let mut lsts: Vec <String> = Vec::new ();
     for path in paths {
         let lst = __main_update ( &path );
         lsts.push (lst);
     }
+    dbg! (&lsts);
+    crate::errMsg0 ("");
+    for lst in lsts {
+        crate::save_file_append_newline_abs_adr_fast (&lst, &orig_lst_lnk);
+    }
+    let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
+    thr_midway.spawn(||{
+        println!("spawn midway data");
+        crate::read_midway_data();
+        if crate::dirty!(){println!("exit midway data");}
+    }).unwrap ().join ();
 }
 pub fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -89,11 +101,6 @@ pub fn __main_update (path: &String) -> String{
             crate::find_files(path.as_str(), "");
             if crate::dirty!(){println!("exit find files")};
         }).unwrap().join();
-        thr_midway.spawn(||{
-            println!("spawn midway data");
-            crate::read_midway_data();
-            if crate::dirty!(){println!("exit midway data");}
-        }).unwrap ().join ();
 clear_patch();
 let orig_lst = take_list_adr("found_files").unreel_link_to_depth(1);
 let list = match fs::read_to_string (&orig_lst) {

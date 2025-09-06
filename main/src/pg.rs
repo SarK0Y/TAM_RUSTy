@@ -309,7 +309,7 @@ pub(crate) fn hotKeys(
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F5, Key.as_str()) == 0 {
-        crate::update18::main_update();
+        crate::update18::multi_folder_lst();
         return "dontPass".to_string();
     }
     if crate::globs18::eq_ansi_str(&kcode::F9, Key.as_str()) == 0 {
@@ -593,8 +593,8 @@ pub(crate) fn exec_cmd(cmd: String) {
     if cmd.as_str().substring(0, 3) == "sl:" {
 
         //        process_tag(key)
-    } 
-    crate::term_app::run_new_win_bool( Some( false ) ); 
+    }
+    crate::term_app::run_new_win_bool( Some( false ) );
     crate::ps18::correct_prnt();
     let cmd0 = "_";
     if cmd.as_str().substring(0, cmd0.len()) == cmd0 {
@@ -1029,7 +1029,7 @@ pub(crate) fn go2pg(cmd: &String) {
     return;
 }
 //fn
-/* 
+/*
 struct Handler {
     next: Option<Box<dyn Fn() -> ()>>,
 }
@@ -1064,4 +1064,3 @@ for handler in chain {
     handler();
 }
 */
-
