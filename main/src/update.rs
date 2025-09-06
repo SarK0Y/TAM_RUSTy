@@ -15,6 +15,8 @@ pub fn multi_folder_lst () {
     for p in paths.iter().unique() {
         nodup_paths.push (p.clone());
     }
+    crate::save_file ("main".strn(), "ch_main".strn() );
+    crate::set_front_list ("main");
     KonsoleTitle(&gen_win_title());
     let func_id: i64 = -549874;
     if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-rows"), 10).expect(
@@ -26,16 +28,14 @@ pub fn multi_folder_lst () {
     let mut orig_lst_lnk = take_list_adr("found_files");
     let orig_lst = orig_lst_lnk.unreel_link_to_depth(1);
     std::fs::remove_file(&orig_lst);
+    crate::clean_all_cache ();
     let mut lsts: Vec <String> = Vec::new ();
     for path in &nodup_paths {
         dbg! (path);
         let lst = __main_update ( path );
         lsts.push (lst);
     }
-    dbg! (&nodup_paths);
-    dbg! (&lsts);
     for t in 0..lsts.len() {
-        dbg! (&lsts[t]);
         crate::save_file_append_newline_abs_adr_fast (&lsts[t], &orig_lst_lnk);
     }
     let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
@@ -46,7 +46,6 @@ pub fn multi_folder_lst () {
         crate::read_midway_data();
         if crate::dirty!(){println!("exit midway data");}
     }).unwrap ().join ();
-    crate::errMsg0 ("");
 }
 pub fn main_update(){
     let func_id = crate::func_id18::main_update;

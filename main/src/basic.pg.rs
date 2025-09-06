@@ -64,7 +64,7 @@ impl super::basic{
             let mut res: String ="".to_string();
             let mut count_out = 77usize;
             while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
-            if res == "no str gotten" { res = get_item_from_front_list(indx, true) }
+            if res == "no str gotten" { res = get_item_from_front_list(indx, true); }
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
                 time_to_stop = true;
