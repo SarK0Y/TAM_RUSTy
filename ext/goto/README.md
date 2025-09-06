@@ -14,33 +14,49 @@ The very idea of this sub-project of TAM is, making Rust's macros for practical,
    <b>Log variables in function.</b>
 </p>
 Add deps to Cargo.toml:<br>
-/++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++/ <br>
-goto1717 = { path = "../ext/goto", version = "0.0.125", optional = true, default-features = false }<br>
-rst_lex = { path = "../ext/rst_lex", version = "0.0.68", optional = true } <br>
-/++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++// <br>
+
+```toml
+goto1717 = { path = "../ext/goto", version = "0.0.125", optional = true, default-features = false }
+rst_lex = { path = "../ext/rst_lex", version = "0.0.68", optional = true }
+```
+
 Add features to Your Project: <br>
-/++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++/<br>
-tst_macro = ["rst_lex/dev_hell_n_fun", "goto1717/tst"]<br>
-macro = ["rst_lex/stable", "goto1717/stable"]<br>
-/+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++//<br>
+
+```toml
+tst_macro = ["rst_lex/dev_hell_n_fun", "goto1717/tst"]
+macro = ["rst_lex/stable", "goto1717/stable"]
+```
 Use macro: <br>
- #[cfg(feature ="tst_macro")]<br>
-use goto1717::log_vars;<br>
-......<br>
- #[cfg(feature ="tst_macro")]<br>
- #[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]<br>
- pub fn Your_Func (.....) <br>
-Example w/ TAM: <br>
-bash> mkdir /dev/shm/tst<br>
-bash> cd /dev/shm/tst<br>
-bash>  git clone --branch pre-workable https://github.com/SarK0Y/TAM_RUSTy.git <br>
-bash> cd TAM_RUSTy/<br>
-bash> cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam >  /tmp/mess 2>&1<br>
+
+```rs
+ #[cfg(feature ="tst_macro")]
+use goto1717::log_vars;
+```
+
+```rs
+ #[cfg(feature ="tst_macro")]
+ #[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
+ pub fn Your_Func (.....)
+```
+
+# Example w/ TAM:
+
+```bash
+mkdir /dev/shm/tst
+cd /dev/shm/tst
+git clone --branch pre-workable https://github.com/SarK0Y/TAM_RUSTy.git
+cd TAM_RUSTy/
+cargo build --no-default-features --features in_dbg --features=mae --features=tst_macro --features=tam >  /tmp/mess 2>&1
+```
 https://github.com/SarK0Y/TAM_RUSTy/blob/52d12558ddb78f213811721561585a477f485de7/main/src/basic.pg.rs#L121 <br>
- <b>If You don't want to log variable, just add prefix 'nolog_' to its name:</b> <br>
-let mut nolog_myvar: usize = 0; <br>
- <b> Links: </b>b<br>
+ # If You don't want to log variable, just add prefix 'nolog_' to its name:
+
+ ```rs
+let mut nolog_myvar: usize = 0;
+```
+ <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
+ <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
  <b>TELEGRAM:</b> https://t.me/+N_TdOq7Ui2ZiOTM6 (Alg0Z). <br>
  <b>ALG0Z RU:</b> https://dzen.ru/alg0z <br>
  <b>ALG0Z EN:</b> https://alg0z.blogspot.com <br>

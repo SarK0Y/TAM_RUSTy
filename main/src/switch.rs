@@ -253,7 +253,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         return crate::run_cmd_viewer(cmd);
     }
     pub(crate) fn run_viewer(cmd: String, func_id: i64) -> bool {
-        let mut cmd = cmd;
+        let mut cmd = cmd.replace (r"file://", "").replace (r"file\://", "");
         if crate::term_app::run_new_win_bool( None ) {
             cmd = cmd.substring(1, usize::MAX).strn();
         }
@@ -354,7 +354,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
 
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {
-        return unsafe { 
+        return unsafe {
             { let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; crate::nvim::add_keys_2_cmd( &viewer ) }
         };
     }
@@ -392,8 +392,8 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {
-        return unsafe { 
-             let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; 
+        return unsafe {
+             let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_;
                 if mode_display_full_names_of_viewers ( None ) {crate::nvim::add_keys_2_cmd( &viewer ) } else { viewer }
         };
     }
@@ -410,7 +410,7 @@ pub fn mode_default_viewers(mode: Option<bool>) -> bool {
     }
 }
 pub fn roll_header () {
-    mode_display_full_names_of_viewers( Some ( 
+    mode_display_full_names_of_viewers( Some (
         !mode_display_full_names_of_viewers(None )
     ) );
 }

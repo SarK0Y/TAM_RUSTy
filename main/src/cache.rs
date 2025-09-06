@@ -228,8 +228,9 @@ pub(crate) fn wait_4_empty_cache() -> bool{
     let mut i = 0usize;
     let mut ret = || -> std::result::Result<std::fs::DirEntry, std::io::Error>{return std::fs::read_dir("/").unwrap().next().unwrap();};
     let mut status = ||{dir_arr[i] = false; i += 1; i = i ^ 2; send.send(dir_arr[0]);};
+    let mut dir: std::fs::DirEntry;
     loop {
-       let dir: std::fs::DirEntry = match std::path::PathBuf::from(cache_dir.clone()).read_dir().expect("wait_4_empty_cache can't read dir").next(){
+       dir = match std::path::PathBuf::from(cache_dir.clone()).read_dir().expect("wait_4_empty_cache can't read dir").next(){
             Some(i0) => i0,
             _ => {status();let ret0 = recv.recv().unwrap(); println!("{}", ret0); if !ret0 {return dir_arr[0];}; ret()}
         }.unwrap();

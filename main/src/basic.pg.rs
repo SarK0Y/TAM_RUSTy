@@ -64,7 +64,7 @@ impl super::basic{
             let mut res: String ="".to_string();
             let mut count_out = 77usize;
             while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
-            if res == "no str gotten" { res = get_item_from_front_list(indx, true) }
+            if res == "no str gotten" { res = get_item_from_front_list(indx, true); }
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
                 time_to_stop = true;
@@ -117,14 +117,13 @@ impl super::basic{
         println!("{}\n{}", screen, crate::get_ask_user(func_id) );
     } else {println!("{}", get_ask_user(func_id) )}
 }
-//#[cfg(feature ="tst_macro")]
 #[cfg(feature ="tst_macro")]
-#[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
+//#[log_vars(log_size=3k,log_path=/dev/shm/build_page.log)]
 pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
     let mut num_files = crate::get_num_files(func_id);
-    let dbg_point = self.read_file("stop_point").trim_end().to_string();
+    let dbg_point = self.read_file("stop_point").trim_end().to_string(); 
     #[cfg(feature="in_dbg")]
     if dbg_point == "001"{
         println!("stop 001");
@@ -180,15 +179,15 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
             display_indx = indx;
             if !crate::C!(crate::swtch::local_indx(false)){display_indx = indx - num_page;}
             let err_ret = std::ffi::OsString::from("");
-            let mut err_path = || -> &std::ffi::OsString{return &err_ret};
+            let mut nolog_err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
-            let filename_str0 = || -> String{
+            let nolog_filename_str0 = || -> String{
                     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
                  if !crate::globs18::check_substrn01(&front_list, "history"){
                    return String::from(match filename.file_name(){
                     Some(f) => f,
-                    None => err_path(),
+                    None => nolog_err_path(),
                 }.to_str().unwrap()).as_str().strn();
             } else {return filename.as_os_str().to_str().unwrap().strn()};
             };
@@ -200,7 +199,7 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }
-            let mut fixed_filename: String = filename_str0().to_string();
+            let mut fixed_filename: String = nolog_filename_str0().to_string();
             crate::ins_newlines(crate::get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
             if filename.is_dir(){filename_str =format!("{}: {}/", display_indx, fixed_filename);}
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
@@ -210,9 +209,9 @@ pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
             count_down -= 1;
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
-        let mut new_row: Vec<Vec<CellStruct>> = Vec::new();
-        new_row.push(crate::pg18::cpy_row(&mut row_cpy));
-        print_stdout(new_row.table().bold(true).foreground_color(Some(cli_table::Color::Blue)));
+        let mut nolog_new_row: Vec<Vec<CellStruct>> = Vec::new();
+        nolog_new_row.push(crate::pg18::cpy_row(&mut row_cpy));
+        print_stdout(nolog_new_row.table().bold(true).foreground_color(Some(cli_table::Color::Blue)));
         if time_to_stop {break;}
     }
     //println!("{}", pg.table().display().unwrap());
@@ -303,12 +302,12 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
             Entry::Vacant(en) => {en.insert(cache_entry);}
          }
         }
-        return get_item_from_front_list(proper_indx.1, true);;
+        return get_item_from_front_list(proper_indx.1, true);
     }
     else {
         if !self.cache_active{
            // return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET)) }
-         return get_item_from_front_list(proper_indx.1, true);; }
+         return get_item_from_front_list(proper_indx.1, true); }
         //fix_screen_count(1);
         let front_lst0 = front_lst.clone(); let tmp_dir1 = self.tmp_dir.clone(); let cache_window = self.cache_window.clone();
         let no_offset = indx % self.seg_size; let no_offset = indx - no_offset;
@@ -326,7 +325,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     //if !list_id.1{llset_ask_user("Can't access to Front list", -1); return "!!no¡".to_string()}
     crate::C!(crate::logs(&good_count.to_string(), "bad_count"));
 //    return crate::C!(crate::globs18::lists("", crate::globs18::FRONT_, proper_indx.0, crate::globs18::GET))
-     return get_item_from_front_list(proper_indx.1, true);;
+     return get_item_from_front_list(proper_indx.1, true);
 
 }}
 pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &'a String, op: cache_state) -> (Option<Vec<String>>, cache_state){
@@ -414,4 +413,5 @@ pub(crate) fn read_file(&self, name: &str) -> String{
 pub(crate) fn read_cache_msg(&self) -> String{
     self.read_file("msg/basic/cache/clean")
 }
+//#[cfg(feature ="tst_macro")]
 }
