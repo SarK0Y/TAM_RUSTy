@@ -451,7 +451,7 @@ pub fn collectArg(key: &str) -> Vec <String> {
     let i: i64 = 0;
     for i in 0..len_of_cmd_line {
         if args[i] == key.to_string() {
-            arg_vals.push (args [i].clone () );
+            arg_vals.push (args [i+1].clone () );
         }
     }
     return arg_vals;

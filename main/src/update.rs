@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use ps0::{fix_num_files, get_mainpath};
-
+use itertools::Itertools;
 use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{check_substrn, path_to_shm, set_main0_as_front, strn_2_u64, take_list_adr, MAIN0_}, init::user_home_dir, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_front_list, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
@@ -11,6 +11,10 @@ pub fn multi_folder_lst () {
     let mut paths: Vec <String> = crate::collectArg ("-path0");
     let _paths: Vec <String> = crate::collectArg ("-path");
     paths.extend (_paths);
+    let mut nodup_paths: Vec <String> =Vec::new();
+    for p in paths.iter().unique() {
+        nodup_paths.push (p.clone());
+    }
     KonsoleTitle(&gen_win_title());
     let func_id: i64 = -549874;
     if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-rows"), 10).expect(
@@ -23,21 +27,26 @@ pub fn multi_folder_lst () {
     let orig_lst = orig_lst_lnk.unreel_link_to_depth(1);
     std::fs::remove_file(&orig_lst);
     let mut lsts: Vec <String> = Vec::new ();
-    for path in paths {
-        let lst = __main_update ( &path );
+    for path in &nodup_paths {
+        dbg! (path);
+        let lst = __main_update ( path );
         lsts.push (lst);
     }
+    dbg! (&nodup_paths);
     dbg! (&lsts);
-    crate::errMsg0 ("");
-    for lst in lsts {
-        crate::save_file_append_newline_abs_adr_fast (&lst, &orig_lst_lnk);
+    for t in 0..lsts.len() {
+        dbg! (&lsts[t]);
+        crate::save_file_append_newline_abs_adr_fast (&lsts[t], &orig_lst_lnk);
     }
+    let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
+    crate::save_file_append_newline_abs_adr_fast (&stopCode, &orig_lst_lnk);
     let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
     thr_midway.spawn(||{
         println!("spawn midway data");
         crate::read_midway_data();
         if crate::dirty!(){println!("exit midway data");}
     }).unwrap ().join ();
+    crate::errMsg0 ("");
 }
 pub fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -91,14 +100,13 @@ clear_patch();
 pub fn __main_update (path: &String) -> String{
     let func_id = crate::func_id18::main_update;
     let mut no_path =true;
-    let mut path: String ="".to_string();
     let mut in_name: String = "".to_string();
-    let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
     let thr_find_files = thread::Builder::new().stack_size(2 * 1024 * 1024).name("find_files".to_string());
     upd_screen_or_not((-1, "".strn() ) );
+    let path = path.clone();
         thr_find_files.spawn(move||{
             println!("spawn find files");
-            crate::find_files(path.as_str(), "");
+            crate::find_files_no_stop_code(path.as_str(), "");
             if crate::dirty!(){println!("exit find files")};
         }).unwrap().join();
 clear_patch();
