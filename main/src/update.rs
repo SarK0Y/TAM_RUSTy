@@ -47,7 +47,8 @@ pub fn multi_folder_lst () {
       //  println!("spawn midway data");
         crate::read_midway_data_not_main0();
         if crate::dirty!(){println!("exit midway data");}
-        crate::ps18::fix_num_files( -691147001);
+        crate::ps18::fix_num_files0( -691147001);
+        crate::ps18::set_num_files( -691147001);
         //crate::ps18::fix_num_pages( -691147001);
   //  }).unwrap ().join ();
 }

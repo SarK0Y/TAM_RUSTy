@@ -1221,6 +1221,7 @@ pub(crate) fn take_list_adr_env(name: &str) -> String {
 pub(crate) fn take_list_adr_len(name: &str) -> String {
     match name {
         "main0" => return take_list_adr("main0.len"),
+        "main" => return take_list_adr("main.len"),
         "filter" => return take_list_adr("filter.len"),
         "filter_history" => return take_list_adr("filter_history.len"),
         "cd" => return take_list_adr("cd.len"),

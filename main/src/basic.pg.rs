@@ -101,7 +101,7 @@ impl super::basic{
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
             if filename_str == stopCode || filename_str == "no str gotten"{return;}
             row_cpy.push(filename_str);
-            if count_down <= 0 {time_to_stop = true; break;}
+           // if count_down <= 0 {time_to_stop = true; break;}
             count_down -= 1;
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
