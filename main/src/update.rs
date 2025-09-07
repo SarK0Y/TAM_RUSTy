@@ -42,11 +42,13 @@ pub fn multi_folder_lst () {
     }
     let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
     crate::save_file_append_newline_abs_adr_fast (&stopCode, &orig_lst_lnk);
-    let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
+    //let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
     //thr_midway.spawn(||{
       //  println!("spawn midway data");
         crate::read_midway_data_not_main0();
         if crate::dirty!(){println!("exit midway data");}
+        crate::ps18::fix_num_files( -691147001);
+        //crate::ps18::fix_num_pages( -691147001);
   //  }).unwrap ().join ();
 }
 pub fn main_update(){

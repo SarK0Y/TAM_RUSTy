@@ -48,9 +48,9 @@ impl super::basic{
     let mut save_screen = get_file(&save_screen).unwrap();
     let redirect_out = Redirect::stdout(save_screen);
     let mut count_down = num_files;
-    if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
+    if crate::size_of_found_files() == 0u64 {println!("No files found [tst]"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
-    let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
+    let mut num_cols = if ps.num_cols != i64::MAX{ ps.num_cols }else{ crate::get_num_cols(func_id) };
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
@@ -91,7 +91,7 @@ impl super::basic{
             if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
              time_to_stop = true; break;}
             if crate::dirty!(){
-               println!("cmp_str res {}", crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()));
+               println!("cmp_str res {}", crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) );
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }

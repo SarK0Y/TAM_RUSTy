@@ -230,7 +230,12 @@ pub(crate) fn fix_num_files(func_id: i64) ->i64{
     _ => 0
   } - 1; 
    if len_of_front == -1{len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){ Ok(i) => i, _ => 0}; }
-   return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
+    std::thread::spawn ( move|| {
+      while len_of_front != get_num_files (func_id) {
+        unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};
+      }
+    });
+   return len_of_front }
    pub(crate) fn fix_num_files0(func_id: i64) ->i64{
    let len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){
     Ok(i) => i,

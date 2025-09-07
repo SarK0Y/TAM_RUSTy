@@ -65,6 +65,12 @@ pub(crate) fn up_front_list() {
     run_cmd_str(&cmd);
 }
 pub fn set_front_list(list: &str) {
+    let found_files = take_list_adr_env(&"found_files".strn());
+    let mut active_list = take_list_adr_env(&list);
+    if !crate::Path::new (&active_list).exists () {
+        return set_front_list_root (&list);
+       // crate::errMsg0 ("tst");
+    }
     let mut list = list.strn(); crate::lst::edit_mode_lst(Some (false) );
     if list == "" {
         list = "lst".strn()
@@ -81,8 +87,6 @@ pub fn set_front_list(list: &str) {
     if prev != "ls" {
         save_file(prev, "prev_list".strn());
     }
-    let found_files = take_list_adr_env(&"found_files".strn());
-    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(&list);
@@ -131,6 +135,13 @@ pub fn name_of_front_list(name: &str, set: bool) -> String {
     unsafe { name0.to_string() }
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize) {
+     let found_files = take_list_adr_env(&"found_files".strn());
+    let mut active_list = take_list_adr_env(&list);
+    if !crate::Path::new (&active_list).exists () {
+        active_list = take_list_adr(&list);
+       // crate::errMsg0 ("tst");
+    }
+   
     crate::lst::edit_mode_lst(Some (false) );
     if check_substrn(&list.strn(), "history") {
         swtch_esc(true, false);
@@ -1140,7 +1151,7 @@ pub(crate) fn size_of_found_files() -> u64 {
     let stopCode = getStop_code__!();
     let filename = format!("{}/found_files", unsafe {
         crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_
-    });
+    }).unreel_link_to_file();
     match fs::metadata(filename) {
         Ok(op) => op,
         _ => return 0u64,

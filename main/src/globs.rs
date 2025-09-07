@@ -1202,6 +1202,7 @@ pub fn cmd_decode_mode(set: Option<bool>) -> bool {
 pub(crate) fn take_list_adr_env(name: &str) -> String {
     match name {
         "main0" => return take_list_adr("main0"),
+        "main" => return take_list_adr("main"),
         "found_files" => return take_list_adr("found_files"),
         "filter" => return take_list_adr("filter"),
         "filter_history" => return take_list_adr("filter_history"),
