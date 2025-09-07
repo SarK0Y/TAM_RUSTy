@@ -427,7 +427,7 @@ pub fn mode_display_full_names_of_viewers(mode: Option<bool>) -> bool {
 
 pub fn tui_mode(indx: usize, set_state: Option<bool>) -> Option<bool> {
     static mut mode_to_run_app: Lazy<Vec<bool>> = Lazy::new(|| vec![]);
-    if mode_default_viewers( None ) {return None }
+    if mode_default_viewers( None ) {return Some (false) }
     unsafe {
         if let Some(x) = set_state {
             mode_to_run_app.push(x);
