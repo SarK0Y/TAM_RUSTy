@@ -32,6 +32,7 @@ use crate::{
     update18::update_dir_list,
     usize_2_i64, STRN,
 };
+use rst_lex::strns::Unique;
 pub(crate) unsafe fn check_mode(mode: &mut i64) {
     static mut state: i64 = 0;
     if *mode == -1 {
@@ -513,18 +514,18 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
         return;
     }
     fst_run = false;
-    let args: Vec<_> = crate::env::args().collect();
+    let mut args: Vec<String> = crate::core18::collectArg ("-view-w");//crate::env::args().collect();
+    let mut args1 = crate::core18::collectArg ("-tui-app");
+    args = args.uniq();
     let arg = args.as_slice();
-    for i in 1..args.len() {
-        if arg[i] == "-view_w" || arg[i] == "-view-w" || arg[i] == "-tui-app" {
-            let viewer: String = (args[i + 1]).chars().collect();
-            add_viewer(&viewer, -1);
-            if arg[i] == "-tui-app" {
-                tui_mode(0, Some(true))
-            } else {
-                tui_mode(0, Some(false))
-            };
-        }
+    for i in 0..args.len() {
+        let viewer: &String = &args [i];//(args[i]).chars().collect();
+        add_viewer(viewer, -1);
+    }
+    for i in 0..args1.len() {
+        let viewer: &String = &args1 [i];
+        add_viewer(viewer, -1);
+        tui_mode(0, Some(true));
     }
 }
 pub(crate) fn print_viewers() {

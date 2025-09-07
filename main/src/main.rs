@@ -332,14 +332,16 @@ fn read_midway_data_not_main0() -> bool{
     let mut added_indx = 0usize;
     loop {
         let stopCode = getStop_code__!();
-        let filename = format!("{}/main0", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+        let front_lst = take_list_adr("found_files").unreel_link_to_depth(1);
+        let filename = format!("{front_lst}" );
+       // dbg! (&filename);
         let file = File::open(filename).unwrap();
         let reader = BufReader::new(file);
     for (indx, line) in reader.lines().enumerate() {
         if indx <= added_indx && added_indx > 0{continue;}
         added_indx = indx;
         let line = line.unwrap();
-        let ret = globs18::add_2_main0_list(&line );
+        let ret = globs18::add_2_front_list(&line, -5574455674 );
        // let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
         ps18::set_num_files0(func_id, indx);
         if dirty!(){println!("line {indx} {}", line)}

@@ -255,11 +255,17 @@ pub(crate) fn swtch_tam_konsole() {
 pub(crate) fn F1_key() -> String {
     let mut prnt: String = read_prnt();
     let ch_main = crate::read_file ("ch_main");
-    if ch_main != "" { crate::set_front_list(&ch_main); }
-    else { crate::set_front_list("main0"); }
+    if ch_main != "" { 
+        crate::set_front_list(&ch_main);
+        crate::set_num_files(-5177654);
+    }
+    else { 
+        set_num_files_4_lst(&"main0".strn());
+        crate::clean_cache("main0");
+        crate::set_front_list("main0"); 
+    }
     //crate::ps18::fix_num_files(-13971);
-    set_num_files_4_lst(&"main0".strn());
-    crate::clean_cache("main0");
+    
     crate::mk_uid();
     drop_ls_mode();
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));

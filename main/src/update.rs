@@ -1,6 +1,6 @@
 use once_cell::sync::Lazy;
 use ps0::{fix_num_files, get_mainpath};
-use itertools::Itertools;
+use  rst_lex::strns::Unique;
 use crate::{basic, bkp_main_path, checkArg, clean_cache, clear_patch, clear_screen, complete_path, custom_traits::{fs_tools, STRN}, dont_scrn_fix, drop_ls_mode, errMsg0, exts::update_uses, from_ls_2_front, get_path_from_prnt, globs18::{check_substrn, path_to_shm, set_main0_as_front, strn_2_u64, take_list_adr, MAIN0_}, init::user_home_dir, mk_dummy_file, mk_empty_file, name_of_front_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_midway_data, read_prnt, rm_file, save_file, set_front_list, set_prnt, split_once, swtch::{front_list_indx, swtch_fn, SWTCH_USER_WRITING_PATH}, swtch_ls, tailOFF, KonsoleTitle, ManageLists};
 use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front, len_of_front_list_wc, len_of_main0_list, gen_win_title}, ps0::set_num_files};
 update_uses!();
@@ -11,12 +11,12 @@ pub fn multi_folder_lst () {
     let mut paths: Vec <String> = crate::collectArg ("-path0");
     let _paths: Vec <String> = crate::collectArg ("-path");
     paths.extend (_paths);
-    let mut nodup_paths: Vec <String> =Vec::new();
-    for p in paths.iter().unique() {
-        nodup_paths.push (p.clone());
-    }
+    let mut nodup_paths: Vec <String> = paths.uniq ();
     crate::save_file ("main".strn(), "ch_main".strn() );
-    crate::set_front_list ("main");
+    let main_lst_adr = take_list_adr ("main");
+    crate::save_file_abs_adr0 ("".strn(), main_lst_adr );
+    crate::core18::set_front_list_root ("main");
+    //crate::errMsg0("tst");
     KonsoleTitle(&gen_win_title());
     let func_id: i64 = -549874;
     if  crate::checkArg("-rows"){let val: i64 = i64::from_str_radix(&crate::__get_arg_in_cmd("-rows"), 10).expect(
@@ -28,10 +28,9 @@ pub fn multi_folder_lst () {
     let mut orig_lst_lnk = take_list_adr("found_files");
     let orig_lst = orig_lst_lnk.unreel_link_to_depth(1);
     std::fs::remove_file(&orig_lst);
-    crate::clean_all_cache ();
-    let mut lsts: Vec <String> = Vec::new ();
+    //crate::clean_all_cache ();
+    let mut lsts: Vec <String> = Vec::new ();//
     for path in &nodup_paths {
-        dbg! (path);
         let lst = __main_update ( path );
         lsts.push (lst);
     }
@@ -40,12 +39,15 @@ pub fn multi_folder_lst () {
     }
     let stopCode: String = unsafe {crate::ps18::page_struct("", crate::ps18::STOP_CODE_,-1).str_};
     crate::save_file_append_newline_abs_adr_fast (&stopCode, &orig_lst_lnk);
-    let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
-    thr_midway.spawn(||{
-        println!("spawn midway data");
-        crate::read_midway_data();
+    //let thr_midway = thread::Builder::new().stack_size(2 * 1024 * 1024).name("read_midway".to_string());
+    //thr_midway.spawn(||{
+      //  println!("spawn midway data");
+        crate::read_midway_data_not_main0();
         if crate::dirty!(){println!("exit midway data");}
-    }).unwrap ().join ();
+     //   crate::ps18::fix_num_files0( -691147001);
+        crate::ps18::set_num_files( -691147001);
+        //crate::ps18::fix_num_pages( -691147001);
+  //  }).unwrap ().join ();
 }
 pub fn main_update(){
     let func_id = crate::func_id18::main_update;
@@ -132,15 +134,14 @@ pub(crate) fn delay_secs(sleep: u64){
 pub(crate) fn prime(){
     crate::initSession();
     let key = "-front-lst";
-    main_update();
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
         crate::front_lst(&cmd);
-    }else{
+    } /*else{
         C!(front_list_indx(MAIN0_));
         C!(set_main0_as_front());
         set_front_list("main0");
-    }
+    }*/
     let mut base = crate::basic::new();
 //println!("len of main0 list {}", globs17::len_of_main0_list());
     let builder = thread::Builder::new().stack_size(8 * 1024 * 1024).name("manage_page".to_string());
@@ -155,7 +156,7 @@ println!("stop manage_page");
 //background_fixing_count(2);
 delay_ms(37);
     handler.join();
-    println!("len of main0 list {}", globs17::len_of_main0_list());
+    println!("len of front list {}", globs17::len_of_front_list());
 }
 pub(crate) fn update_dir_list(dir: &str, opts: &str, no_grep: bool){
     if !swtch_ls(false, false){drop_ls_mode(); return}

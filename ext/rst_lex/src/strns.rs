@@ -1,6 +1,7 @@
 use Mademoiselle_Entropia::custom_traits::{STRN, STRN_usize, STRN_strip, helpful_math_ops}; 
 use crate::faav::{log_attr, cleanup_dbg_attr, sav_log_attrs};
 use substring::Substring;
+use itertools::Itertools;
 pub fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
     if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
@@ -141,3 +142,15 @@ impl Char_Stream for String {
         return self.chars().count()
     }
 }
+pub trait Unique {
+    fn uniq (&self) -> Self;
+}
+impl Unique for Vec <String> {
+    fn uniq (&self) -> Self {
+        let mut nodup_paths: Vec <String> =Vec::new();
+        for p in self.iter().unique() {
+            nodup_paths.push (p.clone());
+        } return nodup_paths
+    }
+}
+//fn
