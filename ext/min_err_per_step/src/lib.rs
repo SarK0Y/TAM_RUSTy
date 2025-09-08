@@ -11,3 +11,5 @@
 //pub use crate::goto::{label, goto};
 #[path = "base.rs"]
 pub mod base;
+#[path = "trig.rs"]
+pub mod trig;

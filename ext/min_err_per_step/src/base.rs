@@ -1,9 +1,10 @@
+use once_cell::sync::Lazy;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use rug::float::Constant;
 use Mademoiselle_Entropia::minio::InterruptMsg;
-pub fn fast_n_simple_long_Pi (err: usize ) -> rugfloat {
+pub fn fast_n_simple_long_Pi (err: u64 ) -> rugfloat {
     let PREC0: u64 = glob_precision (None); 
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
@@ -34,6 +35,20 @@ pub fn glob_precision (prec: Option <u64> ) -> u64{
         if let Some (x) = prec {
             sav = x;
         } return sav
+    }
+}
+pub fn Pi () -> rugfloat {
+    static mut pi: Lazy <rugfloat> = Lazy::new (|| {
+        let PREC0 = glob_precision (None);
+        rugfloat::with_val_64 (PREC0, 1)
+    });
+    static mut prec: u64 = 512;
+    unsafe {
+        let new_prec = glob_precision (None);
+        if new_prec > prec {
+            *pi = fast_n_simple_long_Pi (new_prec);
+            prec = new_prec;
+        } return pi.clone()
     }
 }
 //fn
