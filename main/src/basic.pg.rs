@@ -10,11 +10,18 @@ use std::ptr::addr_of_mut;
 use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache, clear_screen, entry_cache_t, get_arg_in_cmd, get_ask_user, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize, take_list_adr, take_list_adr_env}, i64_2_usize, ln_of_found_files_cacheless, mk_empty_file, name_of_front_list, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, save_file_append_newline, screen_state, set_num_page, swtch::check_symlink, upd_fast_cache, update18::{delay_ms, fix_screen_count, upd_screen_or_not}};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use gag::Redirect;
+use goto1717::cleanup;
 #[cfg(feature ="tst_macro")]
 use goto1717::log_vars;
 //use super::extctrl::*;
+#[no_mangle]
+#[inline(never)]
+pub fn placeholder (comment: &str) -> i64 {
+    return -495
+}
 impl super::basic{
 #[cfg(not(feature = "tst_macro"))]
+#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
@@ -255,6 +262,7 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
         Entry::Vacant(entry) => {return failed;}
     }
 }
+#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
 pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
@@ -276,6 +284,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     // self.cache.remove_entry(&clean);
     }
     // todo: erase dbg stuff
+    placeholder ("--->");
     let dbg_cmd = take_list_adr ("dbg_cmd");
     let dbg_cmd = crate::read_file_abs_adr (&dbg_cmd);
     crate::set_ask_user (&dbg_cmd, -8884125);
@@ -283,6 +292,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         dbg! (&self.cache);
         crate::errMsg0 ("");
     }
+    placeholder ("--->");
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, proper_indx.0 );
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");

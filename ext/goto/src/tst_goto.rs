@@ -285,9 +285,9 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
        // leave_file_mark ("/tmp/log_func", &strn);
        return out.into()
 }
-#[proc_macro_attribute]
     pub fn cleanup(_attr: TokenStream, item: TokenStream) -> TokenStream {
-        let mut func_body = item.to_string();
+ #[proc_macro_attribute]
+       let mut func_body = item.to_string();
         let attr = _attr.to_string();
         leave_file_mark ("/tmp/attr", &attr);
         func_body = _cleanup(&mut func_body, &attr);
