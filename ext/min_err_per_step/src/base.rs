@@ -42,12 +42,14 @@ pub fn Pi () -> rugfloat {
         let PREC0 = glob_precision (None);
         rugfloat::with_val_64 (PREC0, 1)
     });
+    static mut _1st_run: bool = true;
     static mut prec: u64 = 512;
     unsafe {
         let new_prec = glob_precision (None);
-        if new_prec > prec {
-            *pi = fast_n_simple_long_Pi (new_prec);
+        if new_prec > prec || _1st_run {
             prec = new_prec;
+            *pi = fast_n_simple_long_Pi (prec);
+            _1st_run = false;
         } return pi.clone()
     }
 }
