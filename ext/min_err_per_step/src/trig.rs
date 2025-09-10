@@ -30,3 +30,11 @@ impl Trig for rugfloat {
         return fast_n_simple_sin3 (self, glob_precision (None) )
     }
 }
+pub trait Trig_w_local_prec {
+    fn __sin (&self, prec: u64) -> Self;
+}
+impl Trig_w_local_prec for rugfloat {
+    fn __sin (&self, prec: u64) -> Self {
+        return fast_n_simple_sin3 (self, prec )
+    }
+}
