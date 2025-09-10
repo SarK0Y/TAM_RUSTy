@@ -24,11 +24,32 @@ pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
 } 
 pub trait Trig {
     fn __sin (&self) -> Self;
+    fn __cos (&self) -> Self;
+    fn sign_of_cos (&self) -> i8;
 }
 impl Trig for rugfloat {
     fn __sin (&self) -> Self {
         return fast_n_simple_sin3 (self, glob_precision (None) )
     }
+    fn __cos (&self) -> Self {
+        let sign = self.sign_of_cos ();
+        todo! ()
+    }
+    fn sign_of_cos (&self) -> i8 {
+        let pi = Pi ();
+        let _2pi = pi.clone() * 2;
+        let angle = self.clone() % _2pi;
+        let mut quadrant = pi.clone () / 2;
+        if angle <= quadrant {return  1 }
+        quadrant = pi.clone();
+        if angle <= quadrant {return -1 }
+        quadrant = 1.5 * pi.clone ();
+        if angle <= quadrant {return -1 }
+        quadrant = 2 * pi;
+        if angle <= quadrant {return  1 }
+        return 1
+    } 
+
 }
 pub trait Trig_w_local_prec {
     fn __sin (&self, prec: u64) -> Self;
