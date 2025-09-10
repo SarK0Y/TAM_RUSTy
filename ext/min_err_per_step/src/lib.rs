@@ -13,3 +13,5 @@
 pub mod base;
 #[path = "trig.rs"]
 pub mod trig;
+#[path = "nth_root.rs"]
+pub mod nth_root;

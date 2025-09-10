@@ -22,6 +22,9 @@ pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
     dbg! (&sin_3x);
     return sin_3x
 } 
+pub fn gen_prec_for_three () -> u64 {
+    todo! ()
+}
 pub trait Trig {
     fn __sin (&self) -> Self;
     fn __cos (&self) -> Self;
@@ -32,8 +35,12 @@ impl Trig for rugfloat {
         return fast_n_simple_sin3 (self, glob_precision (None) )
     }
     fn __cos (&self) -> Self {
+        let PREC0 = glob_precision (None);
+        let _1 = rugfloat::with_val_64 (PREC0, 1);
         let sign = self.sign_of_cos ();
-        todo! ()
+        let mut cos =  fast_n_simple_sin3 (self, PREC0 / 9 );
+        //cos = 
+        todo!()
     }
     fn sign_of_cos (&self) -> i8 {
         let pi = Pi ();
