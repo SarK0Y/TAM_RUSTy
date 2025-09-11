@@ -3,6 +3,7 @@ use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugP
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use rug::float::Constant;
 use crate::base::{glob_precision, Pi };
+use crate::nth_root::__2rt;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
     let PREC0 = glob_precision (None);
@@ -23,12 +24,13 @@ pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
     return sin_3x
 } 
 pub fn gen_prec_for_three () -> u64 {
-    todo! ()
+    let prec: f64 = glob_precision (None) as f64 / 1.6;
+    return prec as u64
 }
 pub trait Trig {
     fn __sin (&self) -> Self;
     fn __cos (&self) -> Self;
-    fn sign_of_cos (&self) -> i8;
+    fn sign_cos (&self) -> i8;
 }
 impl Trig for rugfloat {
     fn __sin (&self) -> Self {
@@ -37,12 +39,13 @@ impl Trig for rugfloat {
     fn __cos (&self) -> Self {
         let PREC0 = glob_precision (None);
         let _1 = rugfloat::with_val_64 (PREC0, 1);
-        let sign = self.sign_of_cos ();
-        let mut cos =  fast_n_simple_sin3 (self, PREC0 / 9 );
-        //cos = 
-        todo!()
+        let sign = self.sign_cos ();
+        let mut cos =  fast_n_simple_sin3 (self, gen_prec_for_three () );
+        cos = _1 - cos.clone() * cos.clone();
+        cos = __2rt ( &cos, glob_precision (None) );
+        return sign * cos
     }
-    fn sign_of_cos (&self) -> i8 {
+    fn sign_cos (&self) -> i8 {
         let pi = Pi ();
         let _2pi = pi.clone() * 2;
         let angle = self.clone() % _2pi;

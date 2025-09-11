@@ -4,7 +4,7 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use rug::float::Constant;
 use crate::base::{glob_precision, Pi };
 use Mademoiselle_Entropia::minio::InterruptMsg;
-pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
+pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     let PREC0 = glob_precision (None);
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
