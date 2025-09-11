@@ -39,7 +39,7 @@ impl Trig for rugfloat {
     fn __cos (&self) -> Self {
         let PREC0 = glob_precision (None);
         let _1 = rugfloat::with_val_64 (PREC0, 1);
-        let sign = self.sign_cos ();
+        let sign = Trig::sign_cos (self);
         let mut cos =  fast_n_simple_sin3 (self, gen_prec_for_three () );
         cos = _1 - cos.clone() * cos.clone();
         cos = __2rt ( &cos, glob_precision (None) );
@@ -63,9 +63,34 @@ impl Trig for rugfloat {
 }
 pub trait Trig_w_local_prec {
     fn __sin (&self, prec: u64) -> Self;
+    fn __cos (&self, prec: u64) -> Self;
+    fn sign_cos (&self) -> i8;
 }
 impl Trig_w_local_prec for rugfloat {
     fn __sin (&self, prec: u64) -> Self {
         return fast_n_simple_sin3 (self, prec )
     }
+    fn __cos (&self, PREC0: u64) -> Self {
+        let _1 = rugfloat::with_val_64 (PREC0, 1);
+        let sign = Trig_w_local_prec::sign_cos (self);
+        let mut cos =  fast_n_simple_sin3 (self, gen_prec_for_three () );
+        cos = _1 - cos.clone() * cos.clone();
+        cos = __2rt ( &cos, glob_precision (None) );
+        dbg! (&cos);
+        return sign * cos
+    }
+    fn sign_cos (&self) -> i8 {
+        let pi = Pi ();
+        let _2pi = pi.clone() * 2;
+        let angle = self.clone() % _2pi;
+        let mut quadrant = pi.clone () / 2;
+        if angle <= quadrant {return  1 }
+        quadrant = pi.clone();
+        if angle <= quadrant {return -1 }
+        quadrant = 1.5 * pi.clone ();
+        if angle <= quadrant {return -1 }
+        quadrant = 2 * pi;
+        if angle <= quadrant {return  1 }
+        return 1
+    } 
 }

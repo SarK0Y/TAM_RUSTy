@@ -262,7 +262,7 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
         Entry::Vacant(entry) => {return failed;}
     }
 }
-#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
 pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
@@ -284,6 +284,8 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
     // self.cache.remove_entry(&clean);
     }
     // todo: erase dbg stuff
+#[cfg(feature="in_dbg")]
+{
     placeholder ("--->");
     let dbg_cmd = take_list_adr ("dbg_cmd");
     let dbg_cmd = crate::read_file_abs_adr (&dbg_cmd);
@@ -293,6 +295,7 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         crate::errMsg0 ("");
     }
     placeholder ("--->");
+}
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, proper_indx.0 );
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");

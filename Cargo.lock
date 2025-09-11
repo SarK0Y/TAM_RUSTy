@@ -16,6 +16,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "Mademoiselle_Entropia"
+version = "1.11.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bec5d82a2f90d4d6f1a89caf170369bed593de856a268c9a04391f574d30f2bb"
+dependencies = [
+ "chrono",
+ "libc",
+ "num-traits",
+ "once_cell",
+ "substring",
+ "termios",
+ "unic-ucd",
+]
+
+[[package]]
 name = "adler2"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -352,7 +367,7 @@ dependencies = [
 name = "for_build_rs"
 version = "0.0.110"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "once_cell",
  "substring",
 ]
@@ -393,7 +408,7 @@ dependencies = [
 name = "goto1717"
 version = "0.0.168"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "once_cell",
  "proc-macro2",
  "quote",
@@ -593,6 +608,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
 dependencies = [
  "rayon",
+]
+
+[[package]]
+name = "min_err_per_step"
+version = "0.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4760b41f383737f0867e023a42d4c1525b911eb28ac20c0961c58de411af62dc"
+dependencies = [
+ "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits",
+ "once_cell",
+ "rug",
+ "substring",
 ]
 
 [[package]]
@@ -903,7 +931,7 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 name = "rst_lex"
 version = "0.0.111"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "for_build_rs",
  "itertools",
  "once_cell",
@@ -997,9 +1025,9 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.665"
+version = "13.11.666"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "ansi_term",
  "chrono",
  "cli-table",
@@ -1013,6 +1041,7 @@ dependencies = [
  "itertools",
  "libc",
  "midly",
+ "min_err_per_step",
  "nix",
  "num",
  "num-traits",

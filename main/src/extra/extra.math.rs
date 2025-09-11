@@ -4,6 +4,12 @@ use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugP
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use num::Float;
 use std::f64::consts::E;
+#[cfg(feature="meps")]
+use min_err_per_step::trig::Trig_w_local_prec;
+#[cfg(feature="meps")]
+use min_err_per_step::nth_root::__2rt;
+#[cfg(feature="meps")]
+use min_err_per_step::base::{glob_precision, Pi};
 use Mademoiselle_Entropia::minio::InterruptMsg;
 const PREC: u64 = 1024;
 const PREC0: u64 = 6000;
@@ -84,7 +90,8 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
 }
-pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
+#[cfg(not(feature="meps"))]
+pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
@@ -131,7 +138,7 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     while start_x < *x {
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
         sin_x *= 2;
-        sin_x *= __2rt (&cos_x, PREC0 as usize );//cos_x.sqrt ();
+        sin_x *= __2rt (&cos_x, PREC0 );//cos_x.sqrt ();
         start_x *= 2;
     }
     dbg! (&start_x);
@@ -165,7 +172,7 @@ pub fn fast_n_simple_cos3 (x: &rugfloat, err: usize ) -> rugfloat {
     //sin_x = 2 * start_x.clone ();
     let mut cos_3x: rugfloat = _1.clone ();
     cos_3x = ( _1.clone () - start_x.clone() * start_x.clone() );
-    cos_3x = __2rt (&cos_3x, PREC0 as usize);
+    cos_3x = __2rt (&cos_3x, PREC0);
     dbg! (&cos_3x);
     while start_x < *x {
         cos_3x = 4 * cos_3x.clone ().pow (3) - 3 * cos_3x.clone ();
@@ -237,14 +244,22 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&err_pi);
      _45deg /= 4;
      dbg! (&_45deg);
+     #[cfg(feature="meps")]
+     glob_precision (Some (6000));
      let mut rug_sin3_err = __2rt (&_05, 4300);
      let mut rug_sin_err = rug_sin3_err.clone();//_45deg.clone().sin();
      let mut rug_cos_err = rug_sin3_err.clone();// _45deg.clone().cos();
      //let mut rug_cos_err =  _45deg.clone().cos();
      let mut rug_cos3_err = rug_sin3_err.clone();//_45deg.clone().cos();
      //let sin_45deg = _45deg.sin();
+     dbg! ("sqrt(2) for tst");
+     __2rt(&_2, 2200);
+     dbg! ("end sqrt(2) for tst");
      let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 5000);
-     let mut cos_45deg =fast_n_simple_cos ( &_45deg, 5100);
+     #[cfg(feature="meps")]
+     let mut cos_45deg = _45deg.__cos(2200);//fast_n_simple_cos ( &_45deg, 5100);
+     #[cfg(not(feature="meps"))]
+     let mut cos_45deg = fast_n_simple_cos ( &_45deg, 5100);
      let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
      dbg! (&cos3_45deg);
