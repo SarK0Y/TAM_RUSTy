@@ -45,7 +45,7 @@ pub fn Pi () -> rugfloat {
     static mut _1st_run: bool = true;
     static mut prec: u64 = 512;
     unsafe {
-        let new_prec = glob_precision (None);
+        let new_prec = glob_precision (None) - 1;
         if new_prec != prec || _1st_run {
             prec = new_prec;
             *pi = fast_n_simple_long_Pi (prec);

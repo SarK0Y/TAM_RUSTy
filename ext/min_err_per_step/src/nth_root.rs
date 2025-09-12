@@ -10,15 +10,19 @@ pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
     start_x.assign (x >> 3);
-    let no_less = _1.clone () / _2.clone().pow (err);
+    let no_less = _1.clone () / _2.clone().pow (err - 1);
+    //dbg! (&no_less);
     let mut b = _1.clone();
    // dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
-    while (start_x.clone() - b.clone() ).abs () > no_less {
+    let mut ds = (start_x.clone() - b.clone() ).abs ();
+    while ds > no_less {
         b = x.clone () / start_x.clone ();
-	start_x = (start_x.clone() + b.clone () ) / 2;
+	    start_x = (start_x.clone() + b.clone () ) / 2;
+        ds = (start_x.clone() - b.clone() ).abs ();
+        //dbg! (&ds);
     }
-   // dbg! (&start_x);
+ //   dbg! (&b);
     return b
 } 

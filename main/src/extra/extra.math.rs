@@ -5,7 +5,7 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use num::Float;
 use std::f64::consts::E;
 #[cfg(feature="meps")]
-use min_err_per_step::trig::Trig_w_local_prec;
+use min_err_per_step::trig::Trig;
 #[cfg(feature="meps")]
 use min_err_per_step::nth_root::__2rt;
 #[cfg(feature="meps")]
@@ -242,10 +242,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let mut _45deg = fast_n_simple_long_Pi ( err );
      let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
      dbg! (&err_pi);
-     _45deg /= 4;
-     dbg! (&_45deg);
      #[cfg(feature="meps")]
      glob_precision (Some (6000));
+     #[cfg(feature="meps")]
+    { _45deg = Pi();}
+    _45deg /= 4;
      let mut rug_sin3_err = __2rt (&_05, 4300);
      let mut rug_sin_err = rug_sin3_err.clone();//_45deg.clone().sin();
      let mut rug_cos_err = rug_sin3_err.clone();// _45deg.clone().cos();
@@ -257,12 +258,23 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! ("end sqrt(2) for tst");
      let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 5000);
      #[cfg(feature="meps")]
-     let mut cos_45deg = _45deg.__cos(2200);//fast_n_simple_cos ( &_45deg, 5100);
+     //let mut cos_45deg = _45deg.__cos(4200);//fast_n_simple_cos ( &_45deg, 5100);
+     let mut cos_45deg = _45deg.__cos();
      #[cfg(not(feature="meps"))]
      let mut cos_45deg = fast_n_simple_cos ( &_45deg, 5100);
      let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
-     dbg! (&cos3_45deg);
+     #[cfg(feature="meps")]
+     {
+        let mut cos_extra = _45deg.cos_extra_prec ();
+        let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
+        cos_extra /= _45deg.__cos();
+        let __cos_vs__sin  = _45deg.__sin () / _45deg.__cos();
+        dbg! (&cos_extra);
+        dbg! (&cos_extra_vs__sin);
+        dbg! (&__cos_vs__sin);
+     }
+     dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();
      rug_sin_err /= sin_45deg.clone();
      rug_cos_err /= cos_45deg.clone();

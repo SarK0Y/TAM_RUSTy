@@ -612,9 +612,9 @@ dependencies = [
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.11"
+version = "0.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4760b41f383737f0867e023a42d4c1525b911eb28ac20c0961c58de411af62dc"
+checksum = "5b68c0f5bd58fe7a209dfa508fe8cb8c177aa8b71a314f5f600ff3804c734da9"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits",
@@ -1025,7 +1025,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.666"
+version = "13.11.667"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18",
  "ansi_term",

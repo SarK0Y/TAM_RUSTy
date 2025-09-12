@@ -1,4 +1,15 @@
-The Core idea is to treat Rust's lexemes as just simple strings w/o extra types which only add new layers of unnecessary complexity. 
+# Math library to calculate basic functions with minimal error per step.
+```toml
+min_err_per_step = "0.0.13"
+```
+```rs
+use min_err_per_step::trig::Trig_w_local_prec;
+use min_err_per_step::base::{glob_precision, Pi};
+...
+glob_precision (Some (6000));
+let _45deg = Pi() / 4;
+let mut cos_45deg = _45deg.__cos(4200);
+```
  <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
  <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
@@ -15,3 +26,4 @@ The Core idea is to treat Rust's lexemes as just simple strings w/o extra types 
  # <p align=center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b> </p>
  
 # my the Best Wishes to You 🙃
+

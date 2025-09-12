@@ -10,6 +10,7 @@ use std::ptr::addr_of_mut;
 use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache, clear_screen, entry_cache_t, get_arg_in_cmd, get_ask_user, get_num_files, get_num_page, getkey, globs18::{check_substrn, get_item_from_front_list, seg_size, strn_2_u64, strn_2_usize, take_list_adr, take_list_adr_env}, i64_2_usize, ln_of_found_files_cacheless, mk_empty_file, name_of_front_list, patch_len, popup_msg, read_file, read_file_abs_adr, read_front_list, rec_from_patch, rm_file, save_file_abs_adr, save_file_append_newline, screen_state, set_num_page, swtch::check_symlink, upd_fast_cache, update18::{delay_ms, fix_screen_count, upd_screen_or_not}};
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use gag::Redirect;
+#[cfg(feature ="tst_macro")]
 use goto1717::cleanup;
 #[cfg(feature ="tst_macro")]
 use goto1717::log_vars;
@@ -21,7 +22,7 @@ pub fn placeholder (comment: &str) -> i64 {
 }
 impl super::basic{
 #[cfg(not(feature = "tst_macro"))]
-#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;

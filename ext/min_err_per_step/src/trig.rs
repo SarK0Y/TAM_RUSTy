@@ -30,6 +30,7 @@ pub fn gen_prec_for_three () -> u64 {
 pub trait Trig {
     fn __sin (&self) -> Self;
     fn __cos (&self) -> Self;
+    fn cos_extra_prec (&self) -> Self;
     fn sign_cos (&self) -> i8;
 }
 impl Trig for rugfloat {
@@ -44,6 +45,17 @@ impl Trig for rugfloat {
         cos = _1 - cos.clone() * cos.clone();
         cos = __2rt ( &cos, glob_precision (None) );
         return sign * cos
+    }
+    fn cos_extra_prec (&self) -> Self {
+        let PREC0 = glob_precision (None);
+        let pi = Pi ();
+        let _2pi: rugfloat = pi.clone() * 2;
+        let angle: rugfloat = self % _2pi.clone();
+        let _2angle: rugfloat = angle.clone () * 2 % _2pi;
+        let mut cos =  fast_n_simple_sin3 (&_2angle, gen_prec_for_three () );
+        let sin =  fast_n_simple_sin3 (&angle, gen_prec_for_three () ) * 2;
+        cos /= sin; // sin(2x) = 2 cos(x) sin(x)
+        return cos
     }
     fn sign_cos (&self) -> i8 {
         let pi = Pi ();
@@ -64,6 +76,7 @@ impl Trig for rugfloat {
 pub trait Trig_w_local_prec {
     fn __sin (&self, prec: u64) -> Self;
     fn __cos (&self, prec: u64) -> Self;
+    //fn cos_extra_prec (&self, prec: u64) -> Self
     fn sign_cos (&self) -> i8;
 }
 impl Trig_w_local_prec for rugfloat {
@@ -73,9 +86,10 @@ impl Trig_w_local_prec for rugfloat {
     fn __cos (&self, PREC0: u64) -> Self {
         let _1 = rugfloat::with_val_64 (PREC0, 1);
         let sign = Trig_w_local_prec::sign_cos (self);
-        let mut cos =  fast_n_simple_sin3 (self, gen_prec_for_three () );
+        let mut cos =  fast_n_simple_sin3 (self, PREC0 );
         cos = _1 - cos.clone() * cos.clone();
-        cos = __2rt ( &cos, glob_precision (None) );
+       // dbg!("__2rt");
+        cos = __2rt ( &cos, PREC0 );
         dbg! (&cos);
         return sign * cos
     }
