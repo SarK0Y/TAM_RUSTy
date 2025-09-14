@@ -265,8 +265,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
      #[cfg(feature="meps")]
+     use min_err_per_step::base::ext_const_E;
+     #[cfg(feature="meps")]
      {
-    use min_err_per_step::base::ext_const_E;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
         cos_extra /= _45deg.__cos();

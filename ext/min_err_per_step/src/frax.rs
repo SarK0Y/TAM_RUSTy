@@ -34,6 +34,6 @@ pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_b
         float_x -= &a; 
     }
     let res = numerator.clone() / denominator.clone();
-    dbg! (&res);
+    //dbg! (&res);
     return (numerator, denominator)
 }

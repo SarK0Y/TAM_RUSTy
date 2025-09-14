@@ -612,9 +612,9 @@ dependencies = [
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.15"
+version = "0.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b68c0f5bd58fe7a209dfa508fe8cb8c177aa8b71a314f5f600ff3804c734da9"
+checksum = "5d8101de1148e2409ecba6c5a129edc498a28017d1ade28f81c393de5c497d12"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits",
@@ -940,9 +940,9 @@ dependencies = [
 
 [[package]]
 name = "rug"
-version = "1.25.0"
+version = "1.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01d157703b9f96e9be75c739e7030d1d81be377d882d93046670309381517772"
+checksum = "58ad2e973fe3c3214251a840a621812a4f40468da814b1a3d6947d433c2af11f"
 dependencies = [
  "az",
  "gmp-mpfr-sys",
@@ -1025,7 +1025,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.667"
+version = "13.11.669"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18",
  "ansi_term",
