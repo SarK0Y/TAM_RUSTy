@@ -1,15 +1,15 @@
 [package]
 name ="min_err_per_step"
 edition = "2021"
-version = "0.0.16"
+version = "0.0.25"
 #publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
 #readme = "README.md"
 repository = "https://github.com/SarK0Y/TAM_RUSTy/tree/pre-workable/ext/min_err_per_step"
-categories = ["rust-patterns", "algorithms"]
+categories = ["rust-patterns", "algorithms", "mathematics"]
 kwywords = ["math", "basic", "fast", "kiss"]
-description = "Dear User, it's math lib for Rust to calc basic funcs w/ minimal error per step [kiss principle been at the very heart]."
+description = "Dear Dev, it's math lib for Rust to calc basic funcs w/ minimal error per step [kiss principle been at the very heart]."
 [workspace]
 [build-dependencies]
 #for_build_rs = { version = "0.0.109", optional = true, default-features = false }

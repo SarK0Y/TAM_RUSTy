@@ -515,7 +515,17 @@ return;*/
  SYS();
     }
     clear_screen();
-    if cfg!(feature="in_dbg"){println!("feature in_dbg been activated");};
+    let mut info_strn = "Activated features: ".strn ();
+    if cfg!(feature="in_dbg"){info_strn.push_str ("in_dbg ")};
+    if cfg!(feature="mae"){info_strn.push_str ("mae ")};
+    if cfg!(feature="tst_macro"){info_strn.push_str ("tst_macro ")};
+    if cfg!(feature="macro"){info_strn.push_str ("macro ")};
+    if cfg!(feature="meps"){info_strn.push_str ("meps ")};
+    if cfg!(feature="npf_dbg"){info_strn.push_str ("npf_dbg ")};
+    if cfg!(feature="tam"){info_strn.push_str ("tam ")};
+    if cfg!(feature="tst"){info_strn.push_str ("tst ")};
+    if cfg!(feature="hide"){info_strn.push_str ("hide ")};
+    println!("{info_strn}", );
      for (key, value) in env::vars() {
         if key.starts_with("npf_") {
             println!("{}: {:?}", key, value);

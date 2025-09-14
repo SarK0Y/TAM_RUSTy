@@ -26,3 +26,35 @@ pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
  //   dbg! (&b);
     return b
 } 
+pub fn nthrt (x: &rugfloat, pow: &rugfloat, err: u64) -> rugfloat {
+    let PREC0 = glob_precision (None);
+    let mut ret = rugfloat::with_val_64 (PREC0, 1);
+    let pows = get_pows (pow, err);
+    let mut step = 0u64;
+    let mut approx = rugfloat::with_val_64 (PREC0, x);
+    for j in pows {
+        while step < j {
+            approx = __2rt (&approx, err);
+            step += 1;
+        }
+        ret *= approx.clone();  
+    }
+    return ret
+}
+pub fn get_pows (pow: &rugfloat, err: u64) -> Vec <u64>{
+    let PREC0 = glob_precision (None);
+    let mut step = 0u64;
+    let mut ret = Vec::<u64>::new();
+    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut approx = rugfloat::with_val_64 (PREC0, 0);
+    let mut try0 = approx.clone();
+    let mut closer = approx.clone();
+    while (pow.clone () - approx.clone() ) > err{
+        closer = _1.clone () / (_2.clone() << step as usize );
+        try0 = closer + approx.clone();
+        if try0 < *pow { approx = try0; ret.push (step) }
+        step += 1;
+    }
+    return ret
+}

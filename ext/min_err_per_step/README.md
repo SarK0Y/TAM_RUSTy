@@ -1,4 +1,4 @@
-# Math library to calculate basic functions with minimal error per step.
+# Math library to calculate basic functions with minimal error per step thanks to self-balancing computation.
 ```toml
 min_err_per_step = "0.0.16"
 ```
@@ -7,15 +7,15 @@ use min_err_per_step::trig::Trig_w_local_prec;
 use min_err_per_step::base::{glob_precision, Pi};
 ...
 glob_precision (Some (6000));
-let _45deg = Pi() / 4;
-let mut cos_45deg = _45deg.__cos(4200);
+let _45deg: rugfloat = Pi() / 4;
+let mut cos_45deg: rug::Float = _45deg.__cos(4200);
 ```
 ```rs
 use min_err_per_step::trig::Trig;
 use min_err_per_step::base::{glob_precision, Pi};
 ...
 glob_precision (Some (6000));
-let _45deg = Pi() / 4;
+let _45deg: rugfloat = Pi() / 4;
 let mut cos_45deg = _45deg.__cos();
 ```
  <b> Links: </b> <br>
