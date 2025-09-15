@@ -18,3 +18,5 @@ pub mod trig;
 pub mod nth_root;
 #[path = "frax.rs"]
 pub mod frax;
+#[path = "logarithm.rs"]
+pub mod logarithm;

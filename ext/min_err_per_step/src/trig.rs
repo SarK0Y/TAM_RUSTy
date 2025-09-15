@@ -10,17 +10,17 @@ pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
     let _3 = rugfloat::with_val_64 (PREC0, 3);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = x / _3.pow (err);
-    dbg! (&start_x);
+    //dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
     let mut sin_3x: rugfloat = _1.clone ();
     sin_3x = start_x.clone();
-    dbg! (&sin_3x);
+    //dbg! (&sin_3x);
     while start_x < *x {
         sin_3x = 3 * sin_3x.clone () - 4* sin_3x.clone ().pow (3);
         start_x *= 3;
     }
-    dbg! (&sin_3x);
+    //dbg! (&sin_3x);
     return sin_3x
 } 
 pub fn gen_prec_for_three () -> u64 {
@@ -88,9 +88,9 @@ impl Trig_w_local_prec for rugfloat {
         let sign = Trig_w_local_prec::sign_cos (self);
         let mut cos =  fast_n_simple_sin3 (self, PREC0 );
         cos = _1 - cos.clone() * cos.clone();
-       // dbg!("__2rt");
+       // //dbg!("__2rt");
         cos = __2rt ( &cos, PREC0 );
-        dbg! (&cos);
+        //dbg! (&cos);
         return sign * cos
     }
     fn sign_cos (&self) -> i8 {
