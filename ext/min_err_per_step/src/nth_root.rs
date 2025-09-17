@@ -58,3 +58,13 @@ pub fn get_pows (pow: &rugfloat, err: u64) -> Vec <u64>{
     }
     return ret
 }
+/// t = 2^(2^m) [root] where t < n
+pub fn __22mrt (x: &rugfloat, n: u64) -> (rugfloat, u64 ) {
+    let PREC0 = glob_precision (None);
+    let mut ret = x.clone ();
+    let mut cnt = 1u64;
+    while cnt < n {
+        ret = __2rt ( &ret, PREC0 );
+        cnt *= 2;
+    } return (ret, cnt )
+}

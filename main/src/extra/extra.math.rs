@@ -10,6 +10,8 @@ use min_err_per_step::trig::Trig;
 use min_err_per_step::nth_root::__2rt;
 #[cfg(feature="meps")]
 use min_err_per_step::base::{glob_precision, Pi};
+#[cfg(feature="meps")]
+use min_err_per_step::logarithm::lg;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 const PREC: u64 = 1024;
 const PREC0: u64 = 6000;
@@ -268,16 +270,22 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      use min_err_per_step::base::ext_const_E;
      #[cfg(feature="meps")]
      {
+        let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
         cos_extra /= _45deg.__cos();
         let __cos_vs__sin  = _45deg.__sin () / _45deg.__cos();
         let power = rugfloat::with_val_64 (PREC0, 0.693147181);
         let ext_const_e = ext_const_E (&power);
+        let std_ln = _8.clone().ln();
+        dbg! (&std_ln);
+        let _8_log_2: rugfloat = _8.lg (&_2);
+        let approx_8: rugfloat = _8.pow(&_8_log_2);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
         dbg! (&__cos_vs__sin);
         dbg! (&ext_const_e);
+        dbg! (&approx_8);
      }
      dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();

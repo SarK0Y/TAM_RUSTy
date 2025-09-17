@@ -3,7 +3,7 @@ use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use rug::float::Constant;
-use crate::frax::continued_fraction_approximation;
+use crate::frax::{continued_fraction_approximation, fast_n_dumb_shortcut_for_cfrac };
 use Mademoiselle_Entropia::minio::InterruptMsg;
 pub fn fast_n_simple_long_Pi (err: u64 ) -> rugfloat {
     let PREC0: u64 = glob_precision (None); 
@@ -65,7 +65,7 @@ pub fn re_fast_real_e (new_coef: &rugfloat, canceled_coef: &rugfloat, prec_: u64
     const_e_base.pow_assign(exponent); // = 2 ^ m
     //dbg! (&const_e_base);
     let mut big_exp = const_e_base.clone (); // = 2 ^ m
-    big_exp *= rugfloat::with_val_64(PREC0_, new_coef); // = new_coef * 2 ^ m
+    big_exp *= rugfloat::with_val_64(PREC0_, new_coef.clone().abs () ); // = new_coef * 2 ^ m
     const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , canceled_coef), rm);
     //dbg! (&const_e_base);
     one_div_by.div_assign_round(&const_e_base, rm);
@@ -76,19 +76,24 @@ pub fn re_fast_real_e (new_coef: &rugfloat, canceled_coef: &rugfloat, prec_: u64
     //dbg! (&canceled_coef);
     //dbg! (&new_coef);
     let mut const_e = const_e_base.clone();
-    const_e.pow_assign_round( big_exp, rm );
+    const_e.pow_assign( big_exp);
     //dbg! (&const_e_base );
     //dbg!(&const_e);
     if const_e == one {
+        dbg! ("bad variant");
         let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u64;
             return re_fast_real_e(new_coef, canceled_coef, prec_);
     }
     return const_e//.clone()
 }
 pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
+    let sign: i8 = if *pow > 0 { 1 } else { -1 };
+    let pow = pow.clone() * sign;
     let PREC0 = glob_precision (None);
     let max_terms = PREC0 as usize / 3;
-    let (new_coef, canceled_coef) = continued_fraction_approximation (&pow, max_terms, PREC0);
+    let (new_coef, canceled_coef) = fast_n_dumb_shortcut_for_cfrac (&pow);//continued_fraction_approximation (&pow, max_terms, PREC0);
+    let new_coef = new_coef * sign;
     return re_fast_real_e (&new_coef, &canceled_coef, PREC0)
 }
+// https://www.mpfr.org/algorithms.pdf
 //fn
