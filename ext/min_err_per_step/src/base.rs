@@ -5,6 +5,16 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use rug::float::Constant;
 use crate::frax::{continued_fraction_approximation, fast_n_dumb_shortcut_for_cfrac };
 use Mademoiselle_Entropia::minio::InterruptMsg;
+pub enum manage_prec {
+    init (u64),
+    partial_set (u64),
+    get_exp,
+    get_big_value,
+    get_low_value,
+    long_out (rugfloat),
+    short_out (u64),
+    none 
+}
 pub fn fast_n_simple_long_Pi (err: u64 ) -> rugfloat {
     let PREC0: u64 = glob_precision (None); 
     let _2 = rugfloat::with_val_64 (PREC0, 2);
@@ -35,8 +45,40 @@ pub fn glob_precision (prec: Option <u64> ) -> u64{
     unsafe {
         if let Some (x) = prec {
             sav = x;
+            ctrl_glob_precision (manage_prec::partial_set (x));
         } return sav
     }
+}
+pub fn ctrl_glob_precision (cmd: manage_prec) -> manage_prec {
+    static mut upper: Lazy < rugfloat > = Lazy::new (|| {
+        rugfloat::with_val_64 (glob_precision (None), 1)
+    });
+    static mut bottom: Lazy < rugfloat > = Lazy::new (|| {
+        rugfloat::with_val_64 (glob_precision (None), 1)
+    });
+    unsafe {
+        match cmd {
+            manage_prec::init (x) => {
+                glob_precision (Some (x));
+                let shr = glob_precision (None) as usize;
+                *upper = rugfloat::with_val_64 (glob_precision (None), 2) << shr;
+                *bottom = upper.clone().pow (-1);
+                return manage_prec::none
+            },
+            manage_prec::partial_set ( x ) => {
+                let shr = glob_precision (None) as usize;
+                *upper = rugfloat::with_val_64 (glob_precision (None), 2) << shr;
+                *bottom = upper.clone().pow (-1);
+                return manage_prec::none
+            },
+            manage_prec::get_exp => {return manage_prec::short_out (glob_precision (None))},
+            manage_prec::get_big_value => { return manage_prec::long_out (upper.clone() )},
+            manage_prec::get_low_value => { return manage_prec::long_out (bottom.clone() )},
+            _ => {}
+           // manage_prec::
+        }
+    }
+    return manage_prec::none
 }
 pub fn Pi () -> rugfloat {
     static mut pi: Lazy <rugfloat> = Lazy::new (|| {
