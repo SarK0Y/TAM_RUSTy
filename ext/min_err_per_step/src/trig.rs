@@ -7,6 +7,9 @@ use crate::nth_root::__2rt;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 pub fn fast_n_simple_sin3 (x: &rugfloat, err: u64 ) -> rugfloat {
     let PREC0 = glob_precision (None);
+    let err: u64 = if PREC0 < err {
+        PREC0 / gen_prec_for_three ()
+     }else {err};
     let _3 = rugfloat::with_val_64 (PREC0, 3);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = x / _3.pow (err);

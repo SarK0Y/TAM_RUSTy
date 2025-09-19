@@ -128,8 +128,9 @@ pub fn nthrt (x: &rugfloat, err: usize ) -> rugfloat {
     return b
 }
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
-    let _2 = rugfloat::with_val_64 (PREC0, 2);
-    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let _PREC0 = glob_precision (None);
+    let _2 = rugfloat::with_val_64 (_PREC0, 2);
+    let _1 = rugfloat::with_val_64 (_PREC0, 1);
     let mut start_x: rugfloat = x / _2.pow (err);
     let mut step: usize = 0;
     let mut sin_x: rugfloat = start_x.clone();
@@ -140,7 +141,7 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     while start_x < *x {
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
         sin_x *= 2;
-        sin_x *= __2rt (&cos_x, PREC0 );//cos_x.sqrt ();
+        sin_x *= __2rt (&cos_x, _PREC0 );//cos_x.sqrt ();
         start_x *= 2;
     }
     dbg! (&start_x);
@@ -245,20 +246,23 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
      dbg! (&err_pi);
      #[cfg(feature="meps")]
-     glob_precision (Some (6000));
+     let _PREC0 = glob_precision (Some (6000));
+     #[cfg(not(feature="meps"))]
+     let _PREC0 = PREC0;
      #[cfg(feature="meps")]
     { _45deg = Pi();}
     _45deg /= 4;
-     let mut rug_sin3_err = __2rt (&_05, 4300);
+     let mut rug_sin3_err = __2rt (&_05, _PREC0);
      let mut rug_sin_err = rug_sin3_err.clone();//_45deg.clone().sin();
      let mut rug_cos_err = rug_sin3_err.clone();// _45deg.clone().cos();
      //let mut rug_cos_err =  _45deg.clone().cos();
      let mut rug_cos3_err = rug_sin3_err.clone();//_45deg.clone().cos();
      //let sin_45deg = _45deg.sin();
-     dbg! ("sqrt(2) for tst");
+     /*dbg! ("sqrt(2) for tst");
      __2rt(&_2, 2200);
-     dbg! ("end sqrt(2) for tst");
-     let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 5000);
+     dbg! ("end sqrt(2) for tst");*/
+     let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), _PREC0 as usize);
+     dbg! ("mark (-1)");
      #[cfg(feature="meps")]
      //let mut cos_45deg = _45deg.__cos(4200);//fast_n_simple_cos ( &_45deg, 5100);
      let mut cos_45deg = _45deg.__cos();
@@ -267,9 +271,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
      #[cfg(feature="meps")]
-     use min_err_per_step::base::ext_const_E;
+     use min_err_per_step::base::{ext_const_E, _ext_const_E};
      #[cfg(feature="meps")]
      {
+        dbg! ("mark0");
+    use min_err_per_step::logarithm::simple_ln;
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -279,13 +285,18 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let ext_const_e = ext_const_E (&power);
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
-        let _8_log_2: rugfloat = _8.lg (&_2);
-        let approx_8: rugfloat = _8.pow(&_8_log_2);
+       // let _8_log_2: rugfloat = _8.lg (&_2);
+        let (approx_8, _1_over_x) = simple_ln (&_8, 3200);//_8.pow(&_8_log_2);
+        let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
         dbg! (&__cos_vs__sin);
         dbg! (&ext_const_e);
         dbg! (&approx_8);
+        dbg! (_ext_const_E(&approx_8));
+        dbg! (ext_const_E(&std_ln));
+        dbg! (__2rt (&_8, 100));
+        dbg! (__2rt (&_2, 100));
      }
      dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();

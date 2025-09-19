@@ -137,5 +137,14 @@ pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let new_coef = new_coef * sign;
     return re_fast_real_e (&new_coef, &canceled_coef, PREC0)
 }
+pub fn _ext_const_E (pow: &rugfloat) -> rugfloat {
+    let sign: i8 = if *pow > 0 { 1 } else { -1 };
+    let pow = pow.clone() * sign;
+    let PREC0 = glob_precision (None);
+    let max_terms = PREC0 as usize / 3;
+    let (new_coef, canceled_coef) = continued_fraction_approximation (&pow, max_terms, PREC0);
+    let new_coef = new_coef * sign;
+    return re_fast_real_e (&new_coef, &canceled_coef, PREC0)
+}
 // https://www.mpfr.org/algorithms.pdf
 //fn

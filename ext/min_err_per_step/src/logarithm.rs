@@ -3,7 +3,7 @@ use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow, CompleteRound };
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom, Complete};
 use rug::float::Constant;
-use crate::base::{glob_precision, Pi, ext_const_E };
+use crate::base::{glob_precision, ctrl_glob_precision, manage_prec, Pi, ext_const_E };
 use crate::nth_root::__22mrt;
 use std::error::Error;
 use Mademoiselle_Entropia::minio::InterruptMsg;
@@ -113,9 +113,12 @@ impl lg for rugfloat {
     }   
 }
 /// pending for tst
-pub fn simple_ln (a: &rugfloat) -> (rugfloat, u64) {
-    let PREC0 = glob_precision (None);
-    let (a2x, _1_over_x) = __22mrt (a, PREC0);
-    let  ln_: rugfloat = (a2x - 1) * _1_over_x;
+pub fn simple_ln (a: &rugfloat, local_prec: u64) -> (rugfloat, rugfloat) {
+    let a2x = __22mrt (a, local_prec );
+    let _1_over_x: rugfloat = 
+        rugfloat::with_val_64 (glob_precision (None), 2) << local_prec as usize - 1;
+   // dbg! (&a2x);
+    //dbg! (&_1_over_x);
+    let  ln_: rugfloat = (a2x - 1) * _1_over_x.clone ();
     return (ln_, _1_over_x)
 }
