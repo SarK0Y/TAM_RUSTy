@@ -128,6 +128,9 @@ pub fn nthrt (x: &rugfloat, err: usize ) -> rugfloat {
     return b
 }
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
+    #[cfg(not(feature="meps"))]
+    let _PREC0 = PREC0;
+    #[cfg(feature="meps")]
     let _PREC0 = glob_precision (None);
     let _2 = rugfloat::with_val_64 (_PREC0, 2);
     let _1 = rugfloat::with_val_64 (_PREC0, 1);
@@ -286,7 +289,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let (approx_8, _1_over_x) = simple_ln (&_8, 3200);//_8.pow(&_8_log_2);
+        let (approx_8, _1_over_x) = simple_ln (&_8, 4200);//_8.pow(&_8_log_2);
         let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -295,6 +298,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&approx_8);
         dbg! (_ext_const_E(&approx_8));
         dbg! (ext_const_E(&std_ln));
+        dbg! (ext_const_E(&approx_8));
         dbg! (__2rt (&_8, 100));
         dbg! (__2rt (&_2, 100));
      }
@@ -753,6 +757,14 @@ pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
         num -= residue;
         num /= rdx;
     } return conv
+}
+#[cfg(feature="meps")]
+pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
+    let PREC0_ = glob_precision (None);
+    let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
+    let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
+    todo! ()
 }
 //fn
 // 9999999999999999999999999999999

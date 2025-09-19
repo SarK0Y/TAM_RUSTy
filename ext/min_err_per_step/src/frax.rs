@@ -38,7 +38,7 @@ pub fn continued_fraction_approximation(x: &rugfloat, max_terms: usize, len_in_b
     return (numerator, denominator)
 }
 pub fn fast_n_dumb_shortcut_for_cfrac (x: &rugfloat) -> (rugfloat, rugfloat) {
-    let mut den = rugfloat::with_val_64 (glob_precision (None), 2.0001);
+    let mut den = rugfloat::with_val_64 (glob_precision (None), 2);
     den.pow_assign (glob_precision (None));
     let num = x.clone() * den.clone();
 return (num, den)
