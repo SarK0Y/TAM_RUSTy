@@ -9,7 +9,9 @@ use min_err_per_step::trig::Trig;
 #[cfg(feature="meps")]
 use min_err_per_step::nth_root::__2rt;
 #[cfg(feature="meps")]
-use min_err_per_step::base::{glob_precision, Pi, ext_const_E, _ext_const_E};
+use min_err_per_step::frax::fast_n_dumb_shortcut_for_cfrac;
+#[cfg(feature="meps")]
+use min_err_per_step::base::{glob_precision, Pi, _ext_const_E};
 #[cfg(feature="meps")]
 use min_err_per_step::logarithm::lg;
 use Mademoiselle_Entropia::minio::InterruptMsg;
@@ -289,7 +291,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let approx_8 = crawler_ln (&_8, glob_precision (None));//_8.pow(&_8_log_2);
+        let approx_8 = crawler_ln (&_8, 220);//_8.pow(&_8_log_2);
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -328,6 +330,21 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&sqrt_err);
     InterruptMsg( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
+}
+pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
+    let sign: i8 = if *pow > 0 { 1 } else { -1 };
+    let pow = pow.clone() * sign;
+    let PREC0_ = glob_precision (None);
+  //  let max_terms = PREC0 as usize / 3;
+    let (new_coef, canceled_coef) = fast_n_dumb_shortcut_for_cfrac (&pow);//continued_fraction_approximation (&pow, max_terms, PREC0);
+    let new_coef = new_coef * sign;
+    let ret = re_fast_real_e (&new_coef, &canceled_coef, PREC0_);
+    let NaN = rugfloat::with_val_64 (PREC0_, rug::float::Special::Nan);
+    if ret == NaN {
+        dbg! (&new_coef);
+        dbg! (&canceled_coef);
+    }
+    return ret
 }
 // term git  remote set-url --add origin  https://[token]@github.com/SarK0Y/Mademoiselle_Entropia.git
 pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
@@ -607,14 +624,14 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     if const_e == one {
         std::thread::spawn (move || {
             let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u64;
-            crate::faav::real_e (Some( re_fast_real_e(new_coef, canceled_coef, prec_) ), prec_ );
+            crate::faav::real_e (Some( re_fast_real_e(&new_coef, &canceled_coef, prec_) ), prec_ );
         }).join();
     }
     let saved_real_e = crate::faav::real_e(None, 0);
     if saved_real_e > rugfloat::with_val(3, 0.0) {return saved_real_e; }
     const_e.clone()
 }
-pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u64) -> rugfloat {
+pub fn re_fast_real_e (new_coef: &rugfloat, canceled_coef: &rugfloat, prec_: u64) -> rugfloat {
     let PREC_ = prec_;
     let PREC0_ = prec_;
     let one = rugfloat::with_val_64(PREC0_, 1.0);
@@ -624,24 +641,24 @@ pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u64) 
     let mut const_e_base = rugfloat::with_val_64(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
     const_e_base.pow_assign(exponent); // = 2 ^ m
-    dbg! (&const_e_base);
+    //dbg! (&const_e_base);
     let mut big_exp = const_e_base.clone (); // = 2 ^ m
-    big_exp *= rugfloat::with_val_64(PREC0_, &new_coef); // = new_coef * 2 ^ m
-    const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , &canceled_coef), rm);
-    dbg! (&const_e_base);
+    big_exp *= rugfloat::with_val_64(PREC0_, new_coef); // = new_coef * 2 ^ m
+    const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , canceled_coef), rm);
+   // dbg! (&const_e_base);
     one_div_by.div_assign_round(&const_e_base, rm);
-    dbg! (&const_e_base);
+   // dbg! (&const_e_base);
     const_e_base = one_div_by;
     const_e_base += one.clone();
-    dbg! (&big_exp);
+  /*  dbg! (&big_exp);
     dbg! (&canceled_coef);
-    dbg! (&new_coef);
+    dbg! (&new_coef);*/
     let mut const_e = const_e_base.clone();
-    const_e.pow_assign_round( big_exp, rm );
-    dbg! (&const_e_base );
-    dbg!(&const_e);
+    const_e.pow_assign( big_exp );
+   /* dbg! (&const_e_base );
+    dbg!(&const_e);*/
     if const_e == one {
-        let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u64;
+        let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.5) as u64;
             return re_fast_real_e(new_coef, canceled_coef, prec_);
     }
     const_e.clone()
@@ -786,14 +803,16 @@ pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
-    let mut xn: rugfloat = simple_ln (a, err / 2).0;
+    let mut xn: rugfloat = simple_ln (a, err / 32).0;
     let mut e2xn = ext_const_E (&xn);
     for j in 0..err {
         ret = xn.clone() + a.clone()/e2xn.clone() - 1;
-        //ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
-       // ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
-       // ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+        ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+        ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
         xn = ret.clone();
+        e2xn = ext_const_E (&xn);
+        if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
     }
     return ret;
 }
