@@ -289,7 +289,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let approx_8 = crawler_ln (&_8, 4200);//_8.pow(&_8_log_2);
+        let approx_8 = crawler_ln (&_8, glob_precision (None));//_8.pow(&_8_log_2);
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -762,19 +762,37 @@ pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
 #[cfg(feature="meps")]
 use min_err_per_step::logarithm::simple_ln;
 #[cfg(feature="meps")]
+pub fn _0crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
+    let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = ret.clone() - 1;//simple_ln (a, err).0;
+    let mut e2xn = ext_const_E (&xn);
+    for j in 0..err {
+        ret = xn.clone() + 2 * (a.clone() - e2xn.clone()) / (a.clone() + e2xn.clone());
+        //ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+       // ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+       // ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        xn = ret.clone();
+    }
+    return ret;
+}
+#[cfg(feature="meps")]
 pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     let PREC0_ = glob_precision (None);
     //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
     let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
-    let mut xn: rugfloat = simple_ln (a, err / 64).0;
+    let mut xn: rugfloat = simple_ln (a, err / 2).0;
     let mut e2xn = ext_const_E (&xn);
     for j in 0..err {
         ret = xn.clone() + a.clone()/e2xn.clone() - 1;
-        ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
-        ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
-        ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        //ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+       // ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+       // ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
         xn = ret.clone();
     }
     return ret;
