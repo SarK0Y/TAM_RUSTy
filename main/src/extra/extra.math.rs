@@ -9,7 +9,7 @@ use min_err_per_step::trig::Trig;
 #[cfg(feature="meps")]
 use min_err_per_step::nth_root::__2rt;
 #[cfg(feature="meps")]
-use min_err_per_step::base::{glob_precision, Pi};
+use min_err_per_step::base::{glob_precision, Pi, ext_const_E, _ext_const_E};
 #[cfg(feature="meps")]
 use min_err_per_step::logarithm::lg;
 use Mademoiselle_Entropia::minio::InterruptMsg;
@@ -289,8 +289,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let (approx_8, _1_over_x) = simple_ln (&_8, 4200);//_8.pow(&_8_log_2);
-        let x = _1_over_x.clone().pow(-1);
+        let approx_8 = crawler_ln (&_8, 4200);//_8.pow(&_8_log_2);
+        //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
         dbg! (&__cos_vs__sin);
@@ -299,6 +299,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (_ext_const_E(&approx_8));
         dbg! (ext_const_E(&std_ln));
         dbg! (ext_const_E(&approx_8));
+        dbg! (approx_8 / std_ln);
         dbg! (__2rt (&_8, 100));
         dbg! (__2rt (&_2, 100));
      }
@@ -767,13 +768,14 @@ pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
-    let mut xn: rugfloat = simple_ln (a, err / 32);
+    let mut xn: rugfloat = simple_ln (a, err / 64).0;
     let mut e2xn = ext_const_E (&xn);
     for j in 0..err {
-        ret = xn + a.clone()/e2xn.clone() - 1;
+        ret = xn.clone() + a.clone()/e2xn.clone() - 1;
         ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
-        ret -= _1_over_6 * (a.clone() - e2xn.clone()).pow(3); 
-        ret -= _1_over_24 * (a.clone() - e2xn.clone()).pow(4); 
+        ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+        ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        xn = ret.clone();
     }
     return ret;
 }

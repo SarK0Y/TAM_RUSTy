@@ -123,4 +123,3 @@ pub fn simple_ln (a: &rugfloat, local_prec: u64) -> (rugfloat, rugfloat) {
     return (ln_, _1_over_x)
 }
 //fn
-//x_{n+1} = x_n - f/f' - (f''f²)/(2f'³) - (f'''f³)/(6f'⁴) - (f''''f⁴)/(24f'⁵) + O(f⁵)
