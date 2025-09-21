@@ -759,12 +759,23 @@ pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
     } return conv
 }
 #[cfg(feature="meps")]
+use min_err_per_step::logarithm::simple_ln;
+#[cfg(feature="meps")]
 pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     let PREC0_ = glob_precision (None);
-    let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
     let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
-    todo! ()
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = simple_ln (a, err / 32);
+    let mut e2xn = ext_const_E (&xn);
+    for j in 0..err {
+        ret = xn + a.clone()/e2xn.clone() - 1;
+        ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+        ret -= _1_over_6 * (a.clone() - e2xn.clone()).pow(3); 
+        ret -= _1_over_24 * (a.clone() - e2xn.clone()).pow(4); 
+    }
+    return ret;
 }
 //fn
 // 9999999999999999999999999999999
