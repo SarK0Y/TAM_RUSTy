@@ -331,6 +331,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     InterruptMsg( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
+#[cfg(feature="meps")]
 pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let sign: i8 = if *pow > 0 { 1 } else { -1 };
     let pow = pow.clone() * sign;
