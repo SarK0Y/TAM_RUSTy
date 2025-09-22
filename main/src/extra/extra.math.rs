@@ -817,6 +817,25 @@ pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     }
     return ret;
 }
+ use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
+ #[cfg(feature="meps")]
+ use min_err_per_step::nth_root::__22mrt;
+#[cfg(feature="meps")]
+pub fn e2dx_nxt2_1 (dx: &rugfloat) -> rugfloat {
+    let mut approx_dx = rugfloat::with_val_64 (
+        glob_precision (None),
+        0.5
+    );
+    let mut cnt = 0u64;
+    while approx_dx > *dx {
+        approx_dx >>= 1;
+        cnt += 1;
+    }
+    cnt.dec();
+    let mut e2dx = 1 + dx.clone();
+    e2dx = __22mrt (&e2dx, cnt);
+    return e2dx
+}
 //fn
 // 9999999999999999999999999999999
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x

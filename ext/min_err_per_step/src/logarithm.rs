@@ -6,6 +6,7 @@ use rug::float::Constant;
 use crate::base::{glob_precision, ctrl_glob_precision, manage_prec, Pi, ext_const_E };
 use crate::nth_root::__22mrt;
 use std::error::Error;
+use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 pub enum ln_err {
     input_cant_be_negative,
