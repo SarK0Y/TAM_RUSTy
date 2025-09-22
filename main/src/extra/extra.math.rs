@@ -806,13 +806,15 @@ pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
     let mut xn: rugfloat = simple_ln (a, err / 32).0;
     let mut e2xn = ext_const_E (&xn);
+    let mut dx = xn.clone();
     for j in 0..err {
         ret = xn.clone() + a.clone()/e2xn.clone() - 1;
         ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
         ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
         ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        dx = (ret.clone() - xn.clone() ).abs();
         xn = ret.clone();
-        e2xn = ext_const_E (&xn);
+        e2xn *= e2dx_nxt2_1 (&dx);
         if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
     }
     return ret;
