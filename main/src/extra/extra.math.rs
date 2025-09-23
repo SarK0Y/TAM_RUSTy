@@ -281,7 +281,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      {
         dbg! ("mark0");
     use min_err_per_step::logarithm::simple_ln;
-    use min_err_per_step::logarithm::btree_ln;
+    use min_err_per_step::logarithm::{btree_ln, crawler_ln as crawler_ln_lib};
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -292,7 +292,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let approx_8 = crawler_ln (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -831,6 +831,7 @@ use min_err_per_step::logarithm::btree_ln;
     }
     return ret;
 }
+#[cfg(feature="meps")]
 pub fn speedup_ln (a: &rugfloat, tail: &rugfloat) -> (rugfloat, rugfloat) {
     let mut a = a.clone() - 1;
     let tail = __2rt (&tail, glob_precision (None) );
