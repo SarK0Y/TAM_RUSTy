@@ -281,6 +281,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      {
         dbg! ("mark0");
     use min_err_per_step::logarithm::simple_ln;
+    use min_err_per_step::logarithm::btree_ln;
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -291,7 +292,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
-        let approx_8 = crawler_ln (&_8, 220);//_8.pow(&_8_log_2);
+        let approx_8 = crawler_ln (&_8, 5000, 1000);//_8.pow(&_8_log_2);
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -798,24 +799,27 @@ pub fn _0crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     return ret;
 }
 #[cfg(feature="meps")]
-pub fn crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
+pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64) -> rugfloat {
+use min_err_per_step::logarithm::btree_ln;
     let PREC0_ = glob_precision (None);
     //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
     let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
-    let mut xn: rugfloat = simple_ln (a, err / 32).0;
+    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
     let mut e2xn = ext_const_E (&xn);
-    let mut dx = xn.clone();
+   // dbg! (&e2xn);
+    //let mut dx = xn.clone();
     for j in 0..err {
         ret = xn.clone() + a.clone()/e2xn.clone() - 1;
         ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
         ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
         ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
-        dx = (ret.clone() - xn.clone() ).abs();
+        //dx = (ret.clone() - xn.clone() ).abs();
+        //e2xn *= e2dx_nxt2_1 (&dx);
+     //   e2xn = ext_const_E (&xn);
         xn = ret.clone();
-        e2xn *= e2dx_nxt2_1 (&dx);
-        if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
+        //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
     }
     return ret;
 }
@@ -836,6 +840,7 @@ pub fn e2dx_nxt2_1 (dx: &rugfloat) -> rugfloat {
     cnt.dec();
     let mut e2dx = 1 + dx.clone();
     e2dx = __22mrt (&e2dx, cnt);
+    //dbg! (&e2dx);
     return e2dx
 }
 //fn
