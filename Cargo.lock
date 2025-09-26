@@ -1025,7 +1025,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.680"
+version = "13.11.681"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18",
  "ansi_term",
@@ -1044,6 +1044,7 @@ dependencies = [
  "min_err_per_step",
  "nix",
  "num",
+ "num-complex",
  "num-traits",
  "once_cell",
  "os_pipe",

@@ -113,7 +113,7 @@ impl lg for rugfloat {
     return ret
     }   
 }
-/// pending for tst
+/// Good to be feeder.
 pub fn simple_ln (a: &rugfloat, local_prec: u64) -> (rugfloat, rugfloat) {
     let a2x = __22mrt (a, local_prec );
     let _1_over_x: rugfloat = 
@@ -123,6 +123,7 @@ pub fn simple_ln (a: &rugfloat, local_prec: u64) -> (rugfloat, rugfloat) {
     let  ln_: rugfloat = (a2x - 1) * _1_over_x.clone ();
     return (ln_, _1_over_x)
 }
+/// How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
 pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
     let PREC0_ = glob_precision (None);
     //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);

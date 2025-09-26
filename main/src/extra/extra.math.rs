@@ -304,7 +304,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&approx_8));
         dbg! (approx_8 / std_ln);
         dbg! (__2rt (&_8, 100));
-        dbg! (__2rt (&_2, 100));
+        dbg! (cfrac_e2x (&_1, 100) );
      }
      dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();
@@ -857,6 +857,43 @@ pub fn e2dx_nxt2_1 (dx: &rugfloat) -> rugfloat {
     //dbg! (&e2dx);
     return e2dx
 }
+#[cfg(feature="meps")]
+pub fn cfrac_e2x (x: &rugfloat, rounds: i64) -> rugfloat {
+    let mut ret = rugfloat::with_val_64 (
+        glob_precision (None),
+        0
+    );
+    let mut count = rounds;
+    let mut den = 0i64;
+    while count > 0 {
+        ret = x.clone() / (ret + count);
+        count -= 1;
+    }
+    ret = 1 + ret;
+    return ret
+}
+#[cfg(feature="meps")]
+pub fn cfrac_e2x0(x: &rugfloat, rounds: u64) -> rugfloat {
+    let precision = glob_precision(None);
+    let mut cf = rugfloat::with_val_64(precision, 0.0);
+    
+    // Work backwards from the deepest level
+    for n in (1..=rounds).rev() {
+        if n % 2 == 1 {
+            // Odd pattern: x / (2n-1 - cf)
+            let denom = rugfloat::with_val_64(precision, 2 * n - 1);
+            cf = x.clone() / (denom - cf);
+        } else {
+            // Even pattern: x / (2n + cf)
+            let denom = rugfloat::with_val_64(precision, 2 * n);
+            cf = x.clone() / (denom + cf);
+        }
+    }
+    
+    // Final result: 1 + cf
+    rugfloat::with_val_64(precision, 1) + cf
+}
+
 //fn
 // 9999999999999999999999999999999
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x

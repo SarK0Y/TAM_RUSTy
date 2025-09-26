@@ -1,7 +1,7 @@
 [package]
 name ="min_err_per_step"
 edition = "2021"
-version = "0.0.72"
+version = "0.0.75"
 #publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -21,6 +21,7 @@ substring = "1.4.5"
 num-traits = "0.2.17"
 rug = {version = "=1.28.0", features = ["integer", "float", "std"]}
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
+num-complex = "0.4.6"
 [lib]
 name = "min_err_per_step"
 path = "src/lib.rs"

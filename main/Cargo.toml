@@ -1,6 +1,6 @@
 [package]
 name = "sark0y_tam_rst"
-version = "13.11.680"
+version = "13.11.681"
 edition = "2021"
 build = "build.rs"
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
@@ -64,6 +64,7 @@ proc-macro2 = "1.0.0"
 procfs = "0.15.1"
 sysinfo = "0.32.0"
 itertools = "0.14.0"
+num-complex = "0.4.6"
 [dependencies.nix]
 version = "0.28.0"
 features = ["process", "signal", "fs"]

@@ -34,6 +34,7 @@ let approx_ln_8 = crawler_ln (
 	steps_of_feeder, 
 	frequency_of_broker
 ); // calcs ln(8)
+// How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
 
 ```
  <b> Links: </b> <br>

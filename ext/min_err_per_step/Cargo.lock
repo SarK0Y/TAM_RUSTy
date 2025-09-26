@@ -160,13 +160,23 @@ checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.72"
+version = "0.0.75"
 dependencies = [
  "Mademoiselle_Entropia",
+ "num-complex",
  "num-traits",
  "once_cell",
  "rug",
  "substring",
+]
+
+[[package]]
+name = "num-complex"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73f88a1307638156682bada9d7604135552957b7818057dcef22705b4d509495"
+dependencies = [
+ "num-traits",
 ]
 
 [[package]]
