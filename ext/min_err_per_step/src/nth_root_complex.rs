@@ -5,6 +5,8 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use rug::float::Constant;
 use crate::base::{glob_precision, Pi };
 use crate::nth_root::__2rt;
+use crate::complex::traits;
+use crate::complex::traits::Cu_Complex;
 use num_complex::Complex as _complex;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use num::complex::Complex64;
@@ -106,8 +108,8 @@ fn solve_system_real(A: f64, B: f64) -> Option<(f64, f64)> {
     Some((a, b))
 }
 pub struct complex_roots {
-    root0: _complex <rugfloat>,
-    root1: _complex <rugfloat>
+    root0: Cu_Complex,
+    root1: Cu_Complex
 }
 pub fn sqrt_2 () -> rugfloat {
     static mut _const: Lazy <rugfloat> = Lazy::new(|| {
@@ -150,24 +152,36 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
     }
     let PREC0_ = glob_precision (None);
     let a = rugfloat::with_val_64 (PREC0_, 1);
-    let sqrt_i: _complex<rugfloat> = _complex::new (sqrt_05, sqrt_05);
-    let mut complex_a = _complex::new (a, a);
+    let sqrt_i: Cu_Complex = Cu_Complex {0: sqrt_05(), 1: sqrt_05() };
+    //let mut complex_a = _complex::new (a, a);
     let discriminant: rugfloat = B.clone() * B.clone() + 4 * A.clone() * A.clone();
     let sqrt_discriminant = __2rt (&discriminant, PREC0_);
-    let a_squared0 = (B.clone() + sqrt_discriminant.clone()) / 2.0;
-    let a_squared1 = (B - sqrt_discriminant) / 2.0;
-    let a0: _complex <rugfloat> = if a_squared0 < 0 {
-        let tmp = a_squared0.clone() * -1;
-        _complex::new( ragfloat::with_val_64 (PREC0_, 0), __2rt (&tmp, PREC0_))
+    let a_squared0: rugfloat = (B.clone() + sqrt_discriminant.clone()) / 2.0;
+    let a_squared1: rugfloat = (B - sqrt_discriminant) / 2.0;
+    let a0: Cu_Complex = if a_squared0 < 0 {
+        let tmp: rugfloat = a_squared0.clone() * -1;
+        Cu_Complex{ 
+            0: rugfloat::with_val_64 (PREC0_, 0), 
+            1: __2rt (&tmp, PREC0_)
+        }
     } else {
-        _complex::new( ragfloat::with_val_64 (PREC0_, 0), __2rt (&a_squared0, PREC0_))
-    }      
+        Cu_Complex {
+            0: __2rt (&a_squared0, PREC0_),
+            1:  rugfloat::with_val_64 (PREC0_, 0)
+        }
+    };      
     let a1: _complex <rugfloat> = if a_squared1 < 0 {
-        let tmp = a_squared1.clone() * -1;
-        _complex::new( ragfloat::with_val_64 (PREC0_, 0), __2rt (&tmp, PREC0_))
+        let tmp: rugfloat = a_squared1.clone() * -1;
+        Cu_Complex{ 
+            0: rugfloat::with_val_64 (PREC0_, 0), 
+            1: __2rt (&tmp, PREC0_)
+        }
     } else {
-        _complex::new( ragfloat::with_val_64 (PREC0_, 0), __2rt (&a_squared1, PREC0_))
-    }      
+        Cu_Complex {
+            0: __2rt (&a_squared0, PREC0_),
+            1:  rugfloat::with_val_64 (PREC0_, 0)
+        }
+    };      
     
     let b0 = A.clone() / a0.clone();
     let b1 = A.clone() / a1.clone();
