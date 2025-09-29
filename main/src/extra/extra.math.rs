@@ -4,6 +4,16 @@ use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugP
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use num::Float;
 use std::f64::consts::E;
+#[cfg(feature="meps")]
+use min_err_per_step::trig::Trig;
+#[cfg(feature="meps")]
+use min_err_per_step::nth_root::__2rt;
+#[cfg(feature="meps")]
+use min_err_per_step::frax::fast_n_dumb_shortcut_for_cfrac;
+#[cfg(feature="meps")]
+use min_err_per_step::base::{glob_precision, Pi, _ext_const_E};
+#[cfg(feature="meps")]
+use min_err_per_step::logarithm::lg;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 const PREC: u64 = 1024;
 const PREC0: u64 = 6000;
@@ -84,7 +94,8 @@ pub fn arc_val (from: f64, to: f64) -> f64 {
     let To = ((x - 1.0) *(-(x - 2.0).sqrt() * x) + (x - 1.0).asin() ) / 2.0;
     To - From
 }
-pub fn __2rt (x: &rugfloat, err: usize ) -> rugfloat {
+#[cfg(not(feature="meps"))]
+pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
@@ -119,8 +130,12 @@ pub fn nthrt (x: &rugfloat, err: usize ) -> rugfloat {
     return b
 }
 pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
-    let _2 = rugfloat::with_val_64 (PREC0, 2);
-    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    #[cfg(not(feature="meps"))]
+    let _PREC0 = PREC0;
+    #[cfg(feature="meps")]
+    let _PREC0 = glob_precision (None);
+    let _2 = rugfloat::with_val_64 (_PREC0, 2);
+    let _1 = rugfloat::with_val_64 (_PREC0, 1);
     let mut start_x: rugfloat = x / _2.pow (err);
     let mut step: usize = 0;
     let mut sin_x: rugfloat = start_x.clone();
@@ -131,7 +146,7 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
     while start_x < *x {
         cos_x = ( _1.clone () - sin_x.clone().pow (2) );
         sin_x *= 2;
-        sin_x *= __2rt (&cos_x, PREC0 as usize );//cos_x.sqrt ();
+        sin_x *= __2rt (&cos_x, _PREC0 );//cos_x.sqrt ();
         start_x *= 2;
     }
     dbg! (&start_x);
@@ -165,7 +180,7 @@ pub fn fast_n_simple_cos3 (x: &rugfloat, err: usize ) -> rugfloat {
     //sin_x = 2 * start_x.clone ();
     let mut cos_3x: rugfloat = _1.clone ();
     cos_3x = ( _1.clone () - start_x.clone() * start_x.clone() );
-    cos_3x = __2rt (&cos_3x, PREC0 as usize);
+    cos_3x = __2rt (&cos_3x, PREC0);
     dbg! (&cos_3x);
     while start_x < *x {
         cos_3x = 4 * cos_3x.clone ().pow (3) - 3 * cos_3x.clone ();
@@ -235,19 +250,63 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      let mut _45deg = fast_n_simple_long_Pi ( err );
      let err_pi = rugfloat::with_val_64 (PREC0, rugconst::Pi) - _45deg.clone ();
      dbg! (&err_pi);
-     _45deg /= 4;
-     dbg! (&_45deg);
-     let mut rug_sin3_err = __2rt (&_05, 4300);
+     #[cfg(feature="meps")]
+     let _PREC0 = glob_precision (Some (6000));
+     #[cfg(not(feature="meps"))]
+     let _PREC0 = PREC0;
+     #[cfg(feature="meps")]
+    { _45deg = Pi();}
+    _45deg /= 4;
+     let mut rug_sin3_err = __2rt (&_05, _PREC0);
      let mut rug_sin_err = rug_sin3_err.clone();//_45deg.clone().sin();
      let mut rug_cos_err = rug_sin3_err.clone();// _45deg.clone().cos();
      //let mut rug_cos_err =  _45deg.clone().cos();
      let mut rug_cos3_err = rug_sin3_err.clone();//_45deg.clone().cos();
      //let sin_45deg = _45deg.sin();
-     let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), 5000);
-     let mut cos_45deg =fast_n_simple_cos ( &_45deg, 5100);
+     /*dbg! ("sqrt(2) for tst");
+     __2rt(&_2, 2200);
+     dbg! ("end sqrt(2) for tst");*/
+     let mut sin_45deg =fast_n_simple_sin ( &_45deg.clone (), _PREC0 as usize);
+     dbg! ("mark (-1)");
+     #[cfg(feature="meps")]
+     //let mut cos_45deg = _45deg.__cos(4200);//fast_n_simple_cos ( &_45deg, 5100);
+     let mut cos_45deg = _45deg.__cos();
+     #[cfg(not(feature="meps"))]
+     let mut cos_45deg = fast_n_simple_cos ( &_45deg, 5100);
      let mut cos3_45deg =fast_n_simple_cos3 ( &_45deg, 2200);
      let mut sin3_45deg =fast_n_simple_sin3 ( &_45deg, 3750);
-     dbg! (&cos3_45deg);
+     #[cfg(feature="meps")]
+     use min_err_per_step::base::{ext_const_E, _ext_const_E};
+     #[cfg(feature="meps")]
+     {
+        dbg! ("mark0");
+    use min_err_per_step::logarithm::simple_ln;
+    use min_err_per_step::logarithm::{btree_ln, crawler_ln as crawler_ln_lib};
+        let _8: rugfloat = _1.clone() * 8;
+        let mut cos_extra = _45deg.cos_extra_prec ();
+        let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
+        cos_extra /= _45deg.__cos();
+        let __cos_vs__sin  = _45deg.__sin () / _45deg.__cos();
+        let power = rugfloat::with_val_64 (PREC0, 0.693147181);
+        let ext_const_e = ext_const_E (&power);
+        let std_ln = _8.clone().ln();
+        dbg! (&std_ln);
+       // let _8_log_2: rugfloat = _8.lg (&_2);
+        let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        //let x = _1_over_x.clone().pow(-1);
+        dbg! (&cos_extra);
+        dbg! (&cos_extra_vs__sin);
+        dbg! (&__cos_vs__sin);
+        dbg! (&ext_const_e);
+        dbg! (&approx_8);
+        dbg! (_ext_const_E(&approx_8));
+        dbg! (ext_const_E(&std_ln));
+        dbg! (ext_const_E(&approx_8));
+        dbg! (approx_8 / std_ln);
+        dbg! (__2rt (&_8, 100));
+        dbg! (cfrac_e2x (&_1, 100) );
+     }
+     dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();
      rug_sin_err /= sin_45deg.clone();
      rug_cos_err /= cos_45deg.clone();
@@ -272,6 +331,22 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      dbg! (&sqrt_err);
     InterruptMsg( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
+}
+#[cfg(feature="meps")]
+pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
+    let sign: i8 = if *pow > 0 { 1 } else { -1 };
+    let pow = pow.clone() * sign;
+    let PREC0_ = glob_precision (None);
+  //  let max_terms = PREC0 as usize / 3;
+    let (new_coef, canceled_coef) = fast_n_dumb_shortcut_for_cfrac (&pow);//continued_fraction_approximation (&pow, max_terms, PREC0);
+    let new_coef = new_coef * sign;
+    let ret = re_fast_real_e (&new_coef, &canceled_coef, PREC0_);
+    let NaN = rugfloat::with_val_64 (PREC0_, rug::float::Special::Nan);
+    if ret == NaN {
+        dbg! (&new_coef);
+        dbg! (&canceled_coef);
+    }
+    return ret
 }
 // term git  remote set-url --add origin  https://[token]@github.com/SarK0Y/Mademoiselle_Entropia.git
 pub fn Gauss_Legendre_Pi (rounds: f64) -> f64 {
@@ -551,14 +626,14 @@ pub fn __fast_real_e (exp: rugfloat) -> rugfloat {
     if const_e == one {
         std::thread::spawn (move || {
             let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u64;
-            crate::faav::real_e (Some( re_fast_real_e(new_coef, canceled_coef, prec_) ), prec_ );
+            crate::faav::real_e (Some( re_fast_real_e(&new_coef, &canceled_coef, prec_) ), prec_ );
         }).join();
     }
     let saved_real_e = crate::faav::real_e(None, 0);
     if saved_real_e > rugfloat::with_val(3, 0.0) {return saved_real_e; }
     const_e.clone()
 }
-pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u64) -> rugfloat {
+pub fn re_fast_real_e (new_coef: &rugfloat, canceled_coef: &rugfloat, prec_: u64) -> rugfloat {
     let PREC_ = prec_;
     let PREC0_ = prec_;
     let one = rugfloat::with_val_64(PREC0_, 1.0);
@@ -567,25 +642,25 @@ pub fn re_fast_real_e (new_coef: rugfloat, canceled_coef: rugfloat, prec_: u64) 
     let exponent: u64 = PREC0_ / 2;
     let mut const_e_base = rugfloat::with_val_64(PREC0_, 2.0);
     //const_e_base.pow_assign_round(exponent, rm);
-    const_e_base.pow_assign(exponent);
-    dbg! (&const_e_base);
-    let mut big_exp = const_e_base.clone ();
-    big_exp *= rugfloat::with_val_64(PREC0, &new_coef);
-    const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , &canceled_coef), rm);
-    dbg! (&const_e_base);
+    const_e_base.pow_assign(exponent); // = 2 ^ m
+    //dbg! (&const_e_base);
+    let mut big_exp = const_e_base.clone (); // = 2 ^ m
+    big_exp *= rugfloat::with_val_64(PREC0_, new_coef); // = new_coef * 2 ^ m
+    const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , canceled_coef), rm);
+   // dbg! (&const_e_base);
     one_div_by.div_assign_round(&const_e_base, rm);
-    dbg! (&const_e_base);
+   // dbg! (&const_e_base);
     const_e_base = one_div_by;
     const_e_base += one.clone();
-    dbg! (&big_exp);
+  /*  dbg! (&big_exp);
     dbg! (&canceled_coef);
-    dbg! (&new_coef);
+    dbg! (&new_coef);*/
     let mut const_e = const_e_base.clone();
-    const_e.pow_assign_round( big_exp, rm );
-    dbg! (&const_e_base );
-    dbg!(&const_e);
+    const_e.pow_assign( big_exp );
+   /* dbg! (&const_e_base );
+    dbg!(&const_e);*/
     if const_e == one {
-        let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.1) as u64;
+        let prec_ = (PREC0_ as f64 + PREC0_  as f64 * 0.5) as u64;
             return re_fast_real_e(new_coef, canceled_coef, prec_);
     }
     const_e.clone()
@@ -703,6 +778,122 @@ pub fn base_num_sys (num: u32, rdx: u32) -> Vec <u32> {
         num /= rdx;
     } return conv
 }
+#[cfg(feature="meps")]
+use min_err_per_step::logarithm::simple_ln;
+#[cfg(feature="meps")]
+pub fn _0crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
+    let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = ret.clone() - 1;//simple_ln (a, err).0;
+    let mut e2xn = ext_const_E (&xn);
+    for j in 0..err {
+        ret = xn.clone() + 2 * (a.clone() - e2xn.clone()) / (a.clone() + e2xn.clone());
+        //ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+       // ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+       // ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        xn = ret.clone();
+    }
+    return ret;
+}
+#[cfg(feature="meps")]
+pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
+use min_err_per_step::logarithm::btree_ln;
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
+    let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
+    let mut e2xn = ext_const_E (&xn);
+    let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
+    let mut count_broker = 0u64;
+   // dbg! (&e2xn);
+    //let mut dx = xn.clone();
+    for j in 0..err {
+        ret = xn.clone() + a.clone()/e2xn.clone() - 1;
+        ret -= 0.5 * (a.clone() - e2xn.clone()).pow(2); 
+        ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
+        ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
+        //dx = (ret.clone() - xn.clone() ).abs();
+        //e2xn *= e2dx_nxt2_1 (&dx);
+        if broker == count_broker { 
+            e2xn = ext_const_E (&xn);
+            count_broker = 0;
+         } else {
+            (e2xn, tail) = speedup_ln (&a, &tail);
+         }
+        count_broker += 1;
+        xn = ret.clone();
+        //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
+    }
+    return ret;
+}
+#[cfg(feature="meps")]
+pub fn speedup_ln (a: &rugfloat, tail: &rugfloat) -> (rugfloat, rugfloat) {
+    let mut a = a.clone() - 1;
+    let tail = __2rt (&tail, glob_precision (None) );
+    return (a + tail.clone(), tail)
+}
+ use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
+ #[cfg(feature="meps")]
+ use min_err_per_step::nth_root::__22mrt;
+#[cfg(feature="meps")]
+pub fn e2dx_nxt2_1 (dx: &rugfloat) -> rugfloat {
+    let mut approx_dx = rugfloat::with_val_64 (
+        glob_precision (None),
+        0.5
+    );
+    let mut cnt = 0u64;
+    while approx_dx > *dx {
+        approx_dx >>= 1;
+        cnt += 1;
+    }
+    cnt.dec();
+    let mut e2dx = 1 + dx.clone();
+    e2dx = __22mrt (&e2dx, cnt);
+    //dbg! (&e2dx);
+    return e2dx
+}
+#[cfg(feature="meps")]
+pub fn cfrac_e2x (x: &rugfloat, rounds: i64) -> rugfloat {
+    let mut ret = rugfloat::with_val_64 (
+        glob_precision (None),
+        0
+    );
+    let mut count = rounds;
+    let mut den = 0i64;
+    while count > 0 {
+        ret = x.clone() / (ret + count);
+        count -= 1;
+    }
+    ret = 1 + ret;
+    return ret
+}
+#[cfg(feature="meps")]
+pub fn cfrac_e2x0(x: &rugfloat, rounds: u64) -> rugfloat {
+    let precision = glob_precision(None);
+    let mut cf = rugfloat::with_val_64(precision, 0.0);
+    
+    // Work backwards from the deepest level
+    for n in (1..=rounds).rev() {
+        if n % 2 == 1 {
+            // Odd pattern: x / (2n-1 - cf)
+            let denom = rugfloat::with_val_64(precision, 2 * n - 1);
+            cf = x.clone() / (denom - cf);
+        } else {
+            // Even pattern: x / (2n + cf)
+            let denom = rugfloat::with_val_64(precision, 2 * n);
+            cf = x.clone() / (denom + cf);
+        }
+    }
+    
+    // Final result: 1 + cf
+    rugfloat::with_val_64(precision, 1) + cf
+}
+
 //fn
 // 9999999999999999999999999999999
 // https://math.stackexchange.com/questions/197874/maclaurin-expansion-of-arcsin-x

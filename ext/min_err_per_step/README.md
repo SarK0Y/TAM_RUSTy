@@ -1,4 +1,42 @@
-The Core idea is to treat Rust's lexemes as just simple strings w/o extra types which only add new layers of unnecessary complexity. 
+# Math library to calculate basic functions with minimal error per step thanks to self-balancing computation.
+```toml
+min_err_per_step = "0.0.71"
+```
+```rs
+use min_err_per_step::trig::Trig_w_local_prec;
+use min_err_per_step::base::{glob_precision, Pi};
+...
+glob_precision (Some (6000));
+let _45deg: rugfloat = Pi() / 4;
+let mut cos_45deg: rug::Float = _45deg.__cos(4200);
+```
+```rs
+use min_err_per_step::trig::Trig;
+use min_err_per_step::base::{glob_precision, Pi, ext_const_E};
+...
+let PRECO = glob_precision (Some (6000));
+let _45deg: rugfloat = Pi() / 4;
+let mut cos_45deg = _45deg.__cos();
+let power = rugfloat::with_val_64 (PREC0, 0.693147181);
+let ext_const_e = ext_const_E (&power);
+```
+```rs
+use min_err_per_step::logarithm::crawler_ln;
+use min_err_per_step::base::{glob_precision, Pi, ext_const_E};
+...
+let PRECO = glob_precision (Some (6000));
+let steps_of_crawler = 6000u64;
+let steps_of_feeder = 100u64;
+let frequency_of_broker = 100u64;
+let approx_ln_8 = crawler_ln (
+	&_8, 
+	steps_of_crawler,
+	steps_of_feeder, 
+	frequency_of_broker
+); // calcs ln(8)
+// How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
+
+```
  <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
  <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
@@ -15,3 +53,4 @@ The Core idea is to treat Rust's lexemes as just simple strings w/o extra types 
  # <p align=center> <b> MAKE CONSOLE GREAT AGAIN.🤘 </b> </p>
  
 # my the Best Wishes to You 🙃
+

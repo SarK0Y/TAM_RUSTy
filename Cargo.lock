@@ -16,6 +16,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "Mademoiselle_Entropia"
+version = "1.11.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bec5d82a2f90d4d6f1a89caf170369bed593de856a268c9a04391f574d30f2bb"
+dependencies = [
+ "chrono",
+ "libc",
+ "num-traits",
+ "once_cell",
+ "substring",
+ "termios",
+ "unic-ucd",
+]
+
+[[package]]
 name = "adler2"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -352,7 +367,7 @@ dependencies = [
 name = "for_build_rs"
 version = "0.0.110"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "once_cell",
  "substring",
 ]
@@ -391,9 +406,9 @@ dependencies = [
 
 [[package]]
 name = "goto1717"
-version = "0.0.167"
+version = "0.0.168"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "once_cell",
  "proc-macro2",
  "quote",
@@ -593,6 +608,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "207d755f4cb882d20c4da58d707ca9130a0c9bc5061f657a4f299b8e36362b7a"
 dependencies = [
  "rayon",
+]
+
+[[package]]
+name = "min_err_per_step"
+version = "0.0.70"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f67017a147b4f1a8f7b1acb1c6aebb2f32bdc2b5304b80419fdc5963942a3a13"
+dependencies = [
+ "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num-traits",
+ "once_cell",
+ "rug",
+ "substring",
 ]
 
 [[package]]
@@ -901,9 +929,9 @@ checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
 name = "rst_lex"
-version = "0.0.110"
+version = "0.0.111"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "for_build_rs",
  "itertools",
  "once_cell",
@@ -912,9 +940,9 @@ dependencies = [
 
 [[package]]
 name = "rug"
-version = "1.25.0"
+version = "1.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "01d157703b9f96e9be75c739e7030d1d81be377d882d93046670309381517772"
+checksum = "58ad2e973fe3c3214251a840a621812a4f40468da814b1a3d6947d433c2af11f"
 dependencies = [
  "az",
  "gmp-mpfr-sys",
@@ -997,9 +1025,9 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.661"
+version = "13.11.681"
 dependencies = [
- "Mademoiselle_Entropia",
+ "Mademoiselle_Entropia 1.11.18",
  "ansi_term",
  "chrono",
  "cli-table",
@@ -1013,8 +1041,10 @@ dependencies = [
  "itertools",
  "libc",
  "midly",
+ "min_err_per_step",
  "nix",
  "num",
+ "num-complex",
  "num-traits",
  "once_cell",
  "os_pipe",

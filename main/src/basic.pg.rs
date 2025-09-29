@@ -11,10 +11,18 @@ use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use gag::Redirect;
 #[cfg(feature ="tst_macro")]
+use goto1717::cleanup;
+#[cfg(feature ="tst_macro")]
 use goto1717::log_vars;
 //use super::extctrl::*;
+#[no_mangle]
+#[inline(never)]
+pub fn placeholder (comment: &str) -> i64 {
+    return -495
+}
 impl super::basic{
 #[cfg(not(feature = "tst_macro"))]
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
@@ -255,12 +263,13 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
         Entry::Vacant(entry) => {return failed;}
     }
 }
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
 pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
     let front_lst = read_front_list();
-     let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
+      let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
 #[cfg(feature="in_dbg")]
      if read_file("break").trim_end().to_string() == "001"{
         println!("break 001");
@@ -275,6 +284,19 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         rm_file(&adr_of_msg_clean);
     // self.cache.remove_entry(&clean);
     }
+    // todo: erase dbg stuff
+#[cfg(feature="in_dbg")]
+{
+    placeholder ("--->");
+    let dbg_cmd = take_list_adr ("dbg_cmd");
+    let dbg_cmd = crate::read_file_abs_adr (&dbg_cmd);
+    crate::set_ask_user (&dbg_cmd, -8884125);
+    if dbg_cmd.trim() == "br" {
+        dbg! (&self.cache);
+        crate::errMsg0 ("");
+    }
+    placeholder ("--->");
+}
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, proper_indx.0 );
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
@@ -384,7 +406,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     for i in indx..upto{
         let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
         if i == lst_len{break;}
-        if rec == "no str gotten"{continue}
+       // if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
         cache.push(rec);
         //println!("{}", cache0[i]);
