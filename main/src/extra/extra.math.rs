@@ -282,6 +282,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! ("mark0");
     use min_err_per_step::logarithm::simple_ln;
     use min_err_per_step::logarithm::{btree_ln, crawler_ln as crawler_ln_lib};
+    use min_err_per_step::complex::{
+        nth_root::{isqrt, complex_roots},
+        traits::Cu_Complex
+    };
+    use min_err_per_step::complex::traits;
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -293,6 +298,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
         let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0);
+        let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -304,7 +311,10 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&approx_8));
         dbg! (approx_8 / std_ln);
         dbg! (__2rt (&_8, 100));
-        dbg! (cfrac_e2x (&_1, 100) );
+      //  dbg! (cfrac_e2x (&_1, 100) );
+        dbg! (&tst_isqrt);
+        dbg! (tst_isqrt.root0.clone() * tst_isqrt.root0.clone());
+        dbg! (tst_isqrt.root1.clone() * tst_isqrt.root1);
      }
      dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();

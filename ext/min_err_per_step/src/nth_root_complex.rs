@@ -107,9 +107,10 @@ fn solve_system_real(A: f64, B: f64) -> Option<(f64, f64)> {
     let b = A / a;
     Some((a, b))
 }
+#[derive(PartialEq, Debug, Clone)]
 pub struct complex_roots {
-    root0: Cu_Complex,
-    root1: Cu_Complex
+    pub root0: Cu_Complex,
+    pub root1: Cu_Complex
 }
 pub fn sqrt_2 () -> rugfloat {
     static mut _const: Lazy <rugfloat> = Lazy::new(|| {
@@ -170,7 +171,7 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
             1:  rugfloat::with_val_64 (PREC0_, 0)
         }
     };      
-    let a1: _complex <rugfloat> = if a_squared1 < 0 {
+    let a1: Cu_Complex = if a_squared1 < 0 {
         let tmp: rugfloat = a_squared1.clone() * -1;
         Cu_Complex{ 
             0: rugfloat::with_val_64 (PREC0_, 0), 
@@ -185,10 +186,43 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
     
     let b0 = A.clone() / a0.clone();
     let b1 = A.clone() / a1.clone();
+    let cmp0 = b0.0.clone();
+    let cmp1 = b0.1.clone();
+    let cmp_a0 = a0.0.clone();
+    let cmp_a1 = a0.1.clone();
+    let root0 = if cmp0 == 0 {
+        Cu_Complex {
+            0: cmp1 * -1,
+            1: cmp_a1
+        }
+    } else {
+           Cu_Complex {
+            0: cmp_a0,
+            1: cmp0
+        }
+    };
+    let cmp0 = b1.0.clone();
+    let cmp1 = b1.1.clone();
+    let cmp_a0 = a1.0.clone();
+    let cmp_a1 = a1.1.clone();
+    let root1 = if cmp0 == 0 {
+        Cu_Complex {
+            0: cmp1 * -1,
+            1: cmp_a1
+        }
+    } else {
+           Cu_Complex {
+            0: cmp_a0,
+            1: cmp0
+        }
+    };
     let ret = complex_roots {
-        root0: a0 + b0,
-        root1: a1 + b1,
-    }
+        root0,
+        root1,
+    };
     return Some(ret)
 }
-
+pub fn isqrt (cmplx: &Cu_Complex) -> Option <complex_roots> {
+    let A = cmplx.1.clone() / 2;
+    return solve_system_for_isqrt (&A, &cmplx.0)
+}

@@ -612,11 +612,13 @@ dependencies = [
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.70"
+version = "0.0.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f67017a147b4f1a8f7b1acb1c6aebb2f32bdc2b5304b80419fdc5963942a3a13"
+checksum = "e25ac3c65cd58255e58343e04459de71b27765b5d9b150009ad051aa379951ea"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "num",
+ "num-complex",
  "num-traits",
  "once_cell",
  "rug",
@@ -1044,7 +1046,6 @@ dependencies = [
  "min_err_per_step",
  "nix",
  "num",
- "num-complex",
  "num-traits",
  "once_cell",
  "os_pipe",
