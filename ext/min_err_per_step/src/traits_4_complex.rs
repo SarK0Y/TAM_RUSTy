@@ -54,6 +54,19 @@ impl Div <Cu_Complex> for rugfloat {
         }
     }
 }
+impl Div <&Cu_Complex> for rugfloat {
+    type Output = Cu_Complex;
+    fn div (self, other: &Cu_Complex ) -> Cu_Complex {
+        let r2 = other.radius2();
+        let mut ret = Cu_Complex { 
+            0: self.clone(),
+            1: rugfloat::with_val (2, 0) } * other.clone(); 
+        return Cu_Complex {
+            0: ret.0 / r2.clone(),
+            1: ret.1 / r2
+        }
+    }
+}
 impl Mul for Cu_Complex {
     type Output = Cu_Complex;
     fn mul (self, other: Cu_Complex ) -> Cu_Complex {
