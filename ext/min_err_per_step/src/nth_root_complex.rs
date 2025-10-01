@@ -156,11 +156,14 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
     let sqrt_i: Cu_Complex = Cu_Complex {0: sqrt_05(), 1: sqrt_05() };
     //let mut complex_a = _complex::new (a, a);
     let discriminant: rugfloat = B.clone() * B.clone() + 4 * A.clone() * A.clone();
+    dbg! (&discriminant);
     let sqrt_discriminant = __2rt (&discriminant, PREC0_);
+    dbg! (&sqrt_discriminant );
     let a_squared0: rugfloat = (B.clone() + sqrt_discriminant.clone()) / 2.0;
     let a_squared1: rugfloat = (B - sqrt_discriminant) / 2.0;
     let a0: Cu_Complex = if a_squared0 < 0 {
         let tmp: rugfloat = a_squared0.clone() * -1;
+        dbg! (&tmp);
         Cu_Complex{ 
             0: rugfloat::with_val_64 (PREC0_, 0), 
             1: __2rt (&tmp, PREC0_)
@@ -170,7 +173,8 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
             0: __2rt (&a_squared0, PREC0_),
             1:  rugfloat::with_val_64 (PREC0_, 0)
         }
-    };      
+    };  
+    dbg! ("got1");    
     let a1: Cu_Complex = if a_squared1 < 0 {
         let tmp: rugfloat = a_squared1.clone() * -1;
         Cu_Complex{ 
@@ -179,11 +183,11 @@ pub fn solve_system_for_isqrt(A: &rugfloat, B: &rugfloat)
         }
     } else {
         Cu_Complex {
-            0: __2rt (&a_squared0, PREC0_),
+            0: __2rt (&a_squared1, PREC0_),
             1:  rugfloat::with_val_64 (PREC0_, 0)
         }
     };      
-    
+    dbg! ("got2");
     let b0 = A.clone() / a0.clone();
     let b1 = A.clone() / a1.clone();
     let cmp0 = b0.0.clone();

@@ -287,6 +287,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         traits::Cu_Complex
     };
     use min_err_per_step::complex::traits;
+    use min_err_per_step::nth_root::dbg_2rt;
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -298,7 +299,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
         let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        dbg! ("checked crawler");
         let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0);
+        dbg! ("checked Cu_complex.init_f64");
+        let _533 = _1.clone() * 533;
+        dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);

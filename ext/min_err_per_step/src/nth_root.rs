@@ -1,33 +1,74 @@
+use once_cell::sync::Lazy;
 use rug::float::Round;
 use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow};
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom};
 use rug::float::Constant;
 use crate::base::{glob_precision, ctrl_glob_precision, Pi };
+use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
 use Mademoiselle_Entropia::minio::InterruptMsg;
+fn faav_a (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
+    static mut state: Lazy < Option <*mut rugfloat> > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+fn faav_b (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
+    static mut state: Lazy < Option <*mut rugfloat> > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
 pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
+ unsafe {
     let PREC0 = glob_precision (None);
-    let _2 = rugfloat::with_val_64 (PREC0, 2);
+    let _05 = rugfloat::with_val_64 (PREC0, 0.5);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
     let mut start_x: rugfloat = _1.clone();
+    faav_a (Some (&mut start_x));
     let tmp: rugfloat = x.clone() / 3;
-    start_x.assign (tmp);
-    start_x += start_x.clone() >> 2;
-    let no_less = _1.clone () / _2.clone().pow (err - 1);
-    //dbg! (&no_less);
+    let no_less = _05.clone().pow (err - 10);
+    faav_a(None).unwrap().as_mut().unwrap().assign (tmp);
+    *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
     let mut b = _1.clone();
-   // dbg! (&start_x);
-    let mut step: usize = 0;
-    //sin_x = 2 * start_x.clone ();
-    let mut ds = (start_x.clone() - b.clone() ).abs ();
-    while ds > no_less {
-        b = x.clone () / start_x.clone ();
+    faav_b (Some (&mut b));
+    let mut step: u64 = 0;
+    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
+        .abs() > no_less {
+        *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
 	    start_x = (start_x.clone() + b.clone () ) / 2;
-        ds = (start_x.clone() - b.clone() ).abs ();
-        //dbg! (&ds);
+        //step.inc();
     }
  //   dbg! (&b);
     if b < start_x && *x > 0 {return start_x }
     return b
+}
+} 
+pub fn dbg_2rt (x: &rugfloat, err: u64 ) -> rugfloat {
+ unsafe {
+    let PREC0 = glob_precision (None);
+    let _05 = rugfloat::with_val_64 (PREC0, 0.5);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut start_x: rugfloat = _1.clone();
+    faav_a (Some (&mut start_x));
+    let tmp: rugfloat = x.clone() / 3;
+    let no_less = _05.clone().pow (err - 10);
+    faav_a(None).unwrap().as_mut().unwrap().assign (tmp);
+    *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
+    let mut b = _1.clone();
+    faav_b (Some (&mut b));
+    let mut step: u64 = 0;
+    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
+        .abs() > no_less {
+        *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
+	    start_x = (start_x.clone() + b.clone () ) / 2;
+        dbg! (&start_x);
+        dbg! (&b);
+        //step.inc();
+    }
+ //   dbg! (&b);
+    if b < start_x && *x > 0 {return start_x }
+    return b
+}
 } 
 pub fn nthrt (x: &rugfloat, pow: &rugfloat, err: u64) -> rugfloat {
     let PREC0 = glob_precision (None);

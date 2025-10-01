@@ -21,6 +21,15 @@ impl Cu_Complex {
             1: rugfloat::with_val_64 (PREC0_, _1),
         }
     }
+    pub fn _z (&self) -> Self {
+        return __z (self)
+    }
+}
+pub fn __z (cmplx: &Cu_Complex) -> Cu_Complex {
+    return Cu_Complex (
+        cmplx.0.clone(),
+        cmplx.1.clone() * -1
+    )
 }
 pub trait basic_fnx_4_complex {
     fn radius2 (&self) -> rugfloat;
@@ -56,7 +65,7 @@ impl Div <Cu_Complex> for rugfloat {
         let r2 = other.radius2();
         let mut ret = Cu_Complex { 
             0: self.clone(),
-            1: rugfloat::with_val (2, 0) } * other; 
+            1: rugfloat::with_val (2, 0) } * other._z(); 
         return Cu_Complex {
             0: ret.0 / r2.clone(),
             1: ret.1 / r2
@@ -69,7 +78,7 @@ impl Div <&Cu_Complex> for rugfloat {
         let r2 = other.radius2();
         let mut ret = Cu_Complex { 
             0: self.clone(),
-            1: rugfloat::with_val (2, 0) } * other.clone(); 
+            1: rugfloat::with_val (2, 0) } * other._z(); 
         return Cu_Complex {
             0: ret.0 / r2.clone(),
             1: ret.1 / r2
