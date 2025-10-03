@@ -94,3 +94,13 @@ impl Mul for Cu_Complex {
         }
     }
 }
+type T = i64;
+impl Mul<T> for Cu_Complex {
+    type Output = Cu_Complex;
+    fn mul (self, other: T ) -> Cu_Complex {
+        return Cu_Complex {
+            0: self.0.clone() * other,
+            1: self.1.clone() * other
+        }
+    }
+}
