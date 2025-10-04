@@ -288,6 +288,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     };
     use min_err_per_step::complex::traits;
     use min_err_per_step::nth_root::dbg_2rt;
+    use min_err_per_step::complex::trig::real_e2x as __tstReal_e2x;
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -307,6 +308,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let _533 = _1.clone() * 533;
         //dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
+        let mut __tstReal_e2x__ = Cu_Complex::init_f64(0.0, 0.693147181);
+
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -317,11 +320,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&std_ln));
         dbg! (ext_const_E(&approx_8));
         dbg! (approx_8 / std_ln);
-        dbg! (__2rt (&_8, 100));
+        dbg! (__tstReal_e2x (&__tstReal_e2x__, 200));
       //  dbg! (cfrac_e2x (&_1, 100) );
-        dbg! (&tst_isqrt);
+       /* dbg! (&tst_isqrt);
         dbg! (tst_isqrt.root0.clone() * tst_isqrt.root0.clone());
-        dbg! (tst_isqrt.root1.clone() * tst_isqrt.root1);
+        dbg! (tst_isqrt.root1.clone() * tst_isqrt.root1);*/
      }
      dbg! (&cos_45deg);
      let _2_sqrt = _2.clone().sqrt();

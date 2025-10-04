@@ -9,6 +9,7 @@ use crate::complex::traits;
 use crate::complex::nth_root::isqrt;
 use crate::complex::traits::{Cu_Complex, Cu_Complex_Pow};
 use Mademoiselle_Entropia::minio::InterruptMsg; 
+/// [ for testing ]
 pub fn fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     let PREC0 = glob_precision (None);
     let err: u64 = if PREC0 < err {
@@ -23,7 +24,7 @@ pub fn fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     let mut sin_3x = Cu_Complex::init_f64 (1.0, 0.0);
     sin_3x = start_x.clone();
     //dbg! (&sin_3x);
-    while start_x.simple_cmp_less ( x ) {
+    while start_x.simple_cmp_jless ( x ) {
         sin_3x = 3u64 * sin_3x.clone () - 4* sin_3x.clone ().pow_u64 (3);
         start_x *= 3;
     }
@@ -33,4 +34,15 @@ pub fn fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
 pub fn gen_prec_for_three () -> u64 {
     let prec: f64 = glob_precision (None) as f64 / 1.6;
     return prec as u64
+}
+/// e^(-xj * j) == cos (-xj) - sin ( xj ) * j ... [set for testing] 
+pub fn real_e2x (x: &Cu_Complex, err: u64) -> Option <Cu_Complex> {
+    let sin: Cu_Complex = fast_n_simple_isin3 (x, err);
+    let mut cos: Cu_Complex = Cu_Complex::init_f64(1.0, 0.0) - sin.pow_u64 (2);
+    let isqrt_roots = isqrt (&cos);
+    if let Some (x) = isqrt_roots {
+        let j = Cu_Complex::init_f64 (0.0, 1.0);
+        cos = x.root0;
+        return Some (cos - sin * j )
+    } return None    
 }

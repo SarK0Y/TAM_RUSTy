@@ -28,9 +28,16 @@ impl Cu_Complex {
     pub fn simple_cmp_less (&self, other: &Cu_Complex) -> bool {
         return __simple_cmp_less (self, other)
     }
+    pub fn simple_cmp_jless (&self, other: &Cu_Complex) -> bool {
+        return __simple_cmp_jless (self, other)
+    }
 }
 pub fn __simple_cmp_less (left: &Cu_Complex, right: &Cu_Complex) -> bool {
     if left.0 < right.0 && left.1 < right.1 { return true }
+    return false
+}
+pub fn __simple_cmp_jless (left: &Cu_Complex, right: &Cu_Complex) -> bool {
+    if left.1 < right.1 { return true }
     return false
 }
 pub fn __z (cmplx: &Cu_Complex) -> Cu_Complex {
