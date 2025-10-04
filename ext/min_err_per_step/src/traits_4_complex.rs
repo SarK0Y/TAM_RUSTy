@@ -22,15 +22,34 @@ impl Cu_Complex {
             1: rugfloat::with_val_64 (PREC0_, _1),
         }
     }
+    pub fn init_rugfloat (_0: &rugfloat, _1: &rugfloat) -> Self {
+        return __init_rugfloat (_0, _1 )
+    }
+    pub fn init_jrugfloat ( j: &rugfloat) -> Self {
+        return __init_jrugfloat ( j )
+    }
     pub fn _z (&self) -> Self {
         return __z (self)
     }
-    pub fn simple_cmp_less (&self, other: &Cu_Complex) -> bool {
+    pub fn cmp_less (&self, other: &Cu_Complex) -> bool {
         return __simple_cmp_less (self, other)
     }
-    pub fn simple_cmp_jless (&self, other: &Cu_Complex) -> bool {
+    pub fn cmp_jless (&self, other: &Cu_Complex) -> bool {
         return __simple_cmp_jless (self, other)
     }
+}
+pub fn __init_rugfloat (_0: &rugfloat, _1: &rugfloat ) -> Cu_Complex {
+        return Cu_Complex {
+            0: _0.clone(),
+            1: _1.clone()
+        }
+}
+pub fn __init_jrugfloat (j: &rugfloat ) -> Cu_Complex {
+        let prec = j.prec_64();
+        return Cu_Complex {
+            0: rugfloat::with_val_64 (prec, 0),
+            1: j.clone()
+        }
 }
 pub fn __simple_cmp_less (left: &Cu_Complex, right: &Cu_Complex) -> bool {
     if left.0 < right.0 && left.1 < right.1 { return true }
@@ -181,12 +200,12 @@ impl Cu_Complex_Pow for Cu_Complex {
         let mut ret = Cu_Complex::init_f64 (1.0, 0.0);
         let mut sq = self.clone();
         while exp > 0 {
-            dbg!(&exp);
+ //           dbg!(&exp);
             if exp & 1 == 1 {
                 ret *= sq.clone();
-                dbg! (&ret);
+   //             dbg! (&ret);
             } sq *= sq.clone();
-            dbg! (&sq);
+     //       dbg! (&sq);
             exp /= 2;
         } ret
     }

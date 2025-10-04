@@ -288,7 +288,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     };
     use min_err_per_step::complex::traits;
     use min_err_per_step::nth_root::dbg_2rt;
-    use min_err_per_step::complex::trig::real_e2x as __tstReal_e2x;
+    use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x};
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -308,7 +308,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let _533 = _1.clone() * 533;
         //dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
-        let mut __tstReal_e2x__ = Cu_Complex::init_f64(0.0, 0.693147181);
+        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_8);//init_f64(0.0, 0.693147181);
 
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
@@ -320,7 +320,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&std_ln));
         dbg! (ext_const_E(&approx_8));
         dbg! (approx_8 / std_ln);
-        dbg! (__tstReal_e2x (&__tstReal_e2x__, 200));
+        dbg! (dbg_real_e2x (&__tstReal_e2x__, 150, _fast_n_simple_isin3) );
       //  dbg! (cfrac_e2x (&_1, 100) );
        /* dbg! (&tst_isqrt);
         dbg! (tst_isqrt.root0.clone() * tst_isqrt.root0.clone());
@@ -352,6 +352,33 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     InterruptMsg( &msg1);
     (tst_Pi, std_Pi - tst_Pi )
 }
+#[cfg(feature="meps")]
+use min_err_per_step::complex::traits::Cu_Complex;
+#[cfg(feature="meps")]
+pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
+ use min_err_per_step::complex::trig::gen_prec_for_three;
+ use min_err_per_step::complex::traits::Cu_Complex_Pow;
+    let PREC0_ = glob_precision (None);
+    let err: u64 = if PREC0_ < err {
+        PREC0_ / gen_prec_for_three ()
+     }else {err};
+    let _3 = rugfloat::with_val_64 (PREC0_, 3);
+    let _1 = rugfloat::with_val_64 (PREC0_, 1);
+    let mut start_x: Cu_Complex = x.clone() / &_3.pow (err);
+    //dbg! (&start_x);
+    let mut step: usize = 0;
+    //sin_x = 2 * start_x.clone ();
+    let mut sin_3x = Cu_Complex::init_f64 (1.0, 0.0);
+    sin_3x = start_x.clone();
+    //dbg! (&sin_3x);
+    while start_x.cmp_jless ( x ) {
+        sin_3x = 3u64 * sin_3x.clone () - 4* sin_3x.clone ().pow_u64 (3);
+        start_x *= 3;
+        dbg! (&sin_3x);
+    }
+    //dbg! (&sin_3x);
+    return sin_3x
+} 
 #[cfg(feature="meps")]
 pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let sign: i8 = if *pow > 0 { 1 } else { -1 };
