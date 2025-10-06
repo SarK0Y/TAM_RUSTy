@@ -112,6 +112,48 @@ pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
    // dbg! (&start_x);
     return b
 }
+#[cfg(feature="meps")]
+use min_err_per_step::nth_root::faav_a;
+#[cfg(feature="meps")]
+use min_err_per_step::nth_root::faav_b;
+#[cfg(feature="meps")]
+pub fn try_2rt (x: &rugfloat, err: u64 ) -> rugfloat {
+ unsafe {
+    let PREC0_ = glob_precision (None);
+    let _05 = rugfloat::with_val_64 (PREC0_, 0.5);
+    let _1 = rugfloat::with_val_64 (PREC0_, 1);
+    let mut start_x: rugfloat = _1.clone();
+    faav_a (Some (&mut start_x));
+    let tmp: rugfloat = x.clone() / 3;
+    let no_less = _05.clone().pow (err - 10);
+    faav_a(None).unwrap().as_mut().unwrap().assign (tmp);
+    *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
+    let mut b = _1.clone();
+    faav_b (Some (&mut b));
+    let mut step: u64 = 101;
+    let mut delta: rugfloat = ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone() ).abs();
+    let mut new_low_delta = _1.clone();
+    let mut less_possible = true;
+    while new_low_delta > no_less && less_possible {
+        *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
+	    start_x = (start_x.clone() + b.clone () ) / 2;
+        delta = ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone() ).abs();
+        if delta < new_low_delta {new_low_delta = delta;}
+        else { 
+          //  dbg! (&delta);
+            if step == 0 {
+                less_possible = false; 
+                step = 101;
+                continue;
+            } step.dec();
+        }
+        //step.inc();
+    }
+ //   dbg! (&b);
+    if b < start_x && *x > 0 {return start_x }
+    return b
+}
+} 
 pub fn nthrt (x: &rugfloat, err: usize ) -> rugfloat {
     let _2 = rugfloat::with_val_64 (PREC0, 2);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
@@ -150,6 +192,29 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
         start_x *= 2;
     }
     dbg! (&start_x);
+    return sin_x
+}
+#[cfg(feature="meps")]
+pub fn fast_n_simple_isin (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
+use min_err_per_step::complex::traits::Cu_Complex_Pow;
+use min_err_per_step::complex::nth_root::isqrt;
+    let _PREC0 = glob_precision (None);
+    let _2 = Cu_Complex::init_f64 (2.0, 0.0);;
+    let _1 = Cu_Complex::init_f64 (1.0, 0.0);
+    let mut start_x: Cu_Complex = x.clone() / _2.pow_u64 (err);
+    let mut step: usize = 0;
+    let mut sin_x: Cu_Complex = start_x.clone();
+    //sin_x = 2 * start_x.clone ();
+    let mut cos_x: Cu_Complex = ( _1.clone () - start_x.pow_u64 (2) );
+    /*sin_x *= cos_x.sqrt ();
+    start_x *= 2; */
+    while start_x.cmp_jless (x) {
+        cos_x = ( _1.clone () - sin_x.clone().pow_u64 (2) );
+        sin_x *= 2;
+        sin_x *= isqrt (&cos_x ).unwrap().root0;//cos_x.sqrt ();
+        start_x *= 2;
+    }
+  //  dbg! (&start_x);
     return sin_x
 }
 pub fn fast_n_simple_cos (x: &rugfloat, err: usize ) -> rugfloat {
@@ -287,8 +352,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         traits::Cu_Complex
     };
     use min_err_per_step::complex::traits;
-    use min_err_per_step::nth_root::dbg_2rt;
-    use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x};
+    use min_err_per_step::nth_root::{dbg_2rt, replace_2rt};
+    use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x, _real_e2x};
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();
@@ -299,28 +364,31 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let std_ln = _8.clone().ln();
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
+       replace_2rt (Some (try_2rt) );
         let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        let approx_2 = crawler_ln_lib (&_2, 6000, 200, 200);
         dbg! ("checked crawler");
         //let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0); let tst_cmplx = Cu_Complex::init_f64 (31.0, 23.0);
-        glob_precision (Some (8000));
+       // glob_precision (Some (8000));
         let tst_cmplx = Cu_Complex::init_f64 (128.0, -27.0);
-        dbg! ("checked Cu_complex.init_f64");
         let _533 = _1.clone() * 533;
         //dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
-        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_8);//init_f64(0.0, 0.693147181);
-
+        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_2);// * -1;//init_f64(0.0, 0.693147181);
+        let mut __low_prec_e2x__ = Cu_Complex::init_f64 (0.0, -2.07944154);
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
         dbg! (&__cos_vs__sin);
         dbg! (&ext_const_e);
-        dbg! (&approx_8);
+        dbg! (&approx_2);
         dbg! (_ext_const_E(&approx_8));
         dbg! (ext_const_E(&std_ln));
-        dbg! (ext_const_E(&approx_8));
+        dbg! (ext_const_E(&approx_2));
         dbg! (approx_8 / std_ln);
-        dbg! (dbg_real_e2x (&__tstReal_e2x__, 150, _fast_n_simple_isin3) );
+        //dbg! (__tstReal_e2x (&__low_prec_e2x__, 2050) );
+        dbg! (_real_e2x (&__low_prec_e2x__, 2050) );
+        dbg! (dbg_real_e2x (&__tstReal_e2x__, 2500, fast_n_simple_isin ));//_fast_n_simple_isin3) );
       //  dbg! (cfrac_e2x (&_1, 100) );
        /* dbg! (&tst_isqrt);
         dbg! (tst_isqrt.root0.clone() * tst_isqrt.root0.clone());
@@ -374,7 +442,7 @@ pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     while start_x.cmp_jless ( x ) {
         sin_3x = 3u64 * sin_3x.clone () - 4* sin_3x.clone ().pow_u64 (3);
         start_x *= 3;
-        dbg! (&sin_3x);
+      //  dbg! (&sin_3x);
     }
     //dbg! (&sin_3x);
     return sin_3x

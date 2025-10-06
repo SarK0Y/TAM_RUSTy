@@ -6,23 +6,33 @@ use rug::float::Constant;
 use crate::base::{glob_precision, ctrl_glob_precision, Pi };
 use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
 use Mademoiselle_Entropia::minio::InterruptMsg;
-fn faav_a (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
+pub fn faav_a (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
     static mut state: Lazy < Option <*mut rugfloat> > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
-fn faav_b (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
+pub fn faav_b (pointer: Option <*mut rugfloat>) -> Option <*mut rugfloat> {
     static mut state: Lazy < Option <*mut rugfloat> > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+type alt_2rt = fn (x: &rugfloat, err: u64 ) -> rugfloat;
+pub fn replace_2rt (pointer: Option < alt_2rt >) -> Option <alt_2rt> {
+    static mut state: Lazy < Option <alt_2rt> > = Lazy::new (|| {None});
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
 pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
+    if let Some (new_2rt) = replace_2rt (None) {
+        return new_2rt (x, err)
+    }
  unsafe {
-    let PREC0 = glob_precision (None);
-    let _05 = rugfloat::with_val_64 (PREC0, 0.5);
-    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let PREC0_ = glob_precision (None);
+    let _05 = rugfloat::with_val_64 (PREC0_, 0.5);
+    let _1 = rugfloat::with_val_64 (PREC0_, 1);
     let mut start_x: rugfloat = _1.clone();
     faav_a (Some (&mut start_x));
     let tmp: rugfloat = x.clone() / 3;
@@ -31,11 +41,23 @@ pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
     let mut b = _1.clone();
     faav_b (Some (&mut b));
-    let mut step: u64 = 0;
-    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
-        .abs() > no_less {
+    let mut step: u64 = 101;
+    let mut delta: rugfloat = ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone() ).abs();
+    let mut new_low_delta = _1.clone();
+    let mut less_possible = true;
+    while new_low_delta > no_less && less_possible {
         *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
 	    start_x = (start_x.clone() + b.clone () ) / 2;
+        delta = ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone() ).abs();
+        if delta < new_low_delta {new_low_delta = delta;}
+        else { 
+          //  dbg! (&delta);
+            if step == 0 {
+                less_possible = false; 
+                step = 101;
+                continue;
+            } step.dec();
+        }
         //step.inc();
     }
  //   dbg! (&b);
@@ -56,13 +78,20 @@ pub fn dbg_2rt (x: &rugfloat, err: u64 ) -> rugfloat {
     *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
     let mut b = _1.clone();
     faav_b (Some (&mut b));
-    let mut step: u64 = 0;
-    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
-        .abs() > no_less {
+    let mut step: u64 = 101;
+    let mut delta: rugfloat = (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone().abs();
+    let mut new_low_delta = _1.clone();
+    let mut less_possible = true;
+    while new_low_delta > no_less && less_possible {
         *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
 	    start_x = (start_x.clone() + b.clone () ) / 2;
-        dbg! (&start_x);
-        dbg! (&b);
+        delta = (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone().abs();
+        if delta < new_low_delta {new_low_delta = delta;}
+        else { 
+            if step == 0 {
+                less_possible = false; 
+            } step.dec();
+        }
         //step.inc();
     }
  //   dbg! (&b);

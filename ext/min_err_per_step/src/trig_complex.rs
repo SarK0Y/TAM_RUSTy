@@ -46,6 +46,17 @@ pub fn real_e2x (x: &Cu_Complex, err: u64) -> Option <Cu_Complex> {
         return Some (cos - sin * j )
     } return None    
 }
+/// e^(-xj * j) == cos (-xj) + sin ( xj ) * j ... [set for testing] 
+pub fn _real_e2x (x: &Cu_Complex, err: u64) -> Option <Cu_Complex> {
+    let sin: Cu_Complex = fast_n_simple_isin3 (x, err);
+    let mut cos: Cu_Complex = Cu_Complex::init_f64(1.0, 0.0) - sin.pow_u64 (2);
+    let isqrt_roots = isqrt (&cos);
+    if let Some (x) = isqrt_roots {
+        let j = Cu_Complex::init_f64 (0.0, 1.0);
+        cos = x.root0;
+        return Some (cos + sin * j )
+    } return None    
+}
 pub fn dbg_real_e2x (x: &Cu_Complex, err: u64, cu_sin: fn (x: &Cu_Complex, err: u64 ) -> Cu_Complex) -> Option <Cu_Complex> {
     let sin: Cu_Complex = cu_sin (x, err);
     let mut cos: Cu_Complex = Cu_Complex::init_f64(1.0, 0.0) - sin.pow_u64 (2);

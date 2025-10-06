@@ -496,4 +496,29 @@ pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
     den -= one;
     (num, den)
 }
+pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat { // bad variant: at some cases, falls into endless loop
+ unsafe {
+    let PREC0 = glob_precision (None);
+    let _05 = rugfloat::with_val_64 (PREC0, 0.5);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut start_x: rugfloat = _1.clone();
+    faav_a (Some (&mut start_x));
+    let tmp: rugfloat = x.clone() / 3;
+    let no_less = _05.clone().pow (err - 10);
+    faav_a(None).unwrap().as_mut().unwrap().assign (tmp);
+    *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
+    let mut b = _1.clone();
+    faav_b (Some (&mut b));
+    let mut step: u64 = 0;
+    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
+        .abs() > no_less {
+        *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
+	    start_x = (start_x.clone() + b.clone () ) / 2;
+        //step.inc();
+    }
+ //   dbg! (&b);
+    if b < start_x && *x > 0 {return start_x }
+    return b
+}
+} 
     //tst

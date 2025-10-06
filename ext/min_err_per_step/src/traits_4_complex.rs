@@ -195,7 +195,7 @@ pub trait Cu_Complex_Pow {
 }
 impl Cu_Complex_Pow for Cu_Complex {
     fn pow_u64 (&self, exp: u64) -> Self {
-        dbg!(&exp);
+       // dbg!(&exp);
         let mut exp = exp;
         let mut ret = Cu_Complex::init_f64 (1.0, 0.0);
         let mut sq = self.clone();
