@@ -37,6 +37,22 @@ impl Cu_Complex {
     pub fn cmp_jless (&self, other: &Cu_Complex) -> bool {
         return __simple_cmp_jless (self, other)
     }
+    pub fn abs (&self) -> Self {
+        return __abs (self)
+    }
+    pub fn radius (&self) -> rugfloat {
+        return __radius (self)
+    } 
+}
+pub fn __radius (z: &Cu_Complex) -> rugfloat {
+    let prec = glob_precision (None);
+    return __2rt (&z.radius2 (), prec )
+}
+pub fn __abs (z: &Cu_Complex) -> Cu_Complex {
+    return Cu_Complex {
+        0: z.0.clone().abs(),
+        1: z.1.clone().abs()
+    }
 }
 pub fn __init_rugfloat (_0: &rugfloat, _1: &rugfloat ) -> Cu_Complex {
         return Cu_Complex {

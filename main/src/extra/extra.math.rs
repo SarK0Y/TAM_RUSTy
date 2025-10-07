@@ -198,6 +198,7 @@ pub fn fast_n_simple_sin (x: &rugfloat, err: usize ) -> rugfloat {
 pub fn fast_n_simple_isin (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
 use min_err_per_step::complex::traits::Cu_Complex_Pow;
 use min_err_per_step::complex::nth_root::isqrt;
+//dbg! (&x);
     let _PREC0 = glob_precision (None);
     let _2 = Cu_Complex::init_f64 (2.0, 0.0);;
     let _1 = Cu_Complex::init_f64 (1.0, 0.0);
@@ -206,13 +207,17 @@ use min_err_per_step::complex::nth_root::isqrt;
     let mut sin_x: Cu_Complex = start_x.clone();
     //sin_x = 2 * start_x.clone ();
     let mut cos_x: Cu_Complex = ( _1.clone () - start_x.pow_u64 (2) );
+    if start_x.1 < 0 {start_x *= -1;}
+    let x_abs = x.abs();
+ //   dbg! (&start_x);
     /*sin_x *= cos_x.sqrt ();
     start_x *= 2; */
-    while start_x.cmp_jless (x) {
+    while start_x.cmp_jless (&x_abs) {
         cos_x = ( _1.clone () - sin_x.clone().pow_u64 (2) );
         sin_x *= 2;
         sin_x *= isqrt (&cos_x ).unwrap().root0;//cos_x.sqrt ();
         start_x *= 2;
+       // dbg!(&sin_x);
     }
   //  dbg! (&start_x);
     return sin_x
@@ -374,8 +379,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let _533 = _1.clone() * 533;
         //dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
-        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_2);// * -1;//init_f64(0.0, 0.693147181);
+        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_8) * -1;//init_f64(0.0, 0.693147181);
         let mut __low_prec_e2x__ = Cu_Complex::init_f64 (0.0, -2.07944154);
+        let __dbg_real_e2x = dbg_real_e2x (&__tstReal_e2x__, 3000, _fast_n_simple_isin3 ).unwrap();
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -387,8 +393,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&approx_2));
         dbg! (approx_8 / std_ln);
         //dbg! (__tstReal_e2x (&__low_prec_e2x__, 2050) );
-        dbg! (_real_e2x (&__low_prec_e2x__, 2050) );
-        dbg! (dbg_real_e2x (&__tstReal_e2x__, 2500, fast_n_simple_isin ));//_fast_n_simple_isin3) );
+        dbg! (_real_e2x (&__low_prec_e2x__, 300) );
+        dbg! (&__dbg_real_e2x );//_fast_n_simple_isin3) );
+        dbg! (__dbg_real_e2x.radius() );
       //  dbg! (cfrac_e2x (&_1, 100) );
        /* dbg! (&tst_isqrt);
         dbg! (tst_isqrt.root0.clone() * tst_isqrt.root0.clone());
@@ -426,6 +433,7 @@ use min_err_per_step::complex::traits::Cu_Complex;
 pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
  use min_err_per_step::complex::trig::gen_prec_for_three;
  use min_err_per_step::complex::traits::Cu_Complex_Pow;
+ // dbg! (&x);
     let PREC0_ = glob_precision (None);
     let err: u64 = if PREC0_ < err {
         PREC0_ / gen_prec_for_three ()
@@ -436,10 +444,12 @@ pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     //dbg! (&start_x);
     let mut step: usize = 0;
     //sin_x = 2 * start_x.clone ();
-    let mut sin_3x = Cu_Complex::init_f64 (1.0, 0.0);
-    sin_3x = start_x.clone();
+    let mut sin_3x = start_x.clone();
+    if start_x.1 < 0 {start_x *= -1;}
+    let x_abs = x.abs();
+//    dbg! (&start_x);
     //dbg! (&sin_3x);
-    while start_x.cmp_jless ( x ) {
+    while start_x.cmp_jless ( &x_abs ) {
         sin_3x = 3u64 * sin_3x.clone () - 4* sin_3x.clone ().pow_u64 (3);
         start_x *= 3;
       //  dbg! (&sin_3x);
