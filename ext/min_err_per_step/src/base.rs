@@ -107,7 +107,7 @@ pub fn re_fast_real_e (new_coef: &rugfloat, canceled_coef: &rugfloat, prec_: u64
     const_e_base.pow_assign(exponent); // = 2 ^ m
     //dbg! (&const_e_base);
     let mut big_exp = const_e_base.clone (); // = 2 ^ m
-    big_exp *= rugfloat::with_val_64(PREC0_, new_coef.clone().abs () ); // = new_coef * 2 ^ m
+    big_exp *= rugfloat::with_val_64(PREC0_, new_coef.clone() ); // = new_coef * 2 ^ m
     const_e_base.mul_assign_round(rugfloat::with_val_64(PREC0_ , canceled_coef), rm);
     //dbg! (&const_e_base);
     one_div_by.div_assign_round(&const_e_base, rm);
@@ -133,8 +133,8 @@ pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let pow = pow.clone() * sign;
     let PREC0 = glob_precision (None);
   //  let max_terms = PREC0 as usize / 3;
-    let (new_coef, canceled_coef) = fast_n_dumb_shortcut_for_cfrac (&pow);//continued_fraction_approximation (&pow, max_terms, PREC0);
-    let new_coef = new_coef * sign;
+    let (new_coef, mut canceled_coef) = fast_n_dumb_shortcut_for_cfrac (&pow);//continued_fraction_approximation (&pow, max_terms, PREC0);
+    canceled_coef  *= sign;
     return re_fast_real_e (&new_coef, &canceled_coef, PREC0)
 }
 pub fn _ext_const_E (pow: &rugfloat) -> rugfloat {

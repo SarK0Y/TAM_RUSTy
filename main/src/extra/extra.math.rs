@@ -351,7 +351,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      {
         dbg! ("mark0");
     use min_err_per_step::logarithm::simple_ln;
-    use min_err_per_step::logarithm::{btree_ln, crawler_ln as crawler_ln_lib};
+    use min_err_per_step::logarithm::{btree_ln, crawler_ln_lite as crawler_ln_lib, replace_crawler_ln, build_crawler_ln, set_crawler_ln_divisors};
     use min_err_per_step::complex::{
         nth_root::{isqrt, complex_roots, dbg_isqrt},
         traits::Cu_Complex
@@ -370,18 +370,23 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
        replace_2rt (Some (try_2rt) );
-        let approx_8 = crawler_ln_lib (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
-        let approx_2 = crawler_ln_lib (&_2, 6000, 200, 200);
+       replace_crawler_ln (Some (crawler_ln_lite) );
+        let mut div_vec = vec! [67u64, 73, 283];
+        set_crawler_ln_divisors (Some (div_vec) );
+        let approx_8 = build_crawler_ln (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        let _533 = _1.clone() / 533_333u64;
+        //let _simple_ln = simple_ln (&_533, 100).0;
+        let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
         dbg! ("checked crawler");
         //let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0); let tst_cmplx = Cu_Complex::init_f64 (31.0, 23.0);
        // glob_precision (Some (8000));
         let tst_cmplx = Cu_Complex::init_f64 (128.0, -27.0);
-        let _533 = _1.clone() * 533;
+        
         //dbg! (dbg_2rt (&_533, glob_precision(None) ) );
         let tst_isqrt: complex_roots = isqrt (&tst_cmplx).unwrap();
-        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_8) * -1;//init_f64(0.0, 0.693147181);
+        let mut __tstReal_e2x__ = Cu_Complex::init_jrugfloat (&approx_2) * -1;//init_f64(0.0, 0.693147181);
         let mut __low_prec_e2x__ = Cu_Complex::init_f64 (0.0, -2.07944154);
-        let __dbg_real_e2x = dbg_real_e2x (&__tstReal_e2x__, 3000, _fast_n_simple_isin3 ).unwrap();
+        let __dbg_real_e2x = dbg_real_e2x (&__tstReal_e2x__, 3000, fast_n_simple_isin ).unwrap();
         //let x = _1_over_x.clone().pow(-1);
         dbg! (&cos_extra);
         dbg! (&cos_extra_vs__sin);
@@ -393,6 +398,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (ext_const_E(&approx_2));
         dbg! (approx_8 / std_ln);
         //dbg! (__tstReal_e2x (&__low_prec_e2x__, 2050) );
+        dbg!(approx_2 / _533.ln() );
         dbg! (_real_e2x (&__low_prec_e2x__, 300) );
         dbg! (&__dbg_real_e2x );//_fast_n_simple_isin3) );
         dbg! (__dbg_real_e2x.radius() );
@@ -920,6 +926,36 @@ pub fn _0crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
        // ret -= _1_over_6.clone() * (a.clone() - e2xn.clone()).pow(3); 
        // ret -= _1_over_24.clone() * (a.clone() - e2xn.clone()).pow(4); 
         xn = ret.clone();
+    }
+    return ret;
+}
+#[cfg(feature="meps")]
+pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
+    dbg! ("here");
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
+    let mut e2xn = ext_const_E (&xn);
+    let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
+    let mut count_broker = 0u64;
+    let mut dxn = tail.clone();
+   // dbg! (&e2xn);
+    //let mut dx = xn.clone();
+    for j in 0..err {
+        dxn = a.clone()/e2xn.clone() - 1;
+        ret = xn.clone() + dxn.clone();
+        //dx = (ret.clone() - xn.clone() ).abs();
+        //e2xn *= e2dx_nxt2_1 (&dx);
+        if broker == count_broker { 
+            e2xn = ext_const_E (&xn);
+            count_broker = 0;
+         } else {
+            (e2xn, tail) = speedup_ln (&a, &tail);
+         }
+        count_broker += 1;
+        xn = ret.clone();
+        //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
     }
     return ret;
 }

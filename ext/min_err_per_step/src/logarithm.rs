@@ -155,9 +155,132 @@ pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugf
     }
     return ret;
 }
+/// How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
+pub fn crawler_ln_ (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let _1_over_6 = rugfloat::with_val_64 (PREC0_, 1/6);
+    let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
+    let mut e2xn = ext_const_E (&xn);
+    let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
+    let mut count_broker = 0u64;
+    let mut dxn = tail.clone();
+   // dbg! (&e2xn);
+    //let mut dx = xn.clone();
+    for j in 0..err {
+        dxn = a.clone()/e2xn.clone() - 1;
+        ret = xn.clone() + dxn.clone();
+        ret -= 0.5 * dxn.clone().pow(2); 
+        ret -= _1_over_6.clone() * dxn.clone().pow(3); 
+        ret -= _1_over_24.clone() * dxn.pow(4); 
+        //dx = (ret.clone() - xn.clone() ).abs();
+        //e2xn *= e2dx_nxt2_1 (&dx);
+        if broker == count_broker { 
+            e2xn = ext_const_E (&xn);
+            count_broker = 0;
+         } else {
+            (e2xn, tail) = speedup_ln (&a, &tail);
+         }
+        count_broker += 1;
+        xn = ret.clone();
+        //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
+    }
+    return ret;
+}
+/// How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
+pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
+    let PREC0_ = glob_precision (None);
+    //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
+    let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
+    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
+    let mut e2xn = ext_const_E (&xn);
+    let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
+    let mut count_broker = 0u64;
+    let mut dxn = tail.clone();
+   // dbg! (&e2xn);
+    //let mut dx = xn.clone();
+    for j in 0..err {
+        dxn = a.clone()/e2xn.clone() - 1;
+        ret = xn.clone() + dxn.clone();
+        //dx = (ret.clone() - xn.clone() ).abs();
+        //e2xn *= e2dx_nxt2_1 (&dx);
+        if broker == count_broker { 
+            e2xn = ext_const_E (&xn);
+            count_broker = 0;
+         } else {
+            (e2xn, tail) = speedup_ln (&a, &tail);
+         }
+        count_broker += 1;
+        xn = ret.clone();
+        //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
+    }
+    return ret;
+}
 pub fn speedup_ln (a: &rugfloat, tail: &rugfloat) -> (rugfloat, rugfloat) {
     let mut a = a.clone() - 1;
     let tail = __2rt (&tail, glob_precision (None) );
     return (a + tail.clone(), tail)
 }
+type alt_crawler = fn (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat;
+pub fn replace_crawler_ln (pointer: Option < alt_crawler >) -> Option <alt_crawler> {
+    static mut state: Lazy < Option <alt_crawler> > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+pub fn set_crawler_ln_divisors (pointer: Option < Vec <u64> >) -> Option <Vec <u64> > {
+    static mut state: Lazy < Option < Vec <u64> > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+pub fn ref_add_exp (pointer: Option < *mut Vec <rugfloat> >) -> Option <*mut Vec <rugfloat> > {
+    static mut state: Lazy < Option < *mut Vec <rugfloat> > > = Lazy::new (|| {None});
+    unsafe {
+        if pointer.is_some() { *state = pointer} state.clone()
+    }
+}
+/// on tst
+pub fn build_crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
+    let mut ret = rugfloat::with_val_64 (glob_precision (None), 0);
+    let mut a = a.clone();
+    let crawler: alt_crawler = if let Some (sc) = replace_crawler_ln (None) {
+        sc
+    } else { crawler_ln_lite };
+    if let Some (mut divisors) = set_crawler_ln_divisors (None) {
+    unsafe {
+        let mut add_exp: Vec <rugfloat> = Vec::with_capacity (divisors.len());
+        ref_add_exp (Some ( &mut add_exp) );
+        while let Some (_div) = divisors.pop() {
+            a /= _div;
+            std::thread::spawn (move|| {
+                dbg! ("spawn");
+                let _div = rugfloat::with_val_64 (glob_precision (None), _div);
+                dbg! (&_div);
+                dbg! (&crawler);
+                let _out = crawler (&_div, err, feeder_cnt, broker);
+                dbg! (&_out);
+                ref_add_exp (None).unwrap().as_mut().unwrap().push (_out.clone() );
+                dbg! (&ref_add_exp (None).unwrap());
+            });
+            let _out = crawler (&a, err, feeder_cnt, broker);
+            ref_add_exp (None).unwrap().as_mut().unwrap().push (_out.clone() );
+        }
+        while add_exp.len() < add_exp.capacity() {
+            Do_Nohing (17);
+            Do_Nohing (37);
+            Do_Nohing (49713);
+        };
+        while let Some( x ) = add_exp.pop() {
+            ret += x;
+        }
+    }
+    }
+    if ret == 0 {
+        return crawler (&a, err, feeder_cnt, broker);
+    } return ret
+}
+fn Do_Nohing (no: u64) -> u64 { return no}
 //fn
