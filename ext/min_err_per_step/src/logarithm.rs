@@ -219,9 +219,9 @@ pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) ->
     return ret;
 }
 pub fn speedup_ln (a: &rugfloat, tail: &rugfloat) -> (rugfloat, rugfloat) {
-    let mut a = a.clone() - 1;
+    let mut a: rugfloat = a.clone() - 1;
     let tail = __2rt (&tail, glob_precision (None) );
-    return (a + tail.clone(), tail)
+    return (a.clone() + tail.clone(), tail.clone())
 }
 type alt_crawler = fn (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat;
 pub fn replace_crawler_ln (pointer: Option < alt_crawler >) -> Option <alt_crawler> {

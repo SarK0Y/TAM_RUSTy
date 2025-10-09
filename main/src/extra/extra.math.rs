@@ -371,9 +371,10 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
        // let _8_log_2: rugfloat = _8.lg (&_2);
        replace_2rt (Some (try_2rt) );
        replace_crawler_ln (Some (crawler_ln_lite) );
-        let mut div_vec = vec! [67u64, 73, 283];
+        let mut div_vec = vec! [283];
         set_crawler_ln_divisors (Some (div_vec) );
-        let approx_8 = build_crawler_ln (&_8, 6000, 100, 100);//_8.pow(&_8_log_2);
+        let approx_8 = build_crawler_ln (&_8, 6000, 100, 65);//_8.pow(&_8_log_2);
+        dbg! ("1st run of build crawler");
         let _533 = _1.clone() / 533_333u64;
         //let _simple_ln = simple_ln (&_533, 100).0;
         let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
@@ -930,13 +931,34 @@ pub fn _0crawler_ln (a: &rugfloat, err: u64) -> rugfloat {
     return ret;
 }
 #[cfg(feature="meps")]
+pub fn simple_ln_here (a: &rugfloat, local_prec: u64) -> (rugfloat, rugfloat) {
+use min_err_per_step::nth_root::__22mrt;
+    let a2x = __22mrt (a, local_prec );
+    dbg! ("__22mrt in simple ln here");
+    let _1_over_x: rugfloat = 
+        rugfloat::with_val_64 (glob_precision (None), 2) << local_prec as usize - 1;
+    dbg! ("1 over x");
+   // dbg! (&a2x);
+    //dbg! (&_1_over_x);
+    let  ln_: rugfloat = (a2x - 1) * _1_over_x.clone ();
+    dbg! ("exit simple ln here");
+    return (ln_, _1_over_x)
+}
+#[cfg(feature="meps")]
+#[no_mangle]
 pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugfloat {
     dbg! ("here");
     let PREC0_ = glob_precision (None);
+    dbg! ("glob prec");
     //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
-    let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
+    dbg! ("mk ret var");
+    let a_ = a.clone();
+    dbg! (&a_);
+    let mut xn: rugfloat = ret.clone(); //simple_ln_here (&a_, feeder_cnt ).0;
+    dbg! ("simple ln");
     let mut e2xn = ext_const_E (&xn);
+    dbg! ("ext const e");
     let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
     let mut count_broker = 0u64;
     let mut dxn = tail.clone();
@@ -945,18 +967,25 @@ pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) ->
     for j in 0..err {
         dxn = a.clone()/e2xn.clone() - 1;
         ret = xn.clone() + dxn.clone();
+        dbg! (&j);
         //dx = (ret.clone() - xn.clone() ).abs();
         //e2xn *= e2dx_nxt2_1 (&dx);
         if broker == count_broker { 
             e2xn = ext_const_E (&xn);
+            dbg! (&j);
+            dbg! ("ext const e in for-loop");
             count_broker = 0;
-         } else {
-            (e2xn, tail) = speedup_ln (&a, &tail);
+            xn = ret.clone();
+            continue;
          }
+         (e2xn, tail) = speedup_ln (&a, &tail);
+         dbg! ("speedup ln");
+         dbg! (&j);
         count_broker += 1;
         xn = ret.clone();
         //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
     }
+    dbg! ("exit crawler_ln_lite");
     return ret;
 }
 #[cfg(feature="meps")]
