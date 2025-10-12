@@ -20,5 +20,7 @@ pub mod nth_root;
 pub mod frax;
 #[path = "logarithm.rs"]
 pub mod logarithm;
+#[path = "mt_logarithm.rs"]
+pub mod mt_logarithm;
 #[path = "complex.rs"]
 pub mod complex;

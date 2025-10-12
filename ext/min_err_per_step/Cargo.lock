@@ -3,8 +3,36 @@
 version = 4
 
 [[package]]
+name = "CuPs"
+version = "0.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e77c59b263eefe255656934d9e0d11a4cf47d8b0ed68133443e0940f4c353017"
+dependencies = [
+ "Mademoiselle_Entropia 1.11.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nix",
+ "num-traits",
+ "once_cell",
+ "substring",
+]
+
+[[package]]
 name = "Mademoiselle_Entropia"
 version = "1.11.18"
+dependencies = [
+ "chrono",
+ "libc",
+ "num-traits",
+ "once_cell",
+ "substring",
+ "termios",
+ "unic-ucd",
+]
+
+[[package]]
+name = "Mademoiselle_Entropia"
+version = "1.11.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bec5d82a2f90d4d6f1a89caf170369bed593de856a268c9a04391f574d30f2bb"
 dependencies = [
  "chrono",
  "libc",
@@ -43,6 +71,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b7e4c2464d97fe331d41de9d5db0def0a96f4d823b8b32a2efd503578988973"
 
 [[package]]
+name = "bitflags"
+version = "2.9.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2261d10cca569e4643e526d8dc2e62e433cc8aba21ab764233731f8d369bf394"
+
+[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -63,6 +97,12 @@ name = "cfg-if"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2fd1289c04a9ea8cb22300a459a72a385d7c73d3259e2ed7dcb2af674838cfa9"
+
+[[package]]
+name = "cfg_aliases"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
 
 [[package]]
 name = "chrono"
@@ -160,15 +200,28 @@ checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.127"
+version = "0.0.136"
 dependencies = [
- "Mademoiselle_Entropia",
+ "CuPs",
+ "Mademoiselle_Entropia 1.11.18",
  "num",
  "num-complex",
  "num-traits",
  "once_cell",
  "rug",
  "substring",
+]
+
+[[package]]
+name = "nix"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab2156c4fce2f8df6c499cc1c763e4394b7482525bf2a9701c9d79d215f519e4"
+dependencies = [
+ "bitflags",
+ "cfg-if",
+ "cfg_aliases",
+ "libc",
 ]
 
 [[package]]

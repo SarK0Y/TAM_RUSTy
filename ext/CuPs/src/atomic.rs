@@ -38,6 +38,20 @@ pub fn stdin_write <T: ToString + STRN > (strn: Option < T > ) {
     crate::smart_lags::forcely_set_mamed_mutexes (&fn_name, named_mutex::unset, &mut mutex ); //dbg!("end");
     }
 }
+pub fn delay_mcs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_micros(sleep));
+}
+pub fn delay_ns(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_nanos(sleep));
+}
+pub fn glob_delay (delay: Option <u64> ) -> u64{
+    static mut sav: u64 = 500;
+    unsafe {
+        if let Some (x) = delay {
+            sav = x;
+        } return sav
+    }
+}
 //fn
 /*
 ////////////////////// stable variant ///////////////////////////

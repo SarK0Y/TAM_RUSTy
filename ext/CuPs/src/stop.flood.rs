@@ -7,6 +7,52 @@ use crate::enums;
 use nix::fcntl::FallocateFlags;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
+pub fn fork_lag_ns_bool(mcs: u128) -> bool {
+    static mut start_time: Lazy<std::time::SystemTime> = Lazy::new(|| std::time::SystemTime::now());
+    unsafe {
+        let end_time = std::time::SystemTime::now();
+        let end: u128 = match end_time.duration_since(*start_time) {
+            Ok(dur) => dur,
+            _ => return false,
+        }
+        .as_nanos();
+        let start: u128 = match start_time.duration_since(*start_time) {
+            Ok(dur) => dur,
+            _ => return false,
+        }
+        .as_nanos();
+        *start_time = end_time;
+        let end = crate::some_extra_funx::delta(end, start);
+        if end > mcs {
+            return true;
+        }
+        false
+    }
+}
+pub fn fork_lag_ns_verbose(mcs: u128) -> crate::enums::smart_lags {
+    static mut start_time: Lazy<std::time::SystemTime> = Lazy::new(|| std::time::SystemTime::now());
+    static mut saturation: bool = true;
+    unsafe {
+        saturation = !saturation;
+        let end_time = std::time::SystemTime::now();
+        let end: u128 = match end_time.duration_since(*start_time) {
+            Ok(dur) => dur,
+            _ => return enums::smart_lags::failed,
+        }
+        .as_nanos();
+        let start: u128 = match start_time.duration_since(*start_time) {
+            Ok(dur) => dur,
+            _ => return enums::smart_lags::failed,
+        }
+        .as_nanos();
+        *start_time = end_time;
+        let end = crate::some_extra_funx::delta(end, start);
+        if end > mcs || saturation{
+            return enums::smart_lags::well_done(end);
+        }
+        enums::smart_lags::too_small_lag(end)
+    }
+}
 pub fn fork_lag_mcs_bool(mcs: u128) -> bool {
     static mut start_time: Lazy<std::time::SystemTime> = Lazy::new(|| std::time::SystemTime::now());
 

@@ -15,4 +15,9 @@ pub fn new_obj_id () -> u64 {
         id.inc(); return id - 1;
     }
 }
- 
+pub fn delay_mcs(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_micros(sleep));
+}
+pub fn delay_ns(sleep: u64){
+    std::thread::sleep(std::time::Duration::from_nanos(sleep));
+} 

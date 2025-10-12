@@ -351,7 +351,15 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      {
         dbg! ("mark0");
     use min_err_per_step::logarithm::simple_ln;
-    use min_err_per_step::logarithm::{btree_ln, crawler_ln_lite as crawler_ln_lib, replace_crawler_ln, build_crawler_ln, set_crawler_ln_divisors};
+    use min_err_per_step::mt_logarithm::{
+        btree_ln, 
+        crawler_ln as crawler_ln_lib, 
+        replace_crawler_ln,
+        build_crawler_ln, set_crawler_ln_divisors
+    };
+    use min_err_per_step::logarithm::crawler_ln as crawler_ln_lib0;
+    use CuPs::smart_lags::mutex_lag;
+    use CuPs::atomic::glob_delay;
     use min_err_per_step::complex::{
         nth_root::{isqrt, complex_roots, dbg_isqrt},
         traits::Cu_Complex
@@ -370,9 +378,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
        replace_2rt (Some (try_2rt) );
-       replace_crawler_ln (Some (crawler_ln_lite) );
+       replace_crawler_ln (Some (crawler_ln_lib0) );
+       mutex_lag (Some (250_000_000) );
         let mut div_vec = vec! [283];
         set_crawler_ln_divisors (Some (div_vec) );
+        glob_delay (Some (80_000_000_000) );
         let approx_8 = build_crawler_ln (&_8, 6000, 100, 65);//_8.pow(&_8_log_2);
         dbg! ("1st run of build crawler");
         let _533 = _1.clone() / 533_333u64;
