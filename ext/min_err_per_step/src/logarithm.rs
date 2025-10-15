@@ -1,6 +1,15 @@
 use once_cell::sync::Lazy;
 use rug::float::Round;
-use rug::ops::{AddAssignRound, DivAssignRound, MulAssignRound, PowAssign as rugPowAssign, PowAssignRound, SubAssignRound, Pow as rugpow, CompleteRound };
+use rug::ops::{
+    AddAssignRound, 
+    DivAssignRound, 
+    MulAssignRound,
+    PowAssign as rugPowAssign,
+    PowAssignRound, 
+    SubAssignRound, 
+    Pow as rugpow, 
+    CompleteRound,
+ };
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom, Complete};
 use rug::float::Constant;
 use crate::base::{glob_precision, ctrl_glob_precision, manage_prec, Pi, ext_const_E };
@@ -20,7 +29,7 @@ pub fn btree_ln (y: &rugfloat, err: u64) -> rugfloat {
     let mut ret = init_ln (y);
     let mut e2x = _1.clone ();
     let mut epsilon: rugfloat = _1 / _2.pow (err);
-    dbg! (&epsilon);
+    //dbg! (&epsilon);
     let mut direction: rugfloat = ret.clone() >> 1;
     while direction > epsilon {
         e2x = ext_const_E (&ret );
@@ -29,8 +38,8 @@ pub fn btree_ln (y: &rugfloat, err: u64) -> rugfloat {
         direction >>= 1;
      //   dbg! (&direction);
     }
-    dbg! ("btree_ln");
-    dbg! (&ret);
+   // dbg! ("btree_ln");
+    //dbg! (&ret);
     return ret
 }
 pub fn init_ln (x: &rugfloat) -> rugfloat {
@@ -54,7 +63,7 @@ pub fn filter_input_for_ln (x: &rugfloat, base: Option <&rugfloat>) -> Result <(
 }
 pub fn normalize_input_for_ln (y: &rugfloat) -> Result <rugfloat, ln_err > {
     let e = ext_const_E (&rugfloat::with_val_64 (glob_precision (None), 1) );
-    dbg! (&e);
+ //   dbg! (&e);
     let mut ret = rugfloat::with_val_64 (glob_precision (None), 1);
     if *y > e { ret = ret.pow (-1); }
     else {return Err (ln_err::ok)}
@@ -283,4 +292,94 @@ pub fn build_crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -
     } return ret
 }
 fn Do_Nohing (no: u64) -> u64 { return no}
+#[derive(Debug, Clone)]
+pub struct cooked_input_for_ln {
+    pub m: rugfloat,
+    pub new_x: rugfloat
+}
+pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
+    if *x <= 2 { return None }
+    let mut rm: Round = Round::Nearest;
+    let mut dt = rugfloat::with_val_64 (glob_precision (None), 2);
+    let mut m = rugfloat::with_val_64 (glob_precision (None), 2);
+    let mut new_x = x.clone();
+    let mut count_exp = 1u64;
+    let mut result_exp = 0u64;
+    while new_x > 2 {
+        while m < new_x {
+            dt.assign (&m);
+          //  m.mul_assign_round (&m, rm);
+            m *= m.clone();
+            count_exp *= 2;
+        }
+        result_exp += count_exp;
+       // new_x.div_assign_round (&dt, rm);
+       new_x /= dt.clone ();
+        count_exp = 1;
+        m *= 0;
+        m += 2; 
+    }
+    m *= 0;
+    m += (result_exp - 1 );
+    return Some (
+        cooked_input_for_ln {
+            m,
+            new_x
+        })
+}
+/// looks useless
+pub fn divide_n_conquer_2_calc_ln (
+    x: &rugfloat,
+    err: u64,
+    feeder_cnt: u64,
+    broker: u64) -> rugfloat {
+    
+    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
+        else { crawler_ln_lite }; 
+    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
+    if let Some ( y ) = X {
+        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
+        let ln2 = crawler (&_2, err, feeder_cnt, broker);
+        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
+        return y.m * ln2 + lnx
+    } 
+    return crawler (x, err, feeder_cnt, broker)
+}
+/// on tst
+pub fn l2_gt_0 (x: &rugfloat, err: u64) -> Option < rugfloat > {
+    let mut _2 = rugfloat::with_val_64 (glob_precision (None), 2);
+    let mut exp_05 = rugfloat::with_val_64 (glob_precision (None), 0.5);
+    let X: cooked_input_for_ln = if let Some ( y ) = 
+        cook_input_to_ln ( x ) { y }
+    else { return None };
+    let mut exp = rugfloat::with_val_64 (glob_precision (None), 0);
+    let mut tail: rugfloat = exp.clone () + 1;
+    let mut try_tail = tail.clone ();
+    exp += X.m;
+    let mut count: u64 = 0;
+    _2 = __2rt (&_2, glob_precision (None));
+    while count < err {
+        try_tail *= _2.clone();
+        dbg! (&try_tail);
+        if try_tail < X.new_x {
+            tail = try_tail.clone();
+            exp += exp_05.clone();
+        } else { 
+            try_tail = tail.clone ();
+        } _2 = __2rt (&_2, glob_precision (None));
+        exp_05 /= 2;
+        count += 1;
+        dbg! (&tail);
+    }
+    return Some ( exp )
+}
 //fn
+/*
+pub enum Round {
+    Nearest,
+    Zero,
+    Up,
+    Down,
+    AwayZero,
+}
+*/

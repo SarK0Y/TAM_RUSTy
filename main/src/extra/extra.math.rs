@@ -357,7 +357,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         replace_crawler_ln,
         build_crawler_ln, set_crawler_ln_divisors
     };
-    use min_err_per_step::logarithm::crawler_ln as crawler_ln_lib0;
+    use min_err_per_step::logarithm::divide_n_conquer_2_calc_ln as crawler_ln_lib0;
+    use min_err_per_step::logarithm::{l2_gt_0, cook_input_to_ln};
     use CuPs::smart_lags::mutex_lag;
     use CuPs::atomic::glob_delay;
     use min_err_per_step::complex::{
@@ -378,16 +379,19 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&std_ln);
        // let _8_log_2: rugfloat = _8.lg (&_2);
        replace_2rt (Some (try_2rt) );
-       replace_crawler_ln (Some (crawler_ln_lib0) );
-       mutex_lag (Some (250_000_000) );
-        let mut div_vec = vec! [283];
+       replace_crawler_ln (Some (crawler_ln_lib) );
+       mutex_lag (Some (2500_000_000) );
+        let mut div_vec = vec! [283, 47, 2571];
         set_crawler_ln_divisors (Some (div_vec) );
         glob_delay (Some (80_000_000_000) );
-        let approx_8 = build_crawler_ln (&_8, 6000, 100, 65);//_8.pow(&_8_log_2);
+       let approx_8 = crawler_ln_lib (&_8, 6000, 100, 65);//_8.pow(&_8_log_2);
         dbg! ("1st run of build crawler");
-        let _533 = _1.clone() / 533_333u64;
+        let _533 = _1.clone() * 2.4f64;
         //let _simple_ln = simple_ln (&_533, 100).0;
-        let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
+        //let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
+        //let approx_2 = crawler_ln_lib0 (&_533, 6000, 400, 21);
+        //let approx_2 = dbg_divide_n_conquer_2_calc_ln (&_533, 6000, 400, 0);
+        let approx_2 = l2_gt_0 (&_533, 3500).unwrap();
         dbg! ("checked crawler");
         //let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0); let tst_cmplx = Cu_Complex::init_f64 (31.0, 23.0);
        // glob_precision (Some (8000));
@@ -404,6 +408,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&__cos_vs__sin);
         dbg! (&ext_const_e);
         dbg! (&approx_2);
+        dbg! (&_533);
+        dbg! (cook_input_to_ln (&_533 ));
+        dbg! (_2.clone().pow(&approx_2) );
         dbg! (_ext_const_E(&approx_8));
         dbg! (ext_const_E(&std_ln));
         dbg! (ext_const_E(&approx_2));
@@ -474,6 +481,30 @@ pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     //dbg! (&sin_3x);
     return sin_3x
 } 
+#[cfg(feature="meps")]
+pub fn dbg_divide_n_conquer_2_calc_ln (
+    x: &rugfloat,
+    err: u64,
+    feeder_cnt: u64,
+    broker: u64) -> rugfloat {
+use min_err_per_step::logarithm::{
+    cook_input_to_ln,
+    cooked_input_for_ln,
+    replace_crawler_ln};
+    dbg! ("div & conquer");
+    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
+        else { crawler_ln_lite }; 
+    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
+    if let Some ( y ) = X {
+        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
+        let ln2 = crawler (&_2, err, feeder_cnt, broker);
+        dbg! (&ln2);
+        dbg! (&y.m);
+        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
+        return y.m * ln2 + lnx
+    } 
+    return crawler (x, err, feeder_cnt, broker)
+}
 #[cfg(feature="meps")]
 pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let sign: i8 = if *pow > 0 { 1 } else { -1 };
@@ -977,20 +1008,20 @@ pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) ->
     for j in 0..err {
         dxn = a.clone()/e2xn.clone() - 1;
         ret = xn.clone() + dxn.clone();
-        dbg! (&j);
+       // dbg! (&j);
         //dx = (ret.clone() - xn.clone() ).abs();
         //e2xn *= e2dx_nxt2_1 (&dx);
         if broker == count_broker { 
             e2xn = ext_const_E (&xn);
-            dbg! (&j);
-            dbg! ("ext const e in for-loop");
+//            dbg! (&j);
+  //          dbg! ("ext const e in for-loop");
             count_broker = 0;
             xn = ret.clone();
             continue;
          }
          (e2xn, tail) = speedup_ln (&a, &tail);
-         dbg! ("speedup ln");
-         dbg! (&j);
+    //     dbg! ("speedup ln");
+      //   dbg! (&j);
         count_broker += 1;
         xn = ret.clone();
         //if e2xn == 0 {e2xn = xn.clone(); dbg!("e2xn == 0");}
