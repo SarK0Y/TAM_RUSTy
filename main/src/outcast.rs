@@ -520,5 +520,24 @@ pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat { // bad variant: at some cas
     if b < start_x && *x > 0 {return start_x }
     return b
 }
-} 
+}
+/// looks useless
+pub fn divide_n_conquer_2_calc_ln (
+    x: &rugfloat,
+    err: u64,
+    feeder_cnt: u64,
+    broker: u64) -> rugfloat {
+    
+    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
+        else { crawler_ln_lite }; 
+    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
+    if let Some ( y ) = X {
+        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
+        let ln2 = crawler (&_2, err, feeder_cnt, broker);
+        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
+        return y.m * ln2 + lnx
+    } 
+    return crawler (x, err, feeder_cnt, broker)
+}
+
     //tst

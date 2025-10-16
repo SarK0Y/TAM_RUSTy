@@ -258,35 +258,7 @@ pub fn build_crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -
     let crawler: alt_crawler = if let Some (sc) = replace_crawler_ln (None) {
         sc
     } else { crawler_ln_lite };
-    if let Some (mut divisors) = set_crawler_ln_divisors (None) {
-    unsafe {
-        let mut add_exp: Vec <rugfloat> = Vec::with_capacity (divisors.len());
-        ref_add_exp (Some ( &mut add_exp) );
-        while let Some (_div) = divisors.pop() {
-            a /= _div;
-            std::thread::spawn (move|| {
-                dbg! ("spawn");
-                let _div = rugfloat::with_val_64 (glob_precision (None), _div);
-                dbg! (&_div);
-                dbg! (&crawler);
-                let _out = crawler (&_div, err, feeder_cnt, broker);
-                dbg! (&_out);
-                ref_add_exp (None).unwrap().as_mut().unwrap().push (_out.clone() );
-                dbg! (&ref_add_exp (None).unwrap());
-            });
-            let _out = crawler (&a, err, feeder_cnt, broker);
-            ref_add_exp (None).unwrap().as_mut().unwrap().push (_out.clone() );
-        }
-        while add_exp.len() < add_exp.capacity() {
-            Do_Nohing (17);
-            Do_Nohing (37);
-            Do_Nohing (49713);
-        };
-        while let Some( x ) = add_exp.pop() {
-            ret += x;
-        }
-    }
-    }
+    
     if ret == 0 {
         return crawler (&a, err, feeder_cnt, broker);
     } return ret
@@ -298,7 +270,10 @@ pub struct cooked_input_for_ln {
     pub new_x: rugfloat
 }
 pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
-    if *x <= 2 { return None }
+    if *x <= 2 { return Some ( cooked_input_for_ln {
+        m: rugfloat::with_val_64 (1, 0),
+        new_x: x.clone()
+    }) }
     let mut rm: Round = Round::Nearest;
     let mut dt = rugfloat::with_val_64 (glob_precision (None), 2);
     let mut m = rugfloat::with_val_64 (glob_precision (None), 2);
@@ -312,6 +287,7 @@ pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
             m *= m.clone();
             count_exp *= 2;
         }
+        count_exp /= 2;
         result_exp += count_exp;
        // new_x.div_assign_round (&dt, rm);
        new_x /= dt.clone ();
@@ -320,32 +296,14 @@ pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
         m += 2; 
     }
     m *= 0;
-    m += (result_exp - 1 );
+    m += result_exp;
     return Some (
         cooked_input_for_ln {
             m,
             new_x
         })
 }
-/// looks useless
-pub fn divide_n_conquer_2_calc_ln (
-    x: &rugfloat,
-    err: u64,
-    feeder_cnt: u64,
-    broker: u64) -> rugfloat {
-    
-    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
-        else { crawler_ln_lite }; 
-    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
-    if let Some ( y ) = X {
-        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
-        let ln2 = crawler (&_2, err, feeder_cnt, broker);
-        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
-        return y.m * ln2 + lnx
-    } 
-    return crawler (x, err, feeder_cnt, broker)
-}
-/// on tst
+/// log of base 2 for input > 1
 pub fn l2_gt_0 (x: &rugfloat, err: u64) -> Option < rugfloat > {
     let mut _2 = rugfloat::with_val_64 (glob_precision (None), 2);
     let mut exp_05 = rugfloat::with_val_64 (glob_precision (None), 0.5);
@@ -372,6 +330,34 @@ pub fn l2_gt_0 (x: &rugfloat, err: u64) -> Option < rugfloat > {
         dbg! (&tail);
     }
     return Some ( exp )
+}
+ /// full variant of log2 (lb)
+pub fn main_l2 (x: &rugfloat, err: u64 ) -> Option <rugfloat > {
+    let sign: i64 = if *x < 1 { -1 } else { 1 };
+    let x: &rugfloat = &x.pow ( sign ).complete ( x.prec () );
+    if let Some ( y ) = l2_gt_0 ( x, err ) { 
+        return Some ( y * sign )
+    } return None
+}
+pub fn faav_ln2 () -> rugfloat {
+    static mut ln2: Lazy < rugfloat> = Lazy::new (|| {
+        crawler_ln (
+            &rugfloat::with_val_64 (glob_precision (None), 2 ),
+            glob_precision (None),
+            100 /* iterations of feeder */,
+            101 /* frequency of broker */  )
+    });
+    unsafe {
+        return ln2.clone ()
+    }
+}
+/// on tst
+pub fn main_ln (x: &rugfloat, err: u64 ) -> Option <rugfloat > {
+    let lb = if let Some (l2) = main_l2 (x, err) {
+        l2
+    } else { return None };
+    let ln2: rugfloat = faav_ln2 ();
+    return Some ( lb * ln2 )
 }
 //fn
 /*

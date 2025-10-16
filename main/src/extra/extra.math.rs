@@ -350,15 +350,15 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
      #[cfg(feature="meps")]
      {
         dbg! ("mark0");
-    use min_err_per_step::logarithm::simple_ln;
+    use min_err_per_step::logarithm::{simple_ln, main_ln };
     use min_err_per_step::mt_logarithm::{
         btree_ln, 
         crawler_ln as crawler_ln_lib, 
         replace_crawler_ln,
         build_crawler_ln, set_crawler_ln_divisors
     };
-    use min_err_per_step::logarithm::divide_n_conquer_2_calc_ln as crawler_ln_lib0;
-    use min_err_per_step::logarithm::{l2_gt_0, cook_input_to_ln};
+    use min_err_per_step::logarithm::crawler_ln as crawler_ln_lib0;
+    use min_err_per_step::logarithm::{main_l2, cook_input_to_ln};
     use CuPs::smart_lags::mutex_lag;
     use CuPs::atomic::glob_delay;
     use min_err_per_step::complex::{
@@ -386,12 +386,13 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         glob_delay (Some (80_000_000_000) );
        let approx_8 = crawler_ln_lib (&_8, 6000, 100, 65);//_8.pow(&_8_log_2);
         dbg! ("1st run of build crawler");
-        let _533 = _1.clone() * 2.4f64;
+        let _533 = _1.clone() * 0.07937f64;
         //let _simple_ln = simple_ln (&_533, 100).0;
         //let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
         //let approx_2 = crawler_ln_lib0 (&_533, 6000, 400, 21);
         //let approx_2 = dbg_divide_n_conquer_2_calc_ln (&_533, 6000, 400, 0);
-        let approx_2 = l2_gt_0 (&_533, 3500).unwrap();
+        let approx_2: rugfloat = main_l2 (&_533, 3500).unwrap();
+        let approx_ln: rugfloat = main_ln (&_533, 3500).unwrap();
         dbg! ("checked crawler");
         //let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0); let tst_cmplx = Cu_Complex::init_f64 (31.0, 23.0);
        // glob_precision (Some (8000));
@@ -410,13 +411,13 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (&approx_2);
         dbg! (&_533);
         dbg! (cook_input_to_ln (&_533 ));
-        dbg! (_2.clone().pow(&approx_2) );
+        dbg! (_533.clone() / _2.clone().pow(&approx_2) );
         dbg! (_ext_const_E(&approx_8));
         dbg! (ext_const_E(&std_ln));
         dbg! (ext_const_E(&approx_2));
         dbg! (approx_8 / std_ln);
         //dbg! (__tstReal_e2x (&__low_prec_e2x__, 2050) );
-        dbg!(approx_2 / _533.ln() );
+        dbg!(approx_ln / _533.ln() );
         dbg! (_real_e2x (&__low_prec_e2x__, 300) );
         dbg! (&__dbg_real_e2x );//_fast_n_simple_isin3) );
         dbg! (__dbg_real_e2x.radius() );
