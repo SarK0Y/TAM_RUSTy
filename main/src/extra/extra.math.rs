@@ -391,8 +391,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         //let approx_2 = build_crawler_ln (&_533, 6000, 400, 21);
         //let approx_2 = crawler_ln_lib0 (&_533, 6000, 400, 21);
         //let approx_2 = dbg_divide_n_conquer_2_calc_ln (&_533, 6000, 400, 0);
-        let approx_2: rugfloat = main_l2 (&_533, 3500).unwrap();
-        let approx_ln: rugfloat = main_ln (&_533, 3500).unwrap();
+        let approx_2: rugfloat = main_l2 (&_533, 3500);
+        let approx_ln: rugfloat = main_ln (&_533, 3500);
         dbg! ("checked crawler");
         //let tst_cmplx = Cu_Complex::init_f64 (2.0, 23.0); let tst_cmplx = Cu_Complex::init_f64 (31.0, 23.0);
        // glob_precision (Some (8000));
@@ -482,30 +482,6 @@ pub fn _fast_n_simple_isin3 (x: &Cu_Complex, err: u64 ) -> Cu_Complex {
     //dbg! (&sin_3x);
     return sin_3x
 } 
-#[cfg(feature="meps")]
-pub fn dbg_divide_n_conquer_2_calc_ln (
-    x: &rugfloat,
-    err: u64,
-    feeder_cnt: u64,
-    broker: u64) -> rugfloat {
-use min_err_per_step::logarithm::{
-    cook_input_to_ln,
-    cooked_input_for_ln,
-    replace_crawler_ln};
-    dbg! ("div & conquer");
-    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
-        else { crawler_ln_lite }; 
-    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
-    if let Some ( y ) = X {
-        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
-        let ln2 = crawler (&_2, err, feeder_cnt, broker);
-        dbg! (&ln2);
-        dbg! (&y.m);
-        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
-        return y.m * ln2 + lnx
-    } 
-    return crawler (x, err, feeder_cnt, broker)
-}
 #[cfg(feature="meps")]
 pub fn ext_const_E (pow: &rugfloat) -> rugfloat {
     let sign: i8 = if *pow > 0 { 1 } else { -1 };

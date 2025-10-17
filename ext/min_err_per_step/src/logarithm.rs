@@ -269,11 +269,11 @@ pub struct cooked_input_for_ln {
     pub m: rugfloat,
     pub new_x: rugfloat
 }
-pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
-    if *x <= 2 { return Some ( cooked_input_for_ln {
+pub fn cook_input_to_ln (x: &rugfloat) -> cooked_input_for_ln {
+    if *x <= 2 { return cooked_input_for_ln {
         m: rugfloat::with_val_64 (1, 0),
         new_x: x.clone()
-    }) }
+    } }
     let mut rm: Round = Round::Nearest;
     let mut dt = rugfloat::with_val_64 (glob_precision (None), 2);
     let mut m = rugfloat::with_val_64 (glob_precision (None), 2);
@@ -297,19 +297,16 @@ pub fn cook_input_to_ln (x: &rugfloat) -> Option <cooked_input_for_ln >{
     }
     m *= 0;
     m += result_exp;
-    return Some (
-        cooked_input_for_ln {
+    return cooked_input_for_ln {
             m,
             new_x
-        })
+        }
 }
 /// log of base 2 for input > 1
-pub fn l2_gt_0 (x: &rugfloat, err: u64) -> Option < rugfloat > {
+pub fn l2_gt_0 (x: &rugfloat, err: u64) -> rugfloat {
     let mut _2 = rugfloat::with_val_64 (glob_precision (None), 2);
     let mut exp_05 = rugfloat::with_val_64 (glob_precision (None), 0.5);
-    let X: cooked_input_for_ln = if let Some ( y ) = 
-        cook_input_to_ln ( x ) { y }
-    else { return None };
+    let X: cooked_input_for_ln = cook_input_to_ln ( x );
     let mut exp = rugfloat::with_val_64 (glob_precision (None), 0);
     let mut tail: rugfloat = exp.clone () + 1;
     let mut try_tail = tail.clone ();
@@ -329,15 +326,21 @@ pub fn l2_gt_0 (x: &rugfloat, err: u64) -> Option < rugfloat > {
         count += 1;
         dbg! (&tail);
     }
-    return Some ( exp )
+    return exp
+}
+pub fn check_input_for_log (x: &rugfloat) -> bool {
+    if *x == 0 ||
+       *x <  0 ||
+       *x == rug::float::Special::Nan ||
+       *x == rug::float::Special::NegInfinity ||
+       *x == rug::float::Special::Infinity{ return false }
+       return true
 }
  /// full variant of log2 (lb)
-pub fn main_l2 (x: &rugfloat, err: u64 ) -> Option <rugfloat > {
+pub fn main_l2 (x: &rugfloat, err: u64 ) -> rugfloat {
     let sign: i64 = if *x < 1 { -1 } else { 1 };
     let x: &rugfloat = &x.pow ( sign ).complete ( x.prec () );
-    if let Some ( y ) = l2_gt_0 ( x, err ) { 
-        return Some ( y * sign )
-    } return None
+    return l2_gt_0 ( x, err ) * sign
 }
 pub fn faav_ln2 () -> rugfloat {
     static mut ln2: Lazy < rugfloat> = Lazy::new (|| {
@@ -352,12 +355,10 @@ pub fn faav_ln2 () -> rugfloat {
     }
 }
 /// on tst
-pub fn main_ln (x: &rugfloat, err: u64 ) -> Option <rugfloat > {
-    let lb = if let Some (l2) = main_l2 (x, err) {
-        l2
-    } else { return None };
+pub fn main_ln (x: &rugfloat, err: u64 ) -> rugfloat {
+    let lb = main_l2 (x, err);
     let ln2: rugfloat = faav_ln2 ();
-    return Some ( lb * ln2 )
+    return lb * ln2
 }
 //fn
 /*
