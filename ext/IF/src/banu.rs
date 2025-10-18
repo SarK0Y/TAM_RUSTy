@@ -42,13 +42,27 @@ pub fn faav_primes (cmd: &manage_primes) -> manage_primes {
     }
 
 }
+pub fn faav_shift (shift: Option <usize> ) -> usize {
+    static mut sh: usize = 0;
+    unsafe {
+        if let Some ( x ) = shift { sh = x; }
+        return sh.clone()
+    }
+}
 #[derive(Clone, Debug)]
 pub struct banu {
     pub n: rugfloat,
     pub tail: rugfloat
 }
 pub fn gen_backdoor_numero (n: &rugfloat, tail: &rugfloat) -> banu {
-    let new_tail: rugfloat = __2rt (tail, glob_precision (None) );
-    
-    todo!()
+    let mut new_tail: rugfloat = __2rt (tail, glob_precision (None) )
+        << faav_shift (None);
+    let save_new_tail = new_tail.clone();
+    new_tail = new_tail.floor();
+    let mut new_n: rugfloat = n.clone() << faav_shift ( None );
+    new_n += new_tail; 
+    return banu {
+        n: new_n,
+        tail: save_new_tail
+    }
 }
