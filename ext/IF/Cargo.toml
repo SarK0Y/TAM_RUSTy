@@ -1,0 +1,30 @@
+[package]
+name ="IF"
+edition = "2021"
+version = "0.0.3"
+#publish = true
+authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
+license-file = "LICENSE"
+#readme = "README.md"
+repository = "https://github.com/SarK0Y/TAM_RUSTy/tree/pre-workable/ext/IF"
+categories = ["algorithms", "mathematics"]
+kwywords = ["integers", "factorization", "experiments", "kiss", "LongNumbers"]
+description = "Just numerical experiments to factorize natural numbers :)"
+[workspace]
+[build-dependencies]
+#for_build_rs = { version = "0.0.109", optional = true, default-features = false }
+#for_build_rs = { path = "../for_build_rs", version = "0.0.110", optional = true, default-features = false }
+[dependencies.nix]
+version = "0.28.0"
+features = ["process", "signal", "fs"]
+[dependencies]
+#for_build_rs = { path = "../for_build_rs", version = "0.0.109", optional = true, default-features = false }
+once_cell = "1.18.0"
+substring = "1.4.5"
+num-traits = "0.2.17"
+rug = "1.28.0"
+min_err_per_step = "0.0.156"
+Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
+[lib]
+name = "IF"
+path = "src/lib.rs"
