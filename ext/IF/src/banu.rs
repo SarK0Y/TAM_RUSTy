@@ -15,6 +15,7 @@ use rug::float::Constant;
 use std::error::Error;
 use min_err_per_step::nth_root::__2rt;
 use min_err_per_step::base::glob_precision;
+use min_err_per_step::editing::conv_strn_2_rugfloat;
 use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 #[derive(Clone, Debug)]
@@ -52,6 +53,25 @@ pub fn faav_shift (shift: Option <usize> ) -> usize {
     unsafe {
         if let Some ( x ) = shift { sh = x; }
         return sh.clone()
+    }
+}
+pub fn faav_init_tail (tail: Option <String> ) -> rugfloat {
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            0.999
+        ) 
+    });
+    unsafe {
+        if let Some ( x ) = tail { 
+            *init = conv_strn_2_rugfloat (&x, 10).unwrap_or (
+                rugfloat::with_val_64 (
+                    glob_precision (None),
+                    0.999
+                )
+            );
+         }
+        return init.clone()
     }
 }
 #[derive(Clone, Debug)]

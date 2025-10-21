@@ -13,6 +13,7 @@ use rug::{
 };
 use rug::float::Constant;
 use std::convert::TryFrom;
+use substring::Substring;
 use crate::base::{glob_precision, Pi };
 use crate::nth_root::__2rt;
 use Mademoiselle_Entropia::minio::InterruptMsg;
@@ -69,7 +70,10 @@ pub fn conv_strn_2_rugint (_strn: &String, radix: i32) -> Option < rugint > {
     return Some ( num.unwrap().complete () )    
 }
 pub fn conv_strn_2_rugfloat (_strn: &String, radix: i32) -> Option < rugfloat > {
-    let _strn = &exclude_wrong_symbs_from_float_strn ( _strn );
+    let mut _strn = &mut exclude_wrong_symbs_from_float_strn ( _strn );
+    if _strn.as_str ().substring (0, 1 ) == "." {
+        *_strn = format! ("0{_strn}");
+    }
     let num = rugfloat::parse_radix (_strn, radix);
     if num.is_err() { return None }
     return Some (
