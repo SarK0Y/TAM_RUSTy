@@ -24,3 +24,5 @@ pub mod logarithm;
 pub mod mt_logarithm;
 #[path = "complex.rs"]
 pub mod complex;
+#[path = "editing.rs"]
+pub mod editing;

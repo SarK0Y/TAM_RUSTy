@@ -17,7 +17,7 @@ dependencies = [
 
 [[package]]
 name = "IF"
-version = "0.0.4"
+version = "0.0.14"
 dependencies = [
  "Mademoiselle_Entropia 1.11.18",
  "min_err_per_step",
