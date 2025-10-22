@@ -16,7 +16,7 @@ use std::error::Error;
 use min_err_per_step::nth_root::__2rt;
 use min_err_per_step::base::glob_precision;
 use min_err_per_step::editing::conv_strn_2_rugfloat;
-use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
+use Mademoiselle_Entropia::custom_traits::{helpful_math_ops, STRN};
 use Mademoiselle_Entropia::minio::InterruptMsg;
 #[derive(Clone, Debug)]
 pub enum manage_primes {
@@ -55,6 +55,13 @@ pub fn faav_shift (shift: Option <usize> ) -> usize {
         return sh.clone()
     }
 }
+pub fn faav_countdown (bar: Option <usize> ) -> usize {
+    static mut counter: usize = 0;
+    unsafe {
+        if let Some ( x ) = bar { counter = x; }
+        return counter
+    }
+}
 pub fn faav_init_tail (tail: Option <String> ) -> rugfloat {
     static mut init: Lazy < rugfloat > = Lazy::new ( || {
         rugfloat::with_val_64 (
@@ -81,6 +88,12 @@ pub struct banu {
 }
 pub fn gen_backdoor_numero (n_minus_1: &rugfloat, tail: &mut rugfloat) -> rugfloat {
     *tail = __2rt (tail, glob_precision (None) ) << faav_shift (None);
+    let cut_tail = tail.clone().floor();
+    let mut new_n: rugfloat = n_minus_1.clone() << faav_shift ( None );
+    new_n += cut_tail; 
+    return new_n
+}
+pub fn _gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugfloat {
     let cut_tail = tail.clone().floor();
     let mut new_n: rugfloat = n_minus_1.clone() << faav_shift ( None );
     new_n += cut_tail; 
@@ -126,7 +139,67 @@ pub fn try_restore_factors (lst: Vec <u64>) -> banu {
         maybe_Q
     }
 }
-
+pub fn _1st_tst () {
+    let P = conv_strn_2_rugfloat (
+        &"3980750864240649373971255005503864911990643623425267084063851895759463889572
+          61768583317".strn(),
+          10
+    ).unwrap();
+    let Q = conv_strn_2_rugfloat (
+        &"4727721461074353025362230719730482246329146953020971164598521711305207112563
+          63590397527".strn(),
+        10
+    ).unwrap();
+    dbg! (&P);
+    dbg! (&Q);
+    let _1 = rugfloat::with_val_64 (1, 1);
+    let Pm1: rugfloat = P -1;
+    let Qm1: rugfloat = Q -1; 
+    let mut tail = faav_init_tail (None);
+    let mut counter = faav_countdown (None);
+    let mut bnP = _1.clone();
+    let mut bnQ = _1.clone();
+    let mut saveP = _1.clone();
+    let mut saveQ = _1;
+    let mut got_P: Option <Vec <(u64, u64) > > = None;
+    let mut got_Q: Option <Vec <(u64, u64) > > = None;
+    loop {
+        if got_P.is_none() {
+            bnP = _gen_backdoor_numero (&Pm1, &tail );
+            saveP = bnP.clone();
+            got_P = try_banu (&mut bnP);
+        }
+        if got_Q.is_none() {
+            bnQ = _gen_backdoor_numero (&Qm1, &tail );
+            saveQ = bnQ.clone();
+            got_Q = try_banu (&mut bnQ);
+        }
+        if got_P.is_some() && got_Q.is_some() ||
+        counter == 0 {
+            break;
+        }
+        counter.dec();
+        tail = __2rt (&tail, glob_precision (None) );
+    }
+    if got_P.is_none() {
+        InterruptMsg ("P failed.");
+    }
+    if got_Q.is_none () {
+        InterruptMsg ("Q failed");
+    }
+    if got_P.is_none () && got_Q.is_none () {
+        return
+    }
+    let mut bnN = saveP.clone() * saveQ.clone();
+    let got_N = try_banu (&mut bnN);
+    let finale: banu = try_restore_factors (&got_N);
+    if finale.maybe_P != saveP && finale.maybe_Q != saveQ {
+        InterruptMsg ("finale failed");
+    } else {
+        InterruptMsg ("Yeah, pal - we got it :)")
+    }
+    dbg! (&finale);
+}
 //fn
 /*
     RSA-576 = 1881988129206079638386972394616504398071635633794173827007633564
