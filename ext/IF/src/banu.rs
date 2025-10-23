@@ -139,6 +139,22 @@ pub fn try_restore_factors (lst: Vec <u64>) -> banu {
         maybe_Q
     }
 }
+pub fn _try_restore_factors (lst: &Vec <(u64, u64)>) -> banu {
+    let mut _1 = rugfloat::with_val_64 (glob_precision (None), 1);
+    let mut maybe_P = _1.clone ();
+    let mut maybe_Q = _1.clone ();
+
+    for p in lst {
+        for _ in 0..p.1 {
+            if maybe_P > maybe_Q { maybe_Q *= p.0; }
+            else {maybe_P *= p.0}
+        }
+    }
+    return banu {
+        maybe_P,
+        maybe_Q
+    }
+}
 pub fn _1st_tst () {
     let P = conv_strn_2_rugfloat (
         &"3980750864240649373971255005503864911990643623425267084063851895759463889572
@@ -191,8 +207,8 @@ pub fn _1st_tst () {
         return
     }
     let mut bnN = saveP.clone() * saveQ.clone();
-    let got_N = try_banu (&mut bnN);
-    let finale: banu = try_restore_factors (&got_N);
+    let got_N = try_banu (&mut bnN).unwrap();
+    let finale: banu = _try_restore_factors (&got_N);
     if finale.maybe_P != saveP && finale.maybe_Q != saveQ {
         InterruptMsg ("finale failed");
     } else {
