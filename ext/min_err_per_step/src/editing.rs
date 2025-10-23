@@ -16,6 +16,7 @@ use std::convert::TryFrom;
 use substring::Substring;
 use crate::base::{glob_precision, Pi };
 use crate::nth_root::__2rt;
+use Mademoiselle_Entropia::custom_traits::STRN;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 pub enum parse_cmd {
     input_rugfloat (String),
@@ -42,7 +43,7 @@ pub fn exclude_wrong_symbs_from_num_strn (num: &String) -> String {
 pub fn exclude_wrong_symbs_from_float_strn (num: &String) -> String {
     let mut ret = String::new ();
     for ch in num.chars() {
-        if check_only_num_char (ch) {
+        if check_only_float_char (ch) {
             ret.push (ch);
         }
     } return ret
@@ -69,8 +70,29 @@ pub fn conv_strn_2_rugint (_strn: &String, radix: i32) -> Option < rugint > {
     if num.is_err() { return None }
     return Some ( num.unwrap().complete () )    
 }
+pub fn conv_str_2_rugint (_strn: &str, radix: i32) -> Option < rugint > {
+    let _strn = &exclude_wrong_symbs_from_num_strn ( &_strn.strn() );
+    let num = rugint::parse_radix (_strn, radix);
+    if num.is_err() { return None }
+    return Some ( num.unwrap().complete () )    
+}
 pub fn conv_strn_2_rugfloat (_strn: &String, radix: i32) -> Option < rugfloat > {
     let mut _strn = &mut exclude_wrong_symbs_from_float_strn ( _strn );
+    if _strn.as_str ().substring (0, 1 ) == "." {
+        *_strn = format! ("0{_strn}");
+    }
+    let num = rugfloat::parse_radix (_strn, radix);
+    if num.is_err() { return None }
+    return Some (
+        num.unwrap().complete (
+        glob_precision (None)
+        .try_into ()
+        .unwrap()
+        )
+    );
+}
+pub fn conv_str_2_rugfloat (_strn: &str, radix: i32) -> Option < rugfloat > {
+    let mut _strn = &mut exclude_wrong_symbs_from_float_strn ( &_strn.strn() );
     if _strn.as_str ().substring (0, 1 ) == "." {
         *_strn = format! ("0{_strn}");
     }

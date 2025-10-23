@@ -357,6 +357,20 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         replace_crawler_ln,
         build_crawler_ln, set_crawler_ln_divisors
     };
+    use IF::banu::{
+        faav_countdown,
+        faav_init_tail,
+        faav_shift,
+        _1st_tst as hella_hello_banu,
+        _try_restore_factors,
+        try_banu,
+        banu,
+    };
+    use min_err_per_step::editing::{
+        conv_str_2_rugfloat,
+        ret_extended_float_format,
+        exclude_wrong_symbs_from_float_strn
+    };
     use min_err_per_step::logarithm::crawler_ln as crawler_ln_lib0;
     use min_err_per_step::logarithm::{main_l2, cook_input_to_ln};
     use CuPs::smart_lags::mutex_lag;
@@ -365,9 +379,24 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         nth_root::{isqrt, complex_roots, dbg_isqrt},
         traits::Cu_Complex
     };
+    use Mademoiselle_Entropia::custom_traits::STRN;
     use min_err_per_step::complex::traits;
     use min_err_per_step::nth_root::{dbg_2rt, replace_2rt};
     use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x, _real_e2x};
+       /* let x = conv_str_2_rugfloat (
+            ".25",
+            10
+        ).unwrap ();
+        dbg! (&x);
+        dbg! (__2rt (&x, glob_precision (None)) );
+        InterruptMsg ("");
+        return (0.0, 0.0); */
+        faav_countdown (Some (10_000) );
+        faav_shift (Some (4_000));
+        faav_init_tail (Some (".873113".strn() ));
+        glob_precision (Some (9_000) );
+        hella_hello_banu ();  
+        return (0.0, 0.0);
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();
         let cos_extra_vs__sin = _45deg.__sin () / cos_extra.clone ();

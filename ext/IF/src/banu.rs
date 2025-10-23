@@ -94,7 +94,9 @@ pub fn gen_backdoor_numero (n_minus_1: &rugfloat, tail: &mut rugfloat) -> rugflo
     return new_n
 }
 pub fn _gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugfloat {
-    let cut_tail = tail.clone().floor();
+    let mut cut_tail: rugfloat = tail.clone() << faav_shift (None);
+    cut_tail = cut_tail.floor ();
+    dbg! (&cut_tail);
     let mut new_n: rugfloat = n_minus_1.clone() << faav_shift ( None );
     new_n += cut_tail; 
     return new_n
@@ -122,7 +124,9 @@ unsafe {
             }
         }
     }
-    if *tst > 1 { return None }
+    if *tst > 1 {
+        dbg! (tst);
+        return None }
     return Some (count_factors )
 }
 }
@@ -196,6 +200,7 @@ pub fn _1st_tst () {
         }
         counter.dec();
         tail = __2rt (&tail, glob_precision (None) );
+        dbg! (&tail);
     }
     if got_P.is_none() {
         InterruptMsg ("P failed.");
@@ -204,6 +209,8 @@ pub fn _1st_tst () {
         InterruptMsg ("Q failed");
     }
     if got_P.is_none () && got_Q.is_none () {
+        dbg! (&counter);
+        InterruptMsg ("");
         return
     }
     let mut bnN = saveP.clone() * saveQ.clone();
