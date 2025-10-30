@@ -228,3 +228,12 @@ pub fn check_float_char (symb: char) -> bool {
     if symb_ <= 9 { return true }
     return false
 }
+pub trait Conv_Strn_2_Rugfloat {
+    fn float (&self, rdx: i32) -> rugfloat;
+}
+impl Conv_Strn_2_Rugfloat for &str {
+    fn float (&self, rdx: i32) -> rugfloat {
+        return conv_str_2_rugfloat (self, rdx)
+            .unwrap()
+    }
+}

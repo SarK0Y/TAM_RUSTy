@@ -361,10 +361,15 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         faav_countdown,
         faav_init_tail,
         faav_shift,
+        faav_22m_m_1,
         _1st_tst as hella_hello_banu,
+        _2nd_tst,
         _try_restore_factors,
         try_banu,
         banu,
+        faav_power,
+        faav_102m_m_1,
+        faav_102shift
     };
     use min_err_per_step::editing::{
         conv_str_2_rugfloat,
@@ -380,9 +385,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         traits::Cu_Complex
     };
     use Mademoiselle_Entropia::custom_traits::STRN;
+    use Mademoiselle_Entropia::_break;
     use min_err_per_step::complex::traits;
     use min_err_per_step::nth_root::{dbg_2rt, replace_2rt};
     use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x, _real_e2x};
+    use min_err_per_step::editing::Conv_Strn_2_Rugfloat;
        /* let x = conv_str_2_rugfloat (
             ".25",
             10
@@ -391,11 +398,19 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (__2rt (&x, glob_precision (None)) );
         InterruptMsg ("");
         return (0.0, 0.0); */
+        let float_tst: rugfloat = ".69874".float (10) * 17;
+        _break! (float_tst.to_string_radix (10, None) );
         faav_countdown (Some (10_000) );
-        faav_shift (Some (4_000));
-        faav_init_tail (Some (".873113".strn() ));
-        glob_precision (Some (9_000) );
+        faav_shift (Some (2_000));
+        //faav_22m_m_1 (Some (1_000));
+        _break! (faav_22m_m_1 (None).to_string_radix (2, Some (1001)));
+        faav_init_tail (Some ("75974954171".strn() ));
+        faav_102m_m_1 ( Some (1_000) );
+        _break! (faav_init_tail (None).to_string_radix (10, None) );
+        glob_precision (Some (15000) );
         hella_hello_banu ();  
+        //_2nd_tst ();
+       // _break! ("stop 2nd tst");
         return (0.0, 0.0);
         let _8: rugfloat = _1.clone() * 8;
         let mut cos_extra = _45deg.cos_extra_prec ();

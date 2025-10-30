@@ -15,9 +15,14 @@ use rug::float::Constant;
 use std::error::Error;
 use min_err_per_step::nth_root::__2rt;
 use min_err_per_step::base::glob_precision;
-use min_err_per_step::editing::conv_strn_2_rugfloat;
+use min_err_per_step::editing::{
+    conv_strn_2_rugfloat,
+    conv_str_2_rugfloat
+};
+use min_err_per_step::seqs::bitwise::square_xor;
 use Mademoiselle_Entropia::custom_traits::{helpful_math_ops, STRN};
 use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 #[derive(Clone, Debug)]
 pub enum manage_primes {
     get (usize),
@@ -81,6 +86,101 @@ pub fn faav_init_tail (tail: Option <String> ) -> rugfloat {
         return init.clone()
     }
 }
+pub fn faav_power (tail: Option <String> ) -> rugfloat {
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            0.999
+        ) 
+    });
+    unsafe {
+        if let Some ( x ) = tail { 
+            *init = conv_strn_2_rugfloat (&x, 10).unwrap_or (
+                rugfloat::with_val_64 (
+                    glob_precision (None),
+                    0.999
+                )
+            );
+         }
+        return init.clone()
+    }
+}
+pub fn faav_102m_m_1 (m: Option <usize> ) -> rugfloat {
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            1,
+            1
+        ) 
+    });
+    static _10: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            10
+        ) 
+    });
+    unsafe {
+        if let Some ( _m ) = m { 
+            *init = _10.clone().pow (_m); 
+            *init -= 1;
+            faav_m (Some (_m) );
+         }
+        return init.clone()
+    }
+}
+pub fn faav_102shift () -> rugfloat {
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            10
+        ).pow (faav_shift (None) ) 
+    });
+    unsafe {
+        return init.clone()
+    }
+}
+
+pub fn faav_22m_m_1 (m: Option <usize> ) -> rugfloat {
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            1,
+            1
+        ) 
+    });
+    static _1: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            1
+        ) 
+    });
+    unsafe {
+        if let Some ( _m ) = m { 
+            *init = _1.clone() << _m; 
+            *init -= 1;
+            faav_m (Some (_m) );
+         }
+        return init.clone()
+    }
+}
+pub fn faav_m (m: Option <usize> ) -> usize {
+    static mut sav_m: usize = 0;
+    unsafe {
+        if let Some ( x ) = m { sav_m = x; }
+        return sav_m
+    }
+}
+pub fn nxt_tail_of_sq_xor (tail: &mut rugfloat, rounds: usize, pow: isize) {
+    static mut _1st_run: bool = true;
+    unsafe {
+        if _1st_run {
+            tail.pow_assign (pow );
+            _1st_run = false;
+        }
+    }
+    *tail = square_xor (&tail);
+    for _ in 1..rounds {
+        *tail = square_xor (&tail);
+    }
+}
 #[derive(Clone, Debug)]
 pub struct banu {
     pub maybe_P: rugfloat,
@@ -94,11 +194,13 @@ pub fn gen_backdoor_numero (n_minus_1: &rugfloat, tail: &mut rugfloat) -> rugflo
     return new_n
 }
 pub fn _gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugfloat {
-    let mut cut_tail: rugfloat = tail.clone() << faav_shift (None);
-    cut_tail = cut_tail.floor ();
+    let mut cut_tail: rugfloat = tail.clone();
     dbg! (&cut_tail);
-    let mut new_n: rugfloat = n_minus_1.clone() << faav_shift ( None );
+    let mut new_n: rugfloat = n_minus_1.clone() * (faav_102m_m_1 (None) + 1 );
+    new_n += faav_102m_m_1 (None);
+    new_n *= faav_102shift ();
     new_n += cut_tail; 
+    dbg! (new_n.to_string_radix(10, Some (glob_precision (None) as usize ) ) );
     return new_n
 }
 pub fn try_banu (tst: &mut rugfloat) -> Option <Vec < (u64, u64 ) > > {
@@ -159,6 +261,45 @@ pub fn _try_restore_factors (lst: &Vec <(u64, u64)>) -> banu {
         maybe_Q
     }
 }
+pub fn _gcd (_0: &rugfloat, _1: &rugfloat) -> rugfloat {
+    let mut ret = rugfloat::with_val (10, 23);
+    let mut ret_ = rugfloat::with_val (10, 23);
+    if _1 > _0 {
+            ret = _1.clone ();
+            ret_ = _0.clone();
+    } else {
+        ret = _0.clone();
+        ret_ = _1.clone();
+    }
+    while ret_ > 0 {
+        ret %= ret_.clone();
+        ret_ %= ret.clone();
+    }
+    if ret == 0 { ret +=1; }
+    return ret
+}
+pub fn _2nd_tst () {
+    let N = conv_str_2_rugfloat (
+        "1881988129206079638386972394616504398071635633794173827007633564
+        22988859715234665485319060606504743045317388011303396716199692321
+        205734031879550656996221305168759307650257059",
+    10
+    ).unwrap();
+    dbg! (&N);
+    let mut tail: rugfloat = faav_init_tail (None);
+    let mut counter = faav_countdown (None);
+    let mut bnN = rugfloat::with_val_64 (1, 0);
+    while counter > 0 {
+        bnN = _gen_backdoor_numero (&N, &mut tail);
+        tail = __2rt (&tail, glob_precision (None) );
+        dbg! (&tail);
+        let gcd = _gcd (&bnN, &N);
+        if gcd > 1 && gcd < N {
+            _break! (gcd.to_string_radix (10, None));
+        }
+        counter.dec();
+    }
+}
 pub fn _1st_tst () {
     let P = conv_strn_2_rugfloat (
         &"3980750864240649373971255005503864911990643623425267084063851895759463889572
@@ -186,6 +327,7 @@ pub fn _1st_tst () {
     loop {
         if got_P.is_none() {
             bnP = _gen_backdoor_numero (&Pm1, &tail );
+           // dbg! (bnP.to_string_radix(2, None) );
             saveP = bnP.clone();
             got_P = try_banu (&mut bnP);
         }
@@ -199,7 +341,7 @@ pub fn _1st_tst () {
             break;
         }
         counter.dec();
-        tail = __2rt (&tail, glob_precision (None) );
+        nxt_tail_of_sq_xor (&mut tail, 3, 3);
         dbg! (&tail);
     }
     if got_P.is_none() {

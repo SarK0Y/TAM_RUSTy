@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "CuPs"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "Mademoiselle_Entropia",
  "nix",
@@ -15,7 +15,7 @@ dependencies = [
 
 [[package]]
 name = "Mademoiselle_Entropia"
-version = "1.11.18"
+version = "1.11.19"
 dependencies = [
  "chrono",
  "libc",

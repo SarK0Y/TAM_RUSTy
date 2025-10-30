@@ -26,3 +26,5 @@ pub mod mt_logarithm;
 pub mod complex;
 #[path = "editing.rs"]
 pub mod editing;
+#[path = "seqs.rs"]
+pub mod seqs;
