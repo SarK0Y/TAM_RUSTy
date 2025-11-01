@@ -237,3 +237,39 @@ impl Conv_Strn_2_Rugfloat for &str {
             .unwrap()
     }
 }
+pub trait Full_Prnt_Rugfloat {
+    fn full_prnt (&self);
+    fn dbg_prnt (&self, file: &str, line: u32);
+}
+impl Full_Prnt_Rugfloat for rugfloat {
+#[inline (always)]
+    fn full_prnt (&self) {
+        let _strn = format! ("{}",
+            self.to_string_radix (
+                10,
+                Some (
+                    glob_precision (None) as usize
+                )
+            )
+        );
+        println!("{_strn}" );
+    }
+#[inline (always)]
+    fn dbg_prnt (&self, file: &str, line: u32) {
+        let mut _strn = format! (
+            "File: {}
+             Line: {}
+             Value: {}",
+            file,
+            line,
+            self.to_string_radix (
+                10,
+                Some (
+                    glob_precision (None) as usize
+                )
+            )
+        );
+        _strn = _strn.replace("  ", "").strn();
+        println!("{_strn}" );
+    }
+}

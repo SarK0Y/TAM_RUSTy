@@ -35,7 +35,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a20ac7c647c88fab4202efab99f5056b1245c31725c50433c8da40a30ca5e56"
 dependencies = [
  "Mademoiselle_Entropia 1.11.19",
- "min_err_per_step",
+ "min_err_per_step 0.0.171",
  "nix",
  "num-traits",
  "once_cell",
@@ -668,6 +668,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "min_err_per_step"
+version = "0.0.178"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "adacadeb6b97d1459451b77a81665d2cc224a3d79bc5c007b8812418873d0a8f"
+dependencies = [
+ "CuPs 0.0.5",
+ "Mademoiselle_Entropia 1.11.19",
+ "num",
+ "num-complex",
+ "num-traits",
+ "once_cell",
+ "rug",
+ "substring",
+]
+
+[[package]]
 name = "minimal-lexical"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1069,7 +1085,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.700"
+version = "13.11.701"
 dependencies = [
  "CuPs 0.0.4",
  "IF",
@@ -1087,7 +1103,7 @@ dependencies = [
  "itertools",
  "libc",
  "midly",
- "min_err_per_step",
+ "min_err_per_step 0.0.178",
  "nix",
  "num",
  "num-traits",

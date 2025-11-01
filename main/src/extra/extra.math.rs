@@ -290,17 +290,19 @@ pub fn tst_Pi_ (error: f64) -> f64 { // failed
     dbg! (y);
     ret
 }
+#[cfg(feature = "meps")]
 pub fn dbg_gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugfloat {
 use IF::banu::faav_102m_m_1;
 use IF::banu::faav_102shift;
+use min_err_per_step::editing::Full_Prnt_Rugfloat;
     let mut cut_tail: rugfloat = tail.clone();
-    dbg! (&cut_tail);
+    cut_tail.dbg_prnt(file!(), line!() );
     let mut new_n: rugfloat = n_minus_1.clone() * (faav_102m_m_1 (None) + 1 );
-    dbg! (&new_n);
+    new_n.dbg_prnt(file!(), line!() );
     new_n += faav_102m_m_1 (None);
-    dbg! (&new_n);
+    new_n.dbg_prnt(file!(), line!() );
     new_n *= faav_102shift ();
-    dbg! (&new_n);
+    new_n.dbg_prnt(file!(), line!() );
     new_n += cut_tail; 
     dbg! (new_n.to_string_radix(10, Some (glob_precision (None) as usize ) ) );
     return new_n
@@ -424,7 +426,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         faav_init_tail (Some ( tail.to_string_radix (10, None ) ) );
         let float_tst: rugfloat = "39807508642406493739712550055038
                                    64911990643623425267084063851895
-                                   75946388957261768583317".float (10);
+                                   75946388957261768583316".float (10);
         _break! (float_tst.to_string_radix (10, None) );
         //faav_22m_m_1 (Some (1_000));
         //_break! (faav_22m_m_1 (None).to_string_radix (2, Some (1001)));
