@@ -30,12 +30,12 @@ dependencies = [
 
 [[package]]
 name = "IF"
-version = "0.0.46"
+version = "0.0.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc244c40e38461559d894c15914f62ccf1f1789302218bb841654a19b706c898"
+checksum = "3a20ac7c647c88fab4202efab99f5056b1245c31725c50433c8da40a30ca5e56"
 dependencies = [
  "Mademoiselle_Entropia 1.11.19",
- "min_err_per_step 0.0.167",
+ "min_err_per_step",
  "nix",
  "num-traits",
  "once_cell",
@@ -653,25 +653,9 @@ dependencies = [
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.167"
+version = "0.0.171"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "804531e28bd70b79b6d6b913c94240cc7d66de923be390999c863e7e77c488e5"
-dependencies = [
- "CuPs 0.0.5",
- "Mademoiselle_Entropia 1.11.19",
- "num",
- "num-complex",
- "num-traits",
- "once_cell",
- "rug",
- "substring",
-]
-
-[[package]]
-name = "min_err_per_step"
-version = "0.0.169"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb1859cc64aba101de989c43e3995a1b950c499c6ab45f46fdcb3d68af589724"
+checksum = "78b14b7de3e90d6143f9b12cb1ad7be3887627d897ebdd43bba7fe1b2936cd96"
 dependencies = [
  "CuPs 0.0.5",
  "Mademoiselle_Entropia 1.11.19",
@@ -1085,7 +1069,7 @@ checksum = "28d3b2b1366ec20994f1fd18c3c594f05c5dd4bc44d8bb0c1c632c8d6829481f"
 
 [[package]]
 name = "sark0y_tam_rst"
-version = "13.11.699"
+version = "13.11.700"
 dependencies = [
  "CuPs 0.0.4",
  "IF",
@@ -1103,7 +1087,7 @@ dependencies = [
  "itertools",
  "libc",
  "midly",
- "min_err_per_step 0.0.169",
+ "min_err_per_step",
  "nix",
  "num",
  "num-traits",

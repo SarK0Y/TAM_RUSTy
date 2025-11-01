@@ -8,7 +8,7 @@ version = "0.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dad32b356e759bf05b6f51e21ab82b44c6a7676119aeaa070496bdbc87c82886"
 dependencies = [
- "Mademoiselle_Entropia 1.11.19 (registry+https://github.com/rust-lang/crates.io-index)",
+ "Mademoiselle_Entropia 1.11.19",
  "nix",
  "num-traits",
  "once_cell",
@@ -17,9 +17,9 @@ dependencies = [
 
 [[package]]
 name = "IF"
-version = "0.0.46"
+version = "0.0.50"
 dependencies = [
- "Mademoiselle_Entropia 1.11.19",
+ "Mademoiselle_Entropia 1.11.20",
  "min_err_per_step",
  "nix",
  "num-traits",
@@ -31,6 +31,8 @@ dependencies = [
 [[package]]
 name = "Mademoiselle_Entropia"
 version = "1.11.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19d2766ce05ae14fc28e163614533d57750091e5848c1dcf3b4b50d3c1f261b7"
 dependencies = [
  "chrono",
  "libc",
@@ -43,9 +45,7 @@ dependencies = [
 
 [[package]]
 name = "Mademoiselle_Entropia"
-version = "1.11.19"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "19d2766ce05ae14fc28e163614533d57750091e5848c1dcf3b4b50d3c1f261b7"
+version = "1.11.20"
 dependencies = [
  "chrono",
  "libc",
@@ -213,12 +213,12 @@ checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.167"
+version = "0.0.171"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "804531e28bd70b79b6d6b913c94240cc7d66de923be390999c863e7e77c488e5"
+checksum = "78b14b7de3e90d6143f9b12cb1ad7be3887627d897ebdd43bba7fe1b2936cd96"
 dependencies = [
  "CuPs",
- "Mademoiselle_Entropia 1.11.19 (registry+https://github.com/rust-lang/crates.io-index)",
+ "Mademoiselle_Entropia 1.11.19",
  "num",
  "num-complex",
  "num-traits",

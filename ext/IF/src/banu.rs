@@ -17,9 +17,14 @@ use min_err_per_step::nth_root::__2rt;
 use min_err_per_step::base::glob_precision;
 use min_err_per_step::editing::{
     conv_strn_2_rugfloat,
-    conv_str_2_rugfloat
+    conv_str_2_rugfloat,
+    Conv_Strn_2_Rugfloat
 };
-use min_err_per_step::seqs::bitwise::square_xor;
+use min_err_per_step::seqs::bitwise::{
+    square_xor,
+    road1,
+    bloat_upto
+};
 use Mademoiselle_Entropia::custom_traits::{helpful_math_ops, STRN};
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
@@ -176,9 +181,10 @@ pub fn nxt_tail_of_sq_xor (tail: &mut rugfloat, rounds: usize, pow: isize) {
             _1st_run = false;
         }
     }
-    *tail = square_xor (&tail);
+    let _1: rugfloat = "1".float(10);
+    *tail = bloat_upto (&tail, &_1, faav_shift (None) as u32 );
     for _ in 1..rounds {
-        *tail = square_xor (&tail);
+        *tail = road1 (&tail, &_1);
     }
 }
 #[derive(Clone, Debug)]

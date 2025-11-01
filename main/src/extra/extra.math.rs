@@ -290,6 +290,21 @@ pub fn tst_Pi_ (error: f64) -> f64 { // failed
     dbg! (y);
     ret
 }
+pub fn dbg_gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugfloat {
+use IF::banu::faav_102m_m_1;
+use IF::banu::faav_102shift;
+    let mut cut_tail: rugfloat = tail.clone();
+    dbg! (&cut_tail);
+    let mut new_n: rugfloat = n_minus_1.clone() * (faav_102m_m_1 (None) + 1 );
+    dbg! (&new_n);
+    new_n += faav_102m_m_1 (None);
+    dbg! (&new_n);
+    new_n *= faav_102shift ();
+    dbg! (&new_n);
+    new_n += cut_tail; 
+    dbg! (new_n.to_string_radix(10, Some (glob_precision (None) as usize ) ) );
+    return new_n
+}
 pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     dbg!(&step);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
@@ -369,7 +384,9 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         banu,
         faav_power,
         faav_102m_m_1,
-        faav_102shift
+        faav_102shift,
+        _gen_backdoor_numero,
+        nxt_tail_of_sq_xor
     };
     use min_err_per_step::editing::{
         conv_str_2_rugfloat,
@@ -398,16 +415,20 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (__2rt (&x, glob_precision (None)) );
         InterruptMsg ("");
         return (0.0, 0.0); */
-        let float_tst: rugfloat = ".69874".float (10) * 17;
-        _break! (float_tst.to_string_radix (10, None) );
+        glob_precision (Some (500) );
         faav_countdown (Some (10_000) );
-        faav_shift (Some (2_000));
+        faav_shift (Some (1_00));
+        faav_102m_m_1 ( Some (2_00) );
+        let mut tail = "75974954171".float (10);
+        nxt_tail_of_sq_xor  (&mut tail, 3, 3);
+        faav_init_tail (Some ( tail.to_string_radix (10, None ) ) );
+        let float_tst: rugfloat = "39807508642406493739712550055038
+                                   64911990643623425267084063851895
+                                   75946388957261768583317".float (10);
+        _break! (float_tst.to_string_radix (10, None) );
         //faav_22m_m_1 (Some (1_000));
-        _break! (faav_22m_m_1 (None).to_string_radix (2, Some (1001)));
-        faav_init_tail (Some ("75974954171".strn() ));
-        faav_102m_m_1 ( Some (1_000) );
-        _break! (faav_init_tail (None).to_string_radix (10, None) );
-        glob_precision (Some (15000) );
+        //_break! (faav_22m_m_1 (None).to_string_radix (2, Some (1001)));
+        _break! (dbg_gen_backdoor_numero (&float_tst, &tail).to_string_radix (10, None) );
         hella_hello_banu ();  
         //_2nd_tst ();
        // _break! ("stop 2nd tst");
