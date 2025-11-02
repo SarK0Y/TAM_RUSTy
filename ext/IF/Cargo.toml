@@ -1,7 +1,7 @@
 [package]
 name ="IF"
 edition = "2021"
-version = "0.0.50"
+version = "0.0.53"
 #publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -23,7 +23,7 @@ once_cell = "1.18.0"
 substring = "1.4.5"
 num-traits = "0.2.17"
 rug = "1.28.0"
-min_err_per_step = "0.0.171"
+min_err_per_step = "0.0.179"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.19"}
 [lib]
 name = "IF"

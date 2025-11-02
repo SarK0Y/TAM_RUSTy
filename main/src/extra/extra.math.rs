@@ -295,17 +295,56 @@ pub fn dbg_gen_backdoor_numero (n_minus_1: &rugfloat, tail: &rugfloat) -> rugflo
 use IF::banu::faav_102m_m_1;
 use IF::banu::faav_102shift;
 use min_err_per_step::editing::Full_Prnt_Rugfloat;
-    let mut cut_tail: rugfloat = tail.clone();
-    cut_tail.dbg_prnt(file!(), line!() );
-    let mut new_n: rugfloat = n_minus_1.clone() * (faav_102m_m_1 (None) + 1 );
-    new_n.dbg_prnt(file!(), line!() );
-    new_n += faav_102m_m_1 (None);
-    new_n.dbg_prnt(file!(), line!() );
-    new_n *= faav_102shift ();
-    new_n.dbg_prnt(file!(), line!() );
+    let _102shift = faav_102shift ().to_integer ().unwrap ();
+    let _102m_m_1 = faav_102m_m_1 (None).to_integer ().unwrap ();
+    dbg! (faav_102m_m_1(None));
+    dbg! (&_102m_m_1);
+    dbg! (&_102shift);
+    let nm1: rugint = n_minus_1.to_integer ().unwrap ();
+    let mut cut_tail: rugint = tail.to_integer ().unwrap ();;
+    //cut_tail.dbg_prnt(file!(), line!() );
+    dbg! (&cut_tail);
+    let mut new_n: rugint = nm1 * (_102m_m_1.clone() + 1 );
+    //new_n.dbg_prnt(file!(), line!() );
+    dbg! (&new_n);
+    new_n += _102m_m_1;
+    dbg! (&new_n);
+    new_n *= _102shift.clone();
+    dbg! (&new_n);
     new_n += cut_tail; 
-    dbg! (new_n.to_string_radix(10, Some (glob_precision (None) as usize ) ) );
-    return new_n
+   // dbg! (new_n.to_string_radix(10, Some (glob_precision (None) as usize ) ) );
+   dbg! (&new_n);
+    return rugfloat::with_val_64 (
+        glob_precision (None),
+        new_n
+    )
+}
+#[cfg(feature = "meps")]
+pub fn dbg_faav_102m_m_1 (m: Option <usize> ) -> rugfloat {
+use min_err_per_step::editing::Conv_Strn_2_Rugint;
+    static mut init: Lazy < rugfloat > = Lazy::new ( || {
+        rugfloat::with_val_64 (
+            1,
+            1
+        ) 
+    });
+    static _1: Lazy < rugint > = Lazy::new ( || {
+        "1".int (10)
+    });
+    unsafe {
+        if let Some ( _m ) = m { 
+            let mut _10: rugint = _1.clone() * 10;
+            _10 = _10.clone().pow (_m as u32);
+            _10 -= 1;
+            dbg! (&_10);
+            *init =  rugfloat::with_val_64 (
+                glob_precision (None),
+                _10
+            ); 
+         //   faav_m (Some (_m) );
+         }
+        return init.clone()
+    }
 }
 pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     dbg!(&step);
@@ -388,7 +427,8 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         faav_102m_m_1,
         faav_102shift,
         _gen_backdoor_numero,
-        nxt_tail_of_sq_xor
+        nxt_tail_of_sq_xor,
+        faav_m
     };
     use min_err_per_step::editing::{
         conv_str_2_rugfloat,
@@ -417,10 +457,11 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (__2rt (&x, glob_precision (None)) );
         InterruptMsg ("");
         return (0.0, 0.0); */
-        glob_precision (Some (500) );
+        glob_precision (Some (10_000) );
         faav_countdown (Some (10_000) );
         faav_shift (Some (1_00));
         faav_102m_m_1 ( Some (2_00) );
+        dbg_faav_102m_m_1 (Some (2_00));
         let mut tail = "75974954171".float (10);
         nxt_tail_of_sq_xor  (&mut tail, 3, 3);
         faav_init_tail (Some ( tail.to_string_radix (10, None ) ) );

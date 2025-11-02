@@ -237,6 +237,15 @@ impl Conv_Strn_2_Rugfloat for &str {
             .unwrap()
     }
 }
+pub trait Conv_Strn_2_Rugint {
+    fn int (&self, rdx: i32) -> rugint;
+}
+impl Conv_Strn_2_Rugint for &str {
+    fn int (&self, rdx: i32) -> rugint {
+        return conv_str_2_rugint (self, rdx)
+            .unwrap()
+    }
+}
 pub trait Full_Prnt_Rugfloat {
     fn full_prnt (&self);
     fn dbg_prnt (&self, file: &str, line: u32);

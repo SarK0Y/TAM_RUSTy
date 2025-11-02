@@ -18,7 +18,8 @@ use min_err_per_step::base::glob_precision;
 use min_err_per_step::editing::{
     conv_strn_2_rugfloat,
     conv_str_2_rugfloat,
-    Conv_Strn_2_Rugfloat
+    Conv_Strn_2_Rugfloat,
+    Conv_Strn_2_Rugint
 };
 use min_err_per_step::seqs::bitwise::{
     square_xor,
@@ -117,16 +118,18 @@ pub fn faav_102m_m_1 (m: Option <usize> ) -> rugfloat {
             1
         ) 
     });
-    static _10: Lazy < rugfloat > = Lazy::new ( || {
-        rugfloat::with_val_64 (
-            glob_precision (None),
-            10
-        ) 
+    static _1: Lazy < rugint > = Lazy::new ( || {
+        "1".int (10)
     });
     unsafe {
         if let Some ( _m ) = m { 
-            *init = _10.clone().pow (_m); 
-            *init -= 1;
+            let mut _10: rugint = _1.clone() * 10;
+            _10 = _10.clone().pow (_m as u32);
+            _10 -= 1;
+            *init =  rugfloat::with_val_64 (
+                glob_precision (None),
+                _10
+            ); 
             faav_m (Some (_m) );
          }
         return init.clone()
