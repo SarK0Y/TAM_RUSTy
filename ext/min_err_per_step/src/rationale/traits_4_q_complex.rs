@@ -124,7 +124,7 @@ impl Div <Q_Complex> for rugq {
         let r2 = other.radius2();
         let mut ret = Q_Complex { 
             0: self.clone(),
-            1: rugfloat::with_val (2, 0) } * other._z(); 
+            1: rugq::from ( (0, 1) ) } * other._z(); 
         return Q_Complex {
             0: ret.0 / r2.clone(),
             1: ret.1 / r2
@@ -137,7 +137,7 @@ impl Div <&Q_Complex> for rugq {
         let r2 = other.radius2();
         let mut ret = Q_Complex { 
             0: self.clone(),
-            1: rugq::th_val (2, 0) } * other._z(); 
+            1: rugq::from ( (0, 1) ) } * other._z(); 
         return Q_Complex {
             0: ret.0 / r2.clone(),
             1: ret.1 / r2
