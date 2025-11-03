@@ -32,6 +32,7 @@ use crate::{
     update18::update_dir_list,
     usize_2_i64, STRN,
 };
+use rst_lex::strns::Unique;
 pub(crate) unsafe fn check_mode(mode: &mut i64) {
     static mut state: i64 = 0;
     if *mode == -1 {
@@ -253,7 +254,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         return crate::run_cmd_viewer(cmd);
     }
     pub(crate) fn run_viewer(cmd: String, func_id: i64) -> bool {
-        let mut cmd = cmd;
+        let mut cmd = cmd.replace (r"file://", "").replace (r"file\://", "");
         if crate::term_app::run_new_win_bool( None ) {
             cmd = cmd.substring(1, usize::MAX).strn();
         }
@@ -354,7 +355,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
 
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {
-        return unsafe { 
+        return unsafe {
             { let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; crate::nvim::add_keys_2_cmd( &viewer ) }
         };
     }
@@ -392,8 +393,8 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
     let ret = unsafe { share_usize(indx, func_id_loc) };
     if ret.1 {
-        return unsafe { 
-             let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_; 
+        return unsafe {
+             let viewer = crate::page_struct("", crate::VIEWER_, func_id_loc).str_;
                 if mode_display_full_names_of_viewers ( None ) {crate::nvim::add_keys_2_cmd( &viewer ) } else { viewer }
         };
     }
@@ -410,7 +411,7 @@ pub fn mode_default_viewers(mode: Option<bool>) -> bool {
     }
 }
 pub fn roll_header () {
-    mode_display_full_names_of_viewers( Some ( 
+    mode_display_full_names_of_viewers( Some (
         !mode_display_full_names_of_viewers(None )
     ) );
 }
@@ -426,6 +427,7 @@ pub fn mode_display_full_names_of_viewers(mode: Option<bool>) -> bool {
 
 pub fn tui_mode(indx: usize, set_state: Option<bool>) -> Option<bool> {
     static mut mode_to_run_app: Lazy<Vec<bool>> = Lazy::new(|| vec![]);
+    if mode_default_viewers( None ) {return Some (false) }
     unsafe {
         if let Some(x) = set_state {
             mode_to_run_app.push(x);
@@ -513,18 +515,19 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
         return;
     }
     fst_run = false;
-    let args: Vec<_> = crate::env::args().collect();
+    let mut args: Vec<String> = crate::core18::collectArg ("-view-w");//crate::env::args().collect();
+    let mut args1 = crate::core18::collectArg ("-tui-app");
+    args = args.uniq();
     let arg = args.as_slice();
-    for i in 1..args.len() {
-        if arg[i] == "-view_w" || arg[i] == "-view-w" || arg[i] == "-tui-app" {
-            let viewer: String = (args[i + 1]).chars().collect();
-            add_viewer(&viewer, -1);
-            if arg[i] == "-tui-app" {
-                tui_mode(0, Some(true))
-            } else {
-                tui_mode(0, Some(false))
-            };
-        }
+    for i in 0..args.len() {
+        let viewer: &String = &args [i];//(args[i]).chars().collect();
+        add_viewer(viewer, -1);
+        tui_mode(0, Some(false));
+    }
+    for i in 0..args1.len() {
+        let viewer: &String = &args1 [i];
+        add_viewer(viewer, -1);
+        tui_mode(0, Some(true));
     }
 }
 pub(crate) fn print_viewers() {

@@ -4,7 +4,7 @@ use std::usize;
 use crossterm::style::Stylize;
 use exts::page_struct_uses;
 use once_cell::sync::Lazy;
-
+use crate::custom_traits::turn_2_i64;
 use crate::{bkp_tmp_dir, complete_path, cpy_str, cursor_direction, custom_traits::STRN, enums, file_prnt, func_id18, get_path_from_strn, globs18::{ins_patch_to_string, len_of_front_list, len_of_front_list_wc, take_list_adr}, helpful_math_ops, i64_2_usize, raw_read_prnt, read_file, read_front_list, read_front_list_but_ls, read_prnt, read_proper_num_pg, rewrite_user_written_path, save_file, save_file_abs_adr, set_proper_num_pg, swtch::{set_user_written_path_from_prnt, set_user_written_path_from_strn}, update18::{prev_key, upd_screen_or_not}};
 self::page_struct_uses!();
 pub const STOP_CODE_: i64 = 1;
@@ -223,14 +223,34 @@ pub(crate) fn set_num_page(val: i64, func_id: i64) -> i64{
   set_proper_num_pg(proper_val);
   return unsafe{page_struct_int(proper_val, crate::set(NUM_PAGE_), func_id)}}
 pub(crate) fn get_num_pages(func_id: i64) -> i64{return unsafe{page_struct_int(0, COUNT_PAGES_, func_id)}}
-pub(crate) fn get_num_files(func_id: i64) ->i64{ return unsafe{page_struct_int(0, NUM_FILES_, func_id)}}
+pub(crate) fn get_num_files(func_id: i64) ->i64{ 
+  let mut ret = unsafe{page_struct_int(0, NUM_FILES_, func_id)};
+  /*let front = crate::name_of_front_list ("", false);
+  let frontName_dot_len_adr = crate::globs18::take_list_adr_len ( &front );
+  let mut ret0 = crate::read_file_abs_adr (&frontName_dot_len_adr);//.i640();
+  if ret0 == "" {ret0 = crate::read_file_abs_adr (&frontName_dot_len_adr);}
+  if ret0 == "" {return ret}
+  let ret0 = ret0.i640();
+  if ret != ret0 {
+  //  fix_num_files (func_id);
+    ret = ret0;
+  }*/
+  return ret }
 pub(crate) fn fix_num_files(func_id: i64) ->i64{
    let mut len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list().as_str(), 10){
     Ok(i) => i,
     _ => 0
   } - 1; 
    if len_of_front == -1{len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){ Ok(i) => i, _ => 0}; }
-   return unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};}
+   unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};
+    std::thread::spawn ( move|| {
+      let mut count_out = 100u64;
+      while len_of_front != get_num_files (func_id) && count_out > 0 {
+        unsafe{page_struct_int(len_of_front, crate::set(NUM_FILES_), func_id)};
+        count_out -= 1;
+      }
+    });
+   return len_of_front }
    pub(crate) fn fix_num_files0(func_id: i64) ->i64{
    let len_of_front = match i64::from_str_radix(crate::globs18::len_of_front_list_wc().as_str(), 10){
     Ok(i) => i,

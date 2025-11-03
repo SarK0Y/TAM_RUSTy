@@ -64,7 +64,13 @@ pub(crate) fn up_front_list() {
     let cmd = format!("#up_front_list\nln -sf {active_list} {found_files}");
     run_cmd_str(&cmd);
 }
-pub(crate) fn set_front_list(list: &str) {
+pub fn set_front_list(list: &str) {
+    let found_files = take_list_adr_env(&"found_files".strn());
+    let mut active_list = take_list_adr_env(&list);
+    if !crate::Path::new (&active_list).exists () {
+        return set_front_list_root (&list);
+       // crate::errMsg0 ("tst");
+    }
     let mut list = list.strn(); crate::lst::edit_mode_lst(Some (false) );
     if list == "" {
         list = "lst".strn()
@@ -81,8 +87,6 @@ pub(crate) fn set_front_list(list: &str) {
     if prev != "ls" {
         save_file(prev, "prev_list".strn());
     }
-    let found_files = take_list_adr_env(&"found_files".strn());
-    let active_list = take_list_adr_env(&list);
     let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
     run_cmd_out_sync(cmd);
     mark_front_lst(&list);
@@ -92,7 +96,35 @@ pub(crate) fn set_front_list(list: &str) {
     //background_fixing();
     crate::set_num_files_4_lst(&list.strn());
 }
-pub(crate) fn name_of_front_list(name: &str, set: bool) -> String {
+pub fn set_front_list_root(list: &str) {
+    let mut list = list.strn(); crate::lst::edit_mode_lst(Some (false) );
+    if list == "" {
+        list = "lst".strn()
+    }
+    if check_substrn(&list.strn(), "history") {
+        swtch_esc(true, false);
+    } else {
+        swtch_esc(true, true);
+    }
+    let mut prev = name_of_front_list("", false);
+    if prev == "" {
+        prev = "main0".strn()
+    }
+    if prev != "ls" {
+        save_file(prev, "prev_list".strn());
+    }
+    let found_files = take_list_adr(&"found_files".strn());
+    let active_list = take_list_adr(&list);
+    let cmd = format!("#set_front_list\nln -sf {active_list} {found_files}");
+    run_cmd_out_sync(cmd);
+    mark_front_lst(&list);
+    //crate::wait_4_empty_cache();
+    //if list == "merge"
+    name_of_front_list(&list, true);
+    //background_fixing();
+    crate::set_num_files_4_lst(&list.strn());
+}
+pub fn name_of_front_list(name: &str, set: bool) -> String {
     static mut name0: Lazy<String> = Lazy::new(|| String::new());
     if set {
         unsafe {
@@ -103,6 +135,13 @@ pub(crate) fn name_of_front_list(name: &str, set: bool) -> String {
     unsafe { name0.to_string() }
 }
 pub(crate) fn set_front_list2(list: &str, num_upds_scrn: usize) {
+     let found_files = take_list_adr_env(&"found_files".strn());
+    let mut active_list = take_list_adr_env(&list);
+    if !crate::Path::new (&active_list).exists () {
+        active_list = take_list_adr(&list);
+       // crate::errMsg0 ("tst");
+    }
+   
     crate::lst::edit_mode_lst(Some (false) );
     if check_substrn(&list.strn(), "history") {
         swtch_esc(true, false);
@@ -329,6 +368,9 @@ pub(crate) fn initSession() -> bool {
     crate::faav::npf_bar (0, Some (8) );
     crate::subs::prompt_mode(Some( crate::enums::prompt_modes::glee_uppercases ) );
     crate::C! ( local_indx (true) );
+    if countArg ("-path") + countArg ("-path0") > 0 {
+        crate::update18::multi_folder_lst ();
+    } else {crate::update18::main_update();}
     return true;
 }
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
@@ -421,7 +463,7 @@ pub(crate) fn errMsg(msg: &str, val_func_id: i64) {
     );
     set_ask_user(&msg.bold().red(), val_func_id);
 }
-pub(crate) fn checkArg(key: &str) -> bool {
+pub fn checkArg(key: &str) -> bool {
     let len_of_cmd_line = env::args().len();
     let args: Vec<String> = env::args().collect();
     let i: i64 = 0;
@@ -432,6 +474,31 @@ pub(crate) fn checkArg(key: &str) -> bool {
     }
     return false;
 }
+pub fn countArg(key: &str) -> u16 {
+    let mut cnt: u16 = 0;
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    for i in 0..len_of_cmd_line {
+        if args[i] == key.to_string() {
+            cnt += 1;
+        }
+    }
+    return cnt;
+}
+pub fn collectArg(key: &str) -> Vec <String> {
+    let mut arg_vals = Vec::<String>::new();
+    let len_of_cmd_line = env::args().len();
+    let args: Vec<String> = env::args().collect();
+    let i: i64 = 0;
+    for i in 0..len_of_cmd_line {
+        if args[i] == key.to_string() {
+            arg_vals.push (args [i+1].clone () );
+        }
+    }
+    return arg_vals;
+}
+
 pub(crate) fn set(item: i64) -> i64 {
     return item * -1;
 }
@@ -1084,7 +1151,7 @@ pub(crate) fn size_of_found_files() -> u64 {
     let stopCode = getStop_code__!();
     let filename = format!("{}/found_files", unsafe {
         crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_
-    });
+    }).unreel_link_to_file();
     match fs::metadata(filename) {
         Ok(op) => op,
         _ => return 0u64,

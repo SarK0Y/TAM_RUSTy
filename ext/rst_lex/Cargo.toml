@@ -1,7 +1,7 @@
 [package]
 name ="rst_lex"
 edition = "2021"
-version = "0.0.109"
+version = "0.0.111"
 publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -11,12 +11,13 @@ categories = ["rust-patterns", "algorithms"]
 kwywords = ["lexer"]
 description = "Simple lexer for Rust"
 [build-dependencies]
-#for_build_rs = { version = "0.0.109", optional = true, default-features = false }
+#for_build_rs = { version = "0.0.111", optional = true, default-features = false }
 for_build_rs = { path = "../for_build_rs", version = "0.0.110", optional = true, default-features = false }
 [dependencies]
-#for_build_rs = { path = "../for_build_rs", version = "0.0.109", optional = true, default-features = false }
+#for_build_rs = { path = "../for_build_rs", version = "0.0.110", optional = true, default-features = false }
 once_cell = "1.18.0"
 substring = "1.4.5"
+itertools = "0.14.0"
 Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.12"}
 [features]
 #default = ["stable"]

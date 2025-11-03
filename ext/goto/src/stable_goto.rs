@@ -21,7 +21,23 @@ use quote::quote;
 use syn::{parse_macro_input, parse::{Parse, ParseStream, Result}, parse_quote, ItemFn, LitStr, Stmt, Meta, MetaList, MetaNameValue, punctuated::Punctuated, Attribute,
 token::Comma, Expr, Lit, Token, PatIdent, Pat, Local, PathSegment, DeriveInput};
 use proc_macro2::{TokenStream as TokenStream2, Span};
+use rst_lex::lex::_cleanup;
 use Mademoiselle_Entropia::custom_traits::STRN;
+#[proc_macro_attribute]
+    pub fn cleanup(_attr: TokenStream, item: TokenStream) -> TokenStream {
+        let mut func_body = item.to_string();
+        let attr = _attr.to_string();
+        leave_file_mark ("/tmp/attr", &attr);
+        func_body = _cleanup(&mut func_body, &attr);
+        leave_file_mark ("/tmp/fn", &func_body);
+        let mut out: TokenStream2 =match  func_body.parse() {
+            Ok (x) => { x },
+            Err (y) => { panic! ("Crashes into err: {:?}", y);},
+        };
+       // let strn = out.to_string ();
+       // leave_file_mark ("/tmp/log_func", &strn);
+       return out.into()
+}
 struct AttrArgs {
     metas: Punctuated<Meta, Token![,]>,
 }

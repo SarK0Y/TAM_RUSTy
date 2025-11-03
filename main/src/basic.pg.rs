@@ -11,10 +11,18 @@ use crate::{cache, cache_state, cache_t, cached_data, checkArg, clean_fast_cache
 use crate::custom_traits::{STRN, helpful_math_ops, fs_tools};
 use gag::Redirect;
 #[cfg(feature ="tst_macro")]
+use goto1717::cleanup;
+#[cfg(feature ="tst_macro")]
 use goto1717::log_vars;
 //use super::extctrl::*;
+#[no_mangle]
+#[inline(never)]
+pub fn placeholder (comment: &str) -> i64 {
+    return -495
+}
 impl super::basic{
 #[cfg(not(feature = "tst_macro"))]
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
    pub fn build_page_(&mut self, ps: &mut crate::_page_struct){
     let func_id = crate::func_id18::build_page_;
     let mut try_entry = 0usize;
@@ -48,9 +56,9 @@ impl super::basic{
     let mut save_screen = get_file(&save_screen).unwrap();
     let redirect_out = Redirect::stdout(save_screen);
     let mut count_down = num_files;
-    if crate::size_of_found_files() == 0u64 {println!("No files found"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
+    if crate::size_of_found_files() == 0u64 {println!("No files found [tst]"); if !crate::checkArg("-dont-exit"){crate::C!(libc::exit(-1));}}
     let mut num_page; num_page = crate::calc_num_files_up2_cur_pg(); // if ps.num_page != i64::MAX{num_page = ps.num_page;}else{num_page = crate::get_num_page(func_id);}
-    let mut num_cols; if ps.num_cols != i64::MAX{num_cols = ps.num_cols;}else{num_cols = crate::get_num_cols(func_id);}
+    let mut num_cols = if ps.num_cols != i64::MAX{ ps.num_cols }else{ crate::get_num_cols(func_id) };
     let mut num_rows; if ps.num_rows != i64::MAX{num_rows = ps.num_rows;}else{num_rows = crate::get_num_rows(func_id);}
     if ps.col_width != i64::MAX{crate::set_col_width(ps.col_width, func_id);}
     let num_items_on_pages = num_cols * num_rows; let stopCode: String = crate::getStop_code__!();
@@ -64,7 +72,7 @@ impl super::basic{
             let mut res: String ="".to_string();
             let mut count_out = 77usize;
             while res == "" && count_out > 0 {res = self.rec_from_front_list(indx, true); count_out.dec(); }
-            if res == "no str gotten" { res = get_item_from_front_list(indx, true) }
+            if res == "no str gotten" { res = get_item_from_front_list(indx, true); }
               num_files = crate::get_num_files(func_id);
              if num_files == indx || "front list is empty" == res || "no str gotten" == res.to_lowercase(){
                 time_to_stop = true;
@@ -91,7 +99,7 @@ impl super::basic{
             if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
              time_to_stop = true; break;}
             if crate::dirty!(){
-               println!("cmp_str res {}", crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()));
+               println!("cmp_str res {}", crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) );
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }
@@ -101,7 +109,7 @@ impl super::basic{
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
             if filename_str == stopCode || filename_str == "no str gotten"{return;}
             row_cpy.push(filename_str);
-            if count_down <= 0 {time_to_stop = true; break;}
+           // if count_down <= 0 {time_to_stop = true; break;}
             count_down -= 1;
         }
         let count_pages = crate::get_num_files(func_id) / num_items_on_pages;
@@ -255,12 +263,13 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
         Entry::Vacant(entry) => {return failed;}
     }
 }
+//#[cleanup(_1st_token=placeholder ("--->");,end_token=placeholder ("--->");)]
 pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> String{
     static mut good_count: u64 = 0;
     let proper_indx = /*(i64_2_usize(indx), indx);*/crate::get_proper_indx(indx, fixed_indx);
     if proper_indx.0 == usize::MAX{return "front list is empty".to_string()}
     let front_lst = read_front_list();
-     let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
+      let adr_of_msg_clean = format!("{}/msgs/basic/cache/clean", self.tmp_dir).replace("//", "/");
 #[cfg(feature="in_dbg")]
      if read_file("break").trim_end().to_string() == "001"{
         println!("break 001");
@@ -275,6 +284,19 @@ pub(crate) fn pg_rec_from_front_list(&mut self, indx: i64, fixed_indx: bool) -> 
         rm_file(&adr_of_msg_clean);
     // self.cache.remove_entry(&clean);
     }
+    // todo: erase dbg stuff
+#[cfg(feature="in_dbg")]
+{
+    placeholder ("--->");
+    let dbg_cmd = take_list_adr ("dbg_cmd");
+    let dbg_cmd = crate::read_file_abs_adr (&dbg_cmd);
+    crate::set_ask_user (&dbg_cmd, -8884125);
+    if dbg_cmd.trim() == "br" {
+        dbg! (&self.cache);
+        crate::errMsg0 ("");
+    }
+    placeholder ("--->");
+}
     let rec: (String, cached_data) = self.rec_from_cache(&front_lst, proper_indx.0 );
     if rec.1 == cached_data::all_ok{crate::C!(crate::logs(&self.cache.len().to_string(), "cache.len")); unsafe{good_count +=1}; return rec.0;}
     //popup_msg("msg");
@@ -384,7 +406,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     for i in indx..upto{
         let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
         if i == lst_len{break;}
-        if rec == "no str gotten"{continue}
+       // if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
         cache.push(rec);
         //println!("{}", cache0[i]);

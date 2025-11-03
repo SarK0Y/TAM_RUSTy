@@ -8,7 +8,6 @@ use crate::{
     }, history_buffer, history_buffer_size, ln_of_found_files, ln_of_list, popup_msg, read_file, read_file_abs_adr, read_front_list, read_prnt, run_cmd0, save_file0, save_file_abs_adr, session_lists, set_ask_user, set_cur_cur_pos, set_front_list, set_num_files_4_lst, set_prnt, set_proper_num_pg, shift_cursor_of_prnt, stop_term_msg, update18::{delay_ms, upd_screen_or_not}, COUNT_PAGES_
 };
 use crossterm::event::PopKeyboardEnhancementFlags;
-use malachite::num::arithmetic::traits::CheckedAdd;
 use num_traits::ops::overflowing::OverflowingSub;
 use once_cell::sync::Lazy;
 use std::{default, io};
@@ -255,10 +254,18 @@ pub(crate) fn swtch_tam_konsole() {
 }
 pub(crate) fn F1_key() -> String {
     let mut prnt: String = read_prnt();
-    crate::set_front_list("main0");
+    let ch_main = crate::read_file ("ch_main");
+    if ch_main != "" { 
+        crate::set_front_list(&ch_main);
+        crate::set_num_files(-5177654);
+    }
+    else { 
+        set_num_files_4_lst(&"main0".strn());
+        crate::clean_cache("main0");
+        crate::set_front_list("main0"); 
+    }
     //crate::ps18::fix_num_files(-13971);
-    set_num_files_4_lst(&"main0".strn());
-    crate::clean_cache("main0");
+    
     crate::mk_uid();
     drop_ls_mode();
     crate::core18::rm_file(&take_list_adr("msgs/term/state"));

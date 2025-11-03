@@ -479,5 +479,65 @@ impl PowItFloat for BigFloat {
         } ret
     }
 }
+pub fn num_n_den_from_float (x: BigFloat) -> (BigFloat, BigFloat) {
+    let mut nat = Natural::rounding_from(&x, RoundingMode::Floor).0;
+    let mut floor = BigFloat::from_natural_prec(nat, PREC).0;
+    let mut mantissa = BigFloat::from_float_prec(x - floor, PREC).0;
+    let mut den = BigFloat::from_float_prec(BigFloat::from(10u64), PREC).0;
+    let mut num = BigFloat::from_float_prec(BigFloat::from(1u64), PREC).0;
+    let one = BigFloat::from(1.0);
+    let ten = BigFloat::from(10.0);
+    while mantissa != num.clone() / (den.clone() - one.clone() ) {
+        num = (den.clone() - one.clone() ) * mantissa.clone();
+        nat = Natural::rounding_from(&num, RoundingMode::Floor).0;
+        num = BigFloat::from_natural_prec(nat, PREC).0;
+        den *= ten.clone(); 
+    }
+    den -= one;
+    (num, den)
+}
+pub fn __2rt (x: &rugfloat, err: u64 ) -> rugfloat { // bad variant: at some cases, falls into endless loop
+ unsafe {
+    let PREC0 = glob_precision (None);
+    let _05 = rugfloat::with_val_64 (PREC0, 0.5);
+    let _1 = rugfloat::with_val_64 (PREC0, 1);
+    let mut start_x: rugfloat = _1.clone();
+    faav_a (Some (&mut start_x));
+    let tmp: rugfloat = x.clone() / 3;
+    let no_less = _05.clone().pow (err - 10);
+    faav_a(None).unwrap().as_mut().unwrap().assign (tmp);
+    *faav_a(None).unwrap() += (*faav_a(None).unwrap()).clone() >> 2;
+    let mut b = _1.clone();
+    faav_b (Some (&mut b));
+    let mut step: u64 = 0;
+    while ( (*faav_a(None).unwrap()).clone() - (*faav_b(None).unwrap()).clone())
+        .abs() > no_less {
+        *faav_b(None).unwrap() = x.clone () / (*faav_a(None).unwrap()).clone();
+	    start_x = (start_x.clone() + b.clone () ) / 2;
+        //step.inc();
+    }
+ //   dbg! (&b);
+    if b < start_x && *x > 0 {return start_x }
+    return b
+}
+}
+/// looks useless
+pub fn divide_n_conquer_2_calc_ln (
+    x: &rugfloat,
+    err: u64,
+    feeder_cnt: u64,
+    broker: u64) -> rugfloat {
+    
+    let crawler = if let Some ( c ) = replace_crawler_ln (None ) { c }
+        else { crawler_ln_lite }; 
+    let X: Option <cooked_input_for_ln> = cook_input_to_ln ( x );
+    if let Some ( y ) = X {
+        let _2 = rugfloat::with_val_64 (glob_precision (None), 2);
+        let ln2 = crawler (&_2, err, feeder_cnt, broker);
+        let lnx = crawler (&y.new_x, err, feeder_cnt, broker);
+        return y.m * ln2 + lnx
+    } 
+    return crawler (x, err, feeder_cnt, broker)
+}
 
     //tst
