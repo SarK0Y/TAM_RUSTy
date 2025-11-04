@@ -133,7 +133,7 @@ impl Div <Cu_Complex> for rugfloat {
         let r2 = other.radius2();
         let mut ret = Cu_Complex { 
             0: self.clone(),
-            1: rugfloat::with_val (
+            1: rugfloat::with_val_64 (
                 glob_precision (None),
                 0
             ) } * other._z(); 
@@ -149,7 +149,7 @@ impl Div <&Cu_Complex> for rugfloat {
         let r2 = other.radius2();
         let mut ret = Cu_Complex { 
             0: self.clone(),
-            1: rugfloat::with_val (
+            1: rugfloat::with_val_64 (
                 glob_precision (None),
                 0
             ) } * other._z(); 

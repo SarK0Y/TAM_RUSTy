@@ -204,7 +204,7 @@ impl Q_Complex_Pow for Q_Complex {
     fn pow_u64 (&self, exp: u64) -> Self {
        // dbg!(&exp);
         let mut exp = exp;
-        let mut ret = Q_Complex::init_f64 (1.0, 0.0);
+        //let mut ret = Q_Complex::init_f64 (1.0, 0.0);
         let mut sq = self.clone();
         while exp > 0 {
  //           dbg!(&exp);
