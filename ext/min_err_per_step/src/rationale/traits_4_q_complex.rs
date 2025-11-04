@@ -6,6 +6,7 @@ use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfl
 use rug::float::Constant;
 use crate::base::{glob_precision, Pi };
 use crate::nth_root::__2rt;
+use crate::Rationale::basic::__2rt4Q;
 use rug::rational::MiniRational;
 use rug::Rational as rugq;
 use num_complex::Complex as _complex;
@@ -20,6 +21,12 @@ impl Q_Complex {
     /*pub fn init_rugfloat (_0: &rugfloat, _1: &rugfloat) -> Self {
         return __init_rugfloat (_0, _1 )
     }*/
+    pub fn init_u64 (__0: u64, __1: u64) -> Self {
+        return Self {
+            0: rugq::from ((__0, 1)),
+            1: rugq::from ( (__1, 1) )
+        }
+    }
     pub fn _z (&self) -> Self {
         return __z (self)
     }
@@ -32,13 +39,13 @@ impl Q_Complex {
     pub fn abs (&self) -> Self {
         return __abs (self)
     }
-    pub fn radius (&self) -> rugfloat {
+    pub fn radius (&self) -> rugq {
         return __radius (self)
     } 
 }
-pub fn __radius (z: &Q_Complex) -> rugfloat {
+pub fn __radius (z: &Q_Complex) -> rugq {
     let prec = glob_precision (None);
-    return __2rt (&z.radius2 (), prec )
+    return __2rt4Q (&z.radius2 () )
 }
 pub fn __abs (z: &Q_Complex) -> Q_Complex {
     return Q_Complex {
@@ -204,7 +211,7 @@ impl Q_Complex_Pow for Q_Complex {
     fn pow_u64 (&self, exp: u64) -> Self {
        // dbg!(&exp);
         let mut exp = exp;
-        //let mut ret = Q_Complex::init_f64 (1.0, 0.0);
+        let mut ret = Q_Complex::init_u64 (1, 0);
         let mut sq = self.clone();
         while exp > 0 {
  //           dbg!(&exp);
