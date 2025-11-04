@@ -449,6 +449,7 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     use min_err_per_step::nth_root::{dbg_2rt, replace_2rt};
     use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x, _real_e2x};
     use min_err_per_step::editing::Conv_Strn_2_Rugfloat;
+    use min_err_per_step::Rationale::basic::tst as r_tst;
        /* let x = conv_str_2_rugfloat (
             ".25",
             10
@@ -457,16 +458,18 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (__2rt (&x, glob_precision (None)) );
         InterruptMsg ("");
         return (0.0, 0.0); */
+        r_tst ();
+        _break!("".strn() );
         glob_precision (Some (10_000) );
-        faav_countdown (Some (10_000) );
+        faav_countdown (Some (10_000) );    
         faav_shift (Some (1_00));
         faav_102m_m_1 ( Some (2_00) );
         dbg_faav_102m_m_1 (Some (2_00));
         let mut tail = "75974954171".float (10);
         nxt_tail_of_sq_xor  (&mut tail, 3, 3);
         faav_init_tail (Some ( tail.to_string_radix (10, None ) ) );
-        let float_tst: rugfloat = "39807508642406493739712550055038
-                                   64911990643623425267084063851895
+        let float_tst: rugfloat = "39807508642406493739712550055038@@@
+                                   64911990643623425267084063851895!
                                    75946388957261768583316".float (10);
         _break! (float_tst.to_string_radix (10, None) );
         //faav_22m_m_1 (Some (1_000));

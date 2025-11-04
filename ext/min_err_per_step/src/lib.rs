@@ -28,3 +28,5 @@ pub mod complex;
 pub mod editing;
 #[path = "seqs.rs"]
 pub mod seqs;
+#[path = "Rationale.rs"]
+pub mod Rationale;

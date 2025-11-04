@@ -37,6 +37,26 @@ let approx_ln_8 = crawler_ln (
 // How to establish Numerical Gravity: https://alg0z.blogspot.com/2025/09/fake-calculations-to-feed-numerical.html
 
 ```
+# Comfy way to init Rug::Integer & Rug::Float.
+
+```rs
+use min_err_per_step::editing::{
+    Conv_Strn_2_Rugfloat,
+    Conv_Strn_2_Rugint
+};
+use min_err_per_step::base::glob_precision;
+...
+glob_precision (Some (6000));
+let prec = glob_precision ( None );
+let radix = 10;
+let float_tst: rugfloat = ".39807508642406493739712550055038
+                           64911990643623425267084063851895
+                           75946388957261768583316".float (radix) * -1i64;
+let int_tst: rugfint = "39807508642406493739712550055038
+                        64911990643623425267084063851895
+                        75946388957261768583316".int (10);
+let its_possible_to_use_any_delim_You_want: rugint = "1!000@000".int(radix);// 1 000 000
+```
  <b> Links: </b> <br>
  <b>Rolling guide of TAM (Topnotch Practical ways to use Console/Terminal):<b> https://alg0z8n8its9lovely6tricks.blogspot.com/2024/08/tam-guide-of-features-smart-tricks.html <br>
  <b>DISCORD:</b> https://discord.gg/X9RBbtCN (Alg0Z). <br>
