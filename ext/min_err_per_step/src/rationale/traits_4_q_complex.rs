@@ -155,7 +155,7 @@ impl Mul for Q_Complex {
 }
 impl <T> Mul <T> for Q_Complex where 
     T: Copy,
-    rugfloat: Mul <T,  Output = rugfloat> {
+    rugq: Mul <T,  Output = rugq> {
     type Output = Q_Complex;
     fn mul (self, other: T ) -> Q_Complex {
         return Q_Complex {
@@ -181,7 +181,7 @@ macro_rules! impl_mul_for_Q_Complex {
 }
 
 // Usage
-impl_mul_for_Q_Complex!(u64, f64, i32, u32, f32, i64);
+impl_mul_for_Q_Complex!(u64, i32, u32, i64);
 
 impl MulAssign for Q_Complex {
     fn mul_assign (&mut self, other: Q_Complex ) {
@@ -190,7 +190,7 @@ impl MulAssign for Q_Complex {
     }
 }
 impl <T>MulAssign <T> for Q_Complex where 
-    rugfloat: MulAssign<T>,
+    rugq: MulAssign<T>,
     T: Copy {
     fn mul_assign (&mut self, other: T ) {
         self.0 *= other;
