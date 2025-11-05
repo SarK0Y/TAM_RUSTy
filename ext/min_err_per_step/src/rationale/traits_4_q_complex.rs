@@ -7,6 +7,7 @@ use rug::float::Constant;
 use crate::base::{glob_precision, Pi };
 use crate::nth_root::__2rt;
 use crate::Rationale::basic::__2rt4Q;
+use crate::editing::Conv_Strn_2_Rugint;
 use rug::rational::MiniRational;
 use rug::Rational as rugq;
 use num_complex::Complex as _complex;
@@ -18,9 +19,21 @@ pub struct Q_Complex (
     pub rugq
 );
 impl Q_Complex {
-    /*pub fn init_rugfloat (_0: &rugfloat, _1: &rugfloat) -> Self {
-        return __init_rugfloat (_0, _1 )
-    }*/
+    pub fn init (_0: &rugint, _1: &rugint) -> Self {
+        let __1 = "1".int(10);
+        let q_0: rugq = rugq::from ( (_0, __1.clone() ) );
+        let q_1: rugq = rugq::from ( (_1, __1.clone() ) );
+        return Self (
+            q_0.clone(),
+            q_1.clone()
+        )
+    }
+    pub fn init_q (q_0: &rugq, q_1: &rugq) -> Self {
+        return Self (
+            q_0.clone(),
+            q_1.clone()
+        )
+    }
     pub fn init_u64 (__0: u64, __1: u64) -> Self {
         return Self {
             0: rugq::from ((__0, 1)),
@@ -119,6 +132,15 @@ impl Div for Q_Complex {
 impl Div <&rugq> for Q_Complex {
     type Output = Q_Complex;
     fn div (self, other: &rugq ) -> Q_Complex {
+        return Q_Complex {
+            0: self.0 / other.clone(),
+            1: self.1 / other.clone()
+        }
+    }
+}
+impl Div <&rugint> for Q_Complex {
+    type Output = Q_Complex;
+    fn div (self, other: &rugint ) -> Q_Complex {
         return Q_Complex {
             0: self.0 / other.clone(),
             1: self.1 / other.clone()

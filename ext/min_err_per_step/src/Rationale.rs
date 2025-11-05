@@ -4,3 +4,5 @@ pub mod basic;
 pub mod traits_4_q_complex;
 #[path = "rationale/trig_q_complex.rs"]
 pub mod trig_q_complex;
+#[path = "rationale/nth_root_q_complex.rs"]
+pub mod nth_root_q_complex;

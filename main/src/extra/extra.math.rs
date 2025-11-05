@@ -449,7 +449,15 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
     use min_err_per_step::nth_root::{dbg_2rt, replace_2rt};
     use min_err_per_step::complex::trig::{real_e2x as __tstReal_e2x, dbg_real_e2x, _real_e2x};
     use min_err_per_step::editing::Conv_Strn_2_Rugfloat;
-    use min_err_per_step::Rationale::basic::tst as r_tst;
+    use min_err_per_step::Rationale::basic::{
+        tst as r_tst,
+        faav_q_sqrt_shift
+    };
+    use min_err_per_step::Rationale::traits_4_q_complex::Q_Complex;
+    use min_err_per_step::Rationale::trig_q_complex::{
+        _real_e2x_4Q,
+         real_e2x_4Q
+    };
        /* let x = conv_str_2_rugfloat (
             ".25",
             10
@@ -458,6 +466,12 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         dbg! (__2rt (&x, glob_precision (None)) );
         InterruptMsg ("");
         return (0.0, 0.0); */
+        faav_q_sqrt_shift (Some (100) );
+        let num = "1".int(10);
+        let int_0 = "0".int (10);
+        let Q_0: rugq = rugq::from ( (int_0, num.clone()) );
+        let Q_1: rugq = rugq::from ( (num.clone(), num ) );
+        let exp_q = Q_Complex::init_q (&Q_0, &Q_1) * -1;
         r_tst ();
         _break!("".strn() );
         glob_precision (Some (10_000) );
