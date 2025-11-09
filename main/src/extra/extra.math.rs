@@ -453,11 +453,17 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         tst as r_tst,
         faav_q_sqrt_shift
     };
-    use min_err_per_step::Rationale::traits_4_q_complex::Q_Complex;
+    use min_err_per_step::Rationale::traits_4_q_complex::{
+        Q_Complex,
+        Q_Complex_Pow,
+        Q_2_Cu_Complex
+    };
     use min_err_per_step::Rationale::trig_q_complex::{
         _real_e2x_4Q,
          real_e2x_4Q
     };
+    use min_err_per_step::editing::Conv_Strn_2_Rugint;
+    use rug::Rational as rugq;
        /* let x = conv_str_2_rugfloat (
             ".25",
             10
@@ -471,7 +477,21 @@ pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
         let int_0 = "0".int (10);
         let Q_0: rugq = rugq::from ( (int_0, num.clone()) );
         let Q_1: rugq = rugq::from ( (num.clone(), num ) );
-        let exp_q = Q_Complex::init_q (&Q_0, &Q_1) * -1;
+        let exp_q = Q_Complex::init_q (&Q_0, &Q_1);
+        let mut tst_mul_assign = exp_q.clone();
+        dbg! (&tst_mul_assign);
+        tst_mul_assign *= tst_mul_assign.clone();
+        let _1_of_Q = Q_Complex::init_u64 (1, 0);
+        dbg! (&tst_mul_assign);
+        dbg! (exp_q.clone().pow_u64 (2) );
+        dbg! (exp_q.clone() * exp_q.clone() * _1_of_Q.clone() );
+        dbg! (exp_q.clone() * _1_of_Q );
+        dbg! (&exp_q);
+        let tst_Q = real_e2x_4Q (&exp_q, 1);
+        let mut __tstReal_e2x__ = Cu_Complex::init_f64 (0.0, 1.0);
+        let tst_R = __tstReal_e2x (&__tstReal_e2x__, 402);
+        dbg! (tst_Q.q_2_cu_complex () );
+        dbg! (&tst_R);
         r_tst ();
         _break!("".strn() );
         glob_precision (Some (10_000) );

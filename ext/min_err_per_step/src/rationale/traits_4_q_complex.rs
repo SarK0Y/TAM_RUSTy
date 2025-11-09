@@ -12,7 +12,9 @@ use rug::rational::MiniRational;
 use rug::Rational as rugq;
 use num_complex::Complex as _complex;
 use std::ops::{Add, Div, DivAssign, Mul, MulAssign};
+use crate::complex::traits::Cu_Complex;
 use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 #[derive(PartialEq, Debug, Clone)]
 pub struct Q_Complex (
     pub rugq,
@@ -182,7 +184,7 @@ impl Mul for Q_Complex {
         }
     }
 }
-impl <T> Mul <T> for Q_Complex where 
+/*impl <T> Mul <T> for Q_Complex where 
     T: Copy,
     rugq: Mul <T,  Output = rugq> {
     type Output = Q_Complex;
@@ -192,7 +194,7 @@ impl <T> Mul <T> for Q_Complex where
             1: self.1.clone() * other
         }
     }
-}
+}*/
 macro_rules! impl_mul_for_Q_Complex {
     ($($t:ty),*) => {
         $(
@@ -200,7 +202,7 @@ macro_rules! impl_mul_for_Q_Complex {
                 type Output = Q_Complex;
                 fn mul(self, other: Q_Complex) -> Q_Complex {
                     Q_Complex(
-                        other.0.clone() * self,
+                        other.0.clone() * self.clone(),
                         other.1.clone() * self,
                     )
                 }
@@ -208,24 +210,34 @@ macro_rules! impl_mul_for_Q_Complex {
         )*
     };
 }
-
-// Usage
-impl_mul_for_Q_Complex!(u64, i32, u32, i64);
-
+macro_rules! impl_mul_assign_for_Q_Complex {
+    ($($t:ty),*) => {
+        $(
+            impl MulAssign < $t > for Q_Complex where 
+            {
+               fn mul_assign (&mut self, other: $t ) {
+                 self.0 *= other.clone();
+                 self.1 *= other;
+                }
+            }
+        )*
+    };
+}
+impl_mul_for_Q_Complex!(u64, i32, u32, i64, rugq);
+impl_mul_assign_for_Q_Complex!(u64, i32, u32, i64, rugq);
 impl MulAssign for Q_Complex {
     fn mul_assign (&mut self, other: Q_Complex ) {
-        self.0 = self.0.clone() * other.0.clone() - self.1.clone() * other.1.clone();
-        self.1 = self.1.clone() * other.0.clone() + self.0.clone() * other.1.clone();
+        *self = self.clone() * other; 
     }
 }
-impl <T>MulAssign <T> for Q_Complex where 
+/*impl <T>MulAssign <T> for Q_Complex where 
     rugq: MulAssign<T>,
     T: Copy {
     fn mul_assign (&mut self, other: T ) {
         self.0 *= other;
         self.1 *= other;
     }
-}
+}*/
 pub trait Q_Complex_Pow {
     fn pow_u64 (&self, exp: u64) -> Self;
 }
@@ -241,8 +253,35 @@ impl Q_Complex_Pow for Q_Complex {
                 ret *= sq.clone();
    //             dbg! (&ret);
             } sq *= sq.clone();
-     //       dbg! (&sq);
+            dbg! (&sq);
             exp /= 2;
         } ret
+    }
+}
+pub trait Q_2_Cu_Complex {
+    fn q_2_cu_complex (&self) -> Cu_Complex;
+}
+impl Q_2_Cu_Complex for Q_Complex {
+    fn q_2_cu_complex (&self) -> Cu_Complex {
+        let mut num0 = rugfloat::with_val_64 (
+            glob_precision (None),
+            self.0.numer()
+        );
+        let den0 = rugfloat::with_val_64 (
+            glob_precision (None),
+            self.0.denom()
+        );
+        let mut num1 = rugfloat::with_val_64 (
+            glob_precision (None),
+            self.1.numer()
+        );
+        let den1 = rugfloat::with_val_64 (
+            glob_precision (None),
+            self.1.denom()
+        );
+        return Cu_Complex (
+            num0 / den0,
+            num1 / den1
+        )
     }
 }

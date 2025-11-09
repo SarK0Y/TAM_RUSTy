@@ -669,9 +669,9 @@ dependencies = [
 
 [[package]]
 name = "min_err_per_step"
-version = "0.0.189"
+version = "0.0.199"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "955116c0686e72640230a66bd9e46ed0a0e462af75c7e4373999f555ae9540a6"
+checksum = "2a61a40f638a80baee96037de28061dbd11c2b87da8879041c3fa517d7b64b97"
 dependencies = [
  "CuPs 0.0.5",
  "Mademoiselle_Entropia 1.11.19",
@@ -1103,7 +1103,7 @@ dependencies = [
  "itertools",
  "libc",
  "midly",
- "min_err_per_step 0.0.189",
+ "min_err_per_step 0.0.199",
  "nix",
  "num",
  "num-traits",
