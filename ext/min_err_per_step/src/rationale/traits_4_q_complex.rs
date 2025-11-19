@@ -195,7 +195,7 @@ impl Mul for Q_Complex {
         }
     }
 }*/
-macro_rules! impl_mul_for_Q_Complex {
+macro_rules! impl_mul_Q_Complex_4_other {
     ($($t:ty),*) => {
         $(
             impl std::ops::Mul<Q_Complex> for $t {
@@ -204,6 +204,21 @@ macro_rules! impl_mul_for_Q_Complex {
                     Q_Complex(
                         other.0.clone() * self.clone(),
                         other.1.clone() * self,
+                    )
+                }
+            }
+        )*
+    };
+}
+macro_rules! impl_mul_for_Q_Complex {
+    ($($t:ty),*) => {
+        $(
+            impl std::ops::Mul< $t > for Q_Complex {
+                type Output = Q_Complex;
+                fn mul(self, other: $t ) -> Q_Complex {
+                    Q_Complex(
+                        self.0.clone() * other.clone(),
+                        self.1.clone() * other,
                     )
                 }
             }
@@ -223,6 +238,7 @@ macro_rules! impl_mul_assign_for_Q_Complex {
         )*
     };
 }
+impl_mul_Q_Complex_4_other!(u64, i32, u32, i64, rugq);
 impl_mul_for_Q_Complex!(u64, i32, u32, i64, rugq);
 impl_mul_assign_for_Q_Complex!(u64, i32, u32, i64, rugq);
 impl MulAssign for Q_Complex {
@@ -253,7 +269,7 @@ impl Q_Complex_Pow for Q_Complex {
                 ret *= sq.clone();
    //             dbg! (&ret);
             } sq *= sq.clone();
-            dbg! (&sq);
+          //  dbg! (&sq);
             exp /= 2;
         } ret
     }

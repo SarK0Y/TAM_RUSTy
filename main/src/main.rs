@@ -526,6 +526,7 @@ return;*/
     if cfg!(feature="tst"){info_strn.push_str ("tst ")};
     if cfg!(feature="hide"){info_strn.push_str ("hide ")};
     if cfg!(feature="macro_cleanup"){info_strn.push_str ("macro_cleanup ")};
+    if cfg!(feature="emp"){info_strn.push_str ("emp ")};
     println!("{info_strn}", );
      for (key, value) in env::vars() {
         if key.starts_with("npf_") {
