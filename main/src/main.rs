@@ -305,7 +305,21 @@ return match from_utf8(&run_command.stdout){
     _ => "0 0"
 }.to_string()
 }
-
+fn split_with_0 (input0: &String) -> Vec <String> {
+    let len = input0.chars().count();
+    let mut ret = Vec::<String>::new ();
+    let mut add_strn = String::new();
+    for ch in input0.chars() {
+        if '\0' == ch {
+            ret.push (add_strn.clone());
+            add_strn.clear();
+        } else {
+            add_strn.push (ch);
+        }
+    }
+    ret.push (add_strn);
+    return ret;
+}
 fn read_midway_data() -> bool{
     delay_ms(27);
     if checkArg("-front-lst"){return read_midway_data_not_main0() }
@@ -360,6 +374,7 @@ fn find_files(path: &str, path_2_tmp_file: &str) -> bool{
     end_read_midway (Some (false));
 let func_id: i64 = 2;
 let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DIR_, -1).str_});
+let tmp_found_files = crate::globs18::take_list_adr_env (&"tmp_found_files".strn());
 /*let mut perms = std::fs::metadata(&output).unwrap().permissions();
 perms.set_readonly(true);
 std::fs::set_permissions(output, perms); return true; */
@@ -368,7 +383,8 @@ let mut list_of_found_files: Vec<String> = vec![];
 if in_name.len() == 0{in_name = core18::put_in_name();}
 else{in_name = format!("|{}", form_grep_cmd(&in_name));}
 let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
-let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 {in_name} >> {};echo '{stopCode}' >> {}", output, output);
+//let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 {in_name} >> {};echo '{stopCode}' >> {}", output, output);
+let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 >> {};echo '{stopCode}' >> {}", output, output);
 run_cmd0(cmd);
 end_read_midway (Some (true));
 return true;

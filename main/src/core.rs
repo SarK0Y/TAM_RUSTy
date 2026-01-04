@@ -1074,7 +1074,7 @@ pub(crate) fn read_midway_data_4_0_ended_strns() -> bool {
             crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_
         });
         let reader = read_file (&filename);
-        let lst_reader: Vec < &str> = reader.split ('\0').collect ();
+        let lst_reader: Vec < String> = crate::split_with_0 (&reader);
         if dirty! () {
             dbg! (&reader);
             dbg! (&lst_reader);
@@ -1084,7 +1084,7 @@ pub(crate) fn read_midway_data_4_0_ended_strns() -> bool {
                 continue;
             }*/
             added_indx = indx;
-            let line = lst_reader[indx];
+            let line = &lst_reader[indx];
             let ret = crate::globs18::add_2_front_list(line, -1);
             //let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
             if dirty!() {

@@ -21,6 +21,14 @@ pub fn sav_uid (uid: Option <String > ) -> Option < String > {
         } Some ( state.clone() )
     }
 }
+pub fn __delim (delim: Option <String > ) -> Option < String > {
+    static mut state: Lazy <String> = Lazy::new (|| { "_457=@x_".strn() });
+    unsafe {
+        if let Some( x ) = delim.clone() {
+            if x == "" { return None;} *state = x;
+        } Some ( state.clone() )
+    }
+}
 pub fn log_file_printIt (name: Option <String > ) -> Option < String > {
     static mut state: Lazy <String> = Lazy::new (|| { String::new() });
     unsafe {
