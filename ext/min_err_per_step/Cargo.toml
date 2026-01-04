@@ -1,7 +1,7 @@
 [package]
 name ="min_err_per_step"
 edition = "2021"
-version = "0.0.186"
+version = "0.0.214"
 #publish = true
 authors = ["Evgeney Knyazhev (SarK0Y) <sark0y@protonmail.com>"]
 license-file = "LICENSE"
@@ -19,9 +19,9 @@ description = "Dear Dev, it's math lib for Rust to calc basic funcs w/ minimal e
 once_cell = "1.18.0"
 substring = "1.4.5"
 num-traits = "0.2.17"
-CuPs = "0.0.5"
+CuPs = "0.0.6"
 rug = {version = "=1.28.0", features = ["integer", "float", "std"]}
-Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.19"}
+Mademoiselle_Entropia = {path = "/tst/mae", version = "1.11.26"}
 num-complex = "0.4.6"
 num = "0.4.3"
 [lib]

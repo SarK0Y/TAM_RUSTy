@@ -12,7 +12,14 @@ use rug::ops::{
  };
 use rug::{Assign, Integer as rugint, float::Constant as rugconst, Float as rugfloat, ops::SubFrom, Complete};
 use rug::float::Constant;
-use crate::base::{glob_precision, ctrl_glob_precision, manage_prec, Pi, ext_const_E };
+use crate::base::{
+    glob_precision,
+    ctrl_glob_precision,
+    manage_prec,
+    Pi,
+    ext_const_E,
+    _ext_const_E
+ };
 use crate::nth_root::{__22mrt, __2rt};
 use std::error::Error;
 use Mademoiselle_Entropia::custom_traits::helpful_math_ops;
@@ -32,7 +39,7 @@ pub fn btree_ln (y: &rugfloat, err: u64) -> rugfloat {
     //dbg! (&epsilon);
     let mut direction: rugfloat = ret.clone() >> 1;
     while direction > epsilon {
-        e2x = ext_const_E (&ret );
+        e2x = _ext_const_E (&ret );
         if *y < e2x {ret -= direction.clone();}
         else { ret += direction.clone(); }
         direction >>= 1;
@@ -62,7 +69,7 @@ pub fn filter_input_for_ln (x: &rugfloat, base: Option <&rugfloat>) -> Result <(
     } return Ok (())
 }
 pub fn normalize_input_for_ln (y: &rugfloat) -> Result <rugfloat, ln_err > {
-    let e = ext_const_E (&rugfloat::with_val_64 (glob_precision (None), 1) );
+    let e = _ext_const_E (&rugfloat::with_val_64 (glob_precision (None), 1) );
  //   dbg! (&e);
     let mut ret = rugfloat::with_val_64 (glob_precision (None), 1);
     if *y > e { ret = ret.pow (-1); }
@@ -140,7 +147,7 @@ pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugf
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
     let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
-    let mut e2xn = ext_const_E (&xn);
+    let mut e2xn = _ext_const_E (&xn);
     let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
     let mut count_broker = 0u64;
    // dbg! (&e2xn);
@@ -153,7 +160,7 @@ pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugf
         //dx = (ret.clone() - xn.clone() ).abs();
         //e2xn *= e2dx_nxt2_1 (&dx);
         if broker == count_broker { 
-            e2xn = ext_const_E (&xn);
+            e2xn = _ext_const_E (&xn);
             count_broker = 0;
          } else {
             (e2xn, tail) = speedup_ln (&a, &tail);
@@ -172,7 +179,7 @@ pub fn crawler_ln_ (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rug
     let _1_over_24 = rugfloat::with_val_64 (PREC0_, 1/24);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
     let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
-    let mut e2xn = ext_const_E (&xn);
+    let mut e2xn = _ext_const_E (&xn);
     let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
     let mut count_broker = 0u64;
     let mut dxn = tail.clone();
@@ -187,7 +194,7 @@ pub fn crawler_ln_ (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rug
         //dx = (ret.clone() - xn.clone() ).abs();
         //e2xn *= e2dx_nxt2_1 (&dx);
         if broker == count_broker { 
-            e2xn = ext_const_E (&xn);
+            e2xn = _ext_const_E (&xn);
             count_broker = 0;
          } else {
             (e2xn, tail) = speedup_ln (&a, &tail);
@@ -204,7 +211,7 @@ pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) ->
     //let _1_over_3 = rugfloat::with_val_64 (PREC0_, 1/3);
     let mut ret: rugfloat = rugfloat::with_val_64 (PREC0_, 1);
     let mut xn: rugfloat = simple_ln (a, feeder_cnt ).0;
-    let mut e2xn = ext_const_E (&xn);
+    let mut e2xn = _ext_const_E (&xn);
     let mut tail: rugfloat = rugfloat::with_val_64 (PREC0_, 0.999);
     let mut count_broker = 0u64;
     let mut dxn = tail.clone();
@@ -216,7 +223,7 @@ pub fn crawler_ln_lite (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) ->
         //dx = (ret.clone() - xn.clone() ).abs();
         //e2xn *= e2dx_nxt2_1 (&dx);
         if broker == count_broker { 
-            e2xn = ext_const_E (&xn);
+            e2xn = _ext_const_E (&xn);
             count_broker = 0;
          } else {
             (e2xn, tail) = speedup_ln (&a, &tail);
@@ -315,7 +322,7 @@ pub fn l2_gt_0 (x: &rugfloat, err: u64) -> rugfloat {
     _2 = __2rt (&_2, glob_precision (None));
     while count < err {
         try_tail *= _2.clone();
-        dbg! (&try_tail);
+      //  dbg! (&try_tail);
         if try_tail < X.new_x {
             tail = try_tail.clone();
             exp += exp_05.clone();
@@ -324,7 +331,7 @@ pub fn l2_gt_0 (x: &rugfloat, err: u64) -> rugfloat {
         } _2 = __2rt (&_2, glob_precision (None));
         exp_05 /= 2;
         count += 1;
-        dbg! (&tail);
+      //  dbg! (&tail);
     }
     return exp
 }
@@ -359,6 +366,30 @@ pub fn main_ln (x: &rugfloat, err: u64 ) -> rugfloat {
     let lb = main_l2 (x, err);
     let ln2: rugfloat = faav_ln2 ();
     return lb * ln2
+}
+pub fn ln_x_pl_1 (x: &rugfloat, err: u64) -> rugfloat {
+    let mut x_gt_1 = false;
+    let y = if <rugfloat as Clone>::clone (x).abs () > 1 {
+        x_gt_1 = true;
+        rugfloat::with_val_64 (
+            glob_precision (None),
+            1 / x ) - 1
+    } else { x.clone () };
+    let mut ret = y.clone ();
+    let mut finale = rugfloat::with_val_64 (
+        glob_precision (None),
+        0 );
+    let mut negative = rugfloat::with_val_64 (
+         1,
+        -1 );
+    for k in 1..err {
+        finale += ret.clone() / k;
+        ret *= y.clone();
+        ret *= negative.clone();
+    }
+    if x_gt_1 {
+        return finale * negative
+    } return finale
 }
 //fn
 /*

@@ -123,6 +123,12 @@ pub fn lock_surprise_me (state: Option < bool >) -> bool {
         if let Some ( x ) = state {state0 = x; } state0
     }
 }
+pub fn end_read_midway (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        if let Some ( x ) = state {state0 = x; } state0
+    }
+}
 pub fn count_ln_in_surprise_me_lst(yes: bool, inc: bool, get_size: bool) -> usize{
     static mut count: usize = 0;
     if get_size {return unsafe { count } }

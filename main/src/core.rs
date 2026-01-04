@@ -12,7 +12,7 @@ use crate::{
         alive_session, background_fixing, background_fixing_count, delay_ms, fix_screen, upd_screen_or_not, update_dir_list
     }, STRN_strip
 };
-
+use crate::faav::end_read_midway;
 use self::ps21::{get_mainpath, get_prnt, get_tmp_dir, set_ask_user, set_prnt};
 core_use!();
 pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String {
@@ -583,7 +583,11 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     let strr = strr.replace(r"\\'", r"\'");
     let strr = strr.replace(r"|", r"\|");
     let strr = strr.replace(r":", r"\:");
-    let strr = str::replace(&strr, ":s:", " ");
+    let strr = strr.replace(r"\n", r"\\n");
+    let strr = strr.replace(r"\r\n", r"\\r\\n");
+    let strr = strr.replace(r"\r", r"\\r");
+    let strr = strr.replace(r"%", r"\%");
+    let strr = str::replace(&strr, r":s:", " ");
     return strr.to_string();
 }
 pub(crate) fn escape_symbs_no_limits(str0: &String, func_id: i64) -> String {
@@ -1050,6 +1054,44 @@ pub(crate) fn read_midway_data_4_ls() -> bool {
             }
             crate::ps18::set_num_files0(func_id, indx);
             if line == stopCode {
+                crate::ps18::fix_num_files(func_id);
+                return true;
+            }
+        }
+        if dirty!() {
+            println!("midway ended")
+        }
+    }
+    false
+}
+pub(crate) fn read_midway_data_4_0_ended_strns() -> bool {
+    // return true;
+    let func_id = crate::func_id18::read_midway_data_;
+    let mut added_indx = 0usize;
+    loop {
+        let stopCode = getStop_code__!();
+        let filename = format!("{}/found_files", unsafe {
+            crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_
+        });
+        let reader = read_file (&filename);
+        let lst_reader: Vec < &str> = reader.split ('\0').collect ();
+        if dirty! () {
+            dbg! (&reader);
+            dbg! (&lst_reader);
+        }
+        for indx in 0..lst_reader.len() {
+            /*if indx <= added_indx && added_indx > 0 {
+                continue;
+            }*/
+            added_indx = indx;
+            let line = lst_reader[indx];
+            let ret = crate::globs18::add_2_front_list(line, -1);
+            //let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
+            if dirty!() {
+                println!("line {}", line)
+            }
+            crate::ps18::set_num_files0(func_id, indx);
+            if end_read_midway (None) {
                 crate::ps18::fix_num_files(func_id);
                 return true;
             }

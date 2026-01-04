@@ -145,9 +145,9 @@ pub fn crawler_ln (a: &rugfloat, err: u64, feeder_cnt: u64, broker: u64) -> rugf
     let mut j = 0u64;
     while j < err {
         if let smart_lags::well_done(_) = fork_lag_ns_verbose( mutex_lag ( None ) ) {
-            dbg! ("tst");
+          //  dbg! ("tst");
         } else {
-            dbg! (&j);
+           // dbg! (&j);
             continue;
         }
         ret = xn.clone() + a.clone()/e2xn.clone() - 1;
