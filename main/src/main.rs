@@ -384,7 +384,9 @@ if in_name.len() == 0{in_name = core18::put_in_name();}
 else{in_name = format!("|{}", form_grep_cmd(&in_name));}
 let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
 //let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 {in_name} >> {};echo '{stopCode}' >> {}", output, output);
-let mut cmd: String = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 >> {};echo '{stopCode}' >> {}", output, output);
+let cmd = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 > {}", tmp_found_files);
+run_cmd0(cmd);
+let cmd = format!("cat {}{in_name} >> {};echo '{stopCode}' >> {}", tmp_found_files, output, output);
 run_cmd0(cmd);
 end_read_midway (Some (true));
 return true;
