@@ -982,10 +982,10 @@ pub(crate) fn check_substrn<T: STRN + ToString + AsRef<str>>(strn: T, delim: &st
     }
     false
 }
-pub fn workaround_for_newlines_in_file_name (data: String) -> String {
+pub fn workaround_for_newlines_in_file_name (data: &String) -> String {
     let change_newline = crate::faav::__delim_for_newline (None).unwrap();
-    let ret = data.replace (r"\n", &change_newline);
-    let ret = ret.replace (r"\0", "\n");
+    let ret = data.replace ("\n", &change_newline);
+    let ret = ret.replace ("\0", "\n");
     return ret;
 }
 pub(crate) fn check_substrn01(strn: &String, delim: &str) -> bool {
