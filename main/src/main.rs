@@ -321,9 +321,9 @@ fn split_with_0 (input0: &String) -> Vec <String> {
     return ret;
 }
 fn read_midway_data() -> bool{
-    delay_ms(27);
+    delay_ms(270);
     if checkArg("-front-lst"){return read_midway_data_not_main0() }
-    return read_midway_data_4_0_ended_strns ();
+    //return read_midway_data_4_0_ended_strns ();
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
@@ -345,7 +345,7 @@ fn read_midway_data() -> bool{
     false
 }
 fn read_midway_data_not_main0() -> bool{
-    return read_midway_data_4_0_ended_strns ();
+   // return read_midway_data_4_0_ended_strns ();
     let func_id = func_id18::read_midway_data_;
     let mut added_indx = 0usize;
     loop {
@@ -391,7 +391,7 @@ let remake_newlines = crate::globs18::workaround_for_newlines_in_file_name (&con
 std::fs::remove_file (&tmp_found_files);
 save_file_append_newline_abs_adr_fast (&remake_newlines, &tmp_found_files);
 dbg!(&remake_newlines);
-let cmd = format!("cat {}{in_name} >> {}", tmp_found_files, output);
+let cmd = format!("cat {}{in_name} >> {};echo '{stopCode}' >> {output}", tmp_found_files, output);
 run_cmd0(cmd);
 end_read_midway (Some (true));
 return true;
@@ -403,6 +403,7 @@ let output = format!("{}/found_files", unsafe{ps18::page_struct("", ps18::TMP_DI
 /*let mut perms = std::fs::metadata(&output).unwrap().permissions();
 perms.set_readonly(true);
 std::fs::set_permissions(output, perms); return true; */
+let stopCode: String = unsafe {ps18::page_struct("", ps18::STOP_CODE_,-1).str_};
 let mut in_name = String::new();
 let mut list_of_found_files: Vec<String> = vec![];
 if in_name.len() == 0{in_name = core18::put_in_name();}
