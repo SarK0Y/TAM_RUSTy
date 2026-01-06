@@ -59,6 +59,14 @@ pub fn npf_lock_ (ceil: Option < i64 >) -> Option < i64 > {
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
+pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
+    static mut lock: bool = false;
+    unsafe {
+        if let Some (x) = state { 
+            lock = x; return lock.clone();
+        } return lock.clone()
+    }
+}
 pub fn npf_lock (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {

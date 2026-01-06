@@ -558,6 +558,11 @@ pub(crate) struct ret0 {
     pub res: bool,
 }
 pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
+    if crate::faav::yes_newline_in_filename (None) {
+        let newline_placeholder = crate::faav::__delim_for_newline (None).unwrap();
+        let strr = str0.replace(&newline_placeholder, "\n");
+        return strr;
+    }
     if func_id != crate::func_id18::full_escape_ {
         return str0.strn();
     }
@@ -583,10 +588,6 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     let strr = strr.replace(r"\\'", r"\'");
     let strr = strr.replace(r"|", r"\|");
     let strr = strr.replace(r":", r"\:");
-    let strr = strr.replace(r"\n", r"\\n");
-    let strr = strr.replace(r"\r\n", r"\\r\\n");
-    let strr = strr.replace(r"\r", r"\\r");
-    let strr = strr.replace(r"%", r"\%");
     let strr = str::replace(&strr, r":s:", " ");
     return strr.to_string();
 }

@@ -305,6 +305,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let mut filename = get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
         let patch_mark_len = "::patch".to_string().chars().count();
+        let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+        let check_nl_marker = crate::check_substr (&filename, &newline_marker, 0);
+        crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         if filename_len > patch_mark_len
             && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
         {
