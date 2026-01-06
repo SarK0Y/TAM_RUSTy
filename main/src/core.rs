@@ -1562,7 +1562,7 @@ pub(crate) fn save_file_append_newline_abs_adr_fast(content: &String, fname: &St
             Err(e) => match e.kind() {
                 std::io::ErrorKind::AlreadyExists => File::options()
                     .read(true)
-                    .append(true)
+                    .append(false)
                     .write(true)
                     .open(&fname)
                     .unwrap(),

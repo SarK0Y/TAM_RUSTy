@@ -388,9 +388,10 @@ let cmd = format!("#!/bin/bash\nfind -L '{path}' -type f -print0 > {}", tmp_foun
 run_cmd0(cmd);
 let content = read_file_abs_adr (&tmp_found_files);
 let remake_newlines = crate::globs18::workaround_for_newlines_in_file_name (&content);
+std::fs::remove_file (&tmp_found_files);
 save_file_append_newline_abs_adr_fast (&remake_newlines, &tmp_found_files);
 dbg!(&remake_newlines);
-let cmd = format!("cat {}{in_name} >> {};echo '{stopCode}' >> {}", tmp_found_files, output, output);
+let cmd = format!("cat {}{in_name} >> {}", tmp_found_files, output);
 run_cmd0(cmd);
 end_read_midway (Some (true));
 return true;
