@@ -14,6 +14,8 @@ use crate::{
 };
 use crate::faav::end_read_midway;
 use self::ps21::{get_mainpath, get_prnt, get_tmp_dir, set_ask_user, set_prnt};
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 core_use!();
 pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String {
     static mut bkp: OnceCell<String> = OnceCell::new();
@@ -560,7 +562,8 @@ pub(crate) struct ret0 {
 pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     if crate::faav::yes_newline_in_filename (None) {
         let newline_placeholder = crate::faav::__delim_for_newline (None).unwrap();
-        let strr = str0.replace(&newline_placeholder, "\n");
+        let strr = str0.replace(&newline_placeholder, r"\n");
+      //  _break! (&strr);
         return strr;
     }
     if func_id != crate::func_id18::full_escape_ {
@@ -660,7 +663,7 @@ pub(crate) fn full_escape_no_limits(str0: &String) -> String {
     let str0 = escape_apostrophe_no_limits(&str0, func_id);
     escape_symbs_no_limits(&str0, func_id)
 }
-pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool {
+pub(crate) fn check_substr_prefix(orig: &String, probe: &str, start_from: usize) -> bool {
     let func_id = 3;
     let probe: String = String::from(probe.to_string());
     let substr: &str = &orig.as_str();
@@ -1830,7 +1833,7 @@ pub(crate) fn calc_num_files_up2_cur_pg01() -> i64 {
     let counted_files = (num_page + 1) * num_cols * num_rows;
     return counted_files.clone().dec();
 }
-pub(crate) fn check_substring(orig: String, probe: String, start_from: usize) -> bool {
+pub(crate) fn check_substring_prefix(orig: String, probe: String, start_from: usize) -> bool {
     let substr: &str = &orig.as_str();
     let substr = substr.substring(start_from, probe.len() - 1).to_string();
     if probe.ne(&substr) {

@@ -55,7 +55,7 @@ fn form_grep_cmd(in_name: &String) -> String{
     let mut ret: String = String::new();
     ret.push_str("grep ");
     let split = "go go";
-    if core18::check_substr(in_name, "pass==", 0){
+    if core18::check_substr_prefix(in_name, "pass==", 0){
      //  let mut in_name = in_name.as_str();
        let in_name = in_name.replace("pass==", "");
        let (opts, name) = split_once(&in_name.as_str(), " ");
@@ -390,7 +390,6 @@ let content = read_file_abs_adr (&tmp_found_files);
 let remake_newlines = crate::globs18::workaround_for_newlines_in_file_name (&content);
 std::fs::remove_file (&tmp_found_files);
 save_file_append_newline_abs_adr_fast (&remake_newlines, &tmp_found_files);
-dbg!(&remake_newlines);
 let cmd = format!("cat {}{in_name} >> {};echo '{stopCode}' >> {output}", tmp_found_files, output);
 run_cmd0(cmd);
 end_read_midway (Some (true));

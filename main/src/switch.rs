@@ -306,7 +306,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let filename_len = filename.chars().count();
         let patch_mark_len = "::patch".to_string().chars().count();
         let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = crate::check_substr (&filename, &newline_marker, 0);
+        let check_nl_marker = filename.contains( &newline_marker );
         crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         if filename_len > patch_mark_len
             && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
@@ -316,7 +316,12 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             filename = full_escape(&filename);
         }
         let viewer = get_viewer(app_indx, -1, true);
-        let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
+        let mut cmd = if crate::faav::yes_newline_in_filename (None){
+            format!("
+            bash -c 'file=$\"{filename}\";exec {} \"$1\" -- \"$file\"", viewer)
+        } else {
+            format!("{} {} > /dev/null 2>&1", viewer, filename)
+        };
         add_cmd_in_history(&format!("term {cmd}"));
         if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
             cmd = format!("{} {}", viewer, filename);
