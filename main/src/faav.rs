@@ -21,6 +21,14 @@ pub fn sav_uid (uid: Option <String > ) -> Option < String > {
         } Some ( state.clone() )
     }
 }
+pub fn __delim_for_newline (delim: Option <String > ) -> Option < String > {
+    static mut state: Lazy <String> = Lazy::new (|| { "_457=@x_".strn() });
+    unsafe {
+        if let Some( x ) = delim.clone() {
+            if x == "" { return None;} *state = x;
+        } Some ( state.clone() )
+    }
+}
 pub fn log_file_printIt (name: Option <String > ) -> Option < String > {
     static mut state: Lazy <String> = Lazy::new (|| { String::new() });
     unsafe {
@@ -49,6 +57,14 @@ pub fn npf_lock_ (ceil: Option < i64 >) -> Option < i64 > {
         if id == i64::MAX { id = 0; return Some (0); }
         id.inc(); 
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
+    }
+}
+pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
+    static mut lock: bool = false;
+    unsafe {
+        if let Some (x) = state { 
+            lock = x; return lock.clone();
+        } return lock.clone()
     }
 }
 pub fn npf_lock (state: Option < bool >) -> bool {
@@ -118,6 +134,12 @@ pub fn lock_control_c (state: Option < bool >) -> bool {
     }
 }
 pub fn lock_surprise_me (state: Option < bool >) -> bool {
+    static mut state0: bool = false;
+    unsafe {
+        if let Some ( x ) = state {state0 = x; } state0
+    }
+}
+pub fn end_read_midway (state: Option < bool >) -> bool {
     static mut state0: bool = false;
     unsafe {
         if let Some ( x ) = state {state0 = x; } state0

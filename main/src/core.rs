@@ -12,8 +12,10 @@ use crate::{
         alive_session, background_fixing, background_fixing_count, delay_ms, fix_screen, upd_screen_or_not, update_dir_list
     }, STRN_strip
 };
-
+use crate::faav::end_read_midway;
 use self::ps21::{get_mainpath, get_prnt, get_tmp_dir, set_ask_user, set_prnt};
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 core_use!();
 pub(crate) fn bkp_tmp_dir(sav: Option<String>, set: bool) -> String {
     static mut bkp: OnceCell<String> = OnceCell::new();
@@ -583,7 +585,9 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     let strr = strr.replace(r"\\'", r"\'");
     let strr = strr.replace(r"|", r"\|");
     let strr = strr.replace(r":", r"\:");
-    let strr = str::replace(&strr, ":s:", " ");
+    let strr = str::replace(&strr, r":s:", " ");
+    let newline_placeholder = crate::faav::__delim_for_newline (None).unwrap();
+    let strr = strr.replace(&newline_placeholder, r"\n");
     return strr.to_string();
 }
 pub(crate) fn escape_symbs_no_limits(str0: &String, func_id: i64) -> String {
@@ -655,7 +659,7 @@ pub(crate) fn full_escape_no_limits(str0: &String) -> String {
     let str0 = escape_apostrophe_no_limits(&str0, func_id);
     escape_symbs_no_limits(&str0, func_id)
 }
-pub(crate) fn check_substr(orig: &String, probe: &str, start_from: usize) -> bool {
+pub(crate) fn check_substr_prefix(orig: &String, probe: &str, start_from: usize) -> bool {
     let func_id = 3;
     let probe: String = String::from(probe.to_string());
     let substr: &str = &orig.as_str();
@@ -1050,6 +1054,44 @@ pub(crate) fn read_midway_data_4_ls() -> bool {
             }
             crate::ps18::set_num_files0(func_id, indx);
             if line == stopCode {
+                crate::ps18::fix_num_files(func_id);
+                return true;
+            }
+        }
+        if dirty!() {
+            println!("midway ended")
+        }
+    }
+    false
+}
+pub(crate) fn read_midway_data_4_0_ended_strns() -> bool {
+    // return true;
+    let func_id = crate::func_id18::read_midway_data_;
+    let mut added_indx = 0usize;
+    loop {
+        let stopCode = getStop_code__!();
+        let filename = format!("{}/found_files", unsafe {
+            crate::ps18::page_struct("", crate::ps18::TMP_DIR_, -1).str_
+        });
+        let reader = read_file (&filename);
+        let lst_reader: Vec < String> = crate::split_with_0 (&reader);
+        if dirty! () {
+            dbg! (&reader);
+            dbg! (&lst_reader);
+        }
+        for indx in 0..lst_reader.len() {
+            /*if indx <= added_indx && added_indx > 0 {
+                continue;
+            }*/
+            added_indx = indx;
+            let line = &lst_reader[indx];
+            let ret = crate::globs18::add_2_front_list(line, -1);
+            //let line_dbg = get_item_from_front_list(usize_2_i64(indx), false);
+            if dirty!() {
+                println!("line {}", line)
+            }
+            crate::ps18::set_num_files0(func_id, indx);
+            if end_read_midway (None) {
                 crate::ps18::fix_num_files(func_id);
                 return true;
             }
@@ -1520,7 +1562,7 @@ pub(crate) fn save_file_append_newline_abs_adr_fast(content: &String, fname: &St
             Err(e) => match e.kind() {
                 std::io::ErrorKind::AlreadyExists => File::options()
                     .read(true)
-                    .append(true)
+                    .append(false)
                     .write(true)
                     .open(&fname)
                     .unwrap(),
@@ -1787,7 +1829,7 @@ pub(crate) fn calc_num_files_up2_cur_pg01() -> i64 {
     let counted_files = (num_page + 1) * num_cols * num_rows;
     return counted_files.clone().dec();
 }
-pub(crate) fn check_substring(orig: String, probe: String, start_from: usize) -> bool {
+pub(crate) fn check_substring_prefix(orig: String, probe: String, start_from: usize) -> bool {
     let substr: &str = &orig.as_str();
     let substr = substr.substring(start_from, probe.len() - 1).to_string();
     if probe.ne(&substr) {

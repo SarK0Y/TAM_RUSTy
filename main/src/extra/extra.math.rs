@@ -347,10 +347,26 @@ use min_err_per_step::editing::Conv_Strn_2_Rugint;
     }
 }
 pub fn tst_Pi_vs_std_Pi (step: String) -> (f64, f64) {
+    let default = (0.0, 0.0);
 #[cfg(feature = "emp")]
 {
     use Mademoiselle_Entropia::_break;
+    use Mademoiselle_Entropia::custom_traits::STRN;
     use Mademoiselle_Entropia::maps::EMP as emp;
+    use rug::integer::Order;
+    let order = Order::MsfBe;
+    let target_file =&"/home/mnt/big_ext4/clips/Katy Perry - Chained To The Rhythm (Official) ft. Skip Marley.webm".strn();
+    let Key = &"/home/mnt/big_ext4/clips/Iggy Azalea, Alice Chater - Lola (Official Video)-RNJmYEM2Sek.mp44".strn();
+    let extra_Key: Option <&String> = None;
+    let output = &"/home/mnt/big_ext4/clips/try_pack.emp".strn();
+    emp (
+        target_file,
+        output,
+        Key,
+        extra_Key,
+        order
+    );
+    return default
 }
     dbg!(&step);
     let _1 = rugfloat::with_val_64 (PREC0, 1);
