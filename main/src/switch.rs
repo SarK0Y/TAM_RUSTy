@@ -318,7 +318,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let viewer = get_viewer(app_indx, -1, true);
         let mut cmd = if crate::faav::yes_newline_in_filename (None){
             format!("
-            bash -c 'file=$\"{filename}\";exec {} \"$1\" -- \"$file\"", viewer)
+            #!/bin/fish
+            {} \'{filename}\'"
+            , viewer)
         } else {
             format!("{} {} > /dev/null 2>&1", viewer, filename)
         };
