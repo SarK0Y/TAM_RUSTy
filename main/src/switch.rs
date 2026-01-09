@@ -239,7 +239,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let filename_len = file.chars().count();
     let mut file = file;
     let patch_mark_len = "::patch".to_string().chars().count();
-    if crate::Path::new(&file).exists() {
+    if !crate::faav::yes_newline_in_filename (None ) && 
+       crate::Path::new(&file).exists() {
+        _break! (&file);
         file = full_escape(&file);
     } else {
         file.strip_all_symbs();
@@ -282,9 +284,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         if cmd.as_str().substring(0, 1) == "/" {
             let app_indx = "0".to_string();
             let file_indx = cmd;
-            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains( &newline_marker );
-            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
             return viewer_n_adr(app_indx, file_indx);
         }
         let (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
@@ -300,17 +299,31 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         if file_indx.as_str().substring(0, 1) == "/" {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains( &newline_marker );
+            let check_nl_marker = file_indx.contains (r"\n");
             crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-            _break! (crate::faav::yes_newline_in_filename (None).to_string() );
+            if file_indx.contains ("Дум") {
+                _break! ("дум");
+                _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
+                _break! (&crate::faav::__orig_strn(None).unwrap ());
+            }
+            file_indx = crate::faav::__orig_strn(None).unwrap ().clone ();
+            file_indx = file_indx.replace (
+                &newline_marker,
+                &char::from (0x0A).to_string ()
+            );
+            _break! (&file_indx);
             return viewer_n_adr(app_indx, file_indx);
         }
         if app_indx.as_str().substring(0, 1) == "/" {
             file_indx = app_indx;
             app_indx = 0.to_string();
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains( &newline_marker );
+            let check_nl_marker = file_indx.contains (r"\n");
             crate::faav::yes_newline_in_filename (Some (check_nl_marker));
+            if file_indx.contains ("Дум") {
+                _break! ("дум");
+                _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
+            }
             return viewer_n_adr(app_indx, file_indx);
         }
         let msg = || -> bool {
@@ -332,9 +345,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let mut filename = get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
         let patch_mark_len = "::patch".to_string().chars().count();
-        let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = filename.contains( &newline_marker );
-        crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         if filename_len > patch_mark_len
             && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
         {
@@ -343,6 +353,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             filename = full_escape(&filename);
         }
         let viewer = get_viewer(app_indx, -1, true);
+        //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+        let check_nl_marker = filename.contains( r"\n" );
+        crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         let mut cmd = if crate::faav::yes_newline_in_filename (None){
             format!("
             #!/bin/bash

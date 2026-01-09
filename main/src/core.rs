@@ -566,7 +566,10 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     if no_esc_lst(str0, false).is_some() {
         return str0.strn();
     }
-    crate::faav::__orig_strn (Some (str0.strn() ) );
+    if str0.contains ("Дум") {
+        _break! ("дум");
+        _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
+    }
     if check_patch_mark(str0) || !swtch_esc(false, false) {
         return str0.to_string();
     }

@@ -58,6 +58,7 @@ fn mk_shol_from_strn(&mut self, path: &String, tag_at: bool) -> String{
    if !tag_at {sholName = format!("{inc_id}@@{}", sholName.replace("< ", ""))}
    else {sholName = format!("{inc_id}##{}", sholName.replace("< ", ""))}
    crate::set_prnt(&prnt, -4654038917961);
+   crate::faav::__orig_strn (Some (path.clone() ));
     let mut path =full_escape(&path);
    let rec_shol = (sholName.clone(), path.clone());
    no_esc_lst(&path, true);

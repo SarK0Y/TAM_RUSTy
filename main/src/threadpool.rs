@@ -12,6 +12,8 @@ use crate::{dbg, errMsg0, getkey, helpful_math_ops, popup_msg, save_file, save_f
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
 pub struct tree_of_prox {
    pub ppid: i32 ,
@@ -366,7 +368,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
         match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
-            Err(e) =>  {logErr(e );},
+            Err(e) =>  {eprintln! ("{:?}", e); logErr(e ); _break! ("execve err");},
             _ =>              {}
         };
         match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
