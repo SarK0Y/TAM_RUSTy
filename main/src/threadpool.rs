@@ -256,6 +256,19 @@ pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::e
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
+pub fn new_thr_no_bash_n_delim (cmd: &String, delim: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            }); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Child) => { run_kid_no_bash_n_delim(cmd, delim ); std::process::abort(); crate::info::SYS(); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
 pub fn run_kid_no_bash (cmd: &String) {
     let GUARD_LAG = 1;
     if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
@@ -314,7 +327,64 @@ pub fn run_kid_no_bash (cmd: &String) {
         errMsg0 ("execve failed");
     }
 }
+pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
+    let GUARD_LAG = 1;
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
+    let c_str = |arg: &String| -> CString {CString::new( arg.as_str()  ).unwrap() };
+    let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
+    save_file(
+            format!("{:?}", cmd), "execve".strn());
+    let empty =  empty_c_str ();
+    unsafe {
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
 
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+        let mut cnt = 0usize;
+        let mut cmd = cmd.strn();
+        let mut arg = "".strn();
+        let mut app_name = "".strn();
+        ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
+        loop {
+            (arg, cmd ) = split_once_or_ret_null_strns(&cmd, &delim);
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" { break }
+            args[ cnt ] = c_str (&arg); cnt.inc();
+        }
+        save_file_append(
+            format!("{:?}", args), "execve0".strn());
+        let env_len = form_env (&mut env).1;
+        save_file_append(
+            format!("{:?}", env), "env.dbg".strn());
+        if  env_len == 0 { return }
+       /* let mut env_prnt = |env: & [CString]| {
+            for i in 0..6 {
+                //dbg! (env [i] );
+            }
+        }; */
+       ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
+        use nix::errno::Errno;
+        match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/local/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+
+        errMsg0 ("execve failed");
+    }
+}
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;

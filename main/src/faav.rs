@@ -59,6 +59,14 @@ pub fn npf_lock_ (ceil: Option < i64 >) -> Option < i64 > {
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
+pub fn __orig_strn (name: Option <String > ) -> Option < String > {
+    static mut state: Lazy <String> = Lazy::new (|| { String::new() });
+    unsafe {
+        if let Some( x ) = name.clone() {
+            if x == "" { return None;} *state = x;
+        } Some ( state.clone() )
+    }
+}
 pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {

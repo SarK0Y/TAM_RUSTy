@@ -33,6 +33,8 @@ use crate::{
     usize_2_i64, STRN,
 };
 use rst_lex::strns::Unique;
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 pub(crate) unsafe fn check_mode(mode: &mut i64) {
     static mut state: i64 = 0;
     if *mode == -1 {
@@ -245,6 +247,21 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
+    if crate::faav::yes_newline_in_filename (None){
+        _break!("hh");
+        let delim = "_:s:_".strn();
+        let file = crate::faav::__orig_strn(None)
+                    .unwrap_or ("empty __orig_strn".strn() )
+                    .replace 
+                    (
+                        &crate::faav::__delim_for_newline (None).unwrap(),
+                        &char::from(0x0A).to_string()
+                    );
+        cmd = format!("{}{delim}{}", viewer, file);
+        add_cmd_in_history(&format!("term {cmd}"));
+        crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
+        return true; 
+    }        
     add_cmd_in_history(&format!("term {cmd}"));
     if crate::term_app::run_new_win_bool ( None ) { crate::term_app::new0__(&cmd ); return true;}
     if tui_or_not(cpy_str(&cmd), &mut file) {
@@ -265,6 +282,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         if cmd.as_str().substring(0, 1) == "/" {
             let app_indx = "0".to_string();
             let file_indx = cmd;
+            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+            let check_nl_marker = file_indx.contains( &newline_marker );
+            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
             return viewer_n_adr(app_indx, file_indx);
         }
         let (mut app_indx, mut file_indx) = crate::split_once(&cmd, " ");
@@ -279,11 +299,18 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             app_indx = 0.to_string();
         }
         if file_indx.as_str().substring(0, 1) == "/" {
+            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+            let check_nl_marker = file_indx.contains( &newline_marker );
+            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
+            _break! (crate::faav::yes_newline_in_filename (None).to_string() );
             return viewer_n_adr(app_indx, file_indx);
         }
         if app_indx.as_str().substring(0, 1) == "/" {
             file_indx = app_indx;
             app_indx = 0.to_string();
+            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+            let check_nl_marker = file_indx.contains( &newline_marker );
+            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
             return viewer_n_adr(app_indx, file_indx);
         }
         let msg = || -> bool {
@@ -318,8 +345,20 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let viewer = get_viewer(app_indx, -1, true);
         let mut cmd = if crate::faav::yes_newline_in_filename (None){
             format!("
+            #!/bin/bash
+            out=\"{} {filename}\"
+            for i in \"$@\"
+            do
+            echo $i
+            out=\"$out $i\"
+            done
+            echo \"ru=$out\"
+            export LC_ALL=ru_RU.utf8
+            export LANG=ru_RU.utf8
+            env > /tmp/env
+            fish -c  \"
             #!/bin/fish
-            {} \'{filename}\'"
+             $out\""
             , viewer)
         } else {
             format!("{} {} > /dev/null 2>&1", viewer, filename)

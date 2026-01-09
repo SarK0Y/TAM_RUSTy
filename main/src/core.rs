@@ -566,6 +566,7 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     if no_esc_lst(str0, false).is_some() {
         return str0.strn();
     }
+    crate::faav::__orig_strn (Some (str0.strn() ) );
     if check_patch_mark(str0) || !swtch_esc(false, false) {
         return str0.to_string();
     }
@@ -587,7 +588,7 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     let strr = strr.replace(r":", r"\:");
     let strr = str::replace(&strr, r":s:", " ");
     let newline_placeholder = crate::faav::__delim_for_newline (None).unwrap();
-    let strr = str0.replace(&newline_placeholder, r"\n");
+    let strr = strr.replace(&newline_placeholder, r"\n");
     return strr.to_string();
 }
 pub(crate) fn escape_symbs_no_limits(str0: &String, func_id: i64) -> String {
