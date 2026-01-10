@@ -12,6 +12,7 @@ use crate::{dbg, errMsg0, getkey, helpful_math_ops, popup_msg, save_file, save_f
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
+use std::ffi::OsStr;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
@@ -352,6 +353,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
             (arg, cmd ) = split_once_or_ret_null_strns(&cmd, &delim);
          //   //dbg!(&arg); delay_secs(3);
             if arg == "" { break }
+          //  let os_path = c_str ;
             args[ cnt ] = c_str (&arg); cnt.inc();
         }
         save_file_append(
@@ -368,7 +370,8 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
         match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
-            Err(e) =>  {eprintln! ("{:?}", e); logErr(e ); _break! ("execve err");},
+            Err(e) =>  {eprintln! ("{:?}", e); logErr(e );
+            libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args[1].as_ptr() as *const i8); _break! ("execve err");},
             _ =>              {}
         };
         match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
@@ -600,3 +603,6 @@ pub fn mk_branch_of_prox < 'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_
 }
  borrow checker.. really??? :)))
 */
+//fn
+/* let path_bytes = path.as_os_str().as_bytes();
+        let path_c = CString::new(path_bytes).expect("path contained a nul byte"); */
