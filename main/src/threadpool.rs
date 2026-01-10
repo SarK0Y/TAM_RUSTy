@@ -351,6 +351,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
         loop {
             (arg, cmd ) = split_once_or_ret_null_strns(&cmd, &delim);
+            _break! (&cmd);
          //   //dbg!(&arg); delay_secs(3);
             if arg == "" { break }
           //  let os_path = c_str ;

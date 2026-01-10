@@ -39,7 +39,7 @@ let second = match splitter.next(){
 return  (first.to_string(), second.to_string());
 }
 pub(crate) fn split_once_or_ret_null_strns(in_string: &str, delim: &str) -> (String, String) {
-    if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
+  if delim.chars().count() > 1{return split_once_alt_o_null_strns(&in_string.to_string(), &delim.to_string());}
 let mut splitter = in_string.splitn(2, delim);
 let first = match splitter.next(){
     Some(val) => val,

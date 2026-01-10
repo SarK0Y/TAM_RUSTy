@@ -241,7 +241,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let patch_mark_len = "::patch".to_string().chars().count();
     if !crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
-        _break! (&file);
         file = full_escape(&file);
     } else {
         file.strip_all_symbs();
@@ -260,6 +259,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
                         &char::from(0x0A).to_string()
                     );
         cmd = format!("{}{delim}{}", viewer, file);
+        _break! (&cmd);
         add_cmd_in_history(&format!("term {cmd}"));
         crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
         return true; 
