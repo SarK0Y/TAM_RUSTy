@@ -957,6 +957,37 @@ pub(crate) fn split_once_alt_o_null_strns(strn: &String, delim: &String) -> (Str
     }
     ret
 }
+pub fn split_once_full_o_partial_ret(strn: &String, delim: &String) -> (String, String) {
+    let mut maybe = String::new();
+    let mut found = false;
+    let delim_len = delim.chars().count();
+    let strn_len = strn.chars().count();
+    let mut count = 0usize;
+    let mut offset = 0usize;
+    let mut ret = (String::new(), String::new());
+    for i in strn.chars() {
+        if  Some(i) == delim.chars().nth(count - offset)
+            && !found
+        {
+            maybe.push(i);
+            if maybe == *delim {
+                found = true;
+            }
+        } else {
+            offset += 1;
+            if found {
+                ret.1.push(i);
+                count += 1;
+                continue;
+            }
+            // if maybe == *delim {ret.1.push(i); found = true; continue;}
+            ret.0.push_str(maybe.as_str());
+            ret.0.push(i);
+            maybe = String::new();
+        } count += 1;
+    }
+    ret
+}
 pub(crate) fn check_substrn<T: STRN + ToString + AsRef<str>>(strn: T, delim: &str) -> bool {
     let mut maybe = String::new();
     let delim_len = delim.chars().count();
