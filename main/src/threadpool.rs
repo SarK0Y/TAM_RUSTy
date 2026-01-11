@@ -344,16 +344,20 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
 
         let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
         let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
-        let mut cnt = 0usize;
+        let mut cnt = 1usize;
         let mut cmd = cmd.strn();
         let mut arg = "".strn();
         let mut app_name = "".strn();
         ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
+        args[ 0 ] = c_str (&app_name); 
         loop {
             (arg, cmd ) = split_once_or_ret_null_strns(&cmd, &delim);
             _break! (&cmd);
          //   //dbg!(&arg); delay_secs(3);
-            if arg == "" { break }
+            if arg == "" {
+                args[ cnt ] = c_str (&arg);
+                break;
+             }
           //  let os_path = c_str ;
             args[ cnt ] = c_str (&arg); cnt.inc();
         }

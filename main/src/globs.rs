@@ -942,6 +942,7 @@ pub(crate) fn split_once_alt_o_null_strns(strn: &String, delim: &String) -> (Str
             if found {
                 ret.1.push(i);
                 count += 1;
+                dbg! (&ret);
                 continue;
             }
             // if maybe == *delim {ret.1.push(i); found = true; continue;}
@@ -950,6 +951,7 @@ pub(crate) fn split_once_alt_o_null_strns(strn: &String, delim: &String) -> (Str
             maybe = String::new();
         } count += 1; dbg! (&ret);
     }
+     dbg! (&ret);
     if !found {
         return ("".strn(), "".strn());
     }
