@@ -342,7 +342,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
     let c_str = |arg: &String| -> CString {
         _break! (&arg);
         let ret = CString::new( arg.as_str()  ).unwrap();
-unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
+//unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
         ret
     };
     let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
@@ -350,10 +350,11 @@ unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr()
             format!("{:?}", cmd), "execve".strn());
     let empty =  empty_c_str ();
     unsafe {
-        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
-
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  
+        let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
         let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
         let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg| arg.as_ptr()).collect();
         let mut cnt = 1usize;
         let mut cmd = cmd.strn();
         let mut arg = "".strn();
@@ -362,16 +363,16 @@ unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr()
         args[ 0 ] = c_str (&app_name);
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
-            _break! (&cmd);
+            _break! (&arg);
          //   //dbg!(&arg); delay_secs(3);
             if arg == "" {
              //   args[ cnt ] = c_str (&full_escape (&arg) );
                 break;
              }
           //  let os_path = c_str ;
-             let arg = r"/m/big_ext4/clips/\nЮлія Думанська – Двічі в одну річку не війдеш (Music Video).mp4".strn();
-            args[ cnt ] = c_str (&full_escape (&arg) ); cnt.inc();
+            args[ cnt ] = c_str (&arg ); cnt.inc();
         }
+        let mut args_ptr: Vec<*const i8> = args.iter().map(|arg| arg.as_ptr()).collect();
         save_file_append(
             format!("{:?}", args), "execve0".strn());
         let env_len = form_env (&mut env).1;
@@ -385,10 +386,11 @@ unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr()
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
+        libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8);
         let _ = libc::execve ( 
             c_str ( &app_name).as_ptr(),
-             args[0..cnt].as_mut_ptr() as *const *const i8,
-             env[0..env_len].as_mut_ptr() as *const *const i8
+             args_ptr.as_mut_ptr() as *const *const i8,
+             env_ptr.as_mut_ptr() as *const *const i8
              );
         use nix::errno::errno;
          let err = errno();
@@ -397,7 +399,7 @@ unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr()
         crate::in_dbg0::just_break ();
         match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
             Err(e) =>  {eprintln! ("{:?}", e); logErr(e );
-            libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args[1].as_ptr() as *const i8); _break! ("execve err");},
+            libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); _break! ("execve err");},
             _ =>              {}
         };
         match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
