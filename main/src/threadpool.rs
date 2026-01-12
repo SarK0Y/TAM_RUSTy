@@ -13,6 +13,11 @@ use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
 use std::ffi::OsStr;
+use libc::{
+    EACCES, ENOENT, ENOEXEC, ENOTDIR, EPIPE, EXIT_FAILURE, EXIT_SUCCESS, STDERR_FILENO,
+    STDIN_FILENO, STDOUT_FILENO,
+};
+use crate::full_escape;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
@@ -334,7 +339,12 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
     let GUARD_LAG = 1;
     if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
     if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
-    let c_str = |arg: &String| -> CString {CString::new( arg.as_str()  ).unwrap() };
+    let c_str = |arg: &String| -> CString {
+        _break! (&arg);
+        let ret = CString::new( arg.as_str()  ).unwrap();
+unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
+        ret
+    };
     let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
     save_file(
             format!("{:?}", cmd), "execve".strn());
@@ -349,17 +359,18 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         let mut arg = "".strn();
         let mut app_name = "".strn();
         ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
-        args[ 0 ] = c_str (&app_name); 
+        args[ 0 ] = c_str (&app_name);
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
             _break! (&cmd);
          //   //dbg!(&arg); delay_secs(3);
             if arg == "" {
-                args[ cnt ] = c_str (&arg);
+             //   args[ cnt ] = c_str (&full_escape (&arg) );
                 break;
              }
           //  let os_path = c_str ;
-            args[ cnt ] = c_str (&arg); cnt.inc();
+             let arg = r"/m/big_ext4/clips/\nЮлія Думанська – Двічі в одну річку не війдеш (Music Video).mp4".strn();
+            args[ cnt ] = c_str (&full_escape (&arg) ); cnt.inc();
         }
         save_file_append(
             format!("{:?}", args), "execve0".strn());
@@ -374,6 +385,16 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
+        let _ = libc::execve ( 
+            c_str ( &app_name).as_ptr(),
+             args[0..cnt].as_mut_ptr() as *const *const i8,
+             env[0..env_len].as_mut_ptr() as *const *const i8
+             );
+        use nix::errno::errno;
+         let err = errno();
+         dbg!(&err);
+#[cfg(feature = "in_dbg")]
+        crate::in_dbg0::just_break ();
         match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
             Err(e) =>  {eprintln! ("{:?}", e); logErr(e );
             libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args[1].as_ptr() as *const i8); _break! ("execve err");},
