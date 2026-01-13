@@ -335,6 +335,11 @@ pub fn run_kid_no_bash (cmd: &String) {
         errMsg0 ("execve failed");
     }
 }
+pub fn _c_str (arg: &String) -> CString {
+        let ret = CString::new( arg.as_str()  ).unwrap();
+//unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
+        ret
+}
 pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
     let GUARD_LAG = 1;
     if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
@@ -354,13 +359,12 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
         let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
         let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
-        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg| arg.as_ptr()).collect();
         let mut cnt = 1usize;
         let mut cmd = cmd.strn();
         let mut arg = "".strn();
         let mut app_name = "".strn();
         ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
-        app_name = "/usr/bin/gwenview".strn();
+        //app_name = "/usr/bin/gwenview".strn();
         args[ 0 ] = c_str (&app_name);
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
@@ -377,6 +381,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         save_file_append(
             format!("{:?}", args), "execve0".strn());
         let env_len = form_env (&mut env).1;
+        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg| arg.as_ptr()).collect();
         save_file_append(
             format!("{:?}", env), "env.dbg".strn());
         if  env_len == 0 { return }
@@ -387,16 +392,18 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
+        libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8);
         let _ = libc::execve ( 
-            c_str ( &app_name).as_ptr(),
-            // args_ptr.as_mut_ptr() as *const *const i8,
-             std::ptr::null (),
+            c_str ( &app_name).as_ptr() as *const i8,
+            args_ptr.as_mut_ptr() as *const *const i8,
+            // std::ptr::null (),
              env_ptr.as_mut_ptr() as *const *const i8
            //  std::ptr::null ()
              );
         use nix::errno::errno;
          let err = errno();
+         dbg! (&err);
 #[cfg(feature = "in_dbg")]
         crate::in_dbg0::just_break ();
         return;
@@ -436,7 +443,7 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
             if pwd != "" { val = pwd.clone (); }
         }
         let key = format! ("{}={}", key, val );
-        env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
+        env_str[ count ] =  _c_str (&key);
         count.inc();
     }
 //    //dbg!(&env_str); getkey();
