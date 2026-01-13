@@ -377,11 +377,23 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
           //  let os_path = c_str ;
             args[ cnt ] = c_str (&arg ); cnt.inc();
         }
-        let mut args_ptr: Vec<*const i8> = args.iter().map(|arg| arg.as_ptr()).collect();
+        let mut args_ptr: Vec<*const i8> = args.iter().map(|arg|
+            if arg.is_empty () {
+                std::ptr::null ()
+            } else {
+                arg.as_ptr()
+            }
+        ).collect();
         save_file_append(
             format!("{:?}", args), "execve0".strn());
         let env_len = form_env (&mut env).1;
-        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg| arg.as_ptr()).collect();
+        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg|
+            if arg.is_empty () {
+                std::ptr::null ()
+            } else {
+                arg.as_ptr()
+            }
+        ).collect();
         save_file_append(
             format!("{:?}", env), "env.dbg".strn());
         if  env_len == 0 { return }
