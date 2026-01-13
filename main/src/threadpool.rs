@@ -360,6 +360,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         let mut arg = "".strn();
         let mut app_name = "".strn();
         ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
+        app_name = "/usr/bin/gwenview".strn();
         args[ 0 ] = c_str (&app_name);
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
@@ -389,14 +390,16 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8);
         let _ = libc::execve ( 
             c_str ( &app_name).as_ptr(),
-             args_ptr.as_mut_ptr() as *const *const i8,
+            // args_ptr.as_mut_ptr() as *const *const i8,
+             std::ptr::null (),
              env_ptr.as_mut_ptr() as *const *const i8
+           //  std::ptr::null ()
              );
         use nix::errno::errno;
          let err = errno();
-         dbg!(&err);
 #[cfg(feature = "in_dbg")]
         crate::in_dbg0::just_break ();
+        return;
         match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
             Err(e) =>  {eprintln! ("{:?}", e); logErr(e );
             libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); _break! ("execve err");},
