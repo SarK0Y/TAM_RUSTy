@@ -282,6 +282,6 @@ pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
             _ => {}
         }
     }
-    todo! ()
+    return ManageViewers::null
 }
 //fn
