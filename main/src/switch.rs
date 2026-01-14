@@ -32,6 +32,7 @@ use crate::{
     update18::update_dir_list,
     usize_2_i64, STRN,
 };
+use crate::faav::{ ManageViewers, full_addr_of_viewer };
 use rst_lex::strns::Unique;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
@@ -508,6 +509,8 @@ pub(crate) fn get_num_of_viewers(func_id: i64) -> i64 {
     return unsafe { crate::page_struct("", crate::NUM_OF_VIEWERS, func_id).int };
 }
 pub(crate) fn add_viewer(val: &str, func_id: i64) -> String {
+    let full_path = find_full_path_of_viewer ( val );
+    full_addr_of_viewer (ManageViewers::add ( full_path ) );
     return unsafe { crate::page_struct(val, crate::set(crate::VIEWER_), func_id).str_ };
 }
 pub(crate) unsafe fn share_usize(val: usize, func_id: i64) -> (usize, bool) {
@@ -573,6 +576,12 @@ pub(crate) fn get_rnd_u64() -> (u64, bool) {
         rnd_u64 += u64::from(shl << i * 8);
     }
     return (rnd_u64, true);
+}
+pub fn find_full_path_of_viewer (name: &str) -> String{
+    let cmd = format! ("which {name}");
+    let ret = crate::run_cmd_out_sync (cmd);
+    let ret = ret.trim_end ().trim_start ().strn();
+    return ret
 }
 pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
     static mut fst_run: bool = true;
