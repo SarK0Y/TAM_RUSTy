@@ -267,6 +267,18 @@ pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
             ManageViewers::add (x) => {
                 list.push (x);
             },
+            ManageViewers::get_by_indx (y) => {
+                if y < list.len () {
+                    return ManageViewers::out_strn (list[ y ].clone())
+                } return ManageViewers::null
+            },
+            ManageViewers::get_by_name ( n ) => {
+                for name in list.iter () {
+                    if name.contains (&n) {
+                        return ManageViewers::out_strn (name.clone() )
+                    } 
+                } return ManageViewers::null
+            },
             _ => {}
         }
     }
