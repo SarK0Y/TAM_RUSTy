@@ -252,4 +252,24 @@ pub fn over_uv (pointer: Option <*const crate::enums::universum_vox_morph>) -> O
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
+pub enum ManageViewers {
+    get_by_indx (usize),
+    get_by_name (String),
+    add (String),
+    out_strn (String),
+    out_usize (usize),
+    null
+}
+pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
+    static mut list: Lazy <Vec <String> > = Lazy::new (||{ Vec::new() });
+    unsafe {
+        match _in {
+            ManageViewers::add (x) => {
+                list.push (x);
+            },
+            _ => {}
+        }
+    }
+    todo! ()
+}
 //fn
