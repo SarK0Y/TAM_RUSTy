@@ -258,6 +258,7 @@ pub enum ManageViewers {
     add (String),
     out_strn (String),
     out_usize (usize),
+    show_lst,
     null
 }
 pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
@@ -279,6 +280,11 @@ pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
                     } 
                 } return ManageViewers::null
             },
+#[cfg (feature = "in_dbg")]
+            ManageViewers::show_lst => {
+                dbg! (&list);
+                crate::just_break ();
+            }
             _ => {}
         }
     }

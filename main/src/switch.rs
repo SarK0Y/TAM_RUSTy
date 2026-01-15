@@ -606,6 +606,8 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
         add_viewer(viewer, -1);
         tui_mode(0, Some(true));
     }
+#[cfg (feature = "in_dbg")]
+full_addr_of_viewer (ManageViewers::show_lst);
 }
 pub(crate) fn print_viewers() {
     if mode_default_viewers( None ) {println!("System viwwers: ON", ); return}

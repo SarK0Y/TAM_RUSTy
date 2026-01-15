@@ -29,7 +29,8 @@ pub(crate) fn manage_breaks(cmd: &String){
     breaks(&name, id, false);
 }
 pub(crate) fn just_break(){
-    println!("Just break")
+    println!("Just break");
+    crate::getkey ();
 }
 pub(crate) fn report(msg: &String, mark: &str){
     static mut msgs: Lazy<Vec<String>> = Lazy::new( ||{ Vec::new() } );
