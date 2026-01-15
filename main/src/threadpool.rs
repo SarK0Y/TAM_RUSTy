@@ -406,6 +406,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         use nix::errno::Errno;
         libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8);
+        let app_name = crate::swtch::find_full_path_of_viewer (&app_name);
         let _ = libc::execve ( 
             c_str ( &app_name).as_ptr() as *const i8,
             args_ptr.as_mut_ptr() as *const *const i8,

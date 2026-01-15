@@ -276,7 +276,6 @@ pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
                 } return ManageViewers::null
             },
             ManageViewers::get_by_name ( n ) => {
-                if n.chars().nth (0) == Some ( '/' ) { return ManageViewers::no_action_needed}
                 for name in list.iter () {
                     if name.contains ( n ) {
                         return ManageViewers::out_strn (name.clone() )

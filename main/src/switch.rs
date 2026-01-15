@@ -578,6 +578,7 @@ pub(crate) fn get_rnd_u64() -> (u64, bool) {
     return (rnd_u64, true);
 }
 pub fn find_full_path_of_viewer (name: &str) -> String{
+    if name.chars().nth (0) == Some ( '/' ) { return name.strn() }
     let cmd = format! ("which {name}");
     let ret = crate::run_cmd_out_sync (cmd);
     let ret = ret.trim_end ().trim_start ().strn();
