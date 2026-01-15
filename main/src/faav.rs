@@ -252,12 +252,14 @@ pub fn over_uv (pointer: Option <*const crate::enums::universum_vox_morph>) -> O
         if pointer.is_some() { *state = pointer} state.clone()
     }
 }
-pub enum ManageViewers {
+pub enum ManageViewers <'a> {
     get_by_indx (usize),
-    get_by_name (String),
+    get_by_name (&'a String),
     add (String),
     out_strn (String),
+    out_ref_strn (&'a String),
     out_usize (usize),
+    no_action_needed,
     show_lst,
     null
 }
@@ -274,8 +276,9 @@ pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
                 } return ManageViewers::null
             },
             ManageViewers::get_by_name ( n ) => {
+                if n.chars().nth (0) == Some ( '/' ) { return ManageViewers::no_action_needed}
                 for name in list.iter () {
-                    if name.contains (&n) {
+                    if name.contains ( n ) {
                         return ManageViewers::out_strn (name.clone() )
                     } 
                 } return ManageViewers::null
