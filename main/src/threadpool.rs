@@ -368,7 +368,7 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         args[ 0 ] = c_str (&app_name);
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
-            _break! (&arg);
+           // _break! (&arg);
          //   //dbg!(&arg); delay_secs(3);
             if arg == "" {
              //   args[ cnt ] = c_str (&full_escape (&arg) );

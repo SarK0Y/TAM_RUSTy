@@ -242,7 +242,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let patch_mark_len = "::patch".to_string().chars().count();
     if !crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
-        _break! (&file);
+       // _break! (&file);
         file = full_escape(&file);
     } else {
         file.strip_all_symbs();
@@ -250,13 +250,13 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     crate::faav::yes_newline_in_filename ( Some (true));
     if crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
-        _break! (&file);
+       // _break! (&file);
     }
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
     if crate::faav::yes_newline_in_filename (None){
-        _break!("hh");
+       // _break!("hh");
         let delim = "_:s:_".strn();
         let file = crate::faav::__orig_strn(None)
                     .unwrap_or ("empty __orig_strn".strn() )
@@ -266,7 +266,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
                         r"\n"//&char::from(0x0A).to_string()
                     );
         cmd = format!("{}{delim}{}", viewer, file);
-        _break! (&cmd);
+       // _break! (&cmd);
         add_cmd_in_history(&format!("term {cmd}"));
         crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
         return true; 
