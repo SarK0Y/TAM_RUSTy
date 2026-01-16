@@ -362,10 +362,26 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         let mut cnt = 1usize;
         let mut cmd = cmd.strn();
         let mut arg = "".strn();
+        let mut app_cmd = "".strn();
         let mut app_name = "".strn();
-        ( app_name, cmd ) = split_once_or_ret_null_strns( &cmd, &delim);
+        ( app_name, cmd ) = crate::split_once_or_ret_null_strns( &cmd, &delim);
         //app_name = "/usr/bin/gwenview".strn();
-        args[ 0 ] = c_str (&app_name);
+        ( app_cmd, app_name ) = crate::globs18::split_once_full_o_partial_ret( &app_name, &" ".strn());
+        let only_app_name = crate::swtch::find_full_path_of_viewer (&app_cmd);
+        args[ 0 ] = c_str (
+            &only_app_name
+        );
+        loop {
+            (arg, app_name ) = crate::globs18::split_once_full_o_partial_ret(&app_name, &" ".strn());
+           // _break! (&arg);
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" {
+             //   args[ cnt ] = c_str (&full_escape (&arg) );
+                break;
+             }
+          //  let os_path = c_str ;
+            args[ cnt ] = c_str (&arg ); cnt.inc();
+        }
         loop {
             (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
            // _break! (&arg);
@@ -406,9 +422,8 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         use nix::errno::Errno;
         libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8);
-        let app_name = crate::swtch::find_full_path_of_viewer (&app_name);
         let _ = libc::execve ( 
-            c_str ( &app_name).as_ptr() as *const i8,
+            c_str ( &only_app_name).as_ptr() as *const i8,
             args_ptr.as_mut_ptr() as *const *const i8,
             // std::ptr::null (),
              env_ptr.as_mut_ptr() as *const *const i8

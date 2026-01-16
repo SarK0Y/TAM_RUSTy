@@ -308,11 +308,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
             let check_nl_marker = file_indx.contains (r"\n");
             crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-            if file_indx.contains ("Дум") {
-                _break! ("дум");
-                _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
-                _break! (&crate::faav::__orig_strn(None).unwrap ());
-            }
             file_indx = crate::faav::__orig_strn(None).unwrap ().clone ();
             file_indx = file_indx.replace (
                 &newline_marker,
@@ -327,10 +322,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
             let check_nl_marker = file_indx.contains (r"\n");
             crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-            if file_indx.contains ("Дум") {
-                _break! ("дум");
-                _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
-            }
             return viewer_n_adr(app_indx, file_indx);
         }
         let msg = || -> bool {
