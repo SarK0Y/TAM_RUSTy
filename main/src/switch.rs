@@ -263,7 +263,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
                     .replace 
                     (
                         &crate::faav::__delim_for_newline (None).unwrap(),
-                        r"\n"//&char::from(0x0A).to_string()
+                        "\n"//&char::from(0x0A).to_string()
                     );
         cmd = format!("{}{delim}{}", viewer, file);
        // _break! (&cmd);
@@ -313,7 +313,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
                 &newline_marker,
                 &char::from (0x0A).to_string ()
             );
-            _break! (&file_indx);
+        //    _break! (&file_indx);
             return viewer_n_adr(app_indx, file_indx);
         }
         if app_indx.as_str().substring(0, 1) == "/" {

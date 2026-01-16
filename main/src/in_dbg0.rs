@@ -43,4 +43,20 @@ pub(crate) fn report(msg: &String, mark: &str){
         } crate::dont_scrn_fix(true); crate::getkey(); return
     } unsafe{msgs.push(format!("{mark}: {msg}"))};
 }
+pub fn print_invisible_chars(s: &String) {
+    for c in s.chars() {
+        if c.is_control() {
+            // You can use a specific representation for control characters
+            match c {
+                '\n' => print!("\\n"),   // Newline
+                '\r' => print!("\\r"),   // Carriage return
+                '\t' => print!("\\t"),    // Tab
+                _ => print!("\\x{:02x}", c as u32), // Other control characters
+            }
+        } else {
+            print!("{}", c); // Print printable characters
+        }
+    }
+    println!(); // New line at the end
+}
 // fn
