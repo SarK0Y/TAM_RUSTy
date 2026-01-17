@@ -258,8 +258,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     if crate::faav::yes_newline_in_filename (None){
        // _break!("hh");
         let delim = "_:s:_".strn();
-        let file = crate::faav::__orig_strn(None)
-                    .unwrap_or ("empty __orig_strn".strn() )
+        let file = file
                     .replace 
                     (
                         &crate::faav::__delim_for_newline (None).unwrap(),
@@ -306,12 +305,11 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         if file_indx.as_str().substring(0, 1) == "/" {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains (r"\n");
+            let check_nl_marker = file_indx.contains (r"\n") || file_indx.contains (&newline_marker);
             crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-            file_indx = crate::faav::__orig_strn(None).unwrap ().clone ();
             file_indx = file_indx.replace (
                 &newline_marker,
-                &char::from (0x0A).to_string ()
+                "\n"//&char::from (0x0A).to_string ()
             );
         //    _break! (&file_indx);
             return viewer_n_adr(app_indx, file_indx);
