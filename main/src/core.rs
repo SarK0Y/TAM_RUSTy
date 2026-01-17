@@ -570,7 +570,10 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
         return str0.to_string();
     }
     let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-    if str0.contains (r"\n") || str0.contains (&newline_marker) { return str0.strn() }
+    if crate::faav::yes_newline_in_filename (None)||
+       str0.contains (r"\n") ||
+       str0.contains (&newline_marker) 
+                    { return str0.strn() }
     let strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -651,7 +654,10 @@ pub(crate) fn full_escape(str0: &String) -> String {
         return str0.strn();
     }
     let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-    if str0.contains (r"\n") || str0.contains (&newline_marker) { return str0.strn() }
+    if crate::faav::yes_newline_in_filename (None)||
+       str0.contains (r"\n") ||
+       str0.contains (&newline_marker) 
+                    { return str0.strn() }
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)

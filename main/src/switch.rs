@@ -247,7 +247,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     } else {
         file.strip_all_symbs();
     }
-    crate::faav::yes_newline_in_filename ( Some (true));
     if crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
        // _break! (&file);
