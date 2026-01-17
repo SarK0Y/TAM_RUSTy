@@ -32,7 +32,10 @@ use crate::{
     update18::update_dir_list,
     usize_2_i64, STRN,
 };
+use crate::faav::{ ManageViewers, full_addr_of_viewer };
 use rst_lex::strns::Unique;
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 pub(crate) unsafe fn check_mode(mode: &mut i64) {
     static mut state: i64 = 0;
     if *mode == -1 {
@@ -237,14 +240,37 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     let filename_len = file.chars().count();
     let mut file = file;
     let patch_mark_len = "::patch".to_string().chars().count();
-    if crate::Path::new(&file).exists() {
+    if !crate::faav::yes_newline_in_filename (None ) && 
+       crate::Path::new(&file).exists() {
+       // _break! (&file);
         file = full_escape(&file);
     } else {
         file.strip_all_symbs();
     }
+    crate::faav::yes_newline_in_filename ( Some (true));
+    if crate::faav::yes_newline_in_filename (None ) && 
+       crate::Path::new(&file).exists() {
+       // _break! (&file);
+    }
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
+    if crate::faav::yes_newline_in_filename (None){
+       // _break!("hh");
+        let delim = "_:s:_".strn();
+        let file = crate::faav::__orig_strn(None)
+                    .unwrap_or ("empty __orig_strn".strn() )
+                    .replace 
+                    (
+                        &crate::faav::__delim_for_newline (None).unwrap(),
+                        "\n"//&char::from(0x0A).to_string()
+                    );
+        cmd = format!("{}{delim}{}", viewer, file);
+       // _break! (&cmd);
+        add_cmd_in_history(&format!("term {cmd}"));
+        crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
+        return true; 
+    }        
     add_cmd_in_history(&format!("term {cmd}"));
     if crate::term_app::run_new_win_bool ( None ) { crate::term_app::new0__(&cmd ); return true;}
     if tui_or_not(cpy_str(&cmd), &mut file) {
@@ -279,11 +305,23 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             app_indx = 0.to_string();
         }
         if file_indx.as_str().substring(0, 1) == "/" {
+            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+            let check_nl_marker = file_indx.contains (r"\n");
+            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
+            file_indx = crate::faav::__orig_strn(None).unwrap ().clone ();
+            file_indx = file_indx.replace (
+                &newline_marker,
+                &char::from (0x0A).to_string ()
+            );
+        //    _break! (&file_indx);
             return viewer_n_adr(app_indx, file_indx);
         }
         if app_indx.as_str().substring(0, 1) == "/" {
             file_indx = app_indx;
             app_indx = 0.to_string();
+            let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+            let check_nl_marker = file_indx.contains (r"\n");
+            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
             return viewer_n_adr(app_indx, file_indx);
         }
         let msg = || -> bool {
@@ -305,9 +343,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         let mut filename = get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
         let patch_mark_len = "::patch".to_string().chars().count();
-        let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = filename.contains( &newline_marker );
-        crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         if filename_len > patch_mark_len
             && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
         {
@@ -316,6 +351,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             filename = full_escape(&filename);
         }
         let viewer = get_viewer(app_indx, -1, true);
+        //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+        let check_nl_marker = filename.contains( r"\n" );
+        crate::faav::yes_newline_in_filename (Some (check_nl_marker));
         let mut cmd = if crate::faav::yes_newline_in_filename (None){
             format!("
             #!/bin/bash
@@ -462,6 +500,8 @@ pub(crate) fn get_num_of_viewers(func_id: i64) -> i64 {
     return unsafe { crate::page_struct("", crate::NUM_OF_VIEWERS, func_id).int };
 }
 pub(crate) fn add_viewer(val: &str, func_id: i64) -> String {
+    let full_path = find_full_path_of_viewer ( val );
+    full_addr_of_viewer (ManageViewers::add ( full_path ) );
     return unsafe { crate::page_struct(val, crate::set(crate::VIEWER_), func_id).str_ };
 }
 pub(crate) unsafe fn share_usize(val: usize, func_id: i64) -> (usize, bool) {
@@ -528,6 +568,13 @@ pub(crate) fn get_rnd_u64() -> (u64, bool) {
     }
     return (rnd_u64, true);
 }
+pub fn find_full_path_of_viewer (name: &str) -> String{
+    if name.chars().nth (0) == Some ( '/' ) { return name.strn() }
+    let cmd = format! ("which {name}");
+    let ret = crate::run_cmd_out_sync (cmd);
+    let ret = ret.trim_end ().trim_start ().strn();
+    return ret
+}
 pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
     static mut fst_run: bool = true;
     if drop_1st_run {
@@ -551,6 +598,8 @@ pub(crate) unsafe fn form_list_of_viewers(drop_1st_run: bool) {
         add_viewer(viewer, -1);
         tui_mode(0, Some(true));
     }
+#[cfg (feature = "in_dbg")]
+full_addr_of_viewer (ManageViewers::show_lst);
 }
 pub(crate) fn print_viewers() {
     if mode_default_viewers( None ) {println!("System viwwers: ON", ); return}

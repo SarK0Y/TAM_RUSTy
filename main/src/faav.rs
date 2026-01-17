@@ -59,6 +59,14 @@ pub fn npf_lock_ (ceil: Option < i64 >) -> Option < i64 > {
         if id >= max_id { lock = true; return None; } return Some ( id - 1 );
     }
 }
+pub fn __orig_strn (name: Option <String > ) -> Option < String > {
+    static mut state: Lazy <String> = Lazy::new (|| { String::new() });
+    unsafe {
+        if let Some( x ) = name.clone() {
+            if x == "" { return None;} *state = x;
+        } Some ( state.clone() )
+    }
+}
 pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {
@@ -243,5 +251,45 @@ pub fn over_uv (pointer: Option <*const crate::enums::universum_vox_morph>) -> O
     unsafe {
         if pointer.is_some() { *state = pointer} state.clone()
     }
+}
+pub enum ManageViewers <'a> {
+    get_by_indx (usize),
+    get_by_name (&'a String),
+    add (String),
+    out_strn (String),
+    out_ref_strn (&'a String),
+    out_usize (usize),
+    no_action_needed,
+    show_lst,
+    null
+}
+pub fn full_addr_of_viewer (_in: ManageViewers) -> ManageViewers {
+    static mut list: Lazy <Vec <String> > = Lazy::new (||{ Vec::new() });
+    unsafe {
+        match _in {
+            ManageViewers::add (x) => {
+                list.push (x);
+            },
+            ManageViewers::get_by_indx (y) => {
+                if y < list.len () {
+                    return ManageViewers::out_strn (list[ y ].clone())
+                } return ManageViewers::null
+            },
+            ManageViewers::get_by_name ( n ) => {
+                for name in list.iter () {
+                    if name.contains ( n ) {
+                        return ManageViewers::out_strn (name.clone() )
+                    } 
+                } return ManageViewers::null
+            },
+#[cfg (feature = "in_dbg")]
+            ManageViewers::show_lst => {
+                dbg! (&list);
+                crate::just_break ();
+            }
+            _ => {}
+        }
+    }
+    return ManageViewers::null
 }
 //fn

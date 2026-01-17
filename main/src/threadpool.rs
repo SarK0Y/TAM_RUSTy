@@ -12,6 +12,14 @@ use crate::{dbg, errMsg0, getkey, helpful_math_ops, popup_msg, save_file, save_f
 use std::ptr; use std::cell::RefCell;
 use std::mem::{forget, ManuallyDrop, ManuallyDrop as md};
 use crate::enums::calc_kids;
+use std::ffi::OsStr;
+use libc::{
+    EACCES, ENOENT, ENOEXEC, ENOTDIR, EPIPE, EXIT_FAILURE, EXIT_SUCCESS, STDERR_FILENO,
+    STDIN_FILENO, STDOUT_FILENO,
+};
+use crate::full_escape;
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
 pub struct tree_of_prox {
    pub ppid: i32 ,
@@ -256,6 +264,19 @@ pub fn new_thr_no_bash (cmd: &String) -> Result< nix::unistd::ForkResult, nix::e
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
+pub fn new_thr_no_bash_n_delim (cmd: &String, delim: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            }); return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Child) => { run_kid_no_bash_n_delim(cmd, delim ); std::process::abort(); crate::info::SYS(); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
 pub fn run_kid_no_bash (cmd: &String) {
     let GUARD_LAG = 1;
     if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
@@ -314,7 +335,132 @@ pub fn run_kid_no_bash (cmd: &String) {
         errMsg0 ("execve failed");
     }
 }
+pub fn _c_str (arg: &String) -> CString {
+        let ret = CString::new( arg.as_str()  ).unwrap();
+//unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
+        ret
+}
+pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
+    let GUARD_LAG = 1;
+    if let crate::enums::smart_lags::failed = crate::smart_lags::fork_lag_mcs_verbose( GUARD_LAG ) { return;} 
+    if let crate::enums::smart_lags::too_small_lag( x ) = crate::smart_lags::fork_lag_mcs_verbose(GUARD_LAG) {return; }
+    let c_str = |arg: &String| -> CString {
+      //  _break! (&arg);
+        let ret = CString::new( arg.as_str()  ).unwrap();
+//unsafe  {libc::printf ("check c str: %s\n\0".as_ptr() as *const i8, ret.as_ptr() as *const i8); }
+        ret
+    };
+    let empty_c_str = || -> CString {CString::new( ""  ).unwrap() };
+    save_file(
+            format!("{:?}", cmd), "execve".strn());
+    let empty =  empty_c_str ();
+    unsafe {
+        let vec_arr: Vec< CString > = (0..1024).map(|_| empty_c_str ()).collect ();  
+        let vec_arr0: Vec< CString > = (0..1024).map(|_| empty_c_str () ).collect();
+        let mut env: [CString; 1024] = match vec_arr.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init env"); return}};
+        let mut args: [ CString; 1024] =  match vec_arr0.try_into() { Ok (ok) => ok, _ => {errMsg0( "Damn Sorry, Failed to init args"); return}};
+        let mut cnt = 1usize;
+        let mut cmd = cmd.strn();
+        let mut arg = "".strn();
+        let mut app_cmd = "".strn();
+        let mut app_name = "".strn();
+        ( app_name, cmd ) = crate::split_once_or_ret_null_strns( &cmd, &delim);
+        //app_name = "/usr/bin/gwenview".strn();
+        ( app_cmd, app_name ) = crate::globs18::split_once_full_o_partial_ret( &app_name, &" ".strn());
+        let only_app_name = crate::swtch::find_full_path_of_viewer (&app_cmd);
+        args[ 0 ] = c_str (
+            &only_app_name
+        );
+        loop {
+            (arg, app_name ) = crate::globs18::split_once_full_o_partial_ret(&app_name, &" ".strn());
+           // _break! (&arg);
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" {
+             //   args[ cnt ] = c_str (&full_escape (&arg) );
+                break;
+             }
+          //  let os_path = c_str ;
+            args[ cnt ] = c_str (&arg ); cnt.inc();
+        }
+        loop {
+            (arg, cmd ) = crate::globs18::split_once_full_o_partial_ret(&cmd, &delim);
+           // _break! (&arg);
+         //   //dbg!(&arg); delay_secs(3);
+            if arg == "" {
+             //   args[ cnt ] = c_str (&full_escape (&arg) );
+                break;
+             }
+          //  let os_path = c_str ;
+            arg = arg.trim_end ().trim_start ().strn();
+            args[ cnt ] = c_str (&arg ); cnt.inc();
+            }
+/*#[cfg(feature = "in_dbg")]
+             crate::in_dbg0::print_invisible_chars (&arg);
+             arg = arg.replace (&char::from(0x0A).to_string(), "\n");*/
+            
+        let mut args_ptr: Vec<*const i8> = args.iter().map(|arg|
+            if arg.is_empty () {
+                std::ptr::null ()
+            } else {
+                arg.as_ptr()
+            }
+        ).collect();
+        save_file_append(
+            format!("{:?}", args), "execve0".strn());
+        let env_len = form_env (&mut env).1;
+        let mut env_ptr: Vec<*const i8> = env.iter().map(|arg|
+            if arg.is_empty () {
+                std::ptr::null ()
+            } else {
+                arg.as_ptr()
+            }
+        ).collect();
+        save_file_append(
+            format!("{:?}", env), "env.dbg".strn());
+        if  env_len == 0 { return }
+       /* let mut env_prnt = |env: & [CString]| {
+            for i in 0..6 {
+                //dbg! (env [i] );
+            }
+        }; */
+       ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
+        use nix::errno::Errno;
+        libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
+        libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); 
+        let _ = libc::execve ( 
+            c_str ( &only_app_name).as_ptr() as *const i8,
+            args_ptr.as_mut_ptr() as *const *const i8,
+            // std::ptr::null (),
+             env_ptr.as_mut_ptr() as *const *const i8
+           //  std::ptr::null ()
+             );
+        use nix::errno::errno;
+         let err = errno();
+         dbg! (&err);
+#[cfg(feature = "in_dbg")]
+        crate::in_dbg0::just_break ();
+        return;
+        match execve ( &c_str ( &app_name), &args[0..cnt], &env[0..env_len] ) {
+            Err(e) =>  {eprintln! ("{:?}", e); logErr(e );
+            libc::printf ("c str: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); _break! ("execve err");},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
+        match execve ( &c_str ( &"/usr/local/bin/bash".strn() ), &args, &env ) {
+            Err(e) =>  {logErr(e );},
+            _ =>              {}
+        };
 
+        errMsg0 ("execve failed");
+    }
+}
 pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
 //    let mut env_vec: Vec < String > = Vec::new();
     let mut count = 0usize;
@@ -330,7 +476,7 @@ pub fn form_env <'a > (env_str: &'a mut [CString] ) -> (&'a [CString], usize ) {
             if pwd != "" { val = pwd.clone (); }
         }
         let key = format! ("{}={}", key, val );
-        env_str[ count ] =  CString::new (key.as_str() ).unwrap_or( CString::new("").unwrap() );
+        env_str[ count ] =  _c_str (&key);
         count.inc();
     }
 //    //dbg!(&env_str); getkey();
@@ -528,3 +674,6 @@ pub fn mk_branch_of_prox < 'a > (ppid: nix::unistd::Pid, tree: &'a mut  tree_of_
 }
  borrow checker.. really??? :)))
 */
+//fn
+/* let path_bytes = path.as_os_str().as_bytes();
+        let path_c = CString::new(path_bytes).expect("path contained a nul byte"); */
