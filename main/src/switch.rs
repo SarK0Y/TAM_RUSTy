@@ -264,8 +264,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
                         "\n"//&char::from(0x0A).to_string()
                     );
         cmd = format!("{}{delim}{}", viewer, file);
+        let cmd_ = format!("{} {}", viewer, file);
        // _break! (&cmd);
-        add_cmd_in_history(&format!("term {cmd}"));
+        add_cmd_in_history(&format!("term {cmd_}"));
         crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
         return true; 
     }        
@@ -349,28 +350,23 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = filename.contains( r"\n" );
+        let check_nl_marker = filename.contains( r"\n" ) || filename.contains (&crate::faav::__delim_for_newline (None).unwrap());
         crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-        let mut cmd = if crate::faav::yes_newline_in_filename (None){
-            format!("
-            #!/bin/bash
-            out=\"{} {filename}\"
-            for i in \"$@\"
-            do
-            echo $i
-            out=\"$out $i\"
-            done
-            echo \"ru=$out\"
-            export LC_ALL=ru_RU.utf8
-            export LANG=ru_RU.utf8
-            env > /tmp/env
-            fish -c  \"
-            #!/bin/fish
-             $out\""
-            , viewer)
-        } else {
-            format!("{} {} > /dev/null 2>&1", viewer, filename)
-        };
+         if crate::faav::yes_newline_in_filename (None){
+            let delim = "_:s:_".strn();
+            let filename = filename.replace 
+                    (
+                        &crate::faav::__delim_for_newline (None).unwrap(),
+                        "\n"//&char::from(0x0A).to_string()
+                    );
+            cmd = format!("{}{delim}{}", viewer, filename);
+            let cmd_ = format!("{} {}", viewer, filename);
+        // _break! (&cmd);
+            add_cmd_in_history(&format!("term {cmd_}"));
+            crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
+            return true;
+        }
+        let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
         add_cmd_in_history(&format!("term {cmd}"));
         if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
             cmd = format!("{} {}", viewer, filename);
@@ -759,3 +755,21 @@ fn stop_run_viewer(cmd: &String) -> bool {
     false
 }
 //fn
+/*
+format!("
+            #!/bin/bash
+            out=\"{} {filename}\"
+            for i in \"$@\"
+            do
+            echo $i
+            out=\"$out $i\"
+            done
+            echo \"ru=$out\"
+            export LC_ALL=ru_RU.utf8
+            export LANG=ru_RU.utf8
+            env > /tmp/env
+            fish -c  \"
+            #!/bin/fish
+             $out\""
+            , viewer)
+ */
