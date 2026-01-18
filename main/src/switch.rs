@@ -350,7 +350,11 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = filename.contains( r"\n" ) || filename.contains (&crate::faav::__delim_for_newline (None).unwrap());
+        let mut check_nl_marker = false;
+        if filename_len > crate::faav::too_long_len_for_bash (None) { check_nl_marker = true; }
+        else {
+            check_nl_marker = filename.contains( r"\n" ) || filename.contains (&crate::faav::__delim_for_newline (None).unwrap());
+        }
         crate::faav::yes_newline_in_filename (Some (check_nl_marker));
          if crate::faav::yes_newline_in_filename (None){
             let delim = "_:s:_".strn();

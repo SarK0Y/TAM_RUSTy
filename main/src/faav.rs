@@ -171,6 +171,16 @@ pub fn count_getkey (state: Option < i64 >) -> i64 {
         } state0 
     }
 }
+pub fn too_long_len_for_bash (state: Option < usize >) -> usize {
+    static mut state0: usize = 57;
+    unsafe {
+        if let Some ( x ) = state {
+            if x == 0 { state0 = 0; return 0;}
+            state0 += x; 
+        } state0 
+    }
+}
+
 pub fn real_e (state: Option < rugfloat >, prec: u64) -> rugfloat {
     static mut state0: Lazy< rugfloat > = Lazy::new (|| {rugfloat::with_val_64(3, 0.0)} );
     unsafe {
