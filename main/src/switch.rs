@@ -282,6 +282,12 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         if stop_run_viewer(&cmd) {
             return false;
         }
+        crate::faav::yes_newline_in_filename (
+            Some (
+                (crate::read_file ("user_wrote_path").len() > crate::faav::too_long_len_for_bash (None) )
+            )
+        );
+      //  _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
         let func_id = crate::func_id18::viewer_;
         if cmd.as_str().substring(0, 1) == "/" {
             let app_indx = "0".to_string();
@@ -301,8 +307,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         if file_indx.as_str().substring(0, 1) == "/" {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains (r"\n") || file_indx.contains (&newline_marker);
-            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
             file_indx = file_indx.replace (
                 &newline_marker,
                 "\n"//&char::from (0x0A).to_string ()
