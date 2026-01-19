@@ -247,10 +247,6 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     } else {
         file.strip_all_symbs();
     }
-    if crate::faav::yes_newline_in_filename (None ) && 
-       crate::Path::new(&file).exists() {
-       // _break! (&file);
-    }
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);

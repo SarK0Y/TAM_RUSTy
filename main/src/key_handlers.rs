@@ -29,7 +29,11 @@ pub fn Space () -> String {
         let item = prnt.replace(cmd0, "");
         let (_, item) = crate::split_once_or_ret_null_strns(&item, " ");
         let cmd = format!("0 {item}");
-        //crate::faav::yes_newline_in_filename ( Some (true) );
+        crate::faav::yes_newline_in_filename (
+            Some (
+                (crate::read_file ("user_wrote_path").len() > crate::faav::too_long_len_for_bash (None) )
+            )
+        );
         crate::swtch::run_viewer(cmd, 6737908104);
         crate::faav::lock_surprise_me( Some (true) );
         return "".strn()
@@ -99,6 +103,11 @@ pub(crate) fn Enter() -> String {
         prnt = format!("{prnt}:>:no_upd_scrn");
         //set_prnt(&prnt, -881454);
     }*/
+    crate::faav::yes_newline_in_filename (
+        Some (
+            (crate::read_file ("user_wrote_path").len() > crate::faav::too_long_len_for_bash (None) )
+        )
+    );
     let cmd0 = "|surprise me";
     if prnt.as_str().substring(0, cmd0.len()) == cmd0 { set_prnt("surprise me dry run", 159137003);}
     crate::cmd_keys::dont_run_file(Some(false));
