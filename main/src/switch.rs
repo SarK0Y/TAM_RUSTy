@@ -282,9 +282,12 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         if stop_run_viewer(&cmd) {
             return false;
         }
+        let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+        let user_wrote_path = crate::read_file ("user_wrote_path");
         crate::faav::yes_newline_in_filename (
             Some (
-                (crate::read_file ("user_wrote_path").len() > crate::faav::too_long_len_for_bash (None) )
+                (user_wrote_path.len() > crate::faav::too_long_len_for_bash (None) ) ||
+                user_wrote_path.contains (&newline_marker)
             )
         );
       //  _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
