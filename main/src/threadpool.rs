@@ -425,8 +425,23 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
+        use std::os::unix::io::{AsRawFd, RawFd};
+        let redirect = crate::take_list_adr ("redirect");
+        unsafe {libc::remove (redirect.as_ptr() as *const i8 ); }
+        let null_fd = unsafe { libc::open(CString::new(redirect.as_bytes() ).unwrap().as_ptr(), libc::O_RDWR|libc::O_CREAT|libc::O_TRUNC) };
+        /*if null_fd == -1 {
+            eprintln!("Failed to open /dev/null");
+            return;
+        }*/
         libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); 
+        if null_fd != -1 {
+            unsafe {
+                libc::dup2(null_fd, 1); // Redirect stdout
+                libc::dup2(null_fd, 2); // Redirect stderr
+            }
+        }
+       // crate::delay_ms (4000);
         let _ = libc::execve ( 
             c_str ( &only_app_name).as_ptr() as *const i8,
             args_ptr.as_mut_ptr() as *const *const i8,

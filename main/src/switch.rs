@@ -343,13 +343,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
         let mut filename = get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
-        let patch_mark_len = "::patch".to_string().chars().count();
-        if filename_len > patch_mark_len
-            && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
+        if filename.contains ("::patch")
         {
             filename = filename.replace("::patch", "");
-        } else {
-            filename = full_escape(&filename);
         }
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
@@ -373,6 +369,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
             return true;
         }
+        filename = full_escape(&filename);
         let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
         add_cmd_in_history(&format!("term {cmd}"));
         if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
