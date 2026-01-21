@@ -6,12 +6,16 @@ use self::{func_id17::{find_files, read_midway_data_}, globs17::{set_ls_as_front
 use crate::named_mutex::set;
 update_uses!();
 use std::{borrow::Borrow, time::Instant};
+use Mademoiselle_Entropia::minio::InterruptMsg;
+use Mademoiselle_Entropia::_break;
 pub fn multi_folder_lst () {
     let count_paths: u16 = crate::countArg ("-path") + crate::countArg ("-path0");
     if count_paths == 1 {main_update (); return }
     let mut paths: Vec <String> = crate::collectArg ("-path0");
     let _paths: Vec <String> = crate::collectArg ("-path");
     paths.extend (_paths);
+   /* dbg! (&paths);
+    _break! ("");*/
     let mut nodup_paths: Vec <String> = paths.uniq ();
     crate::save_file ("main".strn(), "ch_main".strn() );
     let main_lst_adr = take_list_adr ("main");
