@@ -435,7 +435,7 @@ pub(crate) fn read_cache_msg(&self) -> String{
 }
 //#[cfg(feature ="tst_macro")]
 }
-
+#[inline (always)]
 pub fn filename_str0 (filename: &std::path::Path) -> String{
     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
     let err_ret = std::ffi::OsString::from("");
