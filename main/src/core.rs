@@ -569,6 +569,11 @@ pub(crate) fn escape_symbs(str0: &String, func_id: i64) -> String {
     if check_patch_mark(str0) || !swtch_esc(false, false) {
         return str0.to_string();
     }
+    let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+    if crate::faav::yes_newline_in_filename (None)||
+       str0.contains (r"\n") ||
+       str0.contains (&newline_marker) 
+                    { return str0.strn() }
     let strr = str0.as_str();
     let strr = strr.replace("-", r"\-");
     let strr = strr.replace(" ", r"\ ");
@@ -648,6 +653,11 @@ pub(crate) fn full_escape(str0: &String) -> String {
         swtch_esc(true, false);
         return str0.strn();
     }
+    let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+    if crate::faav::yes_newline_in_filename (None)||
+       str0.contains (r"\n") ||
+       str0.contains (&newline_marker) 
+                    { return str0.strn() }
     let str0 = escape_backslash(str0, func_id);
     let str0 = escape_apostrophe(&str0, func_id);
     escape_symbs(&str0, func_id)
@@ -1895,10 +1905,6 @@ pub(crate) fn raw_ren_file(src: String, dst: String) {
     run_cmd_str(cmd.as_str());
 }
 pub(crate) fn mkdir(name: String) {
-    #[cfg(feature = "in_dbg")]
-    if name.len() > 20 && check_substrn(name.substring(2, name.len()), "dev") {
-        crate::in_dbg0::just_break();
-    }
     let name = full_escape(&name);
     let cmd = format!("mkdir -p {name}");
     run_cmd_str(cmd.as_str());

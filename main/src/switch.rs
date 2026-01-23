@@ -247,27 +247,22 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     } else {
         file.strip_all_symbs();
     }
-    crate::faav::yes_newline_in_filename ( Some (true));
-    if crate::faav::yes_newline_in_filename (None ) && 
-       crate::Path::new(&file).exists() {
-       // _break! (&file);
-    }
     let viewer = get_viewer(app_indx, -1, true);
     let mut cmd = String::new();
     cmd = format!("{} {} > /dev/null 2>&1", viewer, file);
     if crate::faav::yes_newline_in_filename (None){
        // _break!("hh");
         let delim = "_:s:_".strn();
-        let file = crate::faav::__orig_strn(None)
-                    .unwrap_or ("empty __orig_strn".strn() )
+        let file = file
                     .replace 
                     (
                         &crate::faav::__delim_for_newline (None).unwrap(),
                         "\n"//&char::from(0x0A).to_string()
                     );
         cmd = format!("{}{delim}{}", viewer, file);
+        let cmd_ = format!("{} {}", viewer, file);
        // _break! (&cmd);
-        add_cmd_in_history(&format!("term {cmd}"));
+        add_cmd_in_history(&format!("term {cmd_}"));
         crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
         return true; 
     }        
@@ -287,6 +282,15 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         if stop_run_viewer(&cmd) {
             return false;
         }
+        let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
+        let user_wrote_path = crate::read_file ("user_wrote_path");
+        crate::faav::yes_newline_in_filename (
+            Some (
+                (user_wrote_path.len() > crate::faav::too_long_len_for_bash (None) ) ||
+                user_wrote_path.contains (&newline_marker)
+            )
+        );
+      //  _break! (&crate::faav::yes_newline_in_filename (None).to_string() );
         let func_id = crate::func_id18::viewer_;
         if cmd.as_str().substring(0, 1) == "/" {
             let app_indx = "0".to_string();
@@ -306,12 +310,9 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         }
         if file_indx.as_str().substring(0, 1) == "/" {
             let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-            let check_nl_marker = file_indx.contains (r"\n");
-            crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-            file_indx = crate::faav::__orig_strn(None).unwrap ().clone ();
             file_indx = file_indx.replace (
                 &newline_marker,
-                &char::from (0x0A).to_string ()
+                "\n"//&char::from (0x0A).to_string ()
             );
         //    _break! (&file_indx);
             return viewer_n_adr(app_indx, file_indx);
@@ -342,38 +343,34 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
         let mut filename = get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
-        let patch_mark_len = "::patch".to_string().chars().count();
-        if filename_len > patch_mark_len
-            && filename.substring(filename_len - patch_mark_len, filename_len) == "::patch"
+        if filename.contains ("::patch")
         {
             filename = filename.replace("::patch", "");
-        } else {
-            filename = full_escape(&filename);
         }
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
-        let check_nl_marker = filename.contains( r"\n" );
+        let mut check_nl_marker = false;
+        if filename_len > crate::faav::too_long_len_for_bash (None) { check_nl_marker = true; }
+        else {
+            check_nl_marker = filename.contains( r"\n" ) || filename.contains (&crate::faav::__delim_for_newline (None).unwrap());
+        }
         crate::faav::yes_newline_in_filename (Some (check_nl_marker));
-        let mut cmd = if crate::faav::yes_newline_in_filename (None){
-            format!("
-            #!/bin/bash
-            out=\"{} {filename}\"
-            for i in \"$@\"
-            do
-            echo $i
-            out=\"$out $i\"
-            done
-            echo \"ru=$out\"
-            export LC_ALL=ru_RU.utf8
-            export LANG=ru_RU.utf8
-            env > /tmp/env
-            fish -c  \"
-            #!/bin/fish
-             $out\""
-            , viewer)
-        } else {
-            format!("{} {} > /dev/null 2>&1", viewer, filename)
-        };
+         if crate::faav::yes_newline_in_filename (None){
+            let delim = "_:s:_".strn();
+            let filename = filename.replace 
+                    (
+                        &crate::faav::__delim_for_newline (None).unwrap(),
+                        "\n"//&char::from(0x0A).to_string()
+                    );
+            cmd = format!("{}{delim}{}", viewer, filename);
+            let cmd_ = format!("{} {}", viewer, filename);
+        // _break! (&cmd);
+            add_cmd_in_history(&format!("term {cmd_}"));
+            crate::threadpool::new_thr_no_bash_n_delim (&cmd, &delim);
+            return true;
+        }
+        filename = full_escape(&filename);
+        let mut cmd = format!("{} {} > /dev/null 2>&1", viewer, filename);
         add_cmd_in_history(&format!("term {cmd}"));
         if tui_or_not(cpy_str(&cmd), &mut filename) || tui_mode(app_indx, None).unwrap() {
             cmd = format!("{} {}", viewer, filename);
@@ -762,3 +759,21 @@ fn stop_run_viewer(cmd: &String) -> bool {
     false
 }
 //fn
+/*
+format!("
+            #!/bin/bash
+            out=\"{} {filename}\"
+            for i in \"$@\"
+            do
+            echo $i
+            out=\"$out $i\"
+            done
+            echo \"ru=$out\"
+            export LC_ALL=ru_RU.utf8
+            export LANG=ru_RU.utf8
+            env > /tmp/env
+            fish -c  \"
+            #!/bin/fish
+             $out\""
+            , viewer)
+ */

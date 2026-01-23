@@ -392,45 +392,12 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
              }
           //  let os_path = c_str ;
             arg = arg.trim_end ().trim_start ().strn();
-          /*  let bytes = arg.as_bytes ();
-            let slice = &bytes[0..bytes.len() - 1];
-            let stripped_arg = String::from_utf8 (slice.to_vec() ).unwrap_or ("bad strn".strn());*/
-#[cfg(feature = "in_dbg")]
-             crate::in_dbg0::print_invisible_chars (&arg);
-             arg = arg.replace (&char::from(0x0A).to_string(), "\n");
-            if arg == "/m/big_ext4/clips/\nAlan Walker & Sabrina Carpenter, Gimb - On My Way (Official Music Video).mp4".strn() {
-                _break! ("yea, files matched");
-            } else {
-                let orig = "/m/big_ext4/clips/\nAlan Walker & Sabrina Carpenter, Gimb - On My Way (Official Music Video).mp4".strn();
-                let orig_len = orig.len();
-                let len = arg.len();
-                let mut miss_addr: Vec<usize> = Vec::new ();
-                let mut count_chars = 0usize;
-                let mut hit_n_miss: (usize, usize) = (0,0);
-                let mut wrong_chars = String::new();
-                let mut right_chars = String::new();
-                for c in orig.chars () {
-                    if Some (c) == arg.chars().nth(count_chars) {
-                        hit_n_miss.0 +=1;
-                        right_chars.push (c);
-                    } else { 
-                        hit_n_miss.1 +=1;
-                        miss_addr.push (count_chars);
-                        wrong_chars.push (c);
-                    }
-                    count_chars += 1;
-                }
-                println! ("orig len {orig_len}\nlen {len}");
-                dbg! (&hit_n_miss);
-                //dbg! (&miss_addr);
-                let show_wrong = format! ("\n{wrong_chars}\n");
-                dbg! (&show_wrong);
-                let show_right = format! ("\n{right_chars}\n");
-                dbg! (&show_right);
-                dbg! (&arg);
-            }
             args[ cnt ] = c_str (&arg ); cnt.inc();
-        }
+            }
+/*#[cfg(feature = "in_dbg")]
+             crate::in_dbg0::print_invisible_chars (&arg);
+             arg = arg.replace (&char::from(0x0A).to_string(), "\n");*/
+            
         let mut args_ptr: Vec<*const i8> = args.iter().map(|arg|
             if arg.is_empty () {
                 std::ptr::null ()
@@ -458,8 +425,23 @@ pub fn run_kid_no_bash_n_delim (cmd: &String, delim: &String) {
         }; */
        ////dbg!(&args); //dbg!(&app_name); //dbg! ( &env); delay_secs(12);
         use nix::errno::Errno;
+        use std::os::unix::io::{AsRawFd, RawFd};
+        let redirect = crate::take_list_adr ("redirect");
+        unsafe {libc::remove (redirect.as_ptr() as *const i8 ); }
+        let null_fd = unsafe { libc::open(CString::new(redirect.as_bytes() ).unwrap().as_ptr(), libc::O_RDWR|libc::O_CREAT|libc::O_TRUNC) };
+        /*if null_fd == -1 {
+            eprintln!("Failed to open /dev/null");
+            return;
+        }*/
         libc::printf ("env: %s\n\0".as_ptr () as *const i8, env_ptr[1] as *const i8);
         libc::printf ("c str1: %s\n\0".as_ptr () as *const i8, args_ptr[1] as *const i8); 
+        if null_fd != -1 {
+            unsafe {
+                libc::dup2(null_fd, 1); // Redirect stdout
+                libc::dup2(null_fd, 2); // Redirect stderr
+            }
+        }
+       // crate::delay_ms (4000);
         let _ = libc::execve ( 
             c_str ( &only_app_name).as_ptr() as *const i8,
             args_ptr.as_mut_ptr() as *const *const i8,

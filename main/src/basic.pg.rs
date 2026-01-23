@@ -82,11 +82,9 @@ impl super::basic{
             //no_dup_indx = indx;
             display_indx = indx;
             if !crate::C!(crate::swtch::local_indx(false)){display_indx = indx - num_page;}
-            let err_ret = std::ffi::OsString::from("");
-            let mut err_path = || -> &std::ffi::OsString{return &err_ret};
             //println!("build_page - probe 1");
             let mut filename = crate::Path::new(&full_path);
-            let filename_str0 = || -> String{
+            /*let filename_str0 = || -> String{
                     let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
                  if !crate::globs18::check_substrn01(&front_list, "history"){
                    return String::from(match filename.file_name(){
@@ -94,7 +92,7 @@ impl super::basic{
                     None => err_path(),
                 }.to_str().unwrap()).as_str().strn();
             } else {return filename.as_os_str().to_str().unwrap().strn()};
-            };
+            };*/
             if filename.as_os_str().to_str() == None{filename = crate::Path::new("")}
             if crate::globs18::eq_str(stopCode.as_str(), filename.as_os_str().to_str().unwrap()) == 0 && stopCode.len() == filename.as_os_str().to_str().unwrap().len() {println!("{}", "caught".bold().green()); 
              time_to_stop = true; break;}
@@ -103,7 +101,7 @@ impl super::basic{
                println!("stop code {}, len {}; str {}, len {}", stopCode, stopCode.as_str().len(), filename.as_os_str().to_str().unwrap(), filename.as_os_str().to_str().unwrap().len());
                println!("{:?}", filename.file_name());
             }
-            let mut fixed_filename: String = filename_str0().to_string();
+            let mut fixed_filename: String = filename_str0(&filename).to_string();
             crate::ins_newlines(crate::get_col_width(func_id).to_usize().unwrap(), &mut fixed_filename);
             if filename.is_dir(){filename_str =format!("{}: {}/", display_indx, fixed_filename);}
             else{filename_str = format!("{}: {}", display_indx, fixed_filename);}
@@ -252,7 +250,7 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
     match cache.entry(key.to_string()){
         Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_num); if key {
             let len = entry.get()[&seg_num].len(); if len <= offset {return failed;}
-        if len > 0 && entry.get()[&seg_num][len - 1] != MARKER_OF_ACCESS {return corrupted;} 
+        //if len > 0 && entry.get()[&seg_num][len - 1] != MARKER_OF_ACCESS {return corrupted;} 
             if patch_len() > 0{
                let rec = match rec_from_patch(&entry.get()[&seg_num][offset].clone()){
                 Some(val) => val,
@@ -404,7 +402,8 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
    if cache.len() > 0{popup_msg("bad cache"); cache.clear(); popup_msg(&cache.len().to_string())}
     for i in indx..upto{
-        let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
+        //let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);
+        let rec =  ln_of_found_files_cacheless(i).0;
         if i == lst_len{break;}
        // if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});
@@ -437,3 +436,15 @@ pub(crate) fn read_cache_msg(&self) -> String{
 }
 //#[cfg(feature ="tst_macro")]
 }
+#[inline (always)]
+pub fn filename_str0 (filename: &std::path::Path) -> String{
+    let front_list = take_list_adr_env(&name_of_front_list("", false) ).unreel_link_to_file();
+    let err_ret = std::ffi::OsString::from("");
+    if !crate::globs18::check_substrn01(&front_list, "history"){
+        return String::from(match filename.file_name(){
+            Some(f) => f,
+            None => &err_ret,
+        }.to_str().unwrap()).as_str().strn();
+    } else {return filename.as_os_str().to_str().unwrap().strn()};
+}
+//fn

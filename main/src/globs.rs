@@ -866,10 +866,6 @@ pub unsafe fn lists(val: &str, list: i64, indx: usize, op_code: i64) -> String {
     "wrong".to_string()
 }
 pub(crate) fn take_list_adr(name: &str) -> String {
-    #[cfg(feature = "in_dbg")]
-    if name.len() > 20 && check_substrn(name, "dev") {
-        crate::in_dbg0::just_break();
-    }
     return format!("{}/{name}", crate::bkp_tmp_dir(None, false));
 }
 pub(crate) fn renew_lists(new_item: String) {
