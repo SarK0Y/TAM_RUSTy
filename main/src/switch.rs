@@ -341,7 +341,8 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             _ => return msg(),
         };
         //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
-        let mut filename = get_item_from_front_list(file_indx, true);
+        let mut filename = crate::cache::cached_ln_of_found_files (file_indx as usize).0;
+        //get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
         if filename.contains ("::patch")
         {

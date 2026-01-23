@@ -250,7 +250,7 @@ pub(crate) fn pg_rec_from_cache(cache: &mut cache_t, key: &String, indx: usize) 
     match cache.entry(key.to_string()){
         Entry::Occupied(entry) => {let key= entry.get().contains_key(&seg_num); if key {
             let len = entry.get()[&seg_num].len(); if len <= offset {return failed;}
-        if len > 0 && entry.get()[&seg_num][len - 1] != MARKER_OF_ACCESS {return corrupted;} 
+        //if len > 0 && entry.get()[&seg_num][len - 1] != MARKER_OF_ACCESS {return corrupted;} 
             if patch_len() > 0{
                let rec = match rec_from_patch(&entry.get()[&seg_num][offset].clone()){
                 Some(val) => val,
@@ -402,7 +402,8 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
     crate::save_file_abs_adr0(name.to_string(), path_2_msg_forming.clone());
    if cache.len() > 0{popup_msg("bad cache"); cache.clear(); popup_msg(&cache.len().to_string())}
     for i in indx..upto{
-        let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);//ln_of_found_files_cacheless(i);
+        //let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);
+        let rec =  crate::cache::cached_ln_of_found_files(i).0;
         if i == lst_len{break;}
        // if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});

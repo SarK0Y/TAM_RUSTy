@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug)]
 pub(crate) enum cached_data{
     no_rec,
     no_list,
