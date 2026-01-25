@@ -239,6 +239,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     };
     let filename_len = file.chars().count();
     let mut file = file;
+    crate::set_ask_user (&file, -917841144);
     let patch_mark_len = "::patch".to_string().chars().count();
     if !crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
