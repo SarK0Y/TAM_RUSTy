@@ -386,8 +386,9 @@ pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
             return args[i + 1].clone();
         }
     }
+    crate::key_handlers::F1_key();
     return ret;
-}
+} // fn initSession
 pub(crate) fn mk_dummy_lnks() {
     mk_dummy_lnk("cp");
     mk_dummy_lnk("mv");

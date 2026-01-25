@@ -348,6 +348,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
         {
             filename = filename.replace("::patch", "");
         }
+        crate::set_ask_user (&filename, -557841144);
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
         let mut check_nl_marker = false;

@@ -143,9 +143,9 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 state ^= u64_();
                 let indx_mode = crate::swtch::local_indx(false);
                 if indx_mode {crate::swtch::local_indx(true);}
-                let count = crate::ps18::get_num_files(510974534);
+                let count = crate::ps18::get_num_files(510974534) + 1;
                 let file_indx = state % count as u64;
-                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
+                let mut item = crate::cache::cached_ln_of_found_files (file_indx as usize).0;
                 let cmd = format!("0 {item}");
                 if indx_mode {crate::swtch::local_indx(true);} 
                 crate::set_prnt( &format!("surprise me dry run {file_indx} {item}"), 510974534 );
@@ -156,9 +156,9 @@ pub fn surprise_me_dry_run(cmd: Option < amaze_me > ) -> Option <u64>{
                 state ^= warming_up( c );
                 let indx_mode = crate::swtch::local_indx(false);
                 if indx_mode {crate::swtch::local_indx(true);}
-                let count = crate::ps18::get_num_files(510974534);
+                let count = crate::ps18::get_num_files(510974534) + 1;
                 let file_indx = state % count as u64;
-                let mut item = crate::globs18::get_item_from_front_list_times( file_indx as i64, true, 100 );
+                let mut item = crate::cache::cached_ln_of_found_files( file_indx as usize).0;
                 let cmd = format!("0 {item}");
                 crate::swtch::run_viewer(cmd, 984115314);
                 if indx_mode {crate::swtch::local_indx(true);} 
