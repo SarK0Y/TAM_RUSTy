@@ -190,6 +190,14 @@ pub fn too_long_len_for_bash (state: Option < usize >) -> usize {
         } state0 
     }
 }
+pub fn count_fork_tam_fails (state: Option < () >) -> usize {
+    static mut state0: usize = 0;
+    unsafe {
+        if state.is_some () {
+            state0 += 1; 
+        } state0 
+    }
+}
 pub fn limit_fork_tam_fails (num_of_possible_fails: Option < usize >) -> usize {
     static mut state0: usize = 5;
     unsafe {
