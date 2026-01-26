@@ -593,6 +593,20 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 //    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }
+pub fn fork_tam (cmd: &String, delim: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
+            let pid = child.as_raw();
+            std::thread::spawn( move|| {
+                let mut state0: i32 = 0;
+                let mut state: *mut i32 = &mut state0;
+                unsafe { libc::waitpid( pid, state, 0);}
+            });
+            return Ok ( ForkResult::Parent { child } ) },
+        Ok(ForkResult::Child) => { run_kid_no_bash_n_delim(cmd, delim ); std::process::abort(); crate::info::SYS(); },
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
 //fn
 /*
 ////////////////////////// run cargo w/ execve ///////////////////////////////

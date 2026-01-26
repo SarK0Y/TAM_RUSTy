@@ -75,6 +75,16 @@ pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
         } return lock.clone()
     }
 }
+pub fn fork_tam_mode () -> bool {
+    static mut yes: bool = false;
+    static mut _1st: bool = true;
+    unsafe {
+        if _1st {
+            if crate::checkArg ("-fork-mode") {yes = true;}
+            _1st = false;
+        } return yes
+    }
+}
 pub fn npf_lock (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {
