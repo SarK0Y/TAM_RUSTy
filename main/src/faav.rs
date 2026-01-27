@@ -190,6 +190,12 @@ pub fn too_long_len_for_bash (state: Option < usize >) -> usize {
         } state0 
     }
 }
+pub fn fork_tam_failed_yet_another_time () {
+    let _ = count_fork_tam_fails (Some ( () ) );
+}
+pub fn how_many_times_fork_tam_failed () -> usize{
+    return count_fork_tam_fails (None)
+}
 pub fn count_fork_tam_fails (state: Option < () >) -> usize {
     static mut state0: usize = 0;
     unsafe {
