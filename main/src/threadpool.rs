@@ -600,7 +600,7 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
             let pid: i32 = child.as_raw();
             std::thread::spawn( move|| {
                 WaitForkTAM ( pid );
-            });
+            }).join ();
             return Ok ( () ) },
         Ok(ForkResult::Child) => {return Ok ( () )},
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
@@ -611,12 +611,14 @@ fn WaitForkTAM (pid: i32) {
     let mut state: *mut i32 = &mut state0;
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
     loop {
-        unsafe { libc::waitpid( pid, state, 0);}
+        let res = unsafe { libc::waitpid( pid, state, 0)};
         let ok_exit = crate::take_list_adr ("ok_exit");
         let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
-        let mut exit_or_go = std::path::Path::new (&ok_exit).exists();
+        let mut exit_or_go = false;
         exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
+        exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | (res == -1) | std::path::Path::new (&ok_exit).exists();
         if exit_or_go {
+            println! ("Session ended w/ code {}", libc::WEXITSTATUS (unsafe { *state } ) );
            std::process::exit(0);
         }
         crate::faav::fork_tam_failed_yet_another_time ();
