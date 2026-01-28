@@ -18,6 +18,7 @@ use libc::{
     STDIN_FILENO, STDOUT_FILENO,
 };
 use crate::full_escape;
+use crate::delim;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
@@ -593,15 +594,15 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 //    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }
-pub fn fork_tam (cmd: &String, delim: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
+pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
             let pid: i32 = child.as_raw();
             std::thread::spawn( move|| {
                 WaitForkTAM ( pid );
             });
-            return Ok ( ForkResult::Parent { child } ) },
-        Ok(ForkResult::Child) => { run_kid_no_bash_n_delim(cmd, delim ); std::process::abort(); crate::info::SYS(); },
+            return Ok ( () ) },
+        Ok(ForkResult::Child) => {return Ok ( () )},
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
@@ -619,6 +620,7 @@ fn WaitForkTAM (pid: i32) {
            std::process::exit(0);
         }
         crate::faav::fork_tam_failed_yet_another_time ();
+        fork_tam ();
     }
 }
 //fn
