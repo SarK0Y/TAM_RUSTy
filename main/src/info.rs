@@ -21,6 +21,8 @@ pub(crate) fn SYS() {
             crate::update18::delay_mcs(20);
          } return;
      }
+    let ok_exit = crate::take_list_adr ("ok_exit");
+    crate::mk_empty_file (&ok_exit);
     println!("\nHave a nice Day & Night, DEAR USER\nSee You Soon 🙃",);
     std::process::exit(0)
 }

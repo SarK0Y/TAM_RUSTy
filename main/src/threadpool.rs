@@ -596,16 +596,30 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 pub fn fork_tam (cmd: &String, delim: &String) -> Result< nix::unistd::ForkResult, nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => { thr_ids (crate::enums::threadpool::add_new( child ) );
-            let pid = child.as_raw();
+            let pid: i32 = child.as_raw();
             std::thread::spawn( move|| {
-                let mut state0: i32 = 0;
-                let mut state: *mut i32 = &mut state0;
-                unsafe { libc::waitpid( pid, state, 0);}
+                WaitForkTAM ( pid );
             });
             return Ok ( ForkResult::Parent { child } ) },
         Ok(ForkResult::Child) => { run_kid_no_bash_n_delim(cmd, delim ); std::process::abort(); crate::info::SYS(); },
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
+}
+fn WaitForkTAM (pid: i32) {
+    let mut state0: i32 = 0;
+    let mut state: *mut i32 = &mut state0;
+    let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
+    loop {
+        unsafe { libc::waitpid( pid, state, 0);}
+        let ok_exit = crate::take_list_adr ("ok_exit");
+        let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
+        let mut exit_or_go = std::path::Path::new (&ok_exit).exists();
+        exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
+        if exit_or_go {
+           std::process::exit(0);
+        }
+        crate::faav::fork_tam_failed_yet_another_time ();
+    }
 }
 //fn
 /*
