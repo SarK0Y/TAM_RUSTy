@@ -602,11 +602,18 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
                 WaitForkTAM ( pid );
             }).join ();
             return Ok ( () ) },
-        Ok(ForkResult::Child) => {return Ok ( () )},
+        Ok(ForkResult::Child) => { return Ok ( () )},
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
 fn WaitForkTAM (pid: i32) {
+    let child_or_not = crate::rw::checkForkChilds ();
+    dbg! (&child_or_not);
+    if child_or_not {
+        std::process::exit (0);
+        return; 
+    }
+    else { crate::rw::flag_1st_proc (); }
     let mut state0: i32 = 0;
     let mut state: *mut i32 = &mut state0;
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);

@@ -16,3 +16,12 @@ pub fn read_file_to_vec < T > (path: &String) -> Result <Vec < T >, Box <dyn Err
         Ok(ret_vec)
     }
 }
+pub fn checkForkChilds () -> bool {
+    let only_childs = crate::take_list_adr ("now_only_forked_childs");
+    return std::path::Path::new (&only_childs).exists ()
+}
+pub fn flag_1st_proc () {
+    if checkForkChilds () { return }
+    let only_childs = crate::take_list_adr ("now_only_forked_childs");
+    crate::mk_empty_file (&only_childs);
+}
