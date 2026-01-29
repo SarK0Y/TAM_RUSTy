@@ -616,7 +616,9 @@ fn WaitForkTAM (pid: i32) {
         let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
         let mut exit_or_go = false;
         exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
-        exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | (res == -1) | std::path::Path::new (&ok_exit).exists();
+        //exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | (res == -1) | std::path::Path::new (&ok_exit).exists();
+        exit_or_go |= std::path::Path::new (&ok_exit).exists();
+        dbg! (&res);
         if exit_or_go {
             println! ("Session ended w/ code {}", libc::WEXITSTATUS (unsafe { *state } ) );
            std::process::exit(0);

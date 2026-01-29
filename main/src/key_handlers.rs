@@ -180,6 +180,8 @@ pub(crate) fn Ins_key() -> String {
     if file_indx.trim_end() == cmd0 { crate::cmd_keys::screen_state(Some(true)); return empty; }
     let cmd0 = "modes";
     if file_indx.trim_end() == cmd0 { crate::lst::show_modes(); return empty; }
+    let cmd0 = "reload tam";
+    if file_indx.trim_end() == cmd0 { crate::init::reload_tam (); return empty; }
     if file_indx.trim_end() == "lst upd" { crate::lst::upd_session_lists(); return empty; }
     if file_indx.substring(0, 3) == "lst" { crate::lst::manage_lst_sub(&file_indx.trim_end().strn()); return empty; }
     let cmd0 = "prompt mode default";

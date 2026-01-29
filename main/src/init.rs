@@ -3,6 +3,8 @@ use once_cell::sync::Lazy;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, SIGCHLD};
 use nix::sys::wait::waitpid;
 use nix::unistd::Pid;
+use Mademoiselle_Entropia::_break;
+use Mademoiselle_Entropia::minio::InterruptMsg;
 pub fn user_home_dir() -> String {
     static mut home: Lazy<String> = Lazy::new(|| "".strn());
     static mut fst: bool = true;
@@ -43,6 +45,10 @@ pub fn unset_sig_chld_hook (){
     unsafe {
         sigaction(SIGCHLD, &sig_action); //?;
     }
+}
+pub fn reload_tam () {
+    crate::set_ask_user ("Let's reload TAM", -851658545);
+    std::process::exit (477);
 }
 //fn
 /*
