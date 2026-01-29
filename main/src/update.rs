@@ -155,7 +155,11 @@ let mut ps__: crate::_page_struct = crate::init_page_struct();
 ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
-else{ base.manage_pages() }
+else{ 
+    if crate::faav::fork_tam_mode () {
+        crate::threadpool::fork_tam ();
+    }
+    base.manage_pages() }
 println!("stop manage_page");
 }).unwrap();
 //background_fixing_count(2);
