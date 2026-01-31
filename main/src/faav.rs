@@ -75,6 +75,16 @@ pub fn yes_newline_in_filename (state: Option < bool >) -> bool {
         } return lock.clone()
     }
 }
+pub fn fork_tam_mode () -> bool {
+    static mut yes: bool = false;
+    static mut _1st: bool = true;
+    unsafe {
+        if _1st {
+            if crate::checkArg ("-fork-mode") {yes = true;}
+            _1st = false;
+        } return yes
+    }
+}
 pub fn npf_lock (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {
@@ -176,11 +186,33 @@ pub fn too_long_len_for_bash (state: Option < usize >) -> usize {
     unsafe {
         if let Some ( x ) = state {
             if x == 0 { state0 = 0; return 0;}
-            state0 += x; 
+            state0 = x; 
         } state0 
     }
 }
-
+pub fn fork_tam_failed_yet_another_time () {
+    let _ = count_fork_tam_fails (Some ( () ) );
+}
+pub fn how_many_times_fork_tam_failed () -> usize{
+    return count_fork_tam_fails (None)
+}
+pub fn count_fork_tam_fails (state: Option < () >) -> usize {
+    static mut state0: usize = 0;
+    unsafe {
+        if state.is_some () {
+            state0 += 1; 
+        } state0 
+    }
+}
+pub fn limit_fork_tam_fails (num_of_possible_fails: Option < usize >) -> usize {
+    static mut state0: usize = 5;
+    unsafe {
+        if let Some ( x ) = num_of_possible_fails {
+            if x == 0 { state0 = 0; return 0;}
+            state0 = x; 
+        } state0 
+    }
+}
 pub fn real_e (state: Option < rugfloat >, prec: u64) -> rugfloat {
     static mut state0: Lazy< rugfloat > = Lazy::new (|| {rugfloat::with_val_64(3, 0.0)} );
     unsafe {

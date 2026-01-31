@@ -678,7 +678,12 @@ pub(crate) fn mk_dummy_file() -> String{
     save_file0("".to_string(), "msgs/term/dummy_file_4_id".to_string());
     take_list_adr("msgs/term/dummy_file_4_id")
 }
-pub(crate) fn mk_empty_file(name: &String){
+pub(crate) fn mk_empty_file <t: ToString >(name: t){
+    let name = name.to_string ();
+    match std::fs::remove_file(&name){Ok (f) => {}, _ => {} }; 
+    crate::save_file_abs_adr("".strn(), name);
+}
+pub(crate) fn _mk_empty_file(name: &String){
     match std::fs::remove_file(name){Ok (f) => {}, _ => {} }; 
     crate::save_file_abs_adr("".strn(), name.strn());
 }

@@ -403,7 +403,7 @@ pub(crate) unsafe fn mk_fast_cache<'a>(tmp_dir: &'a String, indx: usize, name: &
    if cache.len() > 0{popup_msg("bad cache"); cache.clear(); popup_msg(&cache.len().to_string())}
     for i in indx..upto{
         //let rec =  get_item_from_front_list(crate::usize_2_i64(i), false);
-        let rec =  ln_of_found_files_cacheless(i).0;
+        let rec =  crate::cache::cached_ln_of_found_files(i).0;
         if i == lst_len{break;}
        // if rec == "no str gotten"{continue}
        // cache.entry(name.clone()).and_modify(|e|{e.push(rec.0)});

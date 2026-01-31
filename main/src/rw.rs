@@ -16,3 +16,24 @@ pub fn read_file_to_vec < T > (path: &String) -> Result <Vec < T >, Box <dyn Err
         Ok(ret_vec)
     }
 }
+pub fn checkForkChilds () -> bool {
+    let only_childs = crate::take_list_adr ("now_only_forked_childs");
+    return std::path::Path::new (&only_childs).exists ()
+}
+pub fn flag_1st_proc () {
+    if checkForkChilds () { return }
+    let only_childs = crate::take_list_adr ("now_only_forked_childs");
+    crate::mk_empty_file (&only_childs);
+}
+pub fn file_exist7 < T: ToString > (rel_name: T ) -> bool {
+    let rel_name0 = rel_name.to_string();
+   // dbg! (&rel_name0);
+    let rel_name = crate::take_list_adr (&rel_name0);
+   // dbg! (&rel_name);
+    return std::path::Path::new (&rel_name).exists()
+}
+pub fn del_file < T: ToString > (rel_name: T ) {
+    let rel_name = rel_name.to_string();
+    let rel_name = crate::take_list_adr (&rel_name);
+    std::fs::remove_file (&rel_name);
+}

@@ -239,6 +239,7 @@ fn viewer_n_adr(app: String, file: String) -> bool {
     };
     let filename_len = file.chars().count();
     let mut file = file;
+    crate::set_ask_user (&file, -917841144);
     let patch_mark_len = "::patch".to_string().chars().count();
     if !crate::faav::yes_newline_in_filename (None ) && 
        crate::Path::new(&file).exists() {
@@ -341,12 +342,14 @@ fn viewer_n_adr(app: String, file: String) -> bool {
             _ => return msg(),
         };
         //let file_indx: i64 = crate::globs18::get_proper_indx(file_indx).1;
-        let mut filename = get_item_from_front_list(file_indx, true);
+        let mut filename = crate::cache::cached_ln_of_found_files (file_indx as usize).0;
+        //get_item_from_front_list(file_indx, true);
         let filename_len = filename.chars().count();
         if filename.contains ("::patch")
         {
             filename = filename.replace("::patch", "");
         }
+        crate::set_ask_user (&filename, -557841144);
         let viewer = get_viewer(app_indx, -1, true);
         //let newline_marker = crate::faav::__delim_for_newline (None).unwrap();
         let mut check_nl_marker = false;

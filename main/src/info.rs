@@ -21,6 +21,8 @@ pub(crate) fn SYS() {
             crate::update18::delay_mcs(20);
          } return;
      }
+    let ok_exit = crate::take_list_adr ("ok_exit");
+    crate::mk_empty_file (&ok_exit);
     println!("\nHave a nice Day & Night, DEAR USER\nSee You Soon 🙃",);
     std::process::exit(0)
 }
@@ -122,6 +124,7 @@ pub(crate) fn info1() {
     banners_line(donate, "◑");
     println!("\n");
     banners_line2(Author, ">", "<");
+    println! ("\nFork TAM mode: {}", crate::faav::fork_tam_mode () );
     println!("\nDear User, Please, hit any key to continue.. Thanks.");
     getkey();
     {

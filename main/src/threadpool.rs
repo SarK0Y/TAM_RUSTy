@@ -18,6 +18,9 @@ use libc::{
     STDIN_FILENO, STDOUT_FILENO,
 };
 use crate::full_escape;
+use crate::delim;
+use crate::extctrl::ManageLists;
+use crate::custom_traits::STRN_i32;
 use Mademoiselle_Entropia::minio::InterruptMsg;
 use Mademoiselle_Entropia::_break;
 #[derive( Debug, PartialEq )]
@@ -592,6 +595,57 @@ pub fn static_vec <T > () -> *mut Vec < T > {
     let pointer: *mut Vec < T > =  &mut *(*this_vec);
 //    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
+}
+pub fn fork_tam (base: &mut crate::basic) -> Result< (), nix::errno::Errno > {
+   match unsafe { fork() } {
+        Ok(ForkResult::Parent { child }) => {
+            let pid: i32 = child.as_raw();
+            WaitForkTAM ( pid, base );
+            return Ok ( () ) },
+        Ok(ForkResult::Child) => {
+            savNewChildPid ( unsafe {libc::getpid() } );
+            crate::update18::alive_session ();
+            //crate::mk_empty_file ("reload");
+            dbg! ("run child"); return Ok ( () )},
+        Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
+    }    
+}
+fn WaitForkTAM (pid: i32, base: &mut crate::basic) {
+    if crate::update18::is_session_alive () {
+        std::process::exit (0);
+        return; 
+    }
+    else { crate::rw::flag_1st_proc (); }
+    let mut state0: i32 = 0;
+    let mut state: *mut i32 = &mut state0;
+    let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
+    loop {
+        //let res = unsafe { libc::waitpid( pid, state, 0)};
+        crate::update18::wait_untill_session_alive();
+       // let res = unsafe { libc::waitpid( -1, state, 0)};
+        let ok_exit = crate::take_list_adr ("ok_exit");
+        let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
+        let mut exit_or_go = false;
+        exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
+        exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | std::path::Path::new (&ok_exit).exists();
+        //exit_or_go |= std::path::Path::new (&ok_exit).exists();
+        //dbg! (&res);
+        if exit_or_go {
+            println! ("Session ended w/ code {}", libc::WEXITSTATUS (unsafe { *state } ) );
+           std::process::exit(0);
+        }
+        crate::faav::fork_tam_failed_yet_another_time ();
+       // pid = getNewChildPid();
+        crate::delay_ms (2000);
+        //_break!("got new pid");
+        fork_tam ( base );
+    }
+}
+pub fn getNewChildPid () -> i32 {
+    return crate::read_file ("child.pid").trim_start().trim_end().i320();
+}
+pub fn savNewChildPid (pid: i32) {
+    crate::save_file (pid.to_string(), "child.pid".strn() );
 }
 //fn
 /*

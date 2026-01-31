@@ -358,7 +358,9 @@ pub(crate) fn initSession() -> bool {
         link_lst_to(&key.substring(1, key.len()).strn(), &link);
     }
     link_ext_lsts();
-    alive_session();
+    if crate::faav::fork_tam_mode () == false {
+        alive_session();
+    }
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
@@ -386,8 +388,9 @@ pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
             return args[i + 1].clone();
         }
     }
+    crate::key_handlers::F1_key();
     return ret;
-}
+} // fn initSession
 pub(crate) fn mk_dummy_lnks() {
     mk_dummy_lnk("cp");
     mk_dummy_lnk("mv");

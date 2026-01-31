@@ -135,7 +135,7 @@ pub(crate) fn cached_ln_of_found_files(get_indx: usize) -> (String, usize){
         }   
          len = indx;
         }
-        if ret == ret0 {return ("no str gotten".to_string(), len);}
+        if ret == ret0 {return ln_of_found_files_cacheless(get_indx);}
     }
         let get_indx_offset = get_indx % seg_size();
         let base_indx: usize = get_indx - get_indx_offset;
