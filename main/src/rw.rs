@@ -25,3 +25,8 @@ pub fn flag_1st_proc () {
     let only_childs = crate::take_list_adr ("now_only_forked_childs");
     crate::mk_empty_file (&only_childs);
 }
+pub fn file_exist7 < T: ToString > (rel_name: T ) -> bool {
+    let rel_name = rel_name.to_string();
+    let rel_name = crate::take_list_adr (&rel_name);
+    return std::path::Path::new (&rel_name).exists()
+}

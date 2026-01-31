@@ -10,6 +10,9 @@ pub trait STRN {
 pub trait STRN_usize {
     fn usize0(&self) -> usize;
 }
+pub trait STRN_i32 {
+    fn i320(&self) -> i32;
+}
 #[cfg(feature="tam")] 
 impl STRN_usize for String{
     fn usize0(&self) -> usize {
@@ -40,6 +43,24 @@ impl turn_2_i64 for String{
         match i64::from_str_radix(self, 10){ 
             Ok(i) => i,
             _ => {errMsg0("i640: no number was gotten."); i64::MIN }
+        }
+    }
+}
+#[cfg(feature="tam")] 
+impl STRN_i32 for &str{
+    fn i320(&self) -> i32 {
+        match i32::from_str_radix(self, 10){ 
+            Ok(i) => i,
+            _ => {errMsg0("i320: no number was gotten."); i32::MIN }
+        }
+    }
+}
+#[cfg(feature="tam")] 
+impl STRN_i32 for String{
+    fn i320(&self) -> i32 {
+        match i32::from_str_radix(self, 10){ 
+            Ok(i) => i,
+            _ => {errMsg0("i320: no number was gotten."); i32::MIN }
         }
     }
 }

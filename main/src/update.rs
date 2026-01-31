@@ -157,8 +157,9 @@ C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{ 
     if crate::faav::fork_tam_mode () {
-        crate::threadpool::fork_tam ();
+        crate::threadpool::fork_tam (&mut base);
     }
+    dbg! ("manage pages");
     base.manage_pages() }
 println!("stop manage_page");
 }).unwrap();
@@ -381,11 +382,16 @@ pub(crate) fn alive_session(){
     mk_empty_file(&shm_alive);
     std::os::unix::fs::symlink(shm_alive, main_path_alive);
 spawn(||{
+    let fork_pid_len = crate::read_file ("fork.pid").len();
+    println!("\nStart alive session", );
     loop {
         let timestamp = std::time::SystemTime::now();
         let secs: u64 = match timestamp.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
         save_file(secs.strn(), "alive".strn());
         std::thread::sleep(std::time::Duration::from_secs(15));
+        if crate::read_file ("fork.pid").len() > fork_pid_len { 
+            println!("\nEnd alive session", );
+            break; }
     }
 });
 }
@@ -418,6 +424,17 @@ pub(crate) fn clean_dead_tams(){
         }
     } //std::thread::spawn(||{clean_main_path()} );
    clean_main_path();
+}
+pub(crate) fn is_session_alive () -> bool {
+
+   // let reload7 =  
+   todo!()
+}
+pub fn wait_untill_session_alive () {
+    loop {
+        if !is_session_alive () { break;}
+        crate::delay_ms (400);
+    }
 }
 pub(crate) fn clean_main_path(){
     let mut main_path = bkp_main_path(None, false);
