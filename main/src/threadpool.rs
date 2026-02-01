@@ -628,6 +628,7 @@ fn WaitForkTAM (pid: i32 ) {
         let mut exit_or_go = false;
         exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
         exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | std::path::Path::new (&ok_exit).exists();
+        dbg! (&num_of_actual_fails);
         //exit_or_go |= std::path::Path::new (&ok_exit).exists();
         //dbg! (&res);
         if exit_or_go {
