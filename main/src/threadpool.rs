@@ -599,10 +599,12 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => {
+            println! ("yet another parent of fork_tam()");
             let pid: i32 = child.as_raw();
             WaitForkTAM ( pid );
             return Ok ( () ) },
         Ok(ForkResult::Child) => {
+            crate::rw::close_this_child7 ();
             savNewChildPid ( unsafe {libc::getpid() } );
             //crate::update18::alive_session ();
             //crate::mk_empty_file ("reload");
@@ -612,7 +614,7 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
 }
 fn WaitForkTAM (pid: i32 ) {
     if crate::rw::file_exist7 ("now_only_forked_childs") {
-        std::process::exit (0);
+        println! ("exit WaitForkTAM");
         return; 
     }
     else { crate::rw::flag_1st_proc (); }

@@ -37,3 +37,9 @@ pub fn del_file < T: ToString > (rel_name: T ) {
     let rel_name = crate::take_list_adr (&rel_name);
     std::fs::remove_file (&rel_name);
 }
+pub fn close_this_child7 () {
+    if file_exist7 ("now_only_forked_childs") {
+        std::process::exit (0);
+    }
+}
+//fn

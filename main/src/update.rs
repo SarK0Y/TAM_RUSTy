@@ -437,7 +437,7 @@ pub fn wait_untill_session_alive () {
     loop {
         if !is_session_alive () { 
             crate::rw::del_file ("reload");
-            break;
+            return;
         }
         if crate::rw::file_exist7 ("ping_wait_untill_session_alive") {
             println! ("fn wait_untill_session_alive");
