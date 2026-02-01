@@ -47,7 +47,7 @@ pub fn unset_sig_chld_hook (){
     }
 }
 pub fn reload_tam () {
-    crate::set_ask_user ("Let's reload TAM", -851658545);
+    //crate::set_ask_user ("Let's reload TAM", -851658545);
     let my_pid = unsafe {libc::getpid () };
     let fork_pid = crate::take_list_adr ("fork.pid");
     if !std::path::Path::new (&fork_pid).exists() {

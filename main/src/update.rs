@@ -157,7 +157,7 @@ C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{ 
     if crate::faav::fork_tam_mode () {
-        crate::threadpool::fork_tam (&mut base);
+        crate::threadpool::fork_tam ();
     }
     dbg! ("manage pages");
     base.manage_pages() }

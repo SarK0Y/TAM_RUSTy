@@ -596,22 +596,22 @@ pub fn static_vec <T > () -> *mut Vec < T > {
 //    let mut pointer =  Box::new ( this_vec ).leak() ;
     pointer
 }
-pub fn fork_tam (base: &mut crate::basic) -> Result< (), nix::errno::Errno > {
+pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => {
             let pid: i32 = child.as_raw();
-            WaitForkTAM ( pid, base );
+            WaitForkTAM ( pid );
             return Ok ( () ) },
         Ok(ForkResult::Child) => {
             savNewChildPid ( unsafe {libc::getpid() } );
-            crate::update18::alive_session ();
+            //crate::update18::alive_session ();
             //crate::mk_empty_file ("reload");
             dbg! ("run child"); return Ok ( () )},
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
-fn WaitForkTAM (pid: i32, base: &mut crate::basic) {
-    if crate::update18::is_session_alive () {
+fn WaitForkTAM (pid: i32 ) {
+    if crate::rw::file_exist7 ("now_only_forked_childs") {
         std::process::exit (0);
         return; 
     }
@@ -620,7 +620,7 @@ fn WaitForkTAM (pid: i32, base: &mut crate::basic) {
     let mut state: *mut i32 = &mut state0;
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
     loop {
-        //let res = unsafe { libc::waitpid( pid, state, 0)};
+      //  let res = unsafe { libc::waitpid( pid, state, 0)};
         crate::update18::wait_untill_session_alive();
        // let res = unsafe { libc::waitpid( -1, state, 0)};
         let ok_exit = crate::take_list_adr ("ok_exit");
@@ -638,7 +638,7 @@ fn WaitForkTAM (pid: i32, base: &mut crate::basic) {
        // pid = getNewChildPid();
         crate::delay_ms (2000);
         //_break!("got new pid");
-        fork_tam ( base );
+        fork_tam ( );
     }
 }
 pub fn getNewChildPid () -> i32 {

@@ -358,9 +358,9 @@ pub(crate) fn initSession() -> bool {
         link_lst_to(&key.substring(1, key.len()).strn(), &link);
     }
     link_ext_lsts();
-    if crate::faav::fork_tam_mode () == false {
+    //if crate::faav::fork_tam_mode () == false {
         alive_session();
-    }
+    //}
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
@@ -455,6 +455,7 @@ pub(crate) fn errMsg_dbg0(msg: &str) {
 }
 pub(crate) fn errMsg0(msg: &str) {
     errMsg(msg, -1191);
+  //  panic! ("dbg");
     println!("{} {} {}", file!(), line!(), msg);
     let dbg_msgs = crate::info::sav_dbg_msg( None );
     if dbg_msgs.len() > 0 {dbg! (dbg_msgs); }
@@ -813,7 +814,7 @@ pub(crate) fn getkey() -> String {
     let red_stdin = match stdin.read(&mut stdin_buf) {
         Ok(red) => red,
         Err(e) => {
-            errMsg0(&format!("{e:?}"));
+            errMsg0(&format!("{e:?}")); // todo: error here 
             return "".strn();
         }
     };

@@ -218,7 +218,7 @@ std::thread::spawn( || {
         .stdout(fstdout0)
         .spawn()
         { Ok (res) => res, Err ( e ) => {
-            let err_msg = format! ("{e:#?}"); crate::errMsg0(&err_msg ); return}};
+            let err_msg = format! ("err: {e:#?}"); crate::errMsg0(&err_msg ); return}};
         let state = run_command.wait();
     /*if run_command.status.success(){
         io::stdout().write_all(&run_command.stdout).unwrap();
