@@ -139,7 +139,9 @@ pub(crate) fn delay_secs(sleep: u64){
 pub(crate) fn prime(){
     crate::initSession();
     if crate::faav::fork_tam_mode () {
-        crate::threadpool::fork_tam ();
+        crate::threadpool::WaitForkTAM (
+            unsafe {libc::getpid () }
+        );
     }
     crate::mk_empty_file ("manage_pages");
     let key = "-front-lst";

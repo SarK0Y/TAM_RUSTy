@@ -600,8 +600,7 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => {
             println! ("yet another parent of fork_tam()");
-            let pid: i32 = child.as_raw();
-            WaitForkTAM ( pid );
+            //let pid: i32 = child.as_raw();
             return Ok ( () ) },
         Ok(ForkResult::Child) => {
             crate::rw::close_this_child7 ();
@@ -612,7 +611,7 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
         Err(err) => { eprintln!("Fork failed: {}", err); return Err( err );},
     }    
 }
-fn WaitForkTAM (pid: i32 ) {
+pub fn WaitForkTAM (pid: i32 ) {
     if crate::rw::file_exist7 ("now_only_forked_childs") {
         println! ("exit WaitForkTAM");
         return; 
@@ -623,10 +622,11 @@ fn WaitForkTAM (pid: i32 ) {
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
     loop {
       //  let res = unsafe { libc::waitpid( pid, state, 0)};
+        let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
+        println! ("WaitForkTAM {}", num_of_actual_fails);
         let res = unsafe { libc::waitpid( -1, state, 0)};
         crate::update18::wait_untill_session_alive();
         let ok_exit = crate::take_list_adr ("ok_exit");
-        let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
         let mut exit_or_go = false;
         exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
         exit_or_go &= (libc::WIFEXITED (unsafe { *state } ) == true) | std::path::Path::new (&ok_exit).exists();

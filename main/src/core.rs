@@ -361,6 +361,7 @@ pub(crate) fn initSession() -> bool {
     //if crate::faav::fork_tam_mode () == false {
         alive_session();
     //}
+    crate::mk_empty_file ("reload");
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
