@@ -600,6 +600,7 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => {
             println! ("yet another parent of fork_tam()");
+            crate::faav::PrimeProcess (Some (false));
             //let pid: i32 = child.as_raw();
             return Ok ( () ) },
         Ok(ForkResult::Child) => {
@@ -637,6 +638,9 @@ pub fn WaitForkTAM (pid: i32 ) {
             println! ("Session ended w/ code {}", libc::WEXITSTATUS (unsafe { *state } ) );
            std::process::exit(0);
         }
+        if !crate::faav::PrimeProcess (None) { 
+            println!("Not Prime Process", );
+            return; }
         crate::faav::fork_tam_failed_yet_another_time ();
        // pid = getNewChildPid();
         crate::delay_ms (2000);

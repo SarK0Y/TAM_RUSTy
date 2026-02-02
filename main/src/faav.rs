@@ -85,6 +85,14 @@ pub fn fork_tam_mode () -> bool {
         } return yes
     }
 }
+pub fn PrimeProcess (ch_state: Option <bool> ) -> bool {
+    static mut state: bool = true;
+    unsafe {
+        if ch_state.is_some () {
+            state = false;
+        } return state
+    }
+}
 pub fn npf_lock (state: Option < bool >) -> bool {
     static mut lock: bool = false;
     unsafe {
