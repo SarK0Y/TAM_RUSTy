@@ -623,8 +623,8 @@ fn WaitForkTAM (pid: i32 ) {
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
     loop {
       //  let res = unsafe { libc::waitpid( pid, state, 0)};
+        let res = unsafe { libc::waitpid( -1, state, 0)};
         crate::update18::wait_untill_session_alive();
-       // let res = unsafe { libc::waitpid( -1, state, 0)};
         let ok_exit = crate::take_list_adr ("ok_exit");
         let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
         let mut exit_or_go = false;

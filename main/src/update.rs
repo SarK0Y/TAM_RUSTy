@@ -138,6 +138,10 @@ pub(crate) fn delay_secs(sleep: u64){
 }
 pub(crate) fn prime(){
     crate::initSession();
+    if crate::faav::fork_tam_mode () {
+        crate::threadpool::fork_tam ();
+    }
+    crate::mk_empty_file ("manage_pages");
     let key = "-front-lst";
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
@@ -156,9 +160,6 @@ ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{ 
-    if crate::faav::fork_tam_mode () {
-        crate::threadpool::fork_tam ();
-    }
     dbg! ("manage pages");
     base.manage_pages() }
 println!("stop manage_page");
