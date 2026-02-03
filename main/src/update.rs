@@ -137,13 +137,9 @@ pub(crate) fn delay_secs(sleep: u64){
     std::thread::sleep(std::time::Duration::from_secs(sleep));
 }
 pub(crate) fn prime(){
-    crate::initSession();
-    if crate::faav::fork_tam_mode () {
-        crate::threadpool::WaitForkTAM (
-            unsafe {libc::getpid () }
-        );
+    if !crate::faav::fork_tam_mode () {
+        crate::initSession();
     }
-    crate::mk_empty_file ("manage_pages");
     let key = "-front-lst";
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
@@ -443,7 +439,7 @@ pub fn wait_untill_session_alive () {
             return;
         }
         if crate::rw::file_exist7 ("ping_wait_untill_session_alive") {
-            println! ("fn wait_untill_session_alive");
+            println! ("fn wait_untill_session_alive {}", unsafe{ libc::getpid() });
         }
         crate::delay_ms (400);
     }

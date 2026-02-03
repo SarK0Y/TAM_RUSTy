@@ -600,12 +600,13 @@ pub fn fork_tam () -> Result< (), nix::errno::Errno > {
    match unsafe { fork() } {
         Ok(ForkResult::Parent { child }) => {
             println! ("yet another parent of fork_tam()");
-            crate::faav::PrimeProcess (Some (false));
+           // crate::faav::PrimeProcess (Some (false));
             //let pid: i32 = child.as_raw();
             return Ok ( () ) },
         Ok(ForkResult::Child) => {
-            crate::rw::close_this_child7 ();
+            //_close_this_child7! ();
             savNewChildPid ( unsafe {libc::getpid() } );
+            crate::rw::flag_1st_proc ();
             //crate::update18::alive_session ();
             //crate::mk_empty_file ("reload");
             dbg! ("run child"); return Ok ( () )},
@@ -617,7 +618,6 @@ pub fn WaitForkTAM (pid: i32 ) {
         println! ("exit WaitForkTAM");
         return; 
     }
-    else { crate::rw::flag_1st_proc (); }
     let mut state0: i32 = 0;
     let mut state: *mut i32 = &mut state0;
     let num_of_possible_fails = crate::faav::limit_fork_tam_fails (None);
@@ -625,8 +625,7 @@ pub fn WaitForkTAM (pid: i32 ) {
       //  let res = unsafe { libc::waitpid( pid, state, 0)};
         let num_of_actual_fails = crate::faav::how_many_times_fork_tam_failed ();
         println! ("WaitForkTAM {}", num_of_actual_fails);
-        let res = unsafe { libc::waitpid( -1, state, 0)};
-        crate::update18::wait_untill_session_alive();
+        let mut res: i32 = 0;
         let ok_exit = crate::take_list_adr ("ok_exit");
         let mut exit_or_go = false;
         exit_or_go |= (num_of_actual_fails >= num_of_possible_fails);
@@ -638,14 +637,17 @@ pub fn WaitForkTAM (pid: i32 ) {
             println! ("Session ended w/ code {}", libc::WEXITSTATUS (unsafe { *state } ) );
            std::process::exit(0);
         }
-        if !crate::faav::PrimeProcess (None) { 
-            println!("Not Prime Process", );
-            return; }
         crate::faav::fork_tam_failed_yet_another_time ();
        // pid = getNewChildPid();
         crate::delay_ms (2000);
         //_break!("got new pid");
         fork_tam ( );
+        if this_pid () != getMainPid () { 
+            println!("Not Prime Process", );
+            return;
+        }
+        res = unsafe { libc::waitpid( -1, state, 0)};
+        crate::update18::wait_untill_session_alive();
     }
 }
 pub fn getNewChildPid () -> i32 {
@@ -653,6 +655,16 @@ pub fn getNewChildPid () -> i32 {
 }
 pub fn savNewChildPid (pid: i32) {
     crate::save_file (pid.to_string(), "child.pid".strn() );
+}
+pub fn savMainPid () {
+    let pid = unsafe { libc::getpid () };
+    crate::save_file (pid.to_string(), "main.pid".strn() );
+}
+pub fn getMainPid () -> i32 {
+    return crate::read_file ("main.pid").trim_start().trim_end().i320();
+}
+pub fn this_pid () -> i32 {
+    return unsafe { libc::getpid () }
 }
 //fn
 /*

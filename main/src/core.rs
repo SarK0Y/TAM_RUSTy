@@ -376,8 +376,10 @@ pub(crate) fn initSession() -> bool {
     if countArg ("-path") + countArg ("-path0") > 0 {
         crate::update18::multi_folder_lst ();
     } else {crate::update18::main_update();}
+    crate::key_handlers::F1_key();
+    crate::threadpool::savMainPid ();
     return true;
-}
+}// fn initSession
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
     let mut ret = "".to_string();
     let args: Vec<_> = env::args().collect();
@@ -389,9 +391,8 @@ pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
             return args[i + 1].clone();
         }
     }
-    crate::key_handlers::F1_key();
     return ret;
-} // fn initSession
+}
 pub(crate) fn mk_dummy_lnks() {
     mk_dummy_lnk("cp");
     mk_dummy_lnk("mv");

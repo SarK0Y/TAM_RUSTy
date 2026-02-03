@@ -538,6 +538,22 @@ fn main (){
  #[cfg(feature ="mae")]
  println!("{} {}", tst, tst.chars().count() ); return;*/
     //print!("{:?}", std::env::vars()); return;
+    if checkArg("-mk-dummy-file"){
+        if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
+        let name = String::from_iter(get_arg_in_cmd("-mk-dummy-file").s).trim().strn();
+        let len = String::from_iter(get_arg_in_cmd("-len").s).trim().trim_matches('\0').strn();
+        let len = strn_2_usize(&len.strn());
+        let content = String::from_iter(get_arg_in_cmd("-content").s).trim().strn();
+ #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
+ SYS();
+    }
+    if crate::faav::fork_tam_mode () {
+        initSession ();
+        crate::threadpool::WaitForkTAM (
+            unsafe {libc::getpid () }
+        );
+    }
+    
 /************ tst ******** */
      let items: Punctuated<syn::Ident, Token![,]> = Punctuated::from_iter(vec![
         syn::Ident::new("item1", proc_macro2::Span::call_site()),
@@ -556,15 +572,6 @@ return;*/
 /************ tst ******** */
     use ctrlc;
     ctrlc::CtrlC::set_handler(||{SYS()});
-    if checkArg("-mk-dummy-file"){
-        if !cfg!(feature="mae"){println!("Dear User, enable feature mae", );}
-        let name = String::from_iter(get_arg_in_cmd("-mk-dummy-file").s).trim().strn();
-        let len = String::from_iter(get_arg_in_cmd("-len").s).trim().trim_matches('\0').strn();
-        let len = strn_2_usize(&len.strn());
-        let content = String::from_iter(get_arg_in_cmd("-content").s).trim().strn();
- #[cfg(feature="mae")] mk_dummy_filo(&name, content.as_str(), len.unwrap_or(1));
- SYS();
-    }
     clear_screen();
     let mut info_strn = "Activated features: ".strn ();
     if cfg!(feature="in_dbg"){info_strn.push_str ("in_dbg ")};

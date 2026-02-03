@@ -42,4 +42,13 @@ pub fn close_this_child7 () {
         std::process::exit (0);
     }
 }
+#[macro_use]
+macro_rules! _close_this_child7 {
+    () => {
+        if crate::rw::file_exist7("now_only_forked_childs") {
+            std::process::exit(0);
+        }
+    };
+}
+
 //fn

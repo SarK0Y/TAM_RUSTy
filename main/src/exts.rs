@@ -62,6 +62,7 @@ mod atomic_op;
 mod init;
 #[path = "nui.rs"]
 mod nui;
+#[macro_use]
 #[path = "rw.rs"]
 mod rw;
 #[path = "nui.wav.rs"]
@@ -147,6 +148,7 @@ use mcrs18::*;
 mod subs;
 use subs::*;
 use dirty;
+use _close_this_child7;
 use getStop_code__;
 use close_termios__;
 use set_prnt_;
