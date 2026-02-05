@@ -667,7 +667,7 @@ pub fn WaitForkTAM (pid: i32 ) {
             println!("Not Prime Process", );
             return;
         }
-        //res = unsafe { libc::waitpid( -1, state, 0)};
+        res = unsafe { libc::waitpid( -1, state, 0)};
         crate::update18::wait_untill_session_alive();
     }
 }
