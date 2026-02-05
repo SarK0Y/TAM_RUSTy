@@ -47,14 +47,17 @@ pub fn unset_sig_chld_hook (){
     }
 }
 pub fn reload_tam () {
-    crate::set_ask_user ("Let's reload TAM", -851658545);
+    //crate::set_ask_user ("Let's reload TAM", -851658545);
     let my_pid = unsafe {libc::getpid () };
     let fork_pid = crate::take_list_adr ("fork.pid");
     if !std::path::Path::new (&fork_pid).exists() {
         crate::mk_empty_file (&fork_pid);
     }
     crate::save_file_append_newline_abs_adr_fast (&my_pid.to_string (), &fork_pid);
-    panic! ("fork pid {my_pid}");
+    crate::mae::_mk_empty_fil0 ("renew");
+    /*crate::delay_ms (1100);
+    crate::mk_empty_file ("reload");
+   crate::delay_ms (700); */
     std::process::exit (477);
 }
 

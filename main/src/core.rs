@@ -358,7 +358,10 @@ pub(crate) fn initSession() -> bool {
         link_lst_to(&key.substring(1, key.len()).strn(), &link);
     }
     link_ext_lsts();
-    alive_session();
+    //if crate::faav::fork_tam_mode () == false {
+        alive_session();
+    //}
+    crate::mk_empty_file ("reload");
     change_dir0();
     crate::init::user_home_dir();
     crate::set_full_path(
@@ -373,8 +376,10 @@ pub(crate) fn initSession() -> bool {
     if countArg ("-path") + countArg ("-path0") > 0 {
         crate::update18::multi_folder_lst ();
     } else {crate::update18::main_update();}
+    crate::key_handlers::F1_key();
+    crate::threadpool::savMainPid ();
     return true;
-}
+}// fn initSession
 pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
     let mut ret = "".to_string();
     let args: Vec<_> = env::args().collect();
@@ -386,9 +391,8 @@ pub(crate) fn __get_arg_in_cmd(key: &str) -> String {
             return args[i + 1].clone();
         }
     }
-    crate::key_handlers::F1_key();
     return ret;
-} // fn initSession
+}
 pub(crate) fn mk_dummy_lnks() {
     mk_dummy_lnk("cp");
     mk_dummy_lnk("mv");
@@ -453,6 +457,7 @@ pub(crate) fn errMsg_dbg0(msg: &str) {
 }
 pub(crate) fn errMsg0(msg: &str) {
     errMsg(msg, -1191);
+  //  panic! ("dbg");
     println!("{} {} {}", file!(), line!(), msg);
     let dbg_msgs = crate::info::sav_dbg_msg( None );
     if dbg_msgs.len() > 0 {dbg! (dbg_msgs); }
@@ -811,7 +816,7 @@ pub(crate) fn getkey() -> String {
     let red_stdin = match stdin.read(&mut stdin_buf) {
         Ok(red) => red,
         Err(e) => {
-            errMsg0(&format!("{e:?}"));
+            errMsg0(&format!("{e:?}")); // todo: error here 
             return "".strn();
         }
     };

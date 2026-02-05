@@ -26,7 +26,29 @@ pub fn flag_1st_proc () {
     crate::mk_empty_file (&only_childs);
 }
 pub fn file_exist7 < T: ToString > (rel_name: T ) -> bool {
-    let rel_name = rel_name.to_string();
-    let rel_name = crate::take_list_adr (&rel_name);
+    let rel_name0 = rel_name.to_string();
+   // dbg! (&rel_name0);
+    let rel_name = crate::take_list_adr (&rel_name0);
+   // dbg! (&rel_name);
     return std::path::Path::new (&rel_name).exists()
 }
+pub fn del_file < T: ToString > (rel_name: T ) {
+    let rel_name = rel_name.to_string();
+    let rel_name = crate::take_list_adr (&rel_name);
+    std::fs::remove_file (&rel_name);
+}
+pub fn close_this_child7 () {
+    if file_exist7 ("now_only_forked_childs") {
+        std::process::exit (0);
+    }
+}
+#[macro_use]
+macro_rules! _close_this_child7 {
+    () => {
+        if crate::rw::file_exist7("now_only_forked_childs") {
+            std::process::exit(0);
+        }
+    };
+}
+
+//fn

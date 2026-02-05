@@ -137,7 +137,9 @@ pub(crate) fn delay_secs(sleep: u64){
     std::thread::sleep(std::time::Duration::from_secs(sleep));
 }
 pub(crate) fn prime(){
-    crate::initSession();
+    if !crate::faav::fork_tam_mode () {
+        crate::initSession();
+    }
     let key = "-front-lst";
     if checkArg(key){
         let cmd = crate::__get_arg_in_cmd(key);
@@ -156,9 +158,6 @@ ps__.num_cols = i64::MAX; ps__.num_page = i64::MAX; ps__.num_rows = i64::MAX;
 C_!(crate::swtch::swtch_ps(0, Some(ps__)););
 if checkArg("-no-ext"){crate::manage_pages(&mut None);}
 else{ 
-    if crate::faav::fork_tam_mode () {
-        crate::threadpool::fork_tam (&mut base);
-    }
     dbg! ("manage pages");
     base.manage_pages() }
 println!("stop manage_page");
@@ -389,9 +388,9 @@ spawn(||{
         let secs: u64 = match timestamp.duration_since(std::time::UNIX_EPOCH){Ok(dur) => dur, _ => return}.as_secs();
         save_file(secs.strn(), "alive".strn());
         std::thread::sleep(std::time::Duration::from_secs(15));
-        if crate::read_file ("fork.pid").len() > fork_pid_len { 
+        /*if crate::read_file ("fork.pid").len() > fork_pid_len { 
             println!("\nEnd alive session", );
-            break; }
+            break; }*/
     }
 });
 }
@@ -426,13 +425,24 @@ pub(crate) fn clean_dead_tams(){
    clean_main_path();
 }
 pub(crate) fn is_session_alive () -> bool {
-
-   // let reload7 =  
-   todo!()
+    let mut reload7 =crate::rw::file_exist7 ("renew");
+    reload7 |= crate::rw::file_exist7 ("ok_exit");
+    //dbg! (&reload7);
+    if reload7 {
+        return false
+    } return true
 }
 pub fn wait_untill_session_alive () {
     loop {
-        if !is_session_alive () { break;}
+        if !is_session_alive () { 
+            crate::rw::del_file ("renew");
+            println! ("got renew signal");
+            crate::delay_ms (400);
+            return;
+        }
+        if crate::rw::file_exist7 ("ping_wait_untill_session_alive") {
+            println! ("fn wait_untill_session_alive {}", unsafe{ libc::getpid() });
+        }
         crate::delay_ms (400);
     }
 }
